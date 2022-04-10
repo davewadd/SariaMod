@@ -1,4 +1,4 @@
-Saria comes from another world in order to help you on your adventure. She is a powerful summon that offers a plethera of abilities beyond just combat! Create XPpearls from the money dropped by enemies and use them at one of the mods themed bookshelves to upgrade Saria into a stronger form with different abilities.
+Saria comes from another world in order to help you on your adventure. She is a powerful summon that offers a plethera of abilities beyond just combat! Create XPpearls from the money dropped by enemies and use them at one of the mods themed bookshelves to upgrade Saria into a stronger form with different abilities such as making barriers and sentries, healing, ext..
 This mod adds a few soundtracks from other games, some of which are from terraria otherworld, DarkCloud, and Ocarina of Time. This was also my first mod, but honestly I'm really happy with how it turned out so far!
 
 The Upgrade progression order for this mod is as follows:
@@ -12,4 +12,5 @@ Amethyst
 Diamond
 Platinum
 Platinum Blue/Purple (depending on the players choice)
+        
 	Please do keep note that these upgrades will get extremely expensive, however, the effort put into it will certainly pay off!
