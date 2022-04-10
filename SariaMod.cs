@@ -10,25 +10,24 @@ namespace SariaMod
 		{
 			if (!Main.dedServ)
 			{
-				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/MascaRaskka"), ItemType("UndergroundDesertMusicBox"), TileType("UndergroundDesertMusicBoxTile"));
-				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/MechonisField"), ItemType("MechanicalMusicBox"), TileType("MechanicalMusicBoxTile"));
-				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/1Inside_Jabu-Jabu_s_Belly_-_The_Legend_of_Zelda_Oca"), ItemType("JabuJabuMusicBox"), TileType("JabuJabuMusicBoxTile"));
-				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/Terraria_Overhaul_Music_Eerie_Theme_of_the_B"), ItemType("BloodMoonMusicBox"), TileType("BloodMoonMusicBoxTile"));
-				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/Dran"), ItemType("GhostMusicBox"), TileType("GhostMusicBoxTile"));
-				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/mercury"), ItemType("MercuryMusicBox"), TileType("MercuryMusicBoxTile"));
+			
+				
+				
+			
+				
 				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/Space"), ItemType("OtherworldSpacMusicBox"), TileType("OtherworldSpacMusicBoxTile"));
-				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/Corruption"), ItemType("OtherworldCorruptionMusicBox"), TileType("OtherworldCorruptionMusicBoxTile"));
-				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/Snow"), ItemType("OtherworldSnowMusicBox"), TileType("OtherworldSnowMusicBoxTile"));
-				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/Rain"), ItemType("OtherworldRainMusicBox"), TileType("OtherworldRainMusicBoxTile"));
-				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/ThePillars"), ItemType("OtherworldPillarMusicBox"), TileType("OtherworldPillarMusicBoxTile"));
+				
+				
+				
+				
 				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/Shipwreck"), ItemType("ShipwreckMusicBox"), TileType("ShipwreckMusicBoxTile"));
-				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/WiseOwlForest"), ItemType("WiseJungleMusicBox"), TileType("WiseJungleMusicBoxTile"));
-				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/WaterTemple"), ItemType("WaterTempleMusicBox"), TileType("WaterTempleMusicBoxTile"));
+			
+				
 				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/ThePlant"), ItemType("PlanteraMusicBox"), TileType("PlanteraMusicBoxTile"));
-				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/A_Lonely_Figure"), ItemType("LonelyFigureMusicBox"), TileType("LonelyFigureMusicBoxTile"));
+		
 				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/WorldMap"), ItemType("WorldMapMusicBox"), TileType("WorldMapMusicBoxTile"));
 				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/GlitchXcity"), ItemType("GlitchXcityMusicBox"), TileType("GlitchXcityMusicBoxTile"));
-				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/UndergroundCrimson"), ItemType("UndergroundcrimsonMusicBox"), TileType("UndergroundcrimsonMusicBoxTile"));
+
 			}
 		}
 			public override void UpdateMusic(ref int music, ref MusicPriority priority)
