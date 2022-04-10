@@ -75,7 +75,7 @@ namespace SariaMod.Items.Sapphire
             base.projectile.ignoreWater = false;
             base.projectile.usesLocalNPCImmunity = true;
             base.projectile.localNPCHitCooldown = 5;
-            base.projectile.minionSlots = 1f;
+            base.projectile.minionSlots = 4f;
             base.projectile.timeLeft = 18000;
             base.projectile.penetrate = -1;
             base.projectile.tileCollide = false;
