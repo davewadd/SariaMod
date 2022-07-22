@@ -6,7 +6,7 @@ namespace SariaMod.Items.zBookcases
 	public class StrangeBookcase : ModItem
 	{
 		public override void SetStaticDefaults() {
-			Tooltip.SetDefault("A bookcase full of strange materials.\n...are these from another world?");
+			Tooltip.SetDefault("A bookcase full of strange materials.\n...are these from another world?\nYou can make many new notes here!");
 		}
 
 		public override void SetDefaults() {

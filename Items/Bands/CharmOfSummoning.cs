@@ -1,7 +1,7 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using FairyMod.FaiPlayer;
+
 using SariaMod.Items.Sapphire;
 using SariaMod.Items.Ruby;
 using SariaMod.Items.Topaz;
@@ -19,7 +19,7 @@ namespace SariaMod.Items.Bands
 	{
 		public override void SetStaticDefaults()
 		{
-			base.Tooltip.SetDefault("Increases max number of minions and sentries!\nGrows in power as Saria gets stronger");
+			base.Tooltip.SetDefault("Will increase the number of sentries and Minions\nGrows in power as Saria gets stronger\n\nWithout Saria the stone seems inactive");
 		}
 
 		public override void SetDefaults()
@@ -27,68 +27,55 @@ namespace SariaMod.Items.Bands
 			base.item.width = 28;
 			base.item.height = 20;
 			base.item.value = Item.sellPrice(0, 0, 100);
-			base.item.rare = 2;
+			item.rare = ItemRarityID.Expert;
 			base.item.accessory = true;
 		}
 
 		public override void UpdateAccessory(Player player, bool hideVisual)
 		{
 			FairyPlayer modPlayer = player.Fairy();
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<SariaMinion>()] > 0f)
+			if (player.HasBuff(ModContent.BuffType<SariaBuff>()))
 			{
 				player.maxTurrets += 0;
 				player.maxMinions += 1;
+				
 			}
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<SapphireSariaMinion>()] > 0f)
+			if (player.HasBuff(ModContent.BuffType<SapphireSariaBuff>()))
 			{
 				player.maxTurrets += 0;
 				player.maxMinions += 2;
 			}
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<RubySariaMinion>()] > 0f)
+			if (player.HasBuff(ModContent.BuffType<RubySariaBuff>()))
 			{
 				player.maxTurrets += 1;
 				player.maxMinions += 2;
 			}
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<TopazSariaMinion>()] > 0f)
+			if (player.HasBuff(ModContent.BuffType<TopazSariaBuff>()))
 			{
 				player.maxTurrets += 1;
 				player.maxMinions += 3;
 			}
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<EmeraldSariaMinion>()] > 0f)
+			if (player.HasBuff(ModContent.BuffType<EmeraldSariaBuff>()))
 			{
 				player.maxTurrets += 1;
 				player.maxMinions += 3;
 			}
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<AmberSariaMinion>()] > 0f)
+			if (player.HasBuff(ModContent.BuffType<AmberSariaBuff>()))
 			{
 				player.maxTurrets += 1;
 				player.maxMinions += 3;
 			}
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<AmethystSariaMinion>()] > 0f)
+			if (player.HasBuff(ModContent.BuffType<AmethystSariaBuff>()))
 			{
 				player.maxTurrets += 1;
-				player.maxMinions += 3;
+				player.maxMinions += 4;
 			}
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<DiamondSariaMinion>()] > 0f)
+			if (player.HasBuff(ModContent.BuffType<DiamondSariaBuff>()))
 			{
 				player.maxTurrets += 2;
-				player.maxMinions += 4;
+				player.maxMinions += 5;
 			}
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<PlatinumSariaMinion>()] > 0f)
-			{
-				player.maxTurrets += 3;
-				player.maxMinions += 4;
-			}
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<PlatinumBlueSariaMinion>()] > 0f)
-			{
-				player.maxTurrets += 11;
-				player.maxMinions += 10;
-			}
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<PlatinumPurpleSariaMinion>()] > 0f)
-			{
-				player.maxTurrets += 11;
-				player.maxMinions += 10;
-			}
+			
 			else
             {
 				player.maxTurrets += 0;

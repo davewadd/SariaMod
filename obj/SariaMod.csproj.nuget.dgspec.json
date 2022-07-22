@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\david\\OneDrive\\Documents\\GitHub\\SariaMod\\SariaMod.csproj": {}
+    "C:\\Users\\david\\OneDrive\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\SariaMod\\SariaMod.csproj": {}
   },
   "projects": {
-    "C:\\Users\\david\\OneDrive\\Documents\\GitHub\\SariaMod\\SariaMod.csproj": {
+    "C:\\Users\\david\\OneDrive\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\SariaMod\\SariaMod.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\david\\OneDrive\\Documents\\GitHub\\SariaMod\\SariaMod.csproj",
+        "projectUniqueName": "C:\\Users\\david\\OneDrive\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\SariaMod\\SariaMod.csproj",
         "projectName": "SariaMod",
-        "projectPath": "C:\\Users\\david\\OneDrive\\Documents\\GitHub\\SariaMod\\SariaMod.csproj",
+        "projectPath": "C:\\Users\\david\\OneDrive\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\SariaMod\\SariaMod.csproj",
         "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\david\\OneDrive\\Documents\\GitHub\\SariaMod\\obj\\",
+        "outputPath": "C:\\Users\\david\\OneDrive\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\SariaMod\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config",

@@ -1,7 +1,7 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using FairyMod.FaiPlayer;
+
 using SariaMod.Buffs;
 using SariaMod.Items.Sapphire;
 using SariaMod.Items.Ruby;

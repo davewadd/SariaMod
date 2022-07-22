@@ -1,6 +1,8 @@
 using Microsoft.Xna.Framework; 
-using FairyMod.FaiPlayer;
-using FairyMod.Projectiles;
+
+
+
+
 using System;
 using SariaMod.Items.Strange;
 using Terraria;

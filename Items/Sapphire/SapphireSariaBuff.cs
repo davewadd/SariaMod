@@ -1,10 +1,14 @@
-using Microsoft.Xna.Framework; 
-using FairyMod.FaiPlayer;
-using FairyMod.Projectiles;
+using Microsoft.Xna.Framework;
+
+
+
+
+using SariaMod.Buffs;
 using System;
 using SariaMod.Items.Sapphire;
 using Terraria;
 using Terraria.ID;
+using SariaMod.Items.Strange;
 using Terraria.ModLoader;
 
 namespace SariaMod.Items.Sapphire
@@ -38,9 +42,9 @@ namespace SariaMod.Items.Sapphire
 		}
 		public override void Update(Player player, ref int buffIndex)
 		{
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<SapphireSariaMinion>()] > 0)
+			if ((player.ownedProjectileCounts[ModContent.ProjectileType<SapphireSariaMinion>()] > 0))
 			{
-				player.buffTime[buffIndex] = 18000;
+				 
 				player.statLifeMax2 += 50;
 				player.waterWalk = true;
 				player.detectCreature = true;
@@ -49,8 +53,81 @@ namespace SariaMod.Items.Sapphire
 				player.accFlipper = true;
 				player.noFallDmg = true;
 				player.AddBuff(BuffID.Warmth, 20);
-				
+				if (player.buffTime[buffIndex] <= 10)
+				{
+					player.buffTime[buffIndex] = 18000;
+					if (!player.HasBuff(ModContent.BuffType<Soothing>()))
+					{
+						player.AddBuff(ModContent.BuffType<Sickness>(), 18000);
+					}
+				}
+
 			}
+		
+			else if (player.ownedProjectileCounts[ModContent.ProjectileType<SapphireSariaMinion2>()] > 0)
+			{
+				 
+				player.statLifeMax2 += 50;
+				player.waterWalk = true;
+				player.detectCreature = true;
+				player.gills = true;
+				player.dangerSense = true;
+				player.accFlipper = true;
+				player.noFallDmg = true;
+				player.AddBuff(BuffID.Warmth, 20);
+				if (player.buffTime[buffIndex] <= 10)
+				{
+					player.buffTime[buffIndex] = 18000;
+					if (!player.HasBuff(ModContent.BuffType<Soothing>()))
+					{
+						player.AddBuff(ModContent.BuffType<Sickness>(), 18000);
+					}
+				}
+
+			}
+			else if (player.ownedProjectileCounts[ModContent.ProjectileType<SSariaMinion>()] > 0)
+			{
+				 
+				player.statLifeMax2 += 50;
+				player.waterWalk = true;
+				player.detectCreature = true;
+				player.gills = true;
+				player.dangerSense = true;
+				player.accFlipper = true;
+				player.noFallDmg = true;
+				player.AddBuff(BuffID.Warmth, 20);
+				if (player.buffTime[buffIndex] <= 10)
+				{
+					player.buffTime[buffIndex] = 18000;
+					if (!player.HasBuff(ModContent.BuffType<Soothing>()))
+					{
+						player.AddBuff(ModContent.BuffType<Sickness>(), 18000);
+					}
+				}
+
+			}
+			else if (player.ownedProjectileCounts[ModContent.ProjectileType<SSariaMinion2>()] > 0)
+			{
+				 
+				player.statLifeMax2 += 50;
+				player.waterWalk = true;
+				player.detectCreature = true;
+				player.gills = true;
+				player.dangerSense = true;
+				player.accFlipper = true;
+				player.noFallDmg = true;
+				player.AddBuff(BuffID.Warmth, 20);
+				if (player.buffTime[buffIndex] <= 10)
+				{
+					player.buffTime[buffIndex] = 18000;
+					if (!player.HasBuff(ModContent.BuffType<Soothing>()))
+					{
+						player.AddBuff(ModContent.BuffType<Sickness>(), 18000);
+					}
+				}
+
+			}
+
 			else
 			{
 				player.DelBuff(buffIndex);

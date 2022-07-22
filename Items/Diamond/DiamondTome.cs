@@ -1,6 +1,8 @@
 using Microsoft.Xna.Framework;
-using FairyMod.FaiPlayer;
-using FairyMod.Projectiles;
+
+
+
+
 using System;
 using SariaMod.Items.Sapphire;
 using SariaMod.Items.Ruby;
@@ -13,9 +15,10 @@ using SariaMod.Items.Barrier;
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
 using SariaMod.Items.zPearls;
-using SariaMod.Items.Playerattack;
+
 using Terraria;
 using Terraria.ID;
+using Terraria.DataStructures;
 using Terraria.ModLoader;
 
 namespace SariaMod.Items.Diamond
@@ -27,25 +30,28 @@ namespace SariaMod.Items.Diamond
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Diamond Tome");
-			Tooltip.SetDefault("Summons Saria in her strongest form!\nUsing the tome again will set a sentry\nRequires 10 minion slots\nUsing the tome after Saria is called\nwill cause her to place a Psychic Barrier");
+			Tooltip.SetDefault(SariaModUtilities.ColorMessage("Saria in her Strongest Form!", new Color(135, 206, 180)) + "\n" + SariaModUtilities.ColorMessage("Requires 11 minion slots", new Color(50, 200, 250)) + "\nUsing the tome after Saria is called\nwill change her ability\n~Saria will steal the power of enemies in a huge radius!\nThe power stolen will be stored in her moonblast shot.\n~Target an enemy to unleash the power stored.\n~Unleash power after the moon has three rings\nto cause a storm of power!\n " + "\n " + SariaModUtilities.ColorMessage("Super effective in:", new Color(0, 200, 250, 200)) + "\n" + SariaModUtilities.ColorMessage("Night, Space, and all evil biomes", new Color(0, 200, 250, 200)) + "\n " + "\n " + SariaModUtilities.ColorMessage("Not very effective in:", new Color(135, 206, 180)) + "\n" + SariaModUtilities.ColorMessage("~Jungle, and Glowshroom", new Color(135, 206, 180)));
 			ItemID.Sets.GamepadWholeScreenUseRange[item.type] = true; // This lets the player target anywhere on the whole screen while using a controller.
 			ItemID.Sets.LockOnIgnoresCollision[item.type] = true;
+			
+			
 		}
 
 		public override void SetDefaults()
 		{
-			item.damage = 1000;
+			item.damage = 1200;
 			item.knockBack = 30f;
 			item.mana = 1;
+			
 			item.width = 32;
 			item.height = 32;
 			item.useTime = 36;
 			item.useAnimation = 36;
 			item.useStyle = ItemUseStyleID.SwingThrow;
 			item.value = Item.buyPrice(0, 30, 0, 0);
-			item.rare = ItemRarityID.Cyan;
+			item.rare = ItemRarityID.Expert;
 			item.UseSound = SoundID.Item44;
-
+			
 			// These below are needed for a minion weapon
 			item.noMelee = true;
 			item.summon = true;
@@ -54,38 +60,93 @@ namespace SariaMod.Items.Diamond
 			item.shoot = ModContent.ProjectileType<DiamondSariaMinion>();
 			
 		}
+		public override Color? GetAlpha(Color lightColor)
+		{
+			return new Color(Main.DiscoB, 255, Main.DiscoG);
+		}
+		public override void Update(ref float gravity, ref float maxFallSpeed)
+		{
+
+			Lighting.AddLight(item.Center, Color.OrangeRed.ToVector3() * 2f);
+		}
 		public override bool AltFunctionUse(Player player)
 		{
 			return true;
 		}
 		public override bool CanUseItem(Player player)
 		{
-			if (player.altFunctionUse == 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DiamondSariaMinion>()] > 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<BarrierMinion>()] <= 1))
+			if (player.altFunctionUse != 2)
 			{
-				SariaModUtilities.KillShootProjectile(player, ModContent.ProjectileType<BarrierMinion>());
+				if ((player.ownedProjectileCounts[ModContent.ProjectileType<Nerf>()] > 0f))
+				{
+					item.useTime = 250;
 
-				item.UseSound = base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Barrier");
-				item.shoot = ModContent.ProjectileType<BarrierMinion>();
+				}
+				if (player.ownedProjectileCounts[ModContent.ProjectileType<Nerf>()] <= 0f)
+				{
+					item.useTime = 36;
+
+				}
+			}
+			if (player.altFunctionUse == 2)
+			{
+				item.useTime = 36;
+			}
+			if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DiamondSariaMinion>()] > 0f))
+			{
+				item.UseSound = SoundID.Item46;
+				item.shoot = ModContent.ProjectileType<DSariaMinion>();
 				return true;
 			}
-			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DiamondSariaMinion>()] > 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Psybeam>()] < 6f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Psybeam>()] >= 3f))
+
+
+			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DSariaMinion>()] > 0f))
 			{
-								item.UseSound = SoundID.Item46;
-				item.shoot = ModContent.ProjectileType<Psybeam>();
+				item.UseSound = SoundID.Item46;
+				item.shoot = ModContent.ProjectileType<DSSariaMinion>();
+				return true;
+			}
+			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DSSariaMinion>()] > 0f))
+			{
+				item.UseSound = SoundID.Item46;
+				item.shoot = ModContent.ProjectileType<DRSariaMinion>();
+				return true;
+			}
+			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DRSariaMinion>()] > 0f))
+			{
+				item.UseSound = SoundID.Item46;
+				item.shoot = ModContent.ProjectileType<DTSariaMinion>();
+				return true;
+			}
+			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DTSariaMinion>()] > 0f))
+			{
+				item.UseSound = SoundID.Item46;
+				item.shoot = ModContent.ProjectileType<DESariaMinion>();
+				return true;
+			}
+			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DESariaMinion>()] > 0f))
+			{
+				item.UseSound = SoundID.Item46;
+				item.shoot = ModContent.ProjectileType<DASariaMinion>();
+				return true;
+			}
+			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DASariaMinion>()] > 0f))
+			{
+				item.UseSound = SoundID.Item46;
+				item.shoot = ModContent.ProjectileType<DAMSariaMinion>();
+				return true;
+			}
+			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DAMSariaMinion>()] > 0f))
+			{
+				item.UseSound = SoundID.Item46;
+				item.shoot = ModContent.ProjectileType<DiamondSariaMinion>();
 				return true;
 			}
 
-			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DiamondSariaMinion>()] > 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Psybeam>()] < 3f))
-			{
-				item.UseSound = SoundID.Item43;
-				item.shoot = ModContent.ProjectileType<Psybeam>();
-				return true;
-			}
-
-			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DiamondSariaMinion>()] <= 0f))
+			if (player.altFunctionUse != 2 && (!player.HasBuff(ModContent.BuffType<DiamondSariaBuff>())))
 			{
 
-				item.UseSound = SoundID.Item44;
+				item.UseSound = SoundID.Item46;
 				item.shoot = ModContent.ProjectileType<DiamondSariaMinion>();
 				if (player.HasBuff(ModContent.BuffType<SariaBuff>()))
 				{
@@ -142,7 +203,7 @@ namespace SariaMod.Items.Diamond
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
 		{ 
 				// This is needed so the buff that keeps your minion alive and allows you to despawn it properly applies
-				player.AddBuff(item.buffType, 2);
+				player.AddBuff(item.buffType, 30000);
 			
 			// Here you can change where the minion is spawned. Most vanilla minions spawn at the cursor position.
 			position = Main.MouseWorld;

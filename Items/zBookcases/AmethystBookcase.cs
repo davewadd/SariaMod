@@ -32,7 +32,7 @@ namespace SariaMod.Items.zBookcases
 			recipe.AddIngredient(ItemID.BlackFairyDust, 3);
 			recipe.AddIngredient(ItemID.SpookyWood, 200);
 			recipe.AddIngredient(ItemID.MothronWings, 1);
-			recipe.AddIngredient(ItemID.CursedCampfire, 5);
+			recipe.AddIngredient(ItemID.CursedCampfire, 1);
 			recipe.AddTile(ModContent.TileType<Tiles.AmberBookcase>());
 			recipe.SetResult(this);
 			recipe.AddRecipe();

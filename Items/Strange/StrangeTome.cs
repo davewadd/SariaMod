@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework; 
-using FairyMod.FaiPlayer;
-using FairyMod.Projectiles;
+
+
 using System;
 using SariaMod.Items.Sapphire;
 using SariaMod.Items.Ruby;
@@ -11,7 +11,7 @@ using SariaMod.Items.Amethyst;
 using SariaMod.Items.Diamond;
 using SariaMod.Items.Platinum;
 using SariaMod.Items.zPearls;
-using SariaMod.Items.Playerattack;
+
 using SariaMod.Items.zBookcases;
 using SariaMod.Items.Strange;
 using Terraria;
@@ -27,7 +27,7 @@ namespace SariaMod.Items.Strange
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault(" StrangeTome");
-			Tooltip.SetDefault("Calls on Saria, the Champion of Foresight!\nRequires 3 minion slots\nUsing the tome again will set a sentry");
+			Tooltip.SetDefault(SariaModUtilities.ColorMessage("Calls on Saria, the Champion of Foresight!", new Color(135, 206, 180)) + "\n" + SariaModUtilities.ColorMessage("Requires 3 minion slots", new Color(50, 200, 250)) + "\n~Psyshock will pelt your enemies!\n~Enemies hit will slowely rise!\n " + "\n " + SariaModUtilities.ColorMessage("Super effective in:", new Color(0, 200, 250, 200)) + "\n" + SariaModUtilities.ColorMessage("~Space, Jungle, Glowshroom", new Color(0, 200, 250, 200)) + "\n " + "\n " + SariaModUtilities.ColorMessage("Not very effective in:", new Color(135, 206, 180)) + "\n" + SariaModUtilities.ColorMessage("~all evil biomes", new Color(135, 206, 180)));
 			ItemID.Sets.GamepadWholeScreenUseRange[item.type] = true; // This lets the player target anywhere on the whole screen while using a controller.
 			ItemID.Sets.LockOnIgnoresCollision[item.type] = true;
 		}
@@ -44,7 +44,7 @@ namespace SariaMod.Items.Strange
 			item.useStyle = ItemUseStyleID.SwingThrow;
 			item.value = Item.buyPrice(0, 30, 0, 0);
 			item.rare = ItemRarityID.Cyan;
-			item.UseSound = SoundID.Item44;
+			item.UseSound = SoundID.Item46;
 
 			// These below are needed for a minion weapon
 			item.noMelee = true;
@@ -53,74 +53,65 @@ namespace SariaMod.Items.Strange
 			// No buffTime because otherwise the item tooltip would say something like "1 minute duration"
 			item.shoot = ModContent.ProjectileType<SariaMinion>();
 		}
-		
+		public override void Update(ref float gravity, ref float maxFallSpeed)
+		{
+
+			Lighting.AddLight(item.Center, Color.MediumPurple.ToVector3() * 2f);
+		}
+		public override bool AltFunctionUse(Player player)
+		{
+			return true;
+		}
 		public override bool CanUseItem(Player player)
 		{
-			
 
-			 if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<SariaMinion>()] > 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Psybeam>()] < 20f))
-			{
-				item.UseSound = SoundID.Item43;
-				item.shoot = ModContent.ProjectileType<Psybeam>();
-				return true;
-			}
-
-			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<SariaMinion>()] <= 0f))
-			{
-
-				item.UseSound = SoundID.Item44;
-				item.shoot = ModContent.ProjectileType<SariaMinion>();
-				if (player.HasBuff(ModContent.BuffType<SariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<SapphireSariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<RubySariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<TopazSariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<EmeraldSariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<AmberSariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<AmethystSariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<DiamondSariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<PlatinumSariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<PlatinumPurpleSariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<PlatinumBlueSariaBuff>()))
-				{
-					return false;
-				}
-				return true;
-			}
-			else
+			if (player.HasBuff(ModContent.BuffType<SariaBuff>()))
 			{
 				return false;
 			}
+			if (player.HasBuff(ModContent.BuffType<SapphireSariaBuff>()))
+			{
+				return false;
+			}
+			if (player.HasBuff(ModContent.BuffType<RubySariaBuff>()))
+			{
+				return false;
+			}
+			if (player.HasBuff(ModContent.BuffType<TopazSariaBuff>()))
+			{
+				return false;
+			}
+			if (player.HasBuff(ModContent.BuffType<EmeraldSariaBuff>()))
+			{
+				return false;
+			}
+			if (player.HasBuff(ModContent.BuffType<AmberSariaBuff>()))
+			{
+				return false;
+			}
+			if (player.HasBuff(ModContent.BuffType<AmethystSariaBuff>()))
+			{
+				return false;
+			}
+			if (player.HasBuff(ModContent.BuffType<DiamondSariaBuff>()))
+			{
+				return false;
+			}
+			if (player.HasBuff(ModContent.BuffType<PlatinumSariaBuff>()))
+			{
+				return false;
+			}
+			if (player.HasBuff(ModContent.BuffType<PlatinumPurpleSariaBuff>()))
+			{
+				return false;
+			}
+			if (player.HasBuff(ModContent.BuffType<PlatinumBlueSariaBuff>()))
+			{
+				return false;
+			}
+			return true;
 		}
+		
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
 		
 			{
@@ -128,7 +119,7 @@ namespace SariaMod.Items.Strange
 				
 
 				// This is needed so the buff that keeps your minion alive and allows you to despawn it properly applies
-				player.AddBuff(item.buffType, 2);
+				player.AddBuff(item.buffType, 30000);
 
 				// Here you can change where the minion is spawned. Most vanilla minions spawn at the cursor position.
 				position = Main.MouseWorld;

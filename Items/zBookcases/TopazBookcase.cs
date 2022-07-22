@@ -7,7 +7,7 @@ namespace SariaMod.Items.zBookcases
 	{
 		public override void SetStaticDefaults()
 		{
-			Tooltip.SetDefault("Contains books on particularly durable minerals.");
+			Tooltip.SetDefault("Contains books on particularly conductive minerals.");
 		}
 
 		public override void SetDefaults()
@@ -31,28 +31,15 @@ namespace SariaMod.Items.zBookcases
 				ModRecipe recipe = new ModRecipe(mod);
 				recipe.AddIngredient(ItemID.Topaz, 5);
 				recipe.AddIngredient(ItemID.CrystalShard, 20);
-				recipe.AddIngredient(ItemID.DemonScythe, 1);
+				recipe.AddIngredient(ItemID.NimbusRod, 1);
 				recipe.AddIngredient(ItemID.Book, 3);
-				recipe.AddIngredient(ItemID.TurtleShell, 5);
-				recipe.AddIngredient(ItemID.FrozenTurtleShell, 5);
-				recipe.AddIngredient(ItemID.OrichalcumBar, 15);
+				recipe.AddIngredient(ItemID.RainCloud, 5);
+				recipe.AddIngredient(ItemID.CobaltBar, 15);
 				recipe.AddTile(ModContent.TileType<Tiles.RubyBookcase>());
 				recipe.SetResult(this);
 				recipe.AddRecipe();
 			}
-			{
-				ModRecipe recipe2 = new ModRecipe(base.mod);
-				recipe2.AddIngredient(ItemID.Topaz, 5);
-				recipe2.AddIngredient(ItemID.CrystalShard, 20);
-				recipe2.AddIngredient(ItemID.DemonScythe, 1);
-				recipe2.AddIngredient(ItemID.Book, 3);
-				recipe2.AddIngredient(ItemID.TurtleShell, 5);
-				recipe2.AddIngredient(ItemID.FrozenTurtleShell, 5);
-				recipe2.AddIngredient(ItemID.PalladiumBar, 15);
-				recipe2.AddTile(ModContent.TileType<Tiles.RubyBookcase>());
-				recipe2.SetResult(this);
-				recipe2.AddRecipe();
-			}
+			
 		}
 	}
 }

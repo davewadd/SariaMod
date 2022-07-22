@@ -1,6 +1,10 @@
 using Microsoft.Xna.Framework;
-using FairyMod.FaiPlayer;
-using FairyMod.Projectiles;
+
+
+
+
+
+
 using System;
 using SariaMod.Items.Sapphire;
 using SariaMod.Items.Ruby;

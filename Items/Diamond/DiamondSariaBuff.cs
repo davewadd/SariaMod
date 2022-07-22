@@ -1,6 +1,7 @@
-using Microsoft.Xna.Framework; 
-using FairyMod.FaiPlayer;
-using FairyMod.Projectiles;
+using Microsoft.Xna.Framework;
+
+
+using SariaMod.Buffs;
 using System;
 using SariaMod.Items.Diamond;
 using Terraria;
@@ -28,7 +29,7 @@ namespace SariaMod.Items.Diamond
 	{
 		public override void SetDefaults()
 		{
-			DisplayName.SetDefault(" GuardianSpirit");
+			DisplayName.SetDefault("GuardianSpirit");
 			Description.SetDefault("Saria now has the Diamond upgrade\n-There is nothing she cannot help you acheive!");
 			Main.debuff[base.Type] = false;
 			Main.pvpBuff[base.Type] = true;
@@ -41,32 +42,251 @@ namespace SariaMod.Items.Diamond
 		{
 			if (player.ownedProjectileCounts[ModContent.ProjectileType<DiamondSariaMinion>()] > 0)
 			{
-				player.buffTime[buffIndex] = 18000;
-				player.statLifeMax2 += 150;
-				player.statDefense += 70;
+				
+				player.statLifeMax2 += 200;
 				player.honey = true;
 				player.crimsonRegen = true;
-				player.endurance += 5f;
 				player.accOreFinder = true;
 				player.findTreasure = true;
-				player.moveSpeed += 2;
-				player.pickSpeed += -6000;
 				player.thorns += 20;
+				player.waterWalk = true;
 				player.detectCreature = true;
-				player.noFallDmg = true;
-				player.resistCold = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
-				player.inferno = true;
-				player.wellFed = true;
 				player.dangerSense = true;
-				player.waterWalk = true;
+				player.wellFed = true;
+				player.noFallDmg = true;
+				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
-				player.iceBarrier = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
+				if (player.buffTime[buffIndex] <= 10)
+				{
+					player.buffTime[buffIndex] = 18000;
+					if (!player.HasBuff(ModContent.BuffType<Soothing>()))
+					{
+						player.AddBuff(ModContent.BuffType<Sickness>(), 18000);
+					}
+				}
+			}
+			else if (player.ownedProjectileCounts[ModContent.ProjectileType<DSariaMinion>()] > 0)
+			{
+
+				player.statLifeMax2 += 200;
+				player.honey = true;
+				player.crimsonRegen = true;
+				player.accOreFinder = true;
+				player.findTreasure = true;
+				player.thorns += 20;
+				player.waterWalk = true;
+				player.detectCreature = true;
+				player.lavaImmune = true;
+				player.fireWalk = true;
+				player.dangerSense = true;
+				player.wellFed = true;
+				player.noFallDmg = true;
+				player.resistCold = true;
+				player.gills = true;
+				player.accFlipper = true;
+				player.AddBuff(BuffID.ObsidianSkin, 20);
+				player.AddBuff(BuffID.Warmth, 20);
+				player.lavaTime = 180000;
+				if (player.buffTime[buffIndex] <= 10)
+				{
+					player.buffTime[buffIndex] = 18000;
+					if (!player.HasBuff(ModContent.BuffType<Soothing>()))
+					{
+						player.AddBuff(ModContent.BuffType<Sickness>(), 18000);
+					}
+				}
+			}
+			else if (player.ownedProjectileCounts[ModContent.ProjectileType<DSSariaMinion>()] > 0)
+			{
+
+				player.statLifeMax2 += 200;
+				player.honey = true;
+				player.crimsonRegen = true;
+				player.accOreFinder = true;
+				player.findTreasure = true;
+				player.thorns += 20;
+				player.waterWalk = true;
+				player.detectCreature = true;
+				player.lavaImmune = true;
+				player.fireWalk = true;
+				player.dangerSense = true;
+				player.wellFed = true;
+				player.noFallDmg = true;
+				player.resistCold = true;
+				player.gills = true;
+				player.accFlipper = true;
+				player.AddBuff(BuffID.ObsidianSkin, 20);
+				player.AddBuff(BuffID.Warmth, 20);
+				player.lavaTime = 180000;
+				if (player.buffTime[buffIndex] <= 10)
+				{
+					player.buffTime[buffIndex] = 18000;
+					if (!player.HasBuff(ModContent.BuffType<Soothing>()))
+					{
+						player.AddBuff(ModContent.BuffType<Sickness>(), 18000);
+					}
+				}
+			}
+			else if (player.ownedProjectileCounts[ModContent.ProjectileType<DRSariaMinion>()] > 0)
+			{
+
+				player.statLifeMax2 += 200;
+				player.honey = true;
+				player.crimsonRegen = true;
+				player.accOreFinder = true;
+				player.findTreasure = true;
+				player.thorns += 20;
+				player.waterWalk = true;
+				player.detectCreature = true;
+				player.lavaImmune = true;
+				player.fireWalk = true;
+				player.dangerSense = true;
+				player.wellFed = true;
+				player.noFallDmg = true;
+				player.resistCold = true;
+				player.gills = true;
+				player.accFlipper = true;
+				player.AddBuff(BuffID.ObsidianSkin, 20);
+				player.AddBuff(BuffID.Warmth, 20);
+				player.lavaTime = 180000;
+				if (player.buffTime[buffIndex] <= 10)
+				{
+					player.buffTime[buffIndex] = 18000;
+					if (!player.HasBuff(ModContent.BuffType<Soothing>()))
+					{
+						player.AddBuff(ModContent.BuffType<Sickness>(), 18000);
+					}
+				}
+			}
+			else if (player.ownedProjectileCounts[ModContent.ProjectileType<DTSariaMinion>()] > 0)
+			{
+
+				player.statLifeMax2 += 200;
+				player.honey = true;
+				player.crimsonRegen = true;
+				player.accOreFinder = true;
+				player.findTreasure = true;
+				player.thorns += 20;
+				player.waterWalk = true;
+				player.detectCreature = true;
+				player.lavaImmune = true;
+				player.fireWalk = true;
+				player.dangerSense = true;
+				player.wellFed = true;
+				player.noFallDmg = true;
+				player.resistCold = true;
+				player.gills = true;
+				player.accFlipper = true;
+				player.AddBuff(BuffID.ObsidianSkin, 20);
+				player.AddBuff(BuffID.Warmth, 20);
+				player.lavaTime = 180000;
+				if (player.buffTime[buffIndex] <= 10)
+				{
+					player.buffTime[buffIndex] = 18000;
+					if (!player.HasBuff(ModContent.BuffType<Soothing>()))
+					{
+						player.AddBuff(ModContent.BuffType<Sickness>(), 18000);
+					}
+				}
+			}
+			else if (player.ownedProjectileCounts[ModContent.ProjectileType<DESariaMinion>()] > 0)
+			{
+
+				player.statLifeMax2 += 200;
+				player.honey = true;
+				player.crimsonRegen = true;
+				player.accOreFinder = true;
+				player.findTreasure = true;
+				player.thorns += 20;
+				player.waterWalk = true;
+				player.detectCreature = true;
+				player.lavaImmune = true;
+				player.fireWalk = true;
+				player.dangerSense = true;
+				player.wellFed = true;
+				player.noFallDmg = true;
+				player.resistCold = true;
+				player.gills = true;
+				player.accFlipper = true;
+				player.AddBuff(BuffID.ObsidianSkin, 20);
+				player.AddBuff(BuffID.Warmth, 20);
+				player.lavaTime = 180000;
+				if (player.buffTime[buffIndex] <= 10)
+				{
+					player.buffTime[buffIndex] = 18000;
+					if (!player.HasBuff(ModContent.BuffType<Soothing>()))
+					{
+						player.AddBuff(ModContent.BuffType<Sickness>(), 18000);
+					}
+				}
+			}
+			else if (player.ownedProjectileCounts[ModContent.ProjectileType<DASariaMinion>()] > 0)
+			{
+
+				player.statLifeMax2 += 200;
+				player.honey = true;
+				player.crimsonRegen = true;
+				player.accOreFinder = true;
+				player.findTreasure = true;
+				player.thorns += 20;
+				player.waterWalk = true;
+				player.detectCreature = true;
+				player.lavaImmune = true;
+				player.fireWalk = true;
+				player.dangerSense = true;
+				player.wellFed = true;
+				player.noFallDmg = true;
+				player.resistCold = true;
+				player.gills = true;
+				player.accFlipper = true;
+				player.AddBuff(BuffID.ObsidianSkin, 20);
+				player.AddBuff(BuffID.Warmth, 20);
+				player.lavaTime = 180000;
+				if (player.buffTime[buffIndex] <= 10)
+				{
+					player.buffTime[buffIndex] = 18000;
+					if (!player.HasBuff(ModContent.BuffType<Soothing>()))
+					{
+						player.AddBuff(ModContent.BuffType<Sickness>(), 18000);
+					}
+				}
+			}
+			else if (player.ownedProjectileCounts[ModContent.ProjectileType<DAMSariaMinion>()] > 0)
+			{
+
+				player.statLifeMax2 += 200;
+				player.honey = true;
+				player.crimsonRegen = true;
+				player.accOreFinder = true;
+				player.findTreasure = true;
+				player.thorns += 20;
+				player.waterWalk = true;
+				player.detectCreature = true;
+				player.lavaImmune = true;
+				player.fireWalk = true;
+				player.dangerSense = true;
+				player.wellFed = true;
+				player.noFallDmg = true;
+				player.resistCold = true;
+				player.gills = true;
+				player.accFlipper = true;
+				player.AddBuff(BuffID.ObsidianSkin, 20);
+				player.AddBuff(BuffID.Warmth, 20);
+				player.lavaTime = 180000;
+				if (player.buffTime[buffIndex] <= 10)
+				{
+					player.buffTime[buffIndex] = 18000;
+					if (!player.HasBuff(ModContent.BuffType<Soothing>()))
+					{
+						player.AddBuff(ModContent.BuffType<Sickness>(), 18000);
+					}
+				}
 			}
 			else
 			{

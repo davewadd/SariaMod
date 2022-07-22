@@ -1,6 +1,9 @@
-using Microsoft.Xna.Framework; 
-using FairyMod.FaiPlayer;
-using FairyMod.Projectiles;
+using Microsoft.Xna.Framework;
+
+
+
+
+using SariaMod.Buffs;
 using System;
 using SariaMod.Items.Ruby;
 using Terraria;
@@ -40,13 +43,12 @@ namespace SariaMod.Items.Ruby
 		{
 			if (player.ownedProjectileCounts[ModContent.ProjectileType<RubySariaMinion>()] > 0)
 			{
-				player.buffTime[buffIndex] = 18000;
+				 
 				player.statLifeMax2 += 75;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
-				player.inferno = true;
 				player.dangerSense = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
@@ -55,6 +57,64 @@ namespace SariaMod.Items.Ruby
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
+				if (player.buffTime[buffIndex] <= 10)
+				{
+					player.buffTime[buffIndex] = 18000;
+					if (!player.HasBuff(ModContent.BuffType<Soothing>()))
+					{
+						player.AddBuff(ModContent.BuffType<Sickness>(), 18000);
+					}
+				}
+			}
+			else if (player.ownedProjectileCounts[ModContent.ProjectileType<RSariaMinion>()] > 0)
+			{
+				 
+				player.statLifeMax2 += 75;
+				player.waterWalk = true;
+				player.detectCreature = true;
+				player.lavaImmune = true;
+				player.fireWalk = true;
+				player.dangerSense = true;
+				player.noFallDmg = true;
+				player.resistCold = true;
+				player.gills = true;
+				player.accFlipper = true;
+				player.AddBuff(BuffID.ObsidianSkin, 20);
+				player.AddBuff(BuffID.Warmth, 20);
+				player.lavaTime = 180000;
+				if (player.buffTime[buffIndex] <= 10)
+				{
+					player.buffTime[buffIndex] = 18000;
+					if (!player.HasBuff(ModContent.BuffType<Soothing>()))
+					{
+						player.AddBuff(ModContent.BuffType<Sickness>(), 18000);
+					}
+				}
+			}
+			else if (player.ownedProjectileCounts[ModContent.ProjectileType<RSSariaMinion>()] > 0)
+			{
+				 
+				player.statLifeMax2 += 75;
+				player.waterWalk = true;
+				player.detectCreature = true;
+				player.lavaImmune = true;
+				player.fireWalk = true;
+				player.dangerSense = true;
+				player.noFallDmg = true;
+				player.resistCold = true;
+				player.gills = true;
+				player.accFlipper = true;
+				player.AddBuff(BuffID.ObsidianSkin, 20);
+				player.AddBuff(BuffID.Warmth, 20);
+				player.lavaTime = 180000;
+				if (player.buffTime[buffIndex] <= 10)
+				{
+					player.buffTime[buffIndex] = 18000;
+					if (!player.HasBuff(ModContent.BuffType<Soothing>()))
+					{
+						player.AddBuff(ModContent.BuffType<Sickness>(), 18000);
+					}
+				}
 			}
 			else
 			{

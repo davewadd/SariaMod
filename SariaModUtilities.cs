@@ -7,9 +7,11 @@ using System.Text;
 using System.ComponentModel;
 using Terraria.ModLoader.Config;
 using Microsoft.Xna.Framework;
-using FairyMod.Projectiles;
-using FairyMod.FaiPlayer;
-using FairyMod;
+using Terraria.GameContent.Events;
+
+
+
+
 using Terraria;
 using Terraria.ID;
 
@@ -17,7 +19,14 @@ namespace SariaMod
 {
 	public static class SariaModUtilities
 	{
-
+		public static void StartSandstorm()
+		{
+			typeof(Sandstorm).GetMethod("StartSandstorm", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, null);
+		}
+		public static void StopSandstorm()
+		{
+			Sandstorm.Happening = false;
+		}
 		public static FairyPlayer Fairy(this Player player)
 		{
 			return player.GetModPlayer<FairyPlayer>();
@@ -31,7 +40,14 @@ namespace SariaMod
 		{
 			return player.allDamage + player.minionDamage - 1f;
 		}
-
+		public static string ColorMessage(string msg, Color color)
+		{
+			StringBuilder stringBuilder = new StringBuilder(msg.Length + 12);
+			stringBuilder.Append("[c/").Append(color.Hex4()).Append(':')
+				.Append(msg)
+				.Append(']');
+			return stringBuilder.ToString();
+		}
 		public static void KillShootProjectile(Player player, params int[] projTypes)
 		{
 			for (int x = 0; x < 1000; x++)

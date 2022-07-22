@@ -1,12 +1,15 @@
 using Microsoft.Xna.Framework; 
-using FairyMod.FaiPlayer;
-using FairyMod.Projectiles;
+
+
+
+
 using System;
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Diamond;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using SariaMod.Items.Strange;
 
 namespace SariaMod.Items.Platinum
 
@@ -40,7 +43,7 @@ namespace SariaMod.Items.Platinum
 		}
 		public override void Update(Player player, ref int buffIndex)
 		{
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<PlatinumBlueSariaMinion>()] > 0)
+			if (player.ownedProjectileCounts[ModContent.ProjectileType<SariaMinion>()] > 0)
 			{
 				player.buffTime[buffIndex] = 18000;
 				player.statLifeMax2 += 300;

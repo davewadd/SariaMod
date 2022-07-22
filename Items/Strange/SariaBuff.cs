@@ -1,10 +1,12 @@
 using Microsoft.Xna.Framework; 
-using FairyMod.FaiPlayer;
-using FairyMod.Projectiles;
+
+
+
 using System;
 using SariaMod.Items.Strange;
 using Terraria;
 using Terraria.ID;
+using SariaMod.Buffs;
 using Terraria.ModLoader;
 
 namespace SariaMod.Items.Strange
@@ -40,20 +42,28 @@ namespace SariaMod.Items.Strange
 		{
 			if (player.ownedProjectileCounts[ModContent.ProjectileType<SariaMinion>()] > 0)
 			{
-				player.buffTime[buffIndex] = 18000;
+
 				player.statLifeMax2 += 25;
 				player.detectCreature = true;
 				player.noFallDmg = true;
-				
-				
-				
+				if (player.buffTime[buffIndex] <= 10)
+				{
+					player.buffTime[buffIndex] = 18000;
+					if (!player.HasBuff(ModContent.BuffType<Soothing>()))
+					{
+						player.AddBuff(ModContent.BuffType<Sickness>(), 18000);
+					}
+				}
+
+
 
 			}
+			
 			else
 			{
 				player.DelBuff(buffIndex);
 				buffIndex--;
-				
+
 			}
 		}
 
