@@ -46,7 +46,7 @@ namespace SariaMod.Buffs
 		{
 			
 			{
-				player.buffTime[buffIndex] = 18000;
+				
 				player.statLifeMax2 /= 2;
 			}
 			

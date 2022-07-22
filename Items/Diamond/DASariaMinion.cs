@@ -97,11 +97,11 @@ namespace SariaMod.Items.Diamond
             base.projectile.ignoreWater = false;
             base.projectile.usesLocalNPCImmunity = true;
              base.projectile.localNPCHitCooldown = 50;
-                base.projectile.minionSlots = 11f;
-            base.projectile.timeLeft = 600;
+                base.projectile.minionSlots = 0f;
+            base.projectile.timeLeft = 1800;
             base.projectile.penetrate = -1;
             base.projectile.tileCollide = false;
-            base.projectile.timeLeft *= 5;
+            
             base.projectile.minion = true;
             projectile.minionPos = 1;
         }
@@ -114,6 +114,10 @@ namespace SariaMod.Items.Diamond
             float sneezespot = 5;
             float dustspot = 14;
             float dustspeed = 40;
+            if (projectile.timeLeft < 1799)
+            {
+                base.projectile.minionSlots = 11f;
+            }
             //////////////////////////////faces start
             Vector2 idlePosition2 = player.Center;
             float minionPositionOffsetX2 = ((60 + projectile.minionPos / 80) * player.direction) - 15;

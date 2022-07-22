@@ -97,11 +97,11 @@ namespace SariaMod.Items.Diamond
             base.projectile.ignoreWater = false;
             base.projectile.usesLocalNPCImmunity = true;
              base.projectile.localNPCHitCooldown = 50;
-            base.projectile.minionSlots = 11f;
+            base.projectile.minionSlots = 0f;
             base.projectile.timeLeft = 1800;
             base.projectile.penetrate = -1;
             base.projectile.tileCollide = false;
-            base.projectile.timeLeft *= 5;
+            
             base.projectile.minion = true;
         }
 
@@ -113,6 +113,10 @@ namespace SariaMod.Items.Diamond
             float sneezespot = 5;
             float dustspot = 14;
             float dustspeed = 40;
+            if (projectile.timeLeft < 1799)
+            {
+                base.projectile.minionSlots = 11f;
+            }
             if (Main.rand.NextBool(30))//controls the speed of when the sparkles spawn
             {
                 float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
@@ -313,7 +317,7 @@ namespace SariaMod.Items.Diamond
                 player.ClearBuff(ModContent.BuffType<DiamondSariaBuff>());
                 projectile.Kill();
             }
-            if (player.HasBuff(ModContent.BuffType<DiamondSariaBuff>()))
+            if (player.HasBuff(ModContent.BuffType<DiamondSariaBuff>())&&projectile.timeLeft<1798)
             {
                 projectile.timeLeft = 2;
             }

@@ -46,7 +46,7 @@ namespace SariaMod.Buffs
 		{
 			
 			{
-				player.buffTime[buffIndex] = 18000;
+				
 				player.statLifeMax2 /= 2;
 			}
 			
@@ -54,10 +54,10 @@ namespace SariaMod.Buffs
 		}
 		public override void Update(NPC npc, ref int buffIndex)
 		{
-			npc.buffTime[buffIndex] = 18000;
+			
 			if (!npc.boss)
 			{
-				npc.velocity.Y = -1;
+				npc.velocity.Y = -0.2f;
 			}
 		}
 		}

@@ -98,7 +98,7 @@ namespace SariaMod.Items.Strange
             base.projectile.timeLeft = 1800;
             base.projectile.penetrate = -1;
             base.projectile.tileCollide = false;
-            base.projectile.timeLeft *= 5;
+            
             base.projectile.minion = true;
         }
         private const int sphereRadius3 = 1;

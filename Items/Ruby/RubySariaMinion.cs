@@ -98,11 +98,11 @@ namespace SariaMod.Items.Ruby
             base.projectile.ignoreWater = false;
             base.projectile.usesLocalNPCImmunity = true;
              base.projectile.localNPCHitCooldown = 50;
-            base.projectile.minionSlots = 5f;
+            base.projectile.minionSlots = 0f;
             base.projectile.timeLeft = 1800;
             base.projectile.penetrate = -1;
             base.projectile.tileCollide = false;
-            base.projectile.timeLeft *= 5;
+            
             base.projectile.minion = true;
         }
        
@@ -111,6 +111,10 @@ namespace SariaMod.Items.Ruby
             float sneezespot = 5;
             float dustspot = 14;
             float dustspeed = 40;
+            if (projectile.timeLeft < 1799)
+            {
+                base.projectile.minionSlots = 5f;
+            }
             Player player = Main.player[base.projectile.owner];
             FairyPlayer modPlayer = player.Fairy();
             if (Main.rand.NextBool(30))//controls the speed of when the sparkles spawn
@@ -307,7 +311,7 @@ namespace SariaMod.Items.Ruby
                 player.ClearBuff(ModContent.BuffType<RubySariaBuff>());
                 projectile.Kill();
             }
-            if (player.HasBuff(ModContent.BuffType<RubySariaBuff>()))
+            if (player.HasBuff(ModContent.BuffType<RubySariaBuff>()) && projectile.timeLeft < 1798)
             {
                 projectile.timeLeft = 2;
             }

@@ -100,7 +100,7 @@ namespace SariaMod.Items.Sapphire
             base.projectile.timeLeft = 1800;
             base.projectile.penetrate = -1;
             base.projectile.tileCollide = false;
-            base.projectile.timeLeft *= 5;
+            
             base.projectile.minion = true;
         }
     
@@ -112,6 +112,10 @@ namespace SariaMod.Items.Sapphire
             float sneezespot = 5;
             float dustspot = 14;
             float dustspeed = 40;
+            if (projectile.timeLeft < 1799)
+            {
+                base.projectile.minionSlots = 4f;
+            }
             //////////////////////////////faces start
             Vector2 idlePosition2 = player.Center;
             float minionPositionOffsetX2 = ((60 + projectile.minionPos / 80) * player.direction) - 15;
@@ -300,7 +304,7 @@ namespace SariaMod.Items.Sapphire
                 player.ClearBuff(ModContent.BuffType<SapphireSariaBuff>());
                 projectile.Kill();
             }
-            if (player.HasBuff(ModContent.BuffType<SapphireSariaBuff>()))
+            if (player.HasBuff(ModContent.BuffType<SapphireSariaBuff>()) && projectile.timeLeft < 1798)
             {
                 projectile.timeLeft = 2;
             }
