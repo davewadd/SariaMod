@@ -28,7 +28,7 @@ namespace SariaMod.Items.zPearls
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Note to increasing minion count!");
-			Tooltip.SetDefault("Craft a Band of Summoning!\nIngredients include:\nJungleSpores, 3\nRuby, 1\nManaCrystal, 5\nXpPearl, 15\nAt a Strange Bookcase");
+			Tooltip.SetDefault("Craft a Band of Summoning!\nIngredients include:\nJungleSpores, 3\nRuby, 1\nXpPearl, 15\nAt a Strange Bookcase");
 		}
 
 

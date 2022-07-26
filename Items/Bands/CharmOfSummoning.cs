@@ -67,12 +67,12 @@ namespace SariaMod.Items.Bands
 			}
 			if (player.HasBuff(ModContent.BuffType<AmethystSariaBuff>()))
 			{
-				player.maxTurrets += 1;
+				player.maxTurrets += 2;
 				player.maxMinions += 4;
 			}
 			if (player.HasBuff(ModContent.BuffType<DiamondSariaBuff>()))
 			{
-				player.maxTurrets += 2;
+				player.maxTurrets += 3;
 				player.maxMinions += 5;
 			}
 			
@@ -88,7 +88,6 @@ namespace SariaMod.Items.Bands
 				ModRecipe recipe = new ModRecipe(mod);
 				recipe.AddIngredient(ItemID.JungleSpores, 3);
 				recipe.AddIngredient(ItemID.Ruby, 1);
-				recipe.AddIngredient(ItemID.ManaCrystal, 5);
 				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 15);
 				recipe.AddTile(ModContent.TileType<Tiles.StrangeBookcase>());
 				recipe.SetResult(this);

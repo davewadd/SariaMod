@@ -96,7 +96,7 @@ namespace SariaMod
 			}
 			if (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneDesert && Main.player[Main.myPlayer].ZoneRockLayerHeight && !Main.player[Main.myPlayer].ZoneDungeon)
 			{
-				music = GetSoundSlot(SoundType.Music, "Sounds/Music/SpiritTemple");
+				music = GetSoundSlot(SoundType.Music, "Sounds/Music/Terraria-Overhaul-Music-_Underground-Desert_-Theme-of-Underground-Desert (1)");
 				priority = MusicPriority.BiomeMedium;
 			}
 			else if (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneDesert && Main.player[Main.myPlayer].ZoneDirtLayerHeight && !Main.player[Main.myPlayer].ZoneDungeon)
@@ -121,7 +121,7 @@ namespace SariaMod
 			}
 			else if (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneJungle && Main.player[Main.myPlayer].ZoneDirtLayerHeight && !Main.player[Main.myPlayer].ZoneDungeon && !Main.player[Main.myPlayer].ZoneGlowshroom)
 			{
-				music = GetSoundSlot(SoundType.Music, "Sounds/Music/WiseOwlForest");
+				music = GetSoundSlot(SoundType.Music, "Sounds/Music/JungleNight");
 				priority = MusicPriority.BiomeMedium;
 			}
 			else if (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneJungle && Main.player[Main.myPlayer].ZoneRockLayerHeight && !Main.player[Main.myPlayer].ZoneDungeon && !Main.player[Main.myPlayer].ZoneGlowshroom)

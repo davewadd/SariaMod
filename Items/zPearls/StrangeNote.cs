@@ -46,6 +46,7 @@ namespace SariaMod.Items.zPearls
 		{
 			{
 				ModRecipe recipe = new ModRecipe(mod);
+				recipe.AddTile(ModContent.TileType<Tiles.StrangeBookcase>());
 				recipe.SetResult(this, 1);
 				recipe.AddRecipe();
 			}

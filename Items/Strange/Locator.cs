@@ -66,7 +66,7 @@ namespace SariaMod.Items.Strange
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Electrified] = false;
 			target.AddBuff(BuffID.Slow, 300);
-			target.AddBuff(ModContent.BuffType<SariaCurse2>(), 200);
+			target.AddBuff(ModContent.BuffType<SariaCurse2>(), 50);
 			Main.PlaySound(SoundID.DD2_WitherBeastDeath, base.projectile.Center);
 			if (player.HasBuff(ModContent.BuffType<StatRaise>()))
 			{

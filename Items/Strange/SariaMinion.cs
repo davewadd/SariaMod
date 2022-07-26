@@ -64,7 +64,7 @@ namespace SariaMod.Items.Strange
             target.buffImmune[BuffID.Venom] = false;
             target.buffImmune[BuffID.Electrified] = false;
 
-            target.AddBuff(BuffID.Electrified, 300);
+            target.AddBuff(ModContent.BuffType<SariaCurse2>(), 200);
 
             if (player.HasBuff(ModContent.BuffType<StatRaise>()))
             {

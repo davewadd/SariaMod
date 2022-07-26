@@ -25,7 +25,7 @@ namespace SariaMod.Items.Bands
 
 		public override void AddRecipes() {
 			ModRecipe recipe = new ModRecipe(mod);
-			
+			recipe.AddIngredient(ItemID.Feather, 5);
 			recipe.SetResult(this);
 			recipe.AddRecipe();
 		}
