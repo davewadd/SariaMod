@@ -1,7 +1,14 @@
 using Microsoft.Xna.Framework;
 
 using Terraria;
-
+using SariaMod.Items.Strange;
+using SariaMod.Items.Sapphire;
+using SariaMod.Items.Ruby;
+using SariaMod.Items.Topaz;
+using SariaMod.Items.Emerald;
+using SariaMod.Items.Amber;
+using SariaMod.Items.Amethyst;
+using SariaMod.Items.Diamond;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -70,7 +77,8 @@ namespace SariaMod.Items
                 if (!mother.active)
                 {
 
-                    projectile.Kill();
+                    base.projectile.Kill();
+                    return;
                 }
                 if (mother.active && projectile.timeLeft <= 10)
                 {

@@ -81,6 +81,10 @@ namespace SariaMod.Items.Bands
 				player.maxTurrets += 0;
 				player.maxMinions += 0;
             }
+			if (player.HasBuff((BuffID.Summoning)))
+            {
+				player.AddBuff(BuffID.Summoning, 10);
+			}
 		}
 		public override void AddRecipes()
 		{

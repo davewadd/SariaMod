@@ -42,6 +42,14 @@ namespace SariaMod.Items.zPearls
 			}
 			{
 				ModRecipe recipe = new ModRecipe(mod);
+				recipe.AddIngredient(ItemID.Gel, 80);
+				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 5);
+				recipe.AddTile(TileID.Bookcases);
+				recipe.SetResult(ItemID.SlimeStaff, 1);
+				recipe.AddRecipe();
+			}
+			{
+				ModRecipe recipe = new ModRecipe(mod);
 				recipe.AddIngredient(ItemID.BottledWater, 1);
 				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 1);
 				recipe.AddTile(TileID.CookingPots);

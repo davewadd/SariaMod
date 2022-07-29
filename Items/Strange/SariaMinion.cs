@@ -94,7 +94,7 @@ namespace SariaMod.Items.Strange
             base.projectile.ignoreWater = false;
             base.projectile.usesLocalNPCImmunity = true;
              base.projectile.localNPCHitCooldown = 50;
-                base.projectile.minionSlots = 3f;
+                base.projectile.minionSlots = 0f;
             base.projectile.timeLeft = 1800;
             base.projectile.penetrate = -1;
             base.projectile.tileCollide = false;
@@ -110,6 +110,10 @@ namespace SariaMod.Items.Strange
 
             Player player = Main.player[base.projectile.owner];
             FairyPlayer modPlayer = player.Fairy();
+            if (projectile.timeLeft < 1799)
+            {
+                base.projectile.minionSlots = 3f;
+            }
             float sneezespot = 5;
             float dustspot = 14;
             float dustspeed = 40;
