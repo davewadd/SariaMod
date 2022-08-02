@@ -52,10 +52,7 @@ namespace SariaMod.Items.zPearls
 			Lighting.AddLight(projectile.Center, Color.LightGreen.ToVector3() * 1f);
 			projectile.position.X = player.position.X ;
 			projectile.position.Y = player.position.Y - 80;
-			if (((player.ownedProjectileCounts[ModContent.ProjectileType<TimeNote>()] > 0f)))
-			{
-				projectile.Kill();
-			}
+			
 			if (((player.ownedProjectileCounts[ModContent.ProjectileType<NotePlay>()] > 0f)))
             {
 				projectile.timeLeft = 2;

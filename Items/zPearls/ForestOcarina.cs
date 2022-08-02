@@ -25,7 +25,7 @@ namespace SariaMod.Items.zPearls
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("ForestOcarina");
-			Tooltip.SetDefault("Left click to choose song\n Right click to play song\nMay make Saria happy");
+			Tooltip.SetDefault("Plays an old forgotten song that\nmay make Saria happier");
 		}
 
 
@@ -34,11 +34,12 @@ namespace SariaMod.Items.zPearls
 			base.item.width = 26;
 			base.item.height = 22;
 			base.item.maxStack = 1;
-			item.useTime = 36;
+			item.useTime = 400;
+			item.useAnimation = 400;
 			item.useStyle = ItemUseStyleID.HoldingOut;
 			base.item.value = 0;
-			item.shoot = ModContent.ProjectileType<ForestNote>();
-			item.UseSound = base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/SongCorrect");
+			item.shoot = ModContent.ProjectileType<SariasSong>();
+			item.UseSound = base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/SariasSong");
 		}
 		public override void Update(ref float gravity, ref float maxFallSpeed)
 		{
@@ -51,29 +52,9 @@ namespace SariaMod.Items.zPearls
 		}
 		public override bool CanUseItem(Player player)
 		{
-
-			
-
-		
-
-
-		 if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<ForestNote>()] == 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<NotePlay>()] == 0f))
-			{
-				item.UseSound = base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/SongCorrect");
-				item.shoot = ModContent.ProjectileType<ForestNote>();
-				return true;
-			}
-			
-			if (player.altFunctionUse == 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<ForestNote>()] > 0f) || (player.ownedProjectileCounts[ModContent.ProjectileType<TimeNote>()] > 0f) || (player.ownedProjectileCounts[ModContent.ProjectileType<RainNote>()] > 0f) || (player.ownedProjectileCounts[ModContent.ProjectileType<OasisNote>()] > 0f) || (player.ownedProjectileCounts[ModContent.ProjectileType<BloodNote>()] > 0f) || (player.ownedProjectileCounts[ModContent.ProjectileType<EclipseNote>()] > 0f))
-            {
-				item.UseSound = SoundID.Item1;
-				item.shoot = ModContent.ProjectileType<NotePlay>();
-				return true;
-			}
-			else
 			{
 				
-				return false;
+				return true;
 			}
 		}
 		

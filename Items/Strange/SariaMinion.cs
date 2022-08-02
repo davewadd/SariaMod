@@ -126,7 +126,7 @@ namespace SariaMod.Items.Strange
             float distanceToIdlePosition3 = vectorToIdlePosition3.Length();
             if ((player.ownedProjectileCounts[ModContent.ProjectileType<SariasSong>()] >= 1f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Happiness>()] <= 0f) && ((player.ownedProjectileCounts[ModContent.ProjectileType<Sad>()] > 0f) || (!player.HasBuff(ModContent.BuffType<BloodmoonBuff>()))))
               {
-                player.AddBuff(ModContent.BuffType<Soothing>(), 12000);
+                player.AddBuff(ModContent.BuffType<Soothing>(), 24000);
                 Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Happiness>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
             }
             if ((!player.HasBuff(ModContent.BuffType<Sickness>()) && (player.ownedProjectileCounts[ModContent.ProjectileType<Sad>()] >= 1f)))

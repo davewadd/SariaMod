@@ -26,7 +26,7 @@ namespace SariaMod.Items.zPearls
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Blank Ocarina");
-			Tooltip.SetDefault("Try using it in different places to learn powerful songs");
+			Tooltip.SetDefault("Try playing this in the jungle!");
 		}
 
 
@@ -45,12 +45,7 @@ namespace SariaMod.Items.zPearls
 
 		public override void AddRecipes()
 		{
-			{
-				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ModContent.ItemType<ForestOcarina>(), 1);
-				recipe.SetResult(this, 1);
-				recipe.AddRecipe();
-			}
+			
 			{
 				ModRecipe recipe = new ModRecipe(mod);
 				recipe.AddIngredient(ItemID.Wood, 12);
@@ -58,42 +53,7 @@ namespace SariaMod.Items.zPearls
 				recipe.SetResult(this, 1);
 				recipe.AddRecipe();
 			}
-			{
-				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ModContent.ItemType<TimeOcarina>(), 1);
-				recipe.SetResult(this, 1);
-				recipe.AddRecipe();
-			}
-			{
-				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ModContent.ItemType<RainOcarina>(), 1);
-				recipe.SetResult(this, 1);
-				recipe.AddRecipe();
-			}
-			{
-				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ModContent.ItemType<SandOcarina>(), 1);
-				recipe.SetResult(this, 1);
-				recipe.AddRecipe();
-			}
-			{
-				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ModContent.ItemType<BloodOcarina>(), 1);
-				recipe.SetResult(this, 1);
-				recipe.AddRecipe();
-			}
-			{
-				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ModContent.ItemType<EclipseOcarina>(), 1);
-				recipe.SetResult(this, 1);
-				recipe.AddRecipe();
-			}
-			{
-				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ModContent.ItemType<ForestOcarina>(), 1);
-				recipe.SetResult(this, 1);
-				recipe.AddRecipe();
-			}
+			
 		}
 	}
 
