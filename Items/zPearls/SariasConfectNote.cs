@@ -2,17 +2,18 @@ using Microsoft.Xna.Framework;
 
 
 
+
+
+
 using System;
 using SariaMod.Items.Sapphire;
 using SariaMod.Items.Ruby;
-using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
 using SariaMod.Items.Diamond;
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
-using SariaMod.Items.zBookcases;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -21,12 +22,12 @@ namespace SariaMod.Items.zPearls
 {
 
 
-	public class BlankOcarina : ModItem
+	public class SariasConfectNote : ModItem
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Blank Ocarina");
-			Tooltip.SetDefault("Try playing this in the jungle!");
+			DisplayName.SetDefault("Note to Saria's Confect");
+			Tooltip.SetDefault("May make Saria stronger!\nIngredients include:\nLargeXpPearls, 2\nFrozen Yogurt, 1\nSuper Mana Potion, 3\nSnow or Ice, 5\nAnywhere");
 		}
 
 
@@ -34,22 +35,17 @@ namespace SariaMod.Items.zPearls
 		{
 			base.item.width = 26;
 			base.item.height = 22;
-			base.item.maxStack = 1;
-			item.useTime = 36;
-			item.useStyle = ItemUseStyleID.HoldingOut;
-			base.item.consumable = true;
-			item.shoot = ModContent.ProjectileType<EmptyNote>();
-			item.UseSound = base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/SongCorrect");
+			base.item.maxStack = 999;
+			item.rare = ItemRarityID.Orange;
+			base.item.value = 0;
 		}
-		
+
 
 		public override void AddRecipes()
 		{
-			
 			{
 				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ItemID.Wood, 12);
-				recipe.AddIngredient(ItemID.ManaCrystal, 1);
+				recipe.AddTile(ModContent.TileType<Tiles.StrangeBookcase>());
 				recipe.SetResult(this, 1);
 				recipe.AddRecipe();
 			}

@@ -27,11 +27,11 @@ namespace SariaMod.Items.Sapphire
 			base.projectile.friendly = false;
 			base.projectile.ignoreWater = true;
 			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 7;
+			base.projectile.localNPCHitCooldown = 20;
 			base.projectile.minionSlots = 0f;
 			base.projectile.extraUpdates = 1;
 			
-			base.projectile.penetrate = 1;
+			base.projectile.penetrate = 6;
 			base.projectile.tileCollide = false;
 			base.projectile.timeLeft = 10000;
 			base.projectile.minion = true;
@@ -182,7 +182,7 @@ namespace SariaMod.Items.Sapphire
 
 			Lighting.AddLight(projectile.Center, Color.LimeGreen.ToVector3() * 0.78f);
 			// Default movement parameters (here for attacking)
-			float speed = 20f;
+			float speed = 40f;
 			float inertia = 12f;
 			
 			

@@ -32,7 +32,7 @@ namespace SariaMod.Items.Sapphire
 		public override void SetDefaults()
 		{
 			DisplayName.SetDefault("Sapphire Spirit");
-			Description.SetDefault("Saria now has the Sapphire upgrade\n-Psychic Seekers will now inflict the Frostburn debuff\n-Saria can now help you underwater");
+			Description.SetDefault("Saria now has the Sapphire upgrade\n-Saria can now help you underwater\nColdSoul will help heal your soul");
 			Main.debuff[base.Type] = false;
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;
@@ -51,6 +51,7 @@ namespace SariaMod.Items.Sapphire
 				player.gills = true;
 				player.dangerSense = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.noFallDmg = true;
 				player.AddBuff(BuffID.Warmth, 20);
 				if (player.buffTime[buffIndex] <= 10)

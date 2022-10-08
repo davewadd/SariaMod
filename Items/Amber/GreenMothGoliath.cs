@@ -75,6 +75,10 @@ namespace SariaMod.Items.Amber
 			Player player = Main.player[base.projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
 			projectile.scale = (float)1.7;
+			if (player.HasBuff(ModContent.BuffType<Overcharged>())&& projectile.timeLeft < 6499)
+			{
+				projectile.timeLeft = 6499;
+			}
 			if (player.MinionDamage() != base.projectile.Fairy().spawnedPlayerMinionDamageValue)
 			{
 				int trueDamage = (int)((float)base.projectile.Fairy().spawnedPlayerMinionProjectileDamageValue / base.projectile.Fairy().spawnedPlayerMinionDamageValue * player.MinionDamage());

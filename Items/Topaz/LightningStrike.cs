@@ -48,7 +48,12 @@ namespace SariaMod.Items.Topaz
 			
 			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
 			Lighting.AddLight(projectile.Center, Color.OrangeRed.ToVector3() * 0.78f);
-			
+			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
+			{
+				projectile.width = 100;
+				projectile.height = 450;
+				projectile.localNPCHitCooldown = 3;
+			}
 			{
 
 

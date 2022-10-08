@@ -28,7 +28,7 @@ namespace SariaMod.Items.Amethyst
 		public override void SetDefaults()
 		{
 			DisplayName.SetDefault("Amethyst Spirit");
-			Description.SetDefault("Saria now has the Amethyst upgrade\n-Psychic Seekers will inflicts poison and Shadow flames\n-Saria's shots are much quicker\nAll attacks will now start to shave enemy\ndefense down");
+			Description.SetDefault("Saria now has the Amethyst upgrade\nShe can steal enemies abilities to go through walls\nShadowsneak will curse enemies");
 			Main.buffNoSave[base.Type] = true;
 			Main.buffNoTimeDisplay[base.Type] = true;
 			
@@ -40,21 +40,18 @@ namespace SariaMod.Items.Amethyst
 			{
 				
 				player.statLifeMax2 += 150;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
-				player.thorns += 20;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;

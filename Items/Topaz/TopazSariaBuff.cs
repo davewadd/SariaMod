@@ -28,7 +28,7 @@ namespace SariaMod.Items.Topaz
 		public override void SetDefaults()
 		{
 			DisplayName.SetDefault("Topaz Spirit");
-			Description.SetDefault("Saria now has the Topaz upgrade\n-Psychic Seekers will now inflict Ichor!\n-Saria now lowers health but raises defense and endurance\n-Enemies now become Electrified!\n-Shot enemies become slower\nYou are now always WellFed\nTreasure items become clear to you now!");
+			Description.SetDefault("Saria now has the Topaz upgrade\n-Lighting will rain down on your enemies!\nTouch the static to move faster");
 			Main.debuff[base.Type] = false;
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;
@@ -52,6 +52,7 @@ namespace SariaMod.Items.Topaz
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;

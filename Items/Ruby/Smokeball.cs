@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-
+using SariaMod.Buffs;
 using System;
 using Terraria;
 using SariaMod.Items.Sapphire;
@@ -43,6 +43,8 @@ namespace SariaMod.Items.Ruby
 		
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
+			Player player = Main.player[base.projectile.owner];
+			FairyPlayer modPlayer = player.Fairy();
 			target.buffImmune[BuffID.CursedInferno] = false;
 			target.buffImmune[BuffID.Confused] = false;
 			target.buffImmune[BuffID.Slow] = false;
@@ -56,6 +58,10 @@ namespace SariaMod.Items.Ruby
 			target.AddBuff(BuffID.OnFire, 900);
 			target.AddBuff(BuffID.Slow, 300);
 			damage *= 0;
+			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
+				{
+					damage /= 2;
+				}
 			knockback = 0;
 
 		}

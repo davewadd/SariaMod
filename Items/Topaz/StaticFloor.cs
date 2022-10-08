@@ -55,6 +55,7 @@ namespace SariaMod.Items.Topaz
 		public override void AI()
 		{
 			Player player = Main.player[base.projectile.owner];
+			Player player2 = Main.LocalPlayer;
 			FairyPlayer modPlayer = player.Fairy();
 			if (Main.rand.NextBool(30))//controls the speed of when the sparkles spawn
 			{
@@ -159,10 +160,18 @@ namespace SariaMod.Items.Topaz
 				}
 
 			}
-			
-			
-			
-			
+			{
+				float between = Vector2.Distance(player2.Center, projectile.Center);
+				// Reasonable distance away so it doesn't target across multiple screens
+				if (between < 100f)
+				{
+					player2.AddBuff(BuffID.Swiftness, 3000);
+
+				}
+			}
+
+
+
 		}
 
 		public override Color? GetAlpha(Color lightColor)

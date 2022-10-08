@@ -39,7 +39,20 @@ namespace SariaMod.Items.zBookcases
 				recipe.SetResult(this);
 				recipe.AddRecipe();
 			}
-			
+			{
+				ModRecipe recipe = new ModRecipe(mod);
+				recipe.AddIngredient(ItemID.Topaz, 5);
+				recipe.AddIngredient(ItemID.CrystalShard, 20);
+				recipe.AddIngredient(ItemID.NimbusRod, 1);
+				recipe.AddIngredient(ItemID.Book, 3);
+				recipe.AddIngredient(ItemID.RainCloud, 5);
+				recipe.AddIngredient(ItemID.PalladiumBar, 15);
+				recipe.AddTile(ModContent.TileType<Tiles.RubyBookcase>());
+				recipe.SetResult(this);
+				recipe.AddRecipe();
+			}
+
+
 		}
 	}
 }

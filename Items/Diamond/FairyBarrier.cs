@@ -119,17 +119,25 @@ namespace SariaMod.Items.Diamond
 			target.buffImmune[BuffID.Electrified] = false;
 			target.AddBuff(BuffID.Venom, 300);
 			float Attack = 1;
-			{
-				if (target.boss)
+			
+				projectile.timeLeft += 3;
+
 				{
-					Attack = 3;
+					if (target.boss)
+					{
+						Attack = 3;
+					}
+				if (player.HasBuff(ModContent.BuffType<Overcharged>()))
+				{
+					Attack = 2;
 				}
-					for (int j = 0; j < Attack; j++) //set to 2
+				for (int j = 0; j < Attack; j++) //set to 2
 					{
 						Projectile.NewProjectile(base.projectile.Center = target.Center, Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<FairyBubble>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 					}
-				
-			}
+
+				}
+			
 			damage /= 10;
 			knockback = 0;
 			

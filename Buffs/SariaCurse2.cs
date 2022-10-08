@@ -34,7 +34,7 @@ namespace SariaMod.Buffs
 		public override void SetDefaults()
 		{
 			DisplayName.SetDefault("SariaCurse");
-			Description.SetDefault("Saria Curses youre enemies!");
+			Description.SetDefault("Saria Curses your enemies!");
 			Main.debuff[base.Type] = true;
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = true;

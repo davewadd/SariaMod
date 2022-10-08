@@ -71,12 +71,12 @@ namespace SariaMod
 			if (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneRain && Main.dayTime && !Main.player[Main.myPlayer].ZoneSnow && !Main.player[Main.myPlayer].ZonePeaceCandle && Main.player[Main.myPlayer].ZoneOverworldHeight)
 			{
 				music = GetSoundSlot(SoundType.Music, "Sounds/Music/Rain");
-				priority = MusicPriority.Environment;
+				priority = MusicPriority.BiomeMedium;
 			}
 			else if (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneRain && !Main.dayTime && !Main.player[Main.myPlayer].ZoneSnow && !Main.player[Main.myPlayer].ZonePeaceCandle && !Main.bloodMoon && Main.player[Main.myPlayer].ZoneOverworldHeight && !Main.player[Main.myPlayer].ZoneGlowshroom && !Main.player[Main.myPlayer].ZoneDesert)
 			{
 				music = GetSoundSlot(SoundType.Music, "Sounds/Music/Shipwreck");
-				priority = MusicPriority.Environment;
+				priority = MusicPriority.BiomeMedium;
 			}
 			else if (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneRain && Main.player[Main.myPlayer].ZoneSnow && Main.player[Main.myPlayer].ZoneOverworldHeight)
 			{
@@ -84,7 +84,7 @@ namespace SariaMod
 				priority = MusicPriority.Environment;
 			}
 
-			if (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneDesert && Main.dayTime && !Main.player[Main.myPlayer].ZoneBeach)
+			if (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneDesert && Main.dayTime && !Main.player[Main.myPlayer].ZoneBeach && !Main.player[Main.myPlayer].ZoneDungeon)
 			{
 				music = GetSoundSlot(SoundType.Music, "Sounds/Music/Lanayru");
 				priority = MusicPriority.BiomeMedium;

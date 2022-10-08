@@ -84,6 +84,17 @@ namespace SariaMod.Items.Sapphire
 			knockback /= 100;
 			
 				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Bubblepop"), projectile.Center);
+			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
+			{
+				if (Main.rand.NextBool(10))//controls the speed of when the sparkles spawn
+				{
+					float radius = (float)Math.Sqrt(Main.rand.Next(34 * 34));
+					double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
+
+
+					Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ItemID.Heart);
+				}
+			}
 			
 			if (player.HasBuff(ModContent.BuffType<StatRaise>()))
 			{
@@ -98,16 +109,20 @@ namespace SariaMod.Items.Sapphire
             {
 				damage -= (damage)/2;
             }
-			if (projectile.timeLeft > 20)
+			if (projectile.timeLeft > 20 && (!player.HasBuff(ModContent.BuffType<Overcharged>())))
 			{
 				projectile.timeLeft = 20;
+			}
+			else if (projectile.timeLeft > 40 && (player.HasBuff(ModContent.BuffType<Overcharged>())))
+			{
+				projectile.timeLeft = 40;
 			}
 			Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<HealBubble>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 		}
 		public override void AI()
 		{
 			Player player = Main.player[projectile.owner];
-
+			Player player2 = Main.LocalPlayer;
 			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
 			if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
 			{
@@ -124,7 +139,15 @@ namespace SariaMod.Items.Sapphire
 				Dust.NewDust(new Vector2((projectile.Center.X) + radius * (float)Math.Cos(angle), (projectile.Center.Y) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Snow2>(), 0f, 0f, 0, default(Color), 1.5f);
 			}
 
+			{
+				float between = Vector2.Distance(player2.Center, projectile.Center);
+				// Reasonable distance away so it doesn't target across multiple screens
+				if (between < 1000f)
+				{
+					player2.AddBuff(BuffID.Regeneration, 30);
 
+				}
+			}
 			NPC target = base.projectile.Center.MinionHoming(500f, player);
 			if (target != null)
 			{
@@ -253,13 +276,14 @@ namespace SariaMod.Items.Sapphire
 				// Minion has a target: attack (here, fly towards the enemy)
 				if (distanceFromTarget > 20f )
 				{
+					
 					if (player.HasBuff(ModContent.BuffType<StatRaise>()))
 					{
 						speed *= 2;
 					}
 					if (player.HasBuff(ModContent.BuffType<StatLower>()))
 					{
-						speed /= 2;
+						speed = 8;
 
 					}
 					// The immediate range around the target (so it doesn't latch onto it when close)

@@ -52,6 +52,7 @@ namespace SariaMod.Items.Topaz
 		public override void AI()
 		{
 			Player player = Main.player[base.projectile.owner];
+			Player player2 = Main.LocalPlayer;
 			FairyPlayer modPlayer = player.Fairy();
 			if (Main.rand.NextBool(30))//controls the speed of when the sparkles spawn
 			{
@@ -62,8 +63,16 @@ namespace SariaMod.Items.Topaz
 				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<StaticDust>(), 0f, 0f, 0, default(Color), 1.5f);
 			}//end of dust stuff
 			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
-			
-			
+
+			{
+				float between = Vector2.Distance(player2.Center, projectile.Center);
+				// Reasonable distance away so it doesn't target across multiple screens
+				if (between < 100f)
+				{
+					player2.AddBuff(BuffID.Swiftness, 3000);
+
+				}
+			}
 			{
 				projectile.velocity.X = 4;
 				projectile.velocity.Y = 1;
@@ -125,7 +134,7 @@ namespace SariaMod.Items.Topaz
 			target.AddBuff(BuffID.Slow, 300);
 		
 			knockback /= 50;
-			damage /= 100;
+			damage /= 2;
 		}
 
 

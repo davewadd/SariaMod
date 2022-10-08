@@ -34,7 +34,7 @@ namespace SariaMod.Buffs
 		public override void SetDefaults()
 		{
 			DisplayName.SetDefault("Old Wounds");
-			Description.SetDefault("Saria's old wounds begin to cause agony\nShe desperately needs a break!\nMaybe a song can help cheer her up?");
+			Description.SetDefault("Saria's old wounds begin to cause agony\nShe desperately needs a break!\nCrafting Frozen Yogurt may also help!");
 			Main.debuff[base.Type] = true;
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;

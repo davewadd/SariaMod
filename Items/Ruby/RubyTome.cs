@@ -41,7 +41,7 @@ namespace SariaMod.Items.Ruby
 			item.width = 32;
 			item.height = 32;
 			item.useTime = 36;
-			item.useAnimation = 36;
+			item.useAnimation = 15;
 			item.useStyle = ItemUseStyleID.SwingThrow;
 			item.value = Item.buyPrice(0, 30, 0, 0);
 			item.rare = ItemRarityID.Cyan;

@@ -31,7 +31,7 @@ namespace SariaMod.Items.Ruby
 		public override void SetDefaults()
 		{
 			DisplayName.SetDefault("Ruby Spirit");
-			Description.SetDefault("Saria now has the Ruby upgrade\n-Psychic Seekers will now inflict Fire Damage!\n-Saria can now help you withstand fire\n-A fire ring protects you!");
+			Description.SetDefault("Saria now has the Ruby upgrade\n-Saria can now help you withstand fire and lava!\nThe flames will keep you warm");
 			Main.debuff[base.Type] = false;
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;
@@ -54,6 +54,7 @@ namespace SariaMod.Items.Ruby
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;

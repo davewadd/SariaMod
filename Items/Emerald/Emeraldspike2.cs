@@ -48,6 +48,7 @@ namespace SariaMod.Items.Emerald
 		public override void AI()
 		{
 			Player player = Main.player[base.projectile.owner];
+			Player player2 = Main.LocalPlayer;
 			FairyPlayer modPlayer = player.Fairy();
 			if (player.HasBuff(ModContent.BuffType<StatRaise>()))
 			{
@@ -57,6 +58,9 @@ namespace SariaMod.Items.Emerald
 			{
 				projectile.localNPCHitCooldown = 160;
 
+			}
+			{
+				projectile.localNPCHitCooldown = 14;
 			}
 			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
 			Lighting.AddLight(projectile.Center, Color.Purple.ToVector3() * 0.78f);
@@ -87,9 +91,17 @@ namespace SariaMod.Items.Emerald
 			{
 				projectile.spriteDirection = -1;
 			}
-			
-			
-			
+			{
+				float between = Vector2.Distance(player2.Center, projectile.Center);
+				// Reasonable distance away so it doesn't target across multiple screens
+				if (between < 1000f)
+				{
+					player2.AddBuff(BuffID.Endurance, 3);
+
+				}
+			}
+
+
 			int frameSpeed = 15;
 			{
 				base.projectile.frameCounter++;

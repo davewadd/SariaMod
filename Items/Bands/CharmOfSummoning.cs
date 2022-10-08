@@ -85,6 +85,11 @@ namespace SariaMod.Items.Bands
             {
 				player.AddBuff(BuffID.Summoning, 10);
 			}
+			if (player.HasBuff((BuffID.Bewitched)))
+			{
+				player.AddBuff(BuffID.Bewitched, 10);
+			}
+
 		}
 		public override void AddRecipes()
 		{

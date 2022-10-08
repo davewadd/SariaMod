@@ -28,7 +28,7 @@ namespace SariaMod.Items.Emerald
 		public override void SetDefaults()
 		{
 			DisplayName.SetDefault("Emerald Spirit");
-			Description.SetDefault("Saria now has the Emerald upgrade\n-You now have thorns!\n-Saria now raises speed, acceleration, and mining speed!\n-Seekers can now shoot through walls!\nSaria can now steal the ability of\nnon-boss enemies to go through walls");
+			Description.SetDefault("Saria now has the Emerald upgrade\nSpecial purple clusters have a chance of spawning\nGems can drop from clusters when hit\nThe clusters shield you from damage");
 			Main.debuff[base.Type] = false;
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;
@@ -49,12 +49,12 @@ namespace SariaMod.Items.Emerald
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
-				player.wellFed = true;
 				player.dangerSense = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;

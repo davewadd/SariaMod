@@ -4,17 +4,14 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 
 using Terraria;
-using SariaMod.Buffs;
 
 
-
-using SariaMod.Dusts;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace SariaMod.Items.zPearls
+namespace SariaMod.Items
 {
-	public class SariasSong : ModProjectile
+	public class FrozenYogurtSignal : ModProjectile
 	{
 		public override void SetStaticDefaults()
 		{
@@ -28,12 +25,16 @@ namespace SariaMod.Items.zPearls
 		{
 			base.projectile.width = 30;
 			base.projectile.height = 30;
+			
 			base.projectile.alpha = 300;
 			base.projectile.friendly = true;
 			base.projectile.tileCollide = false;
+			
+			
 			base.projectile.penetrate = 1;
-			base.projectile.timeLeft = 5;
+			base.projectile.timeLeft = 100;
 			base.projectile.ignoreWater = true;
+			
 			base.projectile.usesLocalNPCImmunity = true;
 			base.projectile.localNPCHitCooldown = 4;
 		}
@@ -46,18 +47,30 @@ namespace SariaMod.Items.zPearls
 		{
 			Player player = Main.player[base.projectile.owner];
 			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
+			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
+			base.projectile.rotation += 0.095f;
+			{
+				
+				
+				// friendly needs to be set to true so the minion can deal contact damage
+				// friendly needs to be set to false so it doesn't damage things like target dummies while idling
+				// Both things depend on if it has a target or not, so it's just one assignment here
+				// You don't need this assignment if your minion is shooting things instead of dealing contact damage
+				
+
 			
+				
+				
+				// Default movement parameters (here for attacking)
 			
-			projectile.position.X = player.position.X ;
-			projectile.position.Y = player.position.Y - 80;
+
+			}
+
+
+
 			
-			
+
 		}
-		
-
-
-
-
 
 
 

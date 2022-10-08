@@ -48,6 +48,8 @@ namespace SariaMod.Items.Ruby
 		}
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
+			Player player = Main.player[projectile.owner];
+			FairyPlayer modPlayer = player.Fairy();
 			target.buffImmune[BuffID.CursedInferno] = false;
 			target.buffImmune[BuffID.Confused] = false;
 			target.buffImmune[BuffID.Slow] = false;
@@ -60,18 +62,22 @@ namespace SariaMod.Items.Ruby
 			target.buffImmune[BuffID.Electrified] = false;
 			target.AddBuff(BuffID.OnFire, 300);
 			target.AddBuff(BuffID.Slow, 300);
+			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
+			{
+				projectile.timeLeft += 3;
+			}
 			if (projectile.timeLeft >= 1400)
             {
 				damage /= 2;
             }
-			if (projectile.timeLeft < 1400)
+			else if (projectile.timeLeft < 1400)
 			{
-				damage /= 100;
+				damage /= 4;
 				knockback /= 1000;
 			}
-			if (projectile.timeLeft < 1000)
+			else if (projectile.timeLeft < 1000)
             {
-				knockback = 0;
+				knockback *= 0;
             }
 		}
 		public override bool OnTileCollide(Vector2 oldVelocity)
@@ -93,14 +99,15 @@ namespace SariaMod.Items.Ruby
 		public override void AI()
 		{
 			Player player = Main.player[projectile.owner];
-
+			Player player2 = Main.LocalPlayer;
+			FairyPlayer modPlayer = player.Fairy();
 			if (Main.rand.NextBool(30))//controls the speed of when the sparkles spawn
 			{
 				float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
 				double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
 				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), (projectile.Center.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<FlameDust>(), 0f, 0f, 0, default(Color), 1.5f);
 			}
-
+			
 			// friendly needs to be set to true so the minion can deal contact damage
 			// friendly needs to be set to false so it doesn't damage things like target dummies while idling
 			// Both things depend on if it has a target or not, so it's just one assignment here
@@ -110,13 +117,25 @@ namespace SariaMod.Items.Ruby
 			Lighting.AddLight(projectile.Center, Color.OrangeRed.ToVector3() * 2f);
 			// Default movement parameters (here for attacking)
 
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<RubyPsychicSeeker>()] > 0f && projectile.timeLeft > 50)
+			if (player.ownedProjectileCounts[ModContent.ProjectileType<Flame>()] > 12f)
 
 			{
-				projectile.timeLeft = 50;
+				projectile.timeLeft -= 3;
 			}
 
+			
+			
 
+			// This code is required if your minion weapon has the targeting feature
+			{ 
+				float between = Vector2.Distance(player2.Center, projectile.Center);
+				// Reasonable distance away so it doesn't target across multiple screens
+				if (between <600f)
+				{
+					player2.AddBuff(BuffID.Campfire, 30);
+
+				}
+			}
 
 
 

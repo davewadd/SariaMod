@@ -119,6 +119,7 @@ namespace SariaMod.Items.Ruby
 				Lighting.AddLight(projectile.Center, Color.LightPink.ToVector3() * 0.78f);
 				// Default movement parameters (here for attacking)
 				float speed = 20f;
+				float nah = 20;
 				float inertia = 20f;
 				if (distanceFromTarget > 40f && projectile.timeLeft <= 400)
 				{

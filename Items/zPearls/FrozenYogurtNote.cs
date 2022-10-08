@@ -22,12 +22,12 @@ namespace SariaMod.Items.zPearls
 {
 
 
-	public class OcarinaNote : ModItem
+	public class FrozenYogurtNote : ModItem
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Note to a Blank Ocarina");
-			Tooltip.SetDefault("Craft a Blank Ocarina!\nIngredients include:\nWood, 12\nManaCrystal, 1\nAt a Strange Bookcase");
+			DisplayName.SetDefault("Note to Frozen Yogurt");
+			Tooltip.SetDefault("May heal Saria!\nIngredients include:\nMediumXpPearls, 2\nSuper Mana Potion, 3\nSnow or Ice, 5\nAnywhere");
 		}
 
 

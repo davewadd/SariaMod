@@ -32,7 +32,7 @@ namespace SariaMod.Items.Emerald
 			item.rare = ItemRarityID.Expert;
 			item.consumable = true;
 			item.useTime = 36;
-			item.useAnimation = 36;
+			item.useAnimation = 15;
 			item.useStyle = ItemUseStyleID.SwingThrow;
 			item.UseSound = SoundID.Item45;
 			item.autoReuse = false;

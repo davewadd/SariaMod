@@ -68,6 +68,7 @@ namespace SariaMod.Items.Strange
 			target.AddBuff(BuffID.Slow, 300);
 			target.AddBuff(ModContent.BuffType<SariaCurse2>(), 50);
 			Main.PlaySound(SoundID.DD2_WitherBeastDeath, base.projectile.Center);
+			
 			if (player.HasBuff(ModContent.BuffType<StatRaise>()))
 			{
 				damage = damage;
@@ -114,6 +115,11 @@ namespace SariaMod.Items.Strange
             {
 				projectile.aiStyle = 1;
             }
+			if ((projectile.timeLeft == 400 || projectile.timeLeft == 200) && (player.HasBuff(ModContent.BuffType<Overcharged>())))
+			{
+				
+				Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Locator2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+			}
 			NPC target = base.projectile.Center.MinionHoming(500f, player);
 			if (target != null)
 			{

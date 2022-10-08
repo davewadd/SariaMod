@@ -55,6 +55,13 @@ namespace SariaMod.Items.Ruby
 					Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), (projectile.Center.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<FlameDust>(), 0f, 0f, 0, default(Color), 1.5f);
 				}
 			}
+			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
+			{
+				projectile.width = 450;
+				projectile.height = 450;
+				projectile.scale = 1.5f;
+				projectile.localNPCHitCooldown = 12;
+			}
 			Lighting.AddLight(projectile.Center, Color.OrangeRed.ToVector3() * 0.78f);
 			{
 				
@@ -73,12 +80,12 @@ namespace SariaMod.Items.Ruby
 					base.projectile.frame = 0;
 					base.projectile.Kill();
 				}
-				if (base.projectile.frame == 1)
+				if (base.projectile.timeLeft == 195)
 				{
 					
-						if (player.ownedProjectileCounts[ModContent.ProjectileType<Flame>()] < 10f)
+						if (player.ownedProjectileCounts[ModContent.ProjectileType<Flame>()] < 60f)
 						{
-							for (int j = 0; j < 8; j++) //set to 2
+							for (int j = 0; j < 12; j++) //set to 2
 							{
 								Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -204f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Flame>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 							}

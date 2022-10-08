@@ -42,6 +42,28 @@ namespace SariaMod.Items.zPearls
 			}
 			{
 				ModRecipe recipe = new ModRecipe(mod);
+				recipe.AddIngredient(ItemID.BottledWater, 1);
+				recipe.AddIngredient(ItemID.ManaCrystal, 1);
+				recipe.AddTile(TileID.CookingPots);
+				recipe.SetResult(ItemID.LesserManaPotion, 10);
+				recipe.AddRecipe();
+			}
+			{
+				ModRecipe recipe = new ModRecipe(mod);
+				recipe.AddIngredient(ItemID.LesserManaPotion, 3);
+				recipe.AddTile(TileID.CookingPots);
+				recipe.SetResult(ItemID.ManaPotion, 1);
+				recipe.AddRecipe();
+			}
+			{
+				ModRecipe recipe = new ModRecipe(mod);
+				recipe.AddIngredient(ItemID.ManaPotion, 3);
+				recipe.AddTile(TileID.CookingPots);
+				recipe.SetResult(ItemID.SuperManaPotion, 1);
+				recipe.AddRecipe();
+			}
+			{
+				ModRecipe recipe = new ModRecipe(mod);
 				recipe.AddIngredient(ItemID.Gel, 80);
 				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 5);
 				recipe.AddTile(TileID.Bookcases);

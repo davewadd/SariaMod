@@ -1,20 +1,17 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Terraria.GameContent.Events;
+
 using System;
 
 using Terraria;
-using SariaMod.Buffs;
 
 
-
-using SariaMod.Dusts;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace SariaMod.Items.zPearls
+namespace SariaMod.Items
 {
-	public class EmptyNote : ModProjectile
+	public class Competitivetime : ModProjectile
 	{
 		public override void SetStaticDefaults()
 		{
@@ -33,8 +30,9 @@ namespace SariaMod.Items.zPearls
 			base.projectile.friendly = true;
 			base.projectile.tileCollide = false;
 			
+			
 			base.projectile.penetrate = 1;
-			base.projectile.timeLeft = 2;
+			base.projectile.timeLeft = 10;
 			base.projectile.ignoreWater = true;
 			
 			base.projectile.usesLocalNPCImmunity = true;
@@ -49,29 +47,16 @@ namespace SariaMod.Items.zPearls
 		{
 			Player player = Main.player[base.projectile.owner];
 			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
-			Lighting.AddLight(projectile.Center, Color.LightGreen.ToVector3() * 1f);
-			projectile.position.X = player.position.X ;
-			projectile.position.Y = player.position.Y;
-			if (projectile.timeLeft == 2 && Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneJungle)
-			{
-				Item.NewItem(base.projectile.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<ForestOcarina>());
-			}
-		
-			if (projectile.velocity.X >= 0)
-			{
-				projectile.spriteDirection = 1;
-			}
-			if (projectile.velocity.X <= -0)
-			{
-				projectile.spriteDirection = -1;
-			}
+			base.projectile.rotation += 0.095f;
+			
+
+
+
+			
+
 		}
 
-	
 
-		
-
-	
 
 
 

@@ -47,24 +47,8 @@ namespace SariaMod.Items
 		{
 			Player player = Main.player[base.projectile.owner];
 			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
-			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
 			base.projectile.rotation += 0.095f;
-			{
-				
-				
-				// friendly needs to be set to true so the minion can deal contact damage
-				// friendly needs to be set to false so it doesn't damage things like target dummies while idling
-				// Both things depend on if it has a target or not, so it's just one assignment here
-				// You don't need this assignment if your minion is shooting things instead of dealing contact damage
-				
-
 			
-				
-				
-				// Default movement parameters (here for attacking)
-			
-
-			}
 
 
 

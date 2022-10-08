@@ -49,6 +49,7 @@ namespace SariaMod.Items.Emerald
 		public override void AI()
 		{
 			Player player = Main.player[base.projectile.owner];
+			Player player2 = Main.LocalPlayer;
 			FairyPlayer modPlayer = player.Fairy();
 			if (player.HasBuff(ModContent.BuffType<StatRaise>()))
 			{
@@ -58,6 +59,10 @@ namespace SariaMod.Items.Emerald
 			{
 				projectile.localNPCHitCooldown = 160;
 
+			}
+			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
+			{
+				projectile.localNPCHitCooldown = 14;
 			}
 			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
 			Lighting.AddLight(projectile.Center, Color.LimeGreen.ToVector3() * 0.78f);
@@ -89,7 +94,15 @@ namespace SariaMod.Items.Emerald
 				projectile.spriteDirection = -1;
 			}
 
+			{
+				float between = Vector2.Distance(player2.Center, projectile.Center);
+				// Reasonable distance away so it doesn't target across multiple screens
+				if (between < 1000f)
+				{
+					player2.AddBuff(BuffID.Endurance, 3);
 
+				}
+			}
 
 
 			int frameSpeed = 15;
@@ -137,7 +150,7 @@ namespace SariaMod.Items.Emerald
 					}
 				}
 			}
-			if ((player.ownedProjectileCounts[ModContent.ProjectileType<Emeraldspike>()] >= 4f))
+			if ((player.ownedProjectileCounts[ModContent.ProjectileType<Emeraldspike>()] >= 4f) && (!player.HasBuff(ModContent.BuffType<Overcharged>())))
             {
 				projectile.timeLeft -= 2;
             }
@@ -200,15 +213,29 @@ namespace SariaMod.Items.Emerald
 			target.AddBuff(BuffID.Electrified, 300);
 			target.AddBuff(BuffID.Slow, 300);
 			projectile.timeLeft -= 15;
-			if ((projectile.timeLeft >= 100 && projectile.timeLeft <= 200))
-
+			if (!player.HasBuff(ModContent.BuffType<Overcharged>()))
 			{
+				if ((projectile.timeLeft >= 100 && projectile.timeLeft <= 200))
+
 				{
-					
-					Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<Rupee2>());
+					{
+
+						Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<Rupee2>());
+					}
 				}
 			}
-			if (player.HasBuff(ModContent.BuffType<StatRaise>()))
+			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
+			{ 
+				if ((projectile.timeLeft >= 100 && projectile.timeLeft <= 350))
+
+				{
+					{
+
+						Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<Rupee2>());
+					}
+				}
+		}
+				if (player.HasBuff(ModContent.BuffType<StatRaise>()))
 			{
 				damage += (damage) / 4;
 			}

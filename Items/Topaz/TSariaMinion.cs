@@ -122,9 +122,9 @@ namespace SariaMod.Items.Topaz
             idlePosition2.X += minionPositionOffsetX2;
             Vector2 vectorToIdlePosition3 = idlePosition2 - projectile.Center;
             float distanceToIdlePosition3 = vectorToIdlePosition3.Length();
-            if ((player.ownedProjectileCounts[ModContent.ProjectileType<SariasSong>()] >= 1f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Happiness>()] <= 0f) && ((player.ownedProjectileCounts[ModContent.ProjectileType<Sad>()] > 0f) || (!player.HasBuff(ModContent.BuffType<BloodmoonBuff>()))))
+            if ((player.ownedProjectileCounts[ModContent.ProjectileType<FrozenYogurtSignal>()] >= 1f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Happiness>()] <= 0f) && ((player.ownedProjectileCounts[ModContent.ProjectileType<Sad>()] > 0f) || (!player.HasBuff(ModContent.BuffType<BloodmoonBuff>()))))
             {
-                player.AddBuff(ModContent.BuffType<Soothing>(), 24000);
+                 
                 Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Happiness>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
             }
             if ((!player.HasBuff(ModContent.BuffType<Sickness>()) && (player.ownedProjectileCounts[ModContent.ProjectileType<Sad>()] >= 1f)))
@@ -157,21 +157,15 @@ namespace SariaMod.Items.Topaz
                     }
                 }
             }
-            if (player.ownedProjectileCounts[ModContent.ProjectileType<Happiness>()] >= 1f)
+            if (player.ownedProjectileCounts[ModContent.ProjectileType<Competitivetime>()] == 1f && player.ownedProjectileCounts[ModContent.ProjectileType<Competitive>()] <= 0f)
             {
-                if (Main.rand.NextBool(30))//controls the speed of when the sparkles spawn
                 {
-                    float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius4 * sphereRadius4));
-                    double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
-                    if (projectile.spriteDirection > 0)
+                    Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/StatRaise"), projectile.Center);
+                    for (int j = 0; j < 1; j++) //set to 2
                     {
-                        dustspeed = 18;
+                        Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<PowerUp>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
                     }
-                    if (projectile.spriteDirection < 0)
-                    {
-                        dustspeed = 3;
-                    }
-                    Dust.NewDust(new Vector2((projectile.Center.X + dustspeed) + radius * (float)Math.Cos(angle), (projectile.Center.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<HeartDust>(), 0f, 0f, 0, default(Color), 1.5f);
+                    Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Competitive>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
                 }
             }
             //////////////////////////////faces end
@@ -281,6 +275,52 @@ namespace SariaMod.Items.Topaz
                     dustspot = 3;
                 }
                 Dust.NewDust(new Vector2((projectile.Center.X + dustspot) + radius * (float)Math.Cos(angle), (projectile.Center.Y + 34) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Psychic2>(), 0f, 0f, 0, default(Color), 1.5f);
+            }
+            if (((Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneSnow) && !(Main.player[Main.myPlayer].behindBackWall && player.HasBuff((BuffID.Campfire)))) || (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneSkyHeight) && !(Main.player[Main.myPlayer].behindBackWall && player.HasBuff((BuffID.Campfire))) || (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneDesert && !Main.dayTime) && !(Main.player[Main.myPlayer].behindBackWall && player.HasBuff((BuffID.Campfire))) || (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneRain && !Main.player[Main.myPlayer].ZoneJungle && !(Main.player[Main.myPlayer].ZoneDesert && Main.dayTime)) && !(Main.player[Main.myPlayer].behindBackWall && player.HasBuff((BuffID.Campfire))))
+            {
+                if (projectile.velocity.X <= 1)
+                {
+                    if (Main.rand.NextBool(50))
+                    {
+                        float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius3 * sphereRadius3));
+                        double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
+                        if (projectile.spriteDirection > 0)
+                        {
+                            sneezespot = 25;
+                        }
+                        if (projectile.spriteDirection < 0)
+                        {
+                            sneezespot = -2;
+                        }
+                        for (int j = 0; j < 2; j++)
+                        {
+                            Dust.NewDust(new Vector2((projectile.Center.X + sneezespot) + radius * (float)Math.Cos(angle), (projectile.Center.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Fog>(), 0f, 0f, 0, default(Color), 1.5f);
+
+                        }
+                    }
+                }
+                else if (projectile.velocity.X > 1)
+                {
+                    if (Main.rand.NextBool(10))
+                    {
+                        float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius3 * sphereRadius3));
+                        double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
+                        if (projectile.spriteDirection > 0)
+                        {
+                            sneezespot = 25;
+                        }
+                        if (projectile.spriteDirection < 0)
+                        {
+                            sneezespot = -2;
+                        }
+                        for (int j = 0; j < 2; j++)
+                        {
+                            Dust.NewDust(new Vector2((projectile.Center.X + sneezespot) + radius * (float)Math.Cos(angle), (projectile.Center.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Fog>(), 0f, 0f, 0, default(Color), 1.5f);
+
+                        }
+                    }
+                }
+
             }//end of dust stuff
             if (base.projectile.localAI[0] == 0f)
             {
@@ -316,7 +356,7 @@ namespace SariaMod.Items.Topaz
                 projectile.Kill();
             }
             NPC target = base.projectile.Center.MinionHoming(500f, player);// the distance she targets enemies
-            if (target != null && projectile.ai[0] == 0 && ((player.ownedProjectileCounts[ModContent.ProjectileType<Bubble>()] < 1f)))
+            if (target != null && projectile.ai[0] == 0)
             {
                 projectile.ai[0] = 1;
             }

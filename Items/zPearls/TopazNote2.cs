@@ -28,7 +28,7 @@ namespace SariaMod.Items.zPearls
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Note to Topaz Tome");
-			Tooltip.SetDefault("Craft a Topaz Tome!\nIngredients include:\nRubyTome, 1\nMediumXpPearl, 40\nAt a Topaz Bookcase");
+			Tooltip.SetDefault("Craft a Topaz Tome!\nIngredients include:\nRubyTome, 1\nMediumXpPearl, 40\nTopaz, 4\nAt a Topaz Bookcase");
 		}
 
 
