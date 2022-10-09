@@ -36,7 +36,7 @@ namespace SariaMod.Buffs
 			DisplayName.SetDefault("Overcharged");
 			Description.SetDefault("Saria has now become overcharged!\nHer attacks now have added effects ");
 			Main.debuff[base.Type] = true;
-			Main.pvpBuff[base.Type] = true;
+			Main.pvpBuff[base.Type] = false;
 			Main.buffNoSave[base.Type] = false;
 			Main.buffNoTimeDisplay[base.Type] = false;
 			longerExpertDebuff = false;

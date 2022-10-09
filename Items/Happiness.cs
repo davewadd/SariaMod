@@ -25,7 +25,7 @@ namespace SariaMod.Items
 
         public override void SetStaticDefaults()
         {
-            base.DisplayName.SetDefault("Mother");
+            base.DisplayName.SetDefault("blade");
             Main.projFrames[base.projectile.type] = 2;
             Main.projPet[projectile.type] = true;
              ProjectileID.Sets.MinionSacrificable[base.projectile.type] = false;

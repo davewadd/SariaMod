@@ -36,7 +36,7 @@ namespace SariaMod.Buffs
 			DisplayName.SetDefault("Old Wounds");
 			Description.SetDefault("Saria's old wounds begin to cause agony\nShe desperately needs a break!\nCrafting Frozen Yogurt may also help!");
 			Main.debuff[base.Type] = true;
-			Main.pvpBuff[base.Type] = true;
+			Main.pvpBuff[base.Type] = false;
 			Main.buffNoSave[base.Type] = false;
 			Main.buffNoTimeDisplay[base.Type] = false;
 			longerExpertDebuff = false;
@@ -117,6 +117,7 @@ namespace SariaMod.Buffs
 			}
 			else if (player.HasBuff(ModContent.BuffType<Soothing>()))
 			{
+				player.DelBuff(buffIndex);
 				buffIndex--;
 			}
 

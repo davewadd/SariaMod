@@ -21,4 +21,5 @@ The Upgrade progression order for this mod is as follows:
 		I also highly advise using the Recipe Browser created by jopojelly to see all the different crafting recipes and items, however, this mod does also include notes for each item at each of the themed bookshelves. Start by just crafting a PaperNote.
 	Please do keep note that these upgrades will get extremely expensive, however, the effort put into it will certainly pay off!
 					This mod will be updated to Terraria 1.4 once finished on 1.3
+					
 

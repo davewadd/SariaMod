@@ -25,7 +25,7 @@ namespace SariaMod.Buffs
 			DisplayName.SetDefault("Soothing");
 			Description.SetDefault("This special frozen yogurt heals Saria's\nold wounds for now.");
 			Main.debuff[base.Type] = true;
-			Main.pvpBuff[base.Type] = true;
+			Main.pvpBuff[base.Type] = false;
 			Main.buffNoSave[base.Type] = false;
 			Main.buffNoTimeDisplay[base.Type] = false;
 			longerExpertDebuff = false;

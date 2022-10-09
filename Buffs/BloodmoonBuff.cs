@@ -98,6 +98,7 @@ namespace SariaMod.Buffs
 			}
 			else if (player.HasBuff(ModContent.BuffType<Soothing>()))
 			{
+				player.DelBuff(buffIndex);
 				buffIndex--;
 			}
 		}
