@@ -20,7 +20,7 @@ namespace SariaMod.Items.Bands
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Conner's Reaj");
+			DisplayName.SetDefault("Connor's Reaj");
 			base.Tooltip.SetDefault("Charge your enemies without fear! Greatly increases defense and slight boost to melee attacks\nRange, Summon, and magic damage\n become much weaker.");
 		}
 

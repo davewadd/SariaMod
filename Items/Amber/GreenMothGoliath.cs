@@ -79,11 +79,7 @@ namespace SariaMod.Items.Amber
 			{
 				projectile.timeLeft = 6499;
 			}
-			if (player.MinionDamage() != base.projectile.Fairy().spawnedPlayerMinionDamageValue)
-			{
-				int trueDamage = (int)((float)base.projectile.Fairy().spawnedPlayerMinionProjectileDamageValue / base.projectile.Fairy().spawnedPlayerMinionDamageValue * player.MinionDamage());
-				base.projectile.damage = trueDamage;
-			}
+			
 			NPC target = base.projectile.Center.MinionHoming(500f, player);// the distance she targets enemies
 			if (target != null && projectile.ai[0] == 0)
 			{

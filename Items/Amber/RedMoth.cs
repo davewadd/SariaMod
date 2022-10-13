@@ -36,7 +36,6 @@ namespace SariaMod.Items.Amber
 			base.projectile.timeLeft = 700;
 			base.projectile.penetrate = -1;
 			base.projectile.tileCollide = false;
-			base.projectile.minion = false;
 			base.projectile.localNPCHitCooldown = 15;
 			base.projectile.minionSlots = 0f;
 			base.projectile.netImportant = true;
@@ -63,11 +62,7 @@ namespace SariaMod.Items.Amber
 		{
 			Player player = Main.player[base.projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
-			if (player.MinionDamage() != base.projectile.Fairy().spawnedPlayerMinionDamageValue)
-			{
-				int trueDamage = (int)((float)base.projectile.Fairy().spawnedPlayerMinionProjectileDamageValue / base.projectile.Fairy().spawnedPlayerMinionDamageValue * player.MinionDamage());
-				base.projectile.damage = trueDamage;
-			}
+			
 			if ((player.ownedProjectileCounts[ModContent.ProjectileType<RedMothGiant>()] > 0f))
             {
 				projectile.Kill();

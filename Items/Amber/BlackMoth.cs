@@ -63,11 +63,7 @@ namespace SariaMod.Items.Amber
 		{
 			Player player = Main.player[base.projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
-			if (player.MinionDamage() != base.projectile.Fairy().spawnedPlayerMinionDamageValue)
-			{
-				int trueDamage = (int)((float)base.projectile.Fairy().spawnedPlayerMinionProjectileDamageValue / base.projectile.Fairy().spawnedPlayerMinionDamageValue * player.MinionDamage());
-				base.projectile.damage = trueDamage;
-			}
+			
 			
 				float distanceFromTarget = 10f;
 				Vector2 targetCenter = projectile.position;
@@ -299,8 +295,10 @@ namespace SariaMod.Items.Amber
 				damage /= 7;
 
 			}
-			damage /= 5;
-
+			else
+			{
+				damage /= 5;
+			}
 		}
 	}
 }

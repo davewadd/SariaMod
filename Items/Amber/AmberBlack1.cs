@@ -66,11 +66,7 @@ namespace SariaMod.Items.Amber
 			
 			
 
-			if (player.MinionDamage() != base.projectile.Fairy().spawnedPlayerMinionDamageValue)
-			{
-				int trueDamage = (int)((float)base.projectile.Fairy().spawnedPlayerMinionProjectileDamageValue / base.projectile.Fairy().spawnedPlayerMinionDamageValue * player.MinionDamage());
-				base.projectile.damage = trueDamage;
-			}
+			
 			if (player.dead || !player.active)
 			{
 				
@@ -108,6 +104,7 @@ namespace SariaMod.Items.Amber
 					base.projectile.ai[0] = 0f;
 				}
 			}
+
 			
 				Vector2 idlePosition = mother.Center;
 				idlePosition.Y -= 48f; // Go up 48 coordinates (three tiles from the center of the player)

@@ -65,11 +65,7 @@ namespace SariaMod.Items.Amber
 			FairyPlayer modPlayer = player.Fairy();
 			
 
-			if (player.MinionDamage() != base.projectile.Fairy().spawnedPlayerMinionDamageValue)
-			{
-				int trueDamage = (int)((float)base.projectile.Fairy().spawnedPlayerMinionProjectileDamageValue / base.projectile.Fairy().spawnedPlayerMinionDamageValue * player.MinionDamage());
-				base.projectile.damage = trueDamage;
-			}
+			
 			if (player.dead || !player.active)
 			{
 				
