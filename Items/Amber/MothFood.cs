@@ -43,7 +43,7 @@ namespace SariaMod.Items.Amber
 			item.summon = true;
 			item.shootSpeed = 1;
 			// No buffTime because otherwise the item tooltip would say something like "1 minute duration"
-			item.shoot = ModContent.ProjectileType<BabyHarpy>();
+			item.shoot = ModContent.ProjectileType<Mothdust>();
 
 		}
 		public override bool AltFunctionUse(Player player)
