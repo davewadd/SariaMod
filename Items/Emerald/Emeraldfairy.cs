@@ -118,7 +118,10 @@ namespace SariaMod.Items.Emerald
 					base.projectile.ai[0] = 0f;
 				}
 			}
-			
+			if (player.ownedProjectileCounts[ModContent.ProjectileType<EmeraldfairySilver>()] >= 1f)
+            {
+				projectile.Kill();
+            }
 				Vector2 idlePosition = player.Center;
 				idlePosition.Y -= 48f; // Go up 48 coordinates (three tiles from the center of the player)
 

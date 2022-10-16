@@ -76,9 +76,8 @@ namespace SariaMod.Items.Amber
 				{
 					NPC npc = Main.npc[player.MinionAttackTargetNPC];
 					float between = Vector2.Distance(npc.Center, projectile.Center);
-					bool lineOfSight = Collision.CanHitLine(projectile.position, projectile.width, projectile.height, npc.position, npc.width, npc.height);
 					// Reasonable distance away so it doesn't target across multiple screens
-					if (between < 2000f && lineOfSight)
+					if (between < 2000f)
 					{
 						distanceFromTarget = between;
 						targetCenter = npc.Center;
@@ -90,30 +89,31 @@ namespace SariaMod.Items.Amber
 
 				if (!foundTarget)
 				{
-					// This code is required either way, used for finding a target
-					for (int i = 0; i < Main.maxNPCs; i++)
+				// This code is required either way, used for finding a target
+				for (int i = 0; i < Main.maxNPCs; i++)
+				{
+					NPC npc = Main.npc[i];
+					if (npc.CanBeChasedBy())
 					{
-						NPC npc = Main.npc[i];
-						if (npc.CanBeChasedBy())
+						float between2 = Vector2.Distance(npc.Center, player.Center);
+						float between = Vector2.Distance(npc.Center, projectile.Center);
+						bool closest = Vector2.Distance(projectile.Center, targetCenter) > between;
+						bool inRange = between < distanceFromTarget;
+						bool lineOfSight = Collision.CanHitLine(projectile.position, projectile.width, projectile.height, npc.position, npc.width, npc.height);
+						// Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
+						// The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
+						bool closeThroughWall = between2 < 400f;
+						if (((closest && inRange) || !foundTarget) && (lineOfSight || closeThroughWall))
 						{
-							float between = Vector2.Distance(npc.Center, player.Center);
-							bool closest = Vector2.Distance(projectile.Center, targetCenter) > between;
-							bool inRange = between < distanceFromTarget;
-							bool lineOfSight = Collision.CanHitLine(projectile.position, projectile.width, projectile.height, npc.position, npc.width, npc.height);
-							// Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
-							// The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
-							bool closeThroughWall = between < 1000f;
-							if (((closest && inRange) || !foundTarget) && (lineOfSight || closeThroughWall))
-							{
-								distanceFromTarget = between;
-								targetCenter = npc.Center;
-								targetCenter.Y -= 0f;
-								targetCenter.X += 0f;
-								foundTarget = true;
-							}
+							distanceFromTarget = between;
+							targetCenter = npc.Center;
+							targetCenter.Y -= 0f;
+							targetCenter.X += 0f;
+							foundTarget = true;
 						}
 					}
 				}
+			}
 			if ((player.ownedProjectileCounts[ModContent.ProjectileType<Mothdust>()] > 0f))
             {
 				{
@@ -214,22 +214,23 @@ namespace SariaMod.Items.Amber
 					if (distanceToIdlePosition > 450f)
 					{
 						// Speed up the minion if it's away from the player
-						speed = 30f;
+						speed = 40f;
 						inertia = 60f;
 					}
-					else if (distanceToIdlePosition > 400f)
-					{
-						// Speed up the minion if it's away from the player
-						speed = 8f;
-						inertia = 60f;
-					}
-					else
+					
+					else if (distanceToIdlePosition > 50)
 					{
 						// Slow down the minion if closer to the player
-						speed = 4f;
+						speed = 30f;
 						inertia = 80f;
 					}
-					if (distanceToIdlePosition > 20f)
+				else
+				{
+					// Slow down the minion if closer to the player
+					speed = 4f;
+					inertia = 80f;
+				}
+					if (distanceToIdlePosition > 30f)
 					{
 						// The immediate range around the player (when it passively floats about)
 
@@ -238,7 +239,7 @@ namespace SariaMod.Items.Amber
 						vectorToIdlePosition *= speed;
 						projectile.velocity = (projectile.velocity * (inertia - 8) + vectorToIdlePosition) / inertia;
 					}
-					else if (projectile.velocity == Vector2.Zero)
+					if (projectile.velocity == Vector2.Zero)
 					{
 						// If there is a case where it's not moving at all, give it a little "poke"
 						projectile.velocity.X = -0.15f;

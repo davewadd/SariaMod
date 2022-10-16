@@ -29,10 +29,8 @@ namespace SariaMod.Items.LilHarpy
 			
 			base.projectile.width = 42;
 			base.projectile.height = 40;
-			base.projectile.hostile = false;
-			base.projectile.friendly = false;
+			base.projectile.friendly = true;
 			base.projectile.ignoreWater = true;
-			
 			base.projectile.timeLeft = 200;
 			base.projectile.penetrate = -1;
 			base.projectile.tileCollide = false;
@@ -45,7 +43,7 @@ namespace SariaMod.Items.LilHarpy
 
 
 		}
-		
+		public static int Timer;
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Psychic Turret");
@@ -54,24 +52,42 @@ namespace SariaMod.Items.LilHarpy
 			ProjectileID.Sets.MinionSacrificable[base.projectile.type] = false;
 			ProjectileID.Sets.MinionTargettingFeature[base.projectile.type] = true;
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
-		{
 
-			damage /= 4;
-		
+		public override bool MinionContactDamage()
+		{
+			Player player = Main.player[base.projectile.owner];
+			FairyPlayer modPlayer = player.Fairy();
+			NPC target = base.projectile.Center.MinionHoming(500f, player);
+			if (target != null)
+			{
+				return false;
+			}
+			else
+			{
+				return false;
+			}
 		}
-		
 		public override void AI()
 		{
 			Player player = Main.player[base.projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
-			
-
-			if (player.MinionDamage() != base.projectile.Fairy().spawnedPlayerMinionDamageValue)
+			if (NPC.downedMoonlord)
 			{
-				int trueDamage = (int)((float)base.projectile.Fairy().spawnedPlayerMinionProjectileDamageValue / base.projectile.Fairy().spawnedPlayerMinionDamageValue * player.MinionDamage());
-				base.projectile.damage = trueDamage;
+				projectile.damage = 100 * player.maxMinions;
 			}
+			else if (NPC.downedPlantBoss)
+			{
+				projectile.damage = 50 * player.maxMinions;
+			}
+			else if (Main.hardMode)
+			{
+				projectile.damage = 20 * player.maxMinions;
+			}
+			else 
+			{
+				projectile.damage = 8 * player.maxMinions;
+			}
+			
 			if (player.dead || !player.active)
 			{
 				player.ClearBuff(ModContent.BuffType<BabyHarpyBuff>());
@@ -87,22 +103,7 @@ namespace SariaMod.Items.LilHarpy
 			}
 			float speed = 8f;
 			float inertia = 20f;
-			for (int i = 0; i < 200; i++)
-			{
-				NPC target = Main.npc[i];
-				float shootToX = target.position.X + (float)target.width * 0.5f - base.projectile.Center.X;
-				float shootToY = target.position.Y + (float)target.height * 0.5f - base.projectile.Center.Y;
-				float distance = (float)Math.Sqrt(shootToX * shootToX + shootToY * shootToY);
-
-				if (distance < 1020f && target.catchItem == 0 && !target.friendly && Collision.CanHitLine(base.projectile.position, base.projectile.width, base.projectile.height, target.position, target.width, target.height) && target.active && target.type != 488 && base.projectile.ai[0] > 60f)
-				{
-					distance = 1.6f / distance;
-					shootToX *= distance * 3f;
-					shootToY *= distance * 3f;
-					
-					base.projectile.ai[0] = 0f;
-				}
-			}
+			
 			
 				Vector2 idlePosition = player.Center;
 				idlePosition.Y -= 48f; // Go up 48 coordinates (three tiles from the center of the player)
@@ -154,9 +155,11 @@ namespace SariaMod.Items.LilHarpy
 				{
 					NPC npc = Main.npc[player.MinionAttackTargetNPC];
 					float between = Vector2.Distance(npc.Center, projectile.Center);
-					// Reasonable distance away so it doesn't target across multiple screens
-					if (between < 2000f)
-					{
+				bool lineOfSight = Collision.CanHitLine(projectile.position, projectile.width, projectile.height, npc.position, npc.width, npc.height);
+				// Reasonable distance away so it doesn't target across multiple screens
+				bool closeThroughWall = between < 320f;
+				if (between < 2000f && (lineOfSight || closeThroughWall))
+				{
 						distanceFromTarget = between;
 						targetCenter = npc.Center;
 						foundTarget = true;
@@ -176,8 +179,8 @@ namespace SariaMod.Items.LilHarpy
 							bool lineOfSight = Collision.CanHitLine(projectile.position, projectile.width, projectile.height, npc.position, npc.width, npc.height);
 							// Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
 							// The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
-							bool closeThroughWall = between < 10f;
-							if (((closest && inRange) || !foundTarget) && (lineOfSight || closeThroughWall))
+							bool closeThroughWall = between < 260f;
+							if (((between < 500) && (lineOfSight || closeThroughWall)))
 							{
 								distanceFromTarget = between;
 								targetCenter = npc.Center;
@@ -186,12 +189,37 @@ namespace SariaMod.Items.LilHarpy
 						}
 					}
 				}
-
-				// friendly needs to be set to true so the minion can deal contact damage
-				// friendly needs to be set to false so it doesn't damage things like target dummies while idling
-				// Both things depend on if it has a target or not, so it's just one assignment here
-				// You don't need this assignment if your minion is shooting things instead of dealing contact damage
-				projectile.friendly = foundTarget;
+			int attacktimer = 120;
+			if (NPC.downedMoonlord)
+			{
+				attacktimer = 60;
+			}
+			else if (NPC.downedPlantBoss)
+			{
+				attacktimer = 80;
+			}
+			else if (Main.hardMode)
+			{
+				attacktimer = 95;
+			}
+			else if (NPC.downedBoss1)
+			{
+				attacktimer = 105;
+			}
+			Timer++;
+			if (Timer >= attacktimer && foundTarget && (player.ownedProjectileCounts[ModContent.ProjectileType<Feather>()] <= 0f))
+             {
+				
+				
+					Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Feather>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+				
+				Timer = 0;
+                }
+			// friendly needs to be set to true so the minion can deal contact damage
+			// friendly needs to be set to false so it doesn't damage things like target dummies while idling
+			// Both things depend on if it has a target or not, so it's just one assignment here
+			// You don't need this assignment if your minion is shooting things instead of dealing contact damage
+			
 
 			Vector2 idlePosition2 = player.Center;
 			idlePosition2.Y -= 48f;
@@ -199,8 +227,8 @@ namespace SariaMod.Items.LilHarpy
 			// Default movement parameters (here for attacking)
 			projectile.rotation = projectile.velocity.X * 0.05f;
 
-			
-				
+			{ 
+
 				{
 					// Minion doesn't have a target: return to player and idle
 					if (distanceToIdlePosition > 450f)
@@ -209,13 +237,13 @@ namespace SariaMod.Items.LilHarpy
 						speed = 30f;
 						inertia = 60f;
 					}
-				if (distanceToIdlePosition > 400f)
-				{
-					// Speed up the minion if it's away from the player
-					speed = 8f;
-					inertia = 60f;
-				}
-				else
+					if (distanceToIdlePosition > 400f)
+					{
+						// Speed up the minion if it's away from the player
+						speed = 8f;
+						inertia = 60f;
+					}
+					else
 					{
 						// Slow down the minion if closer to the player
 						speed = 4f;
@@ -237,7 +265,7 @@ namespace SariaMod.Items.LilHarpy
 						projectile.velocity.Y = -0.15f;
 					}
 				}
-			
+			}
 				if (projectile.velocity.X >= 0)
 				{
 					projectile.spriteDirection = -1;
@@ -291,6 +319,7 @@ namespace SariaMod.Items.LilHarpy
 
 					}
 				}
+
 			}
 		}
 	}

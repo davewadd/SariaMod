@@ -69,10 +69,8 @@ namespace SariaMod.Items.Amber
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<ASariaMinion>()] > 0)
 			{
-				
+
 				player.statLifeMax2 += 125;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
 				player.waterWalk = true;
@@ -80,13 +78,12 @@ namespace SariaMod.Items.Amber
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
-				player.detectCreature = true;
 				player.noFallDmg = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -101,10 +98,8 @@ namespace SariaMod.Items.Amber
 			}
 			else if(player.ownedProjectileCounts[ModContent.ProjectileType<ASSariaMinion>()] > 0)
 			{
-				
+
 				player.statLifeMax2 += 125;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
 				player.waterWalk = true;
@@ -112,13 +107,12 @@ namespace SariaMod.Items.Amber
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
-				player.detectCreature = true;
 				player.noFallDmg = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -133,10 +127,8 @@ namespace SariaMod.Items.Amber
 			}
 			else if(player.ownedProjectileCounts[ModContent.ProjectileType<ARSariaMinion>()] > 0)
 			{
-				
+
 				player.statLifeMax2 += 125;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
 				player.waterWalk = true;
@@ -144,13 +136,12 @@ namespace SariaMod.Items.Amber
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
-				player.detectCreature = true;
 				player.noFallDmg = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -165,10 +156,8 @@ namespace SariaMod.Items.Amber
 			}
 			else if(player.ownedProjectileCounts[ModContent.ProjectileType<ATSariaMinion>()] > 0)
 			{
-			
+
 				player.statLifeMax2 += 125;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
 				player.waterWalk = true;
@@ -176,13 +165,12 @@ namespace SariaMod.Items.Amber
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
-				player.detectCreature = true;
 				player.noFallDmg = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -197,10 +185,8 @@ namespace SariaMod.Items.Amber
 			}
 			else if(player.ownedProjectileCounts[ModContent.ProjectileType<AESariaMinion>()] > 0)
 			{
-				
+
 				player.statLifeMax2 += 125;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
 				player.waterWalk = true;
@@ -208,13 +194,12 @@ namespace SariaMod.Items.Amber
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
-				player.detectCreature = true;
 				player.noFallDmg = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;

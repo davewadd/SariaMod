@@ -31,7 +31,7 @@ namespace SariaMod.Items.Emerald
 			base.projectile.localNPCHitCooldown = 7;
 			base.projectile.minionSlots = 0f;
 			base.projectile.extraUpdates = 1;
-			base.projectile.aiStyle = 1;
+			base.projectile.aiStyle = 14;
 			base.projectile.penetrate = -1;
 			projectile.tileCollide = true;
 			base.projectile.timeLeft = 500;
@@ -43,6 +43,9 @@ namespace SariaMod.Items.Emerald
 		}
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
+			Player player = Main.player[base.projectile.owner];
+			FairyPlayer modPlayer = player.Fairy();
+			Vector2 direction = target.Center - player.Center;
 			target.buffImmune[BuffID.CursedInferno] = false;
 			target.buffImmune[BuffID.Confused] = false;
 			target.buffImmune[BuffID.Slow] = false;
@@ -55,6 +58,25 @@ namespace SariaMod.Items.Emerald
 			target.buffImmune[BuffID.Electrified] = false;
 			target.AddBuff(BuffID.Electrified, 300);
 			target.AddBuff(BuffID.Slow, 300);
+			if (!player.HasBuff(ModContent.BuffType<Overcharged>()))
+			{
+				if (Main.rand.NextBool(200))
+
+				{
+					{
+
+						Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<LivingPurpleShard>());
+					}
+				}
+			}
+			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
+			{
+				if (Main.rand.NextBool(80))
+
+				{
+					Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<LivingPurpleShard>());
+				}
+			}
 			damage /= 2;
 			knockback /= 2;
 		}

@@ -86,9 +86,8 @@ namespace SariaMod.Items.Amber
 			{
 				NPC npc = Main.npc[player.MinionAttackTargetNPC];
 				float between = Vector2.Distance(npc.Center, projectile.Center);
-				bool lineOfSight = Collision.CanHitLine(projectile.position, projectile.width, projectile.height, npc.position, npc.width, npc.height);
 				// Reasonable distance away so it doesn't target across multiple screens
-				if (between < 2000f )
+				if (between < 2000f)
 				{
 					distanceFromTarget = between;
 					targetCenter = npc.Center;
@@ -106,14 +105,15 @@ namespace SariaMod.Items.Amber
 					NPC npc = Main.npc[i];
 					if (npc.CanBeChasedBy())
 					{
-						float between = Vector2.Distance(npc.Center, player.Center);
+						float between2 = Vector2.Distance(npc.Center, player.Center);
+						float between = Vector2.Distance(npc.Center, projectile.Center);
 						bool closest = Vector2.Distance(projectile.Center, targetCenter) > between;
 						bool inRange = between < distanceFromTarget;
 						bool lineOfSight = Collision.CanHitLine(projectile.position, projectile.width, projectile.height, npc.position, npc.width, npc.height);
 						// Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
 						// The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
-						bool closeThroughWall = between < 300f;
-						if (((closest && inRange) || !foundTarget) )
+						bool closeThroughWall = between2 < 400f;
+						if (((closest && inRange) || !foundTarget) && (lineOfSight || closeThroughWall))
 						{
 							distanceFromTarget = between;
 							targetCenter = npc.Center;
@@ -318,6 +318,25 @@ namespace SariaMod.Items.Amber
 			projectile.timeLeft += 50;
 			{
 				Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Mothdust3>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+			}
+			if (!player.HasBuff(ModContent.BuffType<Overcharged>()))
+			{
+				if (Main.rand.NextBool(20))
+
+				{
+					{
+
+						Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<MothFood>());
+					}
+				}
+			}
+			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
+			{
+				if (Main.rand.NextBool(10))
+
+				{
+					Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<MothFood>());
+				}
 			}
 			if (player.HasBuff(ModContent.BuffType<StatRaise>()))
 			{

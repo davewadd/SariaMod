@@ -62,6 +62,11 @@ namespace SariaMod.Items.Emerald
 			{
 				projectile.localNPCHitCooldown = 14;
 			}
+			for (int i = 0; i < 1000; i++)
+				if (Main.projectile[i].active && i != base.projectile.whoAmI && Main.projectile[i].Hitbox.Intersects(base.projectile.Hitbox) && Main.projectile[i].active && ((!Main.projectile[i].friendly && Main.projectile[i].hostile) || (Main.projectile[i].trap)))
+				{
+					Main.projectile[i].Kill();
+				}
 			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
 			Lighting.AddLight(projectile.Center, Color.Purple.ToVector3() * 0.78f);
 			float distanceFromTarget = 10f;
@@ -207,12 +212,23 @@ namespace SariaMod.Items.Emerald
 			target.AddBuff(BuffID.Electrified, 300);
 			target.AddBuff(BuffID.Slow, 300);
 			projectile.timeLeft -= 15;
-			if ((projectile.timeLeft >= 10 && projectile.timeLeft <= 500))
-
+			if (!player.HasBuff(ModContent.BuffType<Overcharged>()))
 			{
+				if (Main.rand.NextBool(200))
+
 				{
-					
-					Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<Rupee3>());
+					{
+
+						Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<LivingPurpleShard>());
+					}
+				}
+			}
+			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
+			{
+				if (Main.rand.NextBool(80))
+
+				{
+					Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<LivingPurpleShard>());
 				}
 			}
 			if (player.HasBuff(ModContent.BuffType<StatRaise>()))

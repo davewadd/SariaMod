@@ -130,7 +130,7 @@ namespace SariaMod.Items.Ruby
             idlePosition2.X += minionPositionOffsetX2;
             Vector2 vectorToIdlePosition3 = idlePosition2 - projectile.Center;
             float distanceToIdlePosition3 = vectorToIdlePosition3.Length();
-            if ((player.ownedProjectileCounts[ModContent.ProjectileType<FrozenYogurtSignal>()] >= 1f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Happiness>()] <= 0f) && ((player.ownedProjectileCounts[ModContent.ProjectileType<Sad>()] > 0f) || (!player.HasBuff(ModContent.BuffType<BloodmoonBuff>()))))
+            if ((player.ownedProjectileCounts[ModContent.ProjectileType<FrozenYogurtSignal>()] >= 1f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Happiness>()] <= 0f) && ((player.ownedProjectileCounts[ModContent.ProjectileType<Sad>()] > 0f) || ((!player.HasBuff(ModContent.BuffType<BloodmoonBuff>())) || (!player.HasBuff(ModContent.BuffType<EclipseBuff>())))))
             {
                  
                 Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Happiness>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
@@ -144,7 +144,7 @@ namespace SariaMod.Items.Ruby
                     }
                 }
             }
-            if (player.statLife == player.statLifeMax2 && (projectile.frame >= 20 && projectile.frame <= 60 && projectile.ai[0] == 0 && (player.ownedProjectileCounts[ModContent.ProjectileType<SmileTime>()] <= 0f) && (!player.HasBuff(ModContent.BuffType<Sickness>()) && (!player.HasBuff(ModContent.BuffType<BloodmoonBuff>()) && (!player.HasBuff(ModContent.BuffType<StatLower>()) && (player.ownedProjectileCounts[ModContent.ProjectileType<Happiness>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Anger>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Sad>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Smile>()] <= 0f) && player.velocity.X == 0)) && projectile.spriteDirection != player.direction && (distanceToIdlePosition3 <= 10))))
+            if (player.statLife == player.statLifeMax2 && (projectile.frame >= 20 && projectile.frame <= 60 && projectile.ai[0] == 0 && (player.ownedProjectileCounts[ModContent.ProjectileType<SmileTime>()] <= 0f) && (!player.HasBuff(ModContent.BuffType<Sickness>()) && (!player.HasBuff(ModContent.BuffType<BloodmoonBuff>()) && !player.HasBuff(ModContent.BuffType<EclipseBuff>()) && (!player.HasBuff(ModContent.BuffType<StatLower>()) && (player.ownedProjectileCounts[ModContent.ProjectileType<Happiness>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Anger>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Sad>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Smile>()] <= 0f) && player.velocity.X == 0)) && projectile.spriteDirection != player.direction && (distanceToIdlePosition3 <= 10))))
             {
                 float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius3 * sphereRadius3));
                 double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
@@ -186,7 +186,7 @@ namespace SariaMod.Items.Ruby
                     }
                 }
             }
-            if (projectile.frame == 62 && (!player.HasBuff(ModContent.BuffType<StatLower>())) && (!player.HasBuff(ModContent.BuffType<Sickness>())))
+            if (projectile.frame == 62 && (!player.HasBuff(ModContent.BuffType<StatLower>())) && (!player.HasBuff(ModContent.BuffType<Sickness>()) && (!player.HasBuff(ModContent.BuffType<BloodmoonBuff>())) && (!player.HasBuff(ModContent.BuffType<EclipseBuff>()))))
             {
                 if (Main.rand.NextBool())//controls the speed of when the sparkles spawn
                 {
@@ -203,7 +203,7 @@ namespace SariaMod.Items.Ruby
                     Dust.NewDust(new Vector2((projectile.Center.X + sneezespot) + radius * (float)Math.Cos(angle), (projectile.Center.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Sneeze>(), 0f, 0f, 0, default(Color), 1.5f);
                 }
             }
-            if (projectile.frame == 62 && ((player.HasBuff(ModContent.BuffType<StatLower>())) || (player.HasBuff(ModContent.BuffType<Sickness>()))))
+            if (projectile.frame == 62 && ((player.HasBuff(ModContent.BuffType<StatLower>())) || (player.HasBuff(ModContent.BuffType<Sickness>()) || (player.HasBuff(ModContent.BuffType<BloodmoonBuff>()) || (player.HasBuff(ModContent.BuffType<EclipseBuff>()))))))
             {
                 if (Main.rand.NextBool())//controls the speed of when the sparkles spawn
                 {
@@ -368,6 +368,96 @@ namespace SariaMod.Items.Ruby
             {
                 projectile.ai[0] = 1;
             }
+            //Flashupdate stuff
+            for (int i = 0; i < 1000; i++)
+            {
+
+                float between = Vector2.Distance(Main.projectile[i].Center, player.Center);
+                if (between <= 100)
+                {
+
+
+                    if (Main.projectile[i].active && i != base.projectile.whoAmI && ((!Main.projectile[i].friendly && Main.projectile[i].hostile) || (Main.projectile[i].trap)))
+                    {
+                        if ((!player.HasBuff(ModContent.BuffType<Sickness>()) && (!player.HasBuff(ModContent.BuffType<BloodmoonBuff>()) && (!player.HasBuff(ModContent.BuffType<EclipseBuff>()) && (player.ownedProjectileCounts[ModContent.ProjectileType<Sad>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Flash>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<FlashCooldown>()] <= 0f)))))
+                        {
+
+                            Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Flash>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+                            Main.PlaySound(SoundID.Item76, base.projectile.Center);
+
+                        }
+                    }
+                }
+            }
+            if (player.ownedProjectileCounts[ModContent.ProjectileType<Flash>()] > 0f)
+            {
+                if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
+                {
+                    float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius2 * sphereRadius2));
+                    double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
+                    if (projectile.spriteDirection > 0)
+                    {
+                        sneezespot = 18;
+                    }
+                    if (projectile.spriteDirection < 0)
+                    {
+                        sneezespot = 3;
+                    }
+                    Dust.NewDust(new Vector2((projectile.Center.X + sneezespot) + radius * (float)Math.Cos(angle), (projectile.Center.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Psychic>(), 0f, 0f, 0, default(Color), 1.5f);
+                }
+            }
+            if ((Main.player[Main.myPlayer].active && Main.eclipse) && ((!player.HasBuff(ModContent.BuffType<Soothing>()))))
+            {
+                player.AddBuff(ModContent.BuffType<EclipseBuff>(), 20);
+                if (Main.rand.NextBool(30))//controls the speed of when the sparkles spawn
+                {
+                    float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius3 * sphereRadius3));
+                    double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
+                    if (projectile.spriteDirection > 0)
+                    {
+                        sneezespot = 18;
+                    }
+                    if (projectile.spriteDirection < 0)
+                    {
+                        sneezespot = 3;
+                    }
+                    Dust.NewDust(new Vector2((projectile.Center.X + sneezespot) + radius * (float)Math.Cos(angle), (projectile.Center.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Blood>(), 0f, 0f, 0, default(Color), 1.5f);
+                }
+                if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
+                {
+                    float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius2 * sphereRadius2));
+                    double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
+                    if (projectile.spriteDirection > 0)
+                    {
+                        sneezespot = 18;
+                    }
+                    if (projectile.spriteDirection < 0)
+                    {
+                        sneezespot = 3;
+                    }
+                    Dust.NewDust(new Vector2((projectile.Center.X + sneezespot) + radius * (float)Math.Cos(angle), (projectile.Center.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<BlackSmoke>(), 0f, 0f, 0, default(Color), 1.5f);
+                }
+                if (player.ownedProjectileCounts[ModContent.ProjectileType<period>()] <= 0f)
+                {
+                    Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Anger>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+                    Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<period>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+                }
+            }
+            if (player.HasBuff(ModContent.BuffType<BloodmoonBuff>()) && (player.ownedProjectileCounts[ModContent.ProjectileType<period>()] <= 0f))
+
+            {
+                Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Anger>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+                Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<period>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+            }
+            if (player.HasBuff(ModContent.BuffType<StatLower>()) && (player.ownedProjectileCounts[ModContent.ProjectileType<period>()] <= 0f))
+
+            {
+                Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Sad2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+                Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<period>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+            }
+
+
+            //end of Flashupdate stuff
             //Statraise and lower
             if ((Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneBeach || Main.player[Main.myPlayer].ZoneUnderworldHeight || Main.player[Main.myPlayer].ZoneMeteor || (Main.player[Main.myPlayer].ZoneRain && !Main.player[Main.myPlayer].ZoneSnow) || Main.player[Main.myPlayer].ZoneSandstorm))
             {

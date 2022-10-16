@@ -11,6 +11,7 @@ namespace SariaMod.Items.Bands
 		public override void SetStaticDefaults() {
 			// DisplayName and Tooltip are automatically set from the .lang files, but below is how it is done normally.
 			// DisplayName.SetDefault("Paper Airplane");
+			base.Tooltip.SetDefault("Summons a baby harpy in the pet slot\nActually helps fight!\nDamage starts at 10 but multiplies by the Player's minion count");
 			// Tooltip.SetDefault("Summons a Paper Airplane to follow aimlessly behind you");
 		}
 

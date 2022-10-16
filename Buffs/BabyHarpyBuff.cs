@@ -45,7 +45,6 @@ namespace SariaMod.Buffs
 				player.buffTime[buffIndex] = 18000;
 			}
 			player.buffTime[buffIndex] = 18000;
-			player.GetModPlayer<FairyPlayer>().BabyHarpy = true;
 			bool petProjectileNotSpawned = player.ownedProjectileCounts[ModContent.ProjectileType<BabyHarpy>()] <= 0;
 			if (petProjectileNotSpawned && player.whoAmI == Main.myPlayer)
 			{

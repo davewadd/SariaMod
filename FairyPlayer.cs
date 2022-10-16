@@ -19,27 +19,9 @@ namespace SariaMod
 {
 	public class FairyPlayer : ModPlayer
 	{
-		public bool Sapphire;
+		
 
-		public bool BabyHarpy;
-
-		public override void ResetEffects()
-		{
-
-			if (Sapphire)
-			{
-				base.player.statLifeMax2 += 20;
-			}
-
-		}
-		private static void MiscEffects(Player player, FairyPlayer modPlayer, Mod mod)
-		{
-			if (!player.behindBackWall && Main.raining && player.ZoneSnow && !player.HasBuff(BuffID.Warmth) && !player.HasBuff(BuffID.Campfire) && player.ZoneOverworldHeight)
-			{
-				
-				player.buffImmune[BuffID.Frostburn] = false;
-				player.AddBuff(BuffID.Frostburn, 2);
-			}
-		}
+		
+		
 	}
 }

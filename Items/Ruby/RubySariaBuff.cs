@@ -69,7 +69,7 @@ namespace SariaMod.Items.Ruby
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<RSariaMinion>()] > 0)
 			{
-				 
+
 				player.statLifeMax2 += 75;
 				player.waterWalk = true;
 				player.detectCreature = true;
@@ -80,6 +80,7 @@ namespace SariaMod.Items.Ruby
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -94,7 +95,7 @@ namespace SariaMod.Items.Ruby
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<RSSariaMinion>()] > 0)
 			{
-				 
+
 				player.statLifeMax2 += 75;
 				player.waterWalk = true;
 				player.detectCreature = true;
@@ -105,6 +106,7 @@ namespace SariaMod.Items.Ruby
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;

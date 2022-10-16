@@ -8,6 +8,7 @@ using SariaMod.Items.Amethyst;
 using SariaMod.Items.Diamond;
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
+using SariaMod.Items;
 using System;
 using Terraria;
 using Terraria.ID;
@@ -43,16 +44,21 @@ namespace SariaMod.Buffs
 
 		}
 		public override void Update(Player player, ref int buffIndex)
-		{
+        {
+			
+			
 			if (player.buffTime[buffIndex] <= 10)
+            {
+                if (!player.HasBuff(ModContent.BuffType<Drained>()))
+                {
+                    player.AddBuff(ModContent.BuffType<Drained>(), 30000);
+                }
+            }
+			if (player.buffTime[buffIndex] == 3750 || player.buffTime[buffIndex] == 3000 || player.buffTime[buffIndex] == 2000 || player.buffTime[buffIndex] == 1000 || player.buffTime[buffIndex] == 900 || player.buffTime[buffIndex] == 800 || player.buffTime[buffIndex] == 700 || player.buffTime[buffIndex] == 600 || player.buffTime[buffIndex] == 500 || player.buffTime[buffIndex] == 400 || player.buffTime[buffIndex] == 300 || player.buffTime[buffIndex] == 200 )
 			{
-				if (!player.HasBuff(ModContent.BuffType<Drained>()))
-				{
-					player.AddBuff(ModContent.BuffType<Drained>(), 30000);
-				}
+				Main.PlaySound(SoundID.DD2_DarkMageCastHeal, player.Center);
 			}
-
 		}
 
-	}
+    }
 }

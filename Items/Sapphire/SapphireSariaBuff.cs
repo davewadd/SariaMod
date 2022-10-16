@@ -67,13 +67,14 @@ namespace SariaMod.Items.Sapphire
 		
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<SapphireSariaMinion2>()] > 0)
 			{
-				 
+
 				player.statLifeMax2 += 50;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.gills = true;
 				player.dangerSense = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.noFallDmg = true;
 				player.AddBuff(BuffID.Warmth, 20);
 				if (player.buffTime[buffIndex] <= 10)
@@ -88,13 +89,14 @@ namespace SariaMod.Items.Sapphire
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<SSariaMinion>()] > 0)
 			{
-				 
+
 				player.statLifeMax2 += 50;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.gills = true;
 				player.dangerSense = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.noFallDmg = true;
 				player.AddBuff(BuffID.Warmth, 20);
 				if (player.buffTime[buffIndex] <= 10)
@@ -109,13 +111,14 @@ namespace SariaMod.Items.Sapphire
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<SSariaMinion2>()] > 0)
 			{
-				 
+
 				player.statLifeMax2 += 50;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.gills = true;
 				player.dangerSense = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.noFallDmg = true;
 				player.AddBuff(BuffID.Warmth, 20);
 				if (player.buffTime[buffIndex] <= 10)

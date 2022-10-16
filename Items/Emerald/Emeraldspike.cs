@@ -215,24 +215,21 @@ namespace SariaMod.Items.Emerald
 			projectile.timeLeft -= 15;
 			if (!player.HasBuff(ModContent.BuffType<Overcharged>()))
 			{
-				if ((projectile.timeLeft >= 100 && projectile.timeLeft <= 200))
+				if (Main.rand.NextBool(100))
 
 				{
 					{
 
-						Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<Rupee2>());
+						Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<LivingGreenShard>());
 					}
 				}
 			}
 			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
-			{ 
-				if ((projectile.timeLeft >= 100 && projectile.timeLeft <= 350))
+			{
+				if (Main.rand.NextBool(20))
 
 				{
-					{
-
-						Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<Rupee2>());
-					}
+						Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<LivingGreenShard>());
 				}
 		}
 				if (player.HasBuff(ModContent.BuffType<StatRaise>()))

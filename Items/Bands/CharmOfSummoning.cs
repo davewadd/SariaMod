@@ -19,6 +19,7 @@ namespace SariaMod.Items.Bands
 	{
 		public override void SetStaticDefaults()
 		{
+			DisplayName.SetDefault("Charm of Summoning");
 			base.Tooltip.SetDefault("Will increase the number of sentries and Minions\nGrows in power as Saria gets stronger\n\nWithout Saria the stone seems inactive");
 		}
 
@@ -81,14 +82,7 @@ namespace SariaMod.Items.Bands
 				player.maxTurrets += 0;
 				player.maxMinions += 0;
             }
-			if (player.HasBuff((BuffID.Summoning)))
-            {
-				player.AddBuff(BuffID.Summoning, 10);
-			}
-			if (player.HasBuff((BuffID.Bewitched)))
-			{
-				player.AddBuff(BuffID.Bewitched, 10);
-			}
+			
 
 		}
 		public override void AddRecipes()

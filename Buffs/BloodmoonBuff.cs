@@ -34,7 +34,7 @@ namespace SariaMod.Buffs
 		public override void SetDefaults()
 		{
 			DisplayName.SetDefault("BloodLust");
-			Description.SetDefault("You feel uneasy as Saria gazes at the bloodmoon\nShe unconsciously steals your lifeforce!");
+			Description.SetDefault("You feel uneasy as Saria gazes at the BloodMoon\nShe unconsciously steals your lifeforce!");
 			Main.debuff[base.Type] = true;
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;
@@ -44,6 +44,7 @@ namespace SariaMod.Buffs
 		}
 		public override void Update(Player player, ref int buffIndex)
 		{
+			
 			if (!player.HasBuff(ModContent.BuffType<Soothing>()))
 			{
 				if (player.HasBuff(ModContent.BuffType<SariaBuff>()) && (Main.player[Main.myPlayer].active && Main.bloodMoon))

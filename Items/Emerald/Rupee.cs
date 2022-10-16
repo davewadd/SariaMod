@@ -111,9 +111,12 @@ namespace SariaMod.Items.Emerald
 				// You don't need this assignment if your minion is shooting things instead of dealing contact damage
 				projectile.friendly = foundTarget;
 
+				if (Main.rand.NextBool(2500))
+				{
+					Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Silverrupee>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+					projectile.Kill();
+				}
 
-
-				
 				if (projectile.timeLeft == 10)
 				{
 					Projectile.NewProjectile(base.projectile.Center + new Vector2( 0f, -80f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Emeraldspike>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);

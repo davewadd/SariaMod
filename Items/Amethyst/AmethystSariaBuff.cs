@@ -66,23 +66,20 @@ namespace SariaMod.Items.Amethyst
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<AMSariaMinion>()] > 0)
 			{
-				
+
 				player.statLifeMax2 += 150;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
-				player.thorns += 20;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -97,23 +94,20 @@ namespace SariaMod.Items.Amethyst
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<AMSSariaMinion>()] > 0)
 			{
-				
+
 				player.statLifeMax2 += 150;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
-				player.thorns += 20;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -128,23 +122,20 @@ namespace SariaMod.Items.Amethyst
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<AMRSariaMinion>()] > 0)
 			{
-				
+
 				player.statLifeMax2 += 150;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
-				player.thorns += 20;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -159,23 +150,20 @@ namespace SariaMod.Items.Amethyst
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<AMTSariaMinion>()] > 0)
 			{
-				
+
 				player.statLifeMax2 += 150;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
-				player.thorns += 20;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -190,23 +178,20 @@ namespace SariaMod.Items.Amethyst
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<AMESariaMinion>()] > 0)
 			{
-				
+
 				player.statLifeMax2 += 150;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
-				player.thorns += 20;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -221,23 +206,20 @@ namespace SariaMod.Items.Amethyst
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<AMASariaMinion>()] > 0)
 			{
-				 
+
 				player.statLifeMax2 += 150;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
-				player.thorns += 20;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;

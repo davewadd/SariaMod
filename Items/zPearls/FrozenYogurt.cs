@@ -118,6 +118,15 @@ namespace SariaMod.Items.zPearls
 				recipe.SetResult(this);
 				recipe.AddRecipe();
 			}
+			{
+				ModRecipe recipe = new ModRecipe(mod);
+				recipe.AddIngredient(ModContent.ItemType<LivingGreenShard>(), 2);
+				recipe.AddIngredient(ItemID.SuperManaPotion, 3);
+				recipe.AddIngredient(ItemID.SnowBlock, 5);
+
+				recipe.SetResult(this);
+				recipe.AddRecipe();
+			}
 		}
 	}
 

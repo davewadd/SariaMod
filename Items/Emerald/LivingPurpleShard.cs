@@ -12,7 +12,7 @@ using Terraria.ModLoader;
 
 namespace SariaMod.Items.Emerald
 {
-	public class Rupee3 : ModItem
+	public class LivingPurpleShard : ModItem
 	{
 		public override void SetStaticDefaults()
 		{
@@ -87,5 +87,9 @@ namespace SariaMod.Items.Emerald
 				return true;
 			}
             }
+		public override void AddRecipes()
+		{
+			
 		}
+	}
 }

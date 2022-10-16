@@ -68,7 +68,7 @@ namespace SariaMod.Items.Topaz
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<TSariaMinion>()] > 0)
 			{
-			
+
 				player.statLifeMax2 += 100;
 				player.waterWalk = true;
 				player.detectCreature = true;
@@ -80,6 +80,7 @@ namespace SariaMod.Items.Topaz
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -94,7 +95,7 @@ namespace SariaMod.Items.Topaz
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<TSSariaMinion>()] > 0)
 			{
-				
+
 				player.statLifeMax2 += 100;
 				player.waterWalk = true;
 				player.detectCreature = true;
@@ -106,6 +107,7 @@ namespace SariaMod.Items.Topaz
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -120,7 +122,7 @@ namespace SariaMod.Items.Topaz
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<TRSariaMinion>()] > 0)
 			{
-				
+
 				player.statLifeMax2 += 100;
 				player.waterWalk = true;
 				player.detectCreature = true;
@@ -132,6 +134,7 @@ namespace SariaMod.Items.Topaz
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;

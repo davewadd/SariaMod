@@ -72,21 +72,18 @@ namespace SariaMod.Items.Diamond
 			{
 
 				player.statLifeMax2 += 200;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
-				player.thorns += 20;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -103,21 +100,18 @@ namespace SariaMod.Items.Diamond
 			{
 
 				player.statLifeMax2 += 200;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
-				player.thorns += 20;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -134,21 +128,18 @@ namespace SariaMod.Items.Diamond
 			{
 
 				player.statLifeMax2 += 200;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
-				player.thorns += 20;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -165,21 +156,18 @@ namespace SariaMod.Items.Diamond
 			{
 
 				player.statLifeMax2 += 200;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
-				player.thorns += 20;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -196,21 +184,18 @@ namespace SariaMod.Items.Diamond
 			{
 
 				player.statLifeMax2 += 200;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
-				player.thorns += 20;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -227,21 +212,18 @@ namespace SariaMod.Items.Diamond
 			{
 
 				player.statLifeMax2 += 200;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
-				player.thorns += 20;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -258,21 +240,18 @@ namespace SariaMod.Items.Diamond
 			{
 
 				player.statLifeMax2 += 200;
-				player.honey = true;
-				player.crimsonRegen = true;
 				player.accOreFinder = true;
 				player.findTreasure = true;
-				player.thorns += 20;
 				player.waterWalk = true;
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
 				player.dangerSense = true;
-				player.wellFed = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;

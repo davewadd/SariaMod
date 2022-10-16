@@ -15,7 +15,7 @@ using Terraria.ModLoader;
 
 namespace SariaMod.Items.Emerald
 {
-	public class Rupee2 : ModItem
+	public class LivingGreenShard : ModItem
 	{
 		public override void SetStaticDefaults()
 		{

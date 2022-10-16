@@ -95,9 +95,8 @@ namespace SariaMod.Items.Amber
 			{
 				NPC npc = Main.npc[player.MinionAttackTargetNPC];
 				float between = Vector2.Distance(npc.Center, projectile.Center);
-				bool lineOfSight = Collision.CanHitLine(projectile.position, projectile.width, projectile.height, npc.position, npc.width, npc.height);
 				// Reasonable distance away so it doesn't target across multiple screens
-				if (between < 2000f && lineOfSight)
+				if (between < 2000f)
 				{
 					distanceFromTarget = between;
 					targetCenter = npc.Center;
@@ -115,13 +114,14 @@ namespace SariaMod.Items.Amber
 					NPC npc = Main.npc[i];
 					if (npc.CanBeChasedBy())
 					{
-						float between = Vector2.Distance(npc.Center, player.Center);
+						float between2 = Vector2.Distance(npc.Center, player.Center);
+						float between = Vector2.Distance(npc.Center, projectile.Center);
 						bool closest = Vector2.Distance(projectile.Center, targetCenter) > between;
 						bool inRange = between < distanceFromTarget;
 						bool lineOfSight = Collision.CanHitLine(projectile.position, projectile.width, projectile.height, npc.position, npc.width, npc.height);
 						// Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
 						// The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
-						bool closeThroughWall = between < 700f;
+						bool closeThroughWall = between2 < 500f;
 						if (((closest && inRange) || !foundTarget) && (lineOfSight || closeThroughWall))
 						{
 							distanceFromTarget = between;

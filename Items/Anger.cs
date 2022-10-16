@@ -57,10 +57,10 @@ namespace SariaMod.Items
             base.projectile.usesLocalNPCImmunity = true;
              base.projectile.localNPCHitCooldown = 50;
                 base.projectile.minionSlots = 0f;
-            base.projectile.timeLeft = 80;
+            base.projectile.timeLeft = 200;
             base.projectile.penetrate = -1;
             base.projectile.tileCollide = false;
-            base.projectile.timeLeft *= 5;
+            
             base.projectile.minion = true;
         }
        
@@ -69,14 +69,17 @@ namespace SariaMod.Items
 
             Player player = Main.player[base.projectile.owner];
             FairyPlayer modPlayer = player.Fairy();
-           
-           
-           
-           
-             
-            
 
-            
+
+            if (projectile.timeLeft >= 200)
+            {
+                Main.PlaySound(SoundID.Item29, base.projectile.Center);
+            }
+
+
+
+
+
             Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
             if (!mother.active)
             {

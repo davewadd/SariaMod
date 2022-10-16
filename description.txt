@@ -23,10 +23,27 @@ The Upgrade progression order for this mod is as follows:
 					This mod will be updated to Terraria 1.4 once finished on 1.3
 					
 **Patch notes(should've done this sooner to be honest)**
+ver 5.4.0
+	-changed how rare items like ancient moth food and living shards are dropped from attacks.
+
+	-added more faces to help know when Buffs and Debuffs are about to wear off. Saria now gets the sickness debuff faster if in a biome that she is weak in.
+
+	-two new upgrades to the charm of summoning
+
+	-a new, ultra rare silver cluster has a chance of spawning from Saria's emerald attack.
+
+	-Saria now has a chance to destroy projectiles.
+
+	-added the blood ocarina, use a blank ocarina durring a bloon moon to get it
+
+	-lastly, changed the AI for some of the attacks
+ver 5.3.0
+	-Balanced all the buffs so that they all have what they are supposed to give
+
 ver 5.2.0
 	-Fixed a bug where the "soothing buff" crashed the game in multiplayer, no more crashes :D
 
-	-Added a new item, Saria's Confect. This item gives the player Overcharged for just a few minutes with a heafty cooldown.
+	-Added a new item, Saria's Confect. This item gives the player Overcharged for just a few minutes with a hefty cooldown.
 	all attacks will have something unique that changes them such as, double the projectiles, heartdrops, increased hits per second and more
 
 	-Fixed a bug with the amber blood moths. Not sure why they didn't attack enemies before but now they got over it!

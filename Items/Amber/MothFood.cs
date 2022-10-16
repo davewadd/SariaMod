@@ -7,7 +7,7 @@ using SariaMod.Buffs;
 using Terraria;
 using SariaMod.Items.zPearls;
 
-
+using SariaMod.Items.LilHarpy;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -43,7 +43,7 @@ namespace SariaMod.Items.Amber
 			item.summon = true;
 			item.shootSpeed = 1;
 			// No buffTime because otherwise the item tooltip would say something like "1 minute duration"
-			item.shoot = ModContent.ProjectileType<Mothdust>();
+			item.shoot = ModContent.ProjectileType<BabyHarpy>();
 
 		}
 		public override bool AltFunctionUse(Player player)

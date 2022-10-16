@@ -128,14 +128,16 @@ namespace SariaMod.Items.Amber
 					NPC npc = Main.npc[i];
 					if (npc.CanBeChasedBy())
 					{
-						float between = Vector2.Distance(npc.Center, player.Center);
+						float between2 = Vector2.Distance(npc.Center, player.Center);
+						float between = Vector2.Distance(npc.Center, projectile.Center);
 						bool closest = Vector2.Distance(projectile.Center, targetCenter) > between;
 						bool inRange = between < distanceFromTarget;
 						bool lineOfSight = Collision.CanHitLine(projectile.position, projectile.width, projectile.height, npc.position, npc.width, npc.height);
+
 						// Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
 						// The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
-						bool closeThroughWall = between < 200f;
-						if (((closest && inRange) || !foundTarget) )
+						bool closeThroughWall = between2 < 200f;
+						if (((closest && inRange) || !foundTarget) && (lineOfSight || closeThroughWall))
 						{
 							distanceFromTarget = between;
 							targetCenter = npc.Center;
@@ -238,7 +240,7 @@ namespace SariaMod.Items.Amber
 					projectile.velocity = (projectile.velocity * (inertia - 8) + direction) / inertia;
 				}
 			}
-			else if (foundTarget && (!player.HasMinionAttackTargetNPC))
+			else if (foundTarget && (!player.HasMinionAttackTargetNPC) && projectile.timeLeft >= 6500)
             {
 				inertia = 60f;
 				projectile.velocity = (projectile.velocity * (inertia - 8) + vectorToIdlePosition) / inertia;
@@ -271,6 +273,19 @@ namespace SariaMod.Items.Amber
 					}
 					projectile.timeLeft -= 400;
 					
+				}
+			}
+			 else if (foundTarget && (!player.HasMinionAttackTargetNPC) && projectile.timeLeft <= 6500)
+			{
+				base.projectile.tileCollide = false;
+				speed = 80f;
+				inertia = 60f;
+				{
+					// The immediate range around the target (so it doesn't latch onto it when close)
+					Vector2 direction = targetCenter - projectile.Center;
+					direction.Normalize();
+					direction *= speed;
+					projectile.velocity = (projectile.velocity * (inertia - 8) + direction) / inertia;
 				}
 			}
 			if (!foundTarget)

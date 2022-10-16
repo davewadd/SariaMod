@@ -69,7 +69,7 @@ namespace SariaMod.Items.Emerald
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<ERSariaMinion>()] > 0)
 			{
-				
+
 				player.statLifeMax2 += 125;
 				player.pickSpeed += -60000;
 				player.accOreFinder = true;
@@ -78,12 +78,12 @@ namespace SariaMod.Items.Emerald
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
-				player.wellFed = true;
 				player.dangerSense = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -98,7 +98,7 @@ namespace SariaMod.Items.Emerald
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<ETSariaMinion>()] > 0)
 			{
-				
+
 				player.statLifeMax2 += 125;
 				player.pickSpeed += -60000;
 				player.accOreFinder = true;
@@ -107,12 +107,12 @@ namespace SariaMod.Items.Emerald
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
-				player.wellFed = true;
 				player.dangerSense = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -127,7 +127,7 @@ namespace SariaMod.Items.Emerald
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<ESSariaMinion>()] > 0)
 			{
-				
+
 				player.statLifeMax2 += 125;
 				player.pickSpeed += -60000;
 				player.accOreFinder = true;
@@ -136,12 +136,12 @@ namespace SariaMod.Items.Emerald
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
-				player.wellFed = true;
 				player.dangerSense = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
@@ -156,7 +156,7 @@ namespace SariaMod.Items.Emerald
 			}
 			else if (player.ownedProjectileCounts[ModContent.ProjectileType<ESariaMinion>()] > 0)
 			{
-				
+
 				player.statLifeMax2 += 125;
 				player.pickSpeed += -60000;
 				player.accOreFinder = true;
@@ -165,12 +165,12 @@ namespace SariaMod.Items.Emerald
 				player.detectCreature = true;
 				player.lavaImmune = true;
 				player.fireWalk = true;
-				player.wellFed = true;
 				player.dangerSense = true;
 				player.noFallDmg = true;
 				player.resistCold = true;
 				player.gills = true;
 				player.accFlipper = true;
+				player.ignoreWater = true;
 				player.AddBuff(BuffID.ObsidianSkin, 20);
 				player.AddBuff(BuffID.Warmth, 20);
 				player.lavaTime = 180000;
