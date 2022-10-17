@@ -52,7 +52,7 @@ namespace SariaMod.Items.Topaz
 			{
 				projectile.width = 100;
 				projectile.height = 450;
-				projectile.localNPCHitCooldown = 3;
+				projectile.localNPCHitCooldown = 6;
 			}
 			{
 

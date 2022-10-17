@@ -118,17 +118,13 @@ namespace SariaMod.Items.Emerald
 					base.projectile.ai[0] = 0f;
 				}
 			}
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<EmeraldfairySilver>()] >= 1f)
-            {
-				projectile.Kill();
-            }
 				Vector2 idlePosition = player.Center;
 				idlePosition.Y -= 48f; // Go up 48 coordinates (three tiles from the center of the player)
 
-				// If your minion doesn't aimlessly move around when it's idle, you need to "put" it into the line of other summoned minions
-				// The index is projectile.minionPos
-				float minionPositionOffsetX = (10 + projectile.minionPos * 40) * -player.direction;
-				idlePosition.X += minionPositionOffsetX; // Go behind the player
+			// If your minion doesn't aimlessly move around when it's idle, you need to "put" it into the line of other summoned minions
+			// The index is projectile.minionPos
+			float minionPositionOffsetX = (projectile.minionPos * 10) * player.direction;
+			idlePosition.X += minionPositionOffsetX; // Go behind the player
 
 				// All of this code below this line is adapted from Spazmamini code (ID 388, aiStyle 66)
 

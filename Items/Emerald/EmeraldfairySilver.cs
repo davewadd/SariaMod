@@ -89,17 +89,11 @@ namespace SariaMod.Items.Emerald
 			{
 				projectile.Kill();
 			}
-			if (player.statLife < (player.statLifeMax2) / 2 && !player.HasBuff(ModContent.BuffType<FairyHealBuff>()))
+			if (player.statLife < (player.statLifeMax2) / 2 && Timer >= Healtimer)
 			{
-				player.statLife += 500;
-				player.AddBuff(ModContent.BuffType<FairyHealBuff>(), 8000);
-				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Healpulse"), player.Center);
-				for (int j = 0; j < 5; j++) //set to 2
-				{
-					Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Heal>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-					
-				}
-				projectile.Kill();
+				player.statLife += 100;
+				Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ItemID.Heart);
+				Timer = 0;
 			}
 			else if (player.statLife < (player.statLifeMax2) && Timer >= Healtimer)
 			{
@@ -132,7 +126,7 @@ namespace SariaMod.Items.Emerald
 
 				// If your minion doesn't aimlessly move around when it's idle, you need to "put" it into the line of other summoned minions
 				// The index is projectile.minionPos
-				float minionPositionOffsetX = (10 + projectile.minionPos * 40) * -player.direction;
+				float minionPositionOffsetX = (projectile.minionPos * 10) * player.direction;
 				idlePosition.X += minionPositionOffsetX; // Go behind the player
 
 				// All of this code below this line is adapted from Spazmamini code (ID 388, aiStyle 66)
@@ -176,24 +170,23 @@ namespace SariaMod.Items.Emerald
 
 			
 				
-				{
-					// Minion doesn't have a target: return to player and idle
+				{// Minion doesn't have a target: return to player and idle
 					if (distanceToIdlePosition > 450f)
 					{
 						// Speed up the minion if it's away from the player
-						speed = 30f;
-						inertia = 60f;
+						speed = 60f;
+						inertia = 70f;
 					}
-				if (distanceToIdlePosition > 400f)
+				else if (distanceToIdlePosition > 400f)
 				{
 					// Speed up the minion if it's away from the player
-					speed = 8f;
+					speed = 16f;
 					inertia = 60f;
 				}
 				else
 					{
 						// Slow down the minion if closer to the player
-						speed = 4f;
+						speed = 8f;
 						inertia = 80f;
 					}
 					if (distanceToIdlePosition > 20f)

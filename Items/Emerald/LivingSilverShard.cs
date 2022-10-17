@@ -6,7 +6,7 @@ using SariaMod.Buffs;
 
 using Terraria;
 
-
+using SariaMod.Items.zPearls;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -17,7 +17,7 @@ namespace SariaMod.Items.Emerald
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Living Silver Shard");
-			Tooltip.SetDefault("Can be sold for an insanely High price\nUse after using Living Purple Shard to upgrade the fairy!");
+			Tooltip.SetDefault("Can be sold for an insanely High price\nSummons a silver fairy to heal you slowely over time!");
 		}
 
 
@@ -51,7 +51,7 @@ namespace SariaMod.Items.Emerald
 		public override void Update(ref float gravity, ref float maxFallSpeed)
 		{
 
-			Lighting.AddLight(item.Center, Color.Purple.ToVector3() * 2f);
+			Lighting.AddLight(item.Center, Color.Silver.ToVector3() * 3f);
 		}
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
 		{
@@ -78,19 +78,26 @@ namespace SariaMod.Items.Emerald
 			{
 				item.consumable = true;
 			}
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<Emeraldfairy>()] >= 1f)
+			if (player.ownedProjectileCounts[ModContent.ProjectileType<EmeraldfairySilver>()] > 0f)
 			{
-				return true;
+				return false;
 			}
 			else
 			{
-				return false;
+				return true;
 			}
 		}
 
 		public override void AddRecipes()
 		{
-			
+			{
+				ModRecipe recipe = new ModRecipe(mod);
+				recipe.AddIngredient(ModContent.ItemType<LivingPurpleShard>(), 3);
+				recipe.AddIngredient(ModContent.ItemType<LargeXpPearl>(), 1);
+				recipe.AddIngredient(ItemID.SilverBar, 1);
+				recipe.SetResult(this);
+				recipe.AddRecipe();
+			}
 		}
 	}
 }

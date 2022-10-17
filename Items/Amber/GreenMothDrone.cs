@@ -321,7 +321,7 @@ namespace SariaMod.Items.Amber
 			}
 			if (!player.HasBuff(ModContent.BuffType<Overcharged>()))
 			{
-				if (Main.rand.NextBool(20))
+				if (Main.rand.NextBool(50))
 
 				{
 					{
@@ -332,7 +332,7 @@ namespace SariaMod.Items.Amber
 			}
 			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
 			{
-				if (Main.rand.NextBool(10))
+				if (Main.rand.NextBool(30))
 
 				{
 					Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<MothFood>());

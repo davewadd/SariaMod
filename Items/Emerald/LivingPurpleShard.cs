@@ -6,7 +6,7 @@ using SariaMod.Buffs;
 
 using Terraria;
 
-
+using SariaMod.Items.zPearls;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -89,7 +89,13 @@ namespace SariaMod.Items.Emerald
             }
 		public override void AddRecipes()
 		{
-			
+			{
+				ModRecipe recipe = new ModRecipe(mod);
+				recipe.AddIngredient(ModContent.ItemType<LivingGreenShard>(), 8);
+				recipe.AddIngredient(ModContent.ItemType<LargeXpPearl>(), 1);
+				recipe.SetResult(this);
+				recipe.AddRecipe();
+			}
 		}
 	}
 }

@@ -23,6 +23,12 @@ The Upgrade progression order for this mod is as follows:
 					This mod will be updated to Terraria 1.4 once finished on 1.3
 					
 **Patch notes(should've done this sooner to be honest)**
+ver 5.4.2
+	-Nerfed ThunderClash when player has Overcharged buff
+
+	-Buffed SilverFairy and made it work separately from PurpleFairy
+
+	-Made Living Shards more rare but also made them craftable
 ver 5.4.1
 	-Forgot to change the mothfood item back to what it was before. My bad on that one.
 ver 5.4.0

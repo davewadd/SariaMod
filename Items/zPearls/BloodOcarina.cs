@@ -60,12 +60,7 @@ namespace SariaMod.Items.zPearls
 
 public override void AddRecipes()
 		{
-			{
-				ModRecipe recipe2 = new ModRecipe(mod);
-				recipe2.AddIngredient(ItemID.PlatinumCoin, 600);
-				recipe2.SetResult(this, 1);
-				recipe2.AddRecipe();
-			}
+			
 		}
 	}
 
