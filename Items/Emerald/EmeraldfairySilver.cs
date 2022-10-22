@@ -87,18 +87,17 @@ namespace SariaMod.Items.Emerald
 			}
 			if (!player.HasBuff(ModContent.BuffType<EmeraldFairySilverBuff>()))
 			{
+				Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<LivingSilverShard>());
 				projectile.Kill();
 			}
 			if (player.statLife < (player.statLifeMax2) / 2 && Timer >= Healtimer)
 			{
-				player.statLife += 100;
-				Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ItemID.Heart);
+				player.statLife += 120;
 				Timer = 0;
 			}
 			else if (player.statLife < (player.statLifeMax2) && Timer >= Healtimer)
 			{
-				player.statLife += 25;
-				Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ItemID.Heart);
+				player.statLife += 45;
 				Timer = 0;
 			}
 			projectile.timeLeft = 200;

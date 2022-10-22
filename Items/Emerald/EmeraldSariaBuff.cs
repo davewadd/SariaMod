@@ -28,7 +28,7 @@ namespace SariaMod.Items.Emerald
 		public override void SetDefaults()
 		{
 			DisplayName.SetDefault("Emerald Spirit");
-			Description.SetDefault("Saria now has the Emerald upgrade\nSpecial purple clusters have a chance of spawning\nGems can drop from clusters when hit\nThe clusters shield you from damage");
+			Description.SetDefault("Saria now has the Emerald upgrade\nSpecial purple clusters have a chance of spawning\nGems can drop from clusters when hit\nThe clusters can shield you from damage");
 			Main.debuff[base.Type] = false;
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;

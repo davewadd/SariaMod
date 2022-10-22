@@ -198,6 +198,7 @@ namespace SariaMod.Items.Emerald
 		{
 			
 			Player player = Main.player[base.projectile.owner];
+			Player player2 = Main.LocalPlayer;
 			FairyPlayer modPlayer = player.Fairy();
 			Vector2 direction = target.Center - player.Center;
 			target.buffImmune[BuffID.CursedInferno] = false;
@@ -230,6 +231,12 @@ namespace SariaMod.Items.Emerald
 
 				{
 						Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<LivingGreenShard>());
+				}
+				float between = Vector2.Distance(player2.Center, projectile.Center);
+				// Reasonable distance away so it doesn't target across multiple screens
+				if (between < 120f)
+                {
+					player.statLife += 10;
 				}
 		}
 				if (player.HasBuff(ModContent.BuffType<StatRaise>()))

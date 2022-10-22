@@ -60,7 +60,7 @@ namespace SariaMod.Items.Ruby
 				projectile.width = 450;
 				projectile.height = 450;
 				projectile.scale = 1.5f;
-				projectile.localNPCHitCooldown = 12;
+				projectile.localNPCHitCooldown = 25;
 			}
 			Lighting.AddLight(projectile.Center, Color.OrangeRed.ToVector3() * 0.78f);
 			{

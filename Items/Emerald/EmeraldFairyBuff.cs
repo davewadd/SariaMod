@@ -30,7 +30,7 @@ namespace SariaMod.Items.Emerald
 		public override void SetDefaults()
 		{
 			DisplayName.SetDefault("Purple Rupee Fairy");
-			Description.SetDefault("This fairy will automatically heal its user below half health");
+			Description.SetDefault("This fairy will automatically heal its user below half health\n\nUnselsect this buff to put fairy back in its Shard");
 			Main.debuff[base.Type] = false;
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;

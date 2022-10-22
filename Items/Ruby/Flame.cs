@@ -64,7 +64,7 @@ namespace SariaMod.Items.Ruby
 			target.AddBuff(BuffID.Slow, 300);
 			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
 			{
-				projectile.timeLeft += 3;
+				projectile.timeLeft += 6;
 			}
 			if (projectile.timeLeft >= 1400)
             {
@@ -117,7 +117,7 @@ namespace SariaMod.Items.Ruby
 			Lighting.AddLight(projectile.Center, Color.OrangeRed.ToVector3() * 2f);
 			// Default movement parameters (here for attacking)
 
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<Flame>()] > 12f)
+			if (player.ownedProjectileCounts[ModContent.ProjectileType<Flame>()] > 12f && !player.HasBuff(ModContent.BuffType<Overcharged>()))
 
 			{
 				projectile.timeLeft -= 3;

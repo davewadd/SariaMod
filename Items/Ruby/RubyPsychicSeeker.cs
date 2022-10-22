@@ -107,13 +107,13 @@ namespace SariaMod.Items.Ruby
 						}
 					}
 				}
-				
-				// friendly needs to be set to true so the minion can deal contact damage
-				// friendly needs to be set to false so it doesn't damage things like target dummies while idling
-				// Both things depend on if it has a target or not, so it's just one assignment here
-				// You don't need this assignment if your minion is shooting things instead of dealing contact damage
-				projectile.friendly = foundTarget;
-
+				if (player.HasBuff(ModContent.BuffType<Overcharged>()))
+				{
+					if (Main.rand.NextBool(45))//controls the speed of when the sparkles spawn
+					{
+						Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Explosion>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+					}
+				}
 
 
 				Lighting.AddLight(projectile.Center, Color.LightPink.ToVector3() * 0.78f);
@@ -156,20 +156,12 @@ namespace SariaMod.Items.Ruby
 			}
 			if (projectile.timeLeft == 1)
             {
-				if (!player.HasBuff(ModContent.BuffType<Overcharged>()))
-				{
+				
 					for (int j = 0; j < 1; j++) //set to 2
 					{
 						Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Explosion>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 					}
-				}
-				else if (player.HasBuff(ModContent.BuffType<Overcharged>()))
-				{
-					for (int j = 0; j < 2; j++) //set to 2
-					{
-						Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Explosion>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-					}
-				}
+				
 			}
 			}
 

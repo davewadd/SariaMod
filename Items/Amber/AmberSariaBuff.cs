@@ -28,7 +28,7 @@ namespace SariaMod.Items.Amber
 		public override void SetDefaults()
 		{
 			DisplayName.SetDefault("Amber Spirit");
-			Description.SetDefault("Saria now has the Amber upgrade\nSaria will unleash a volley of ancient blood moths!\nUse ancient bloodmoth food to help special moths grow");
+			Description.SetDefault("Saria now has the Amber upgrade\nSaria will unleash a volley of ancient blood moths!\nUse ancient bloodmoth food to help special moths grow\n\nUnselect this buff while Green Moth Goliath\nis alive to keep the moth for later.");
 			Main.debuff[base.Type] = false;
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;

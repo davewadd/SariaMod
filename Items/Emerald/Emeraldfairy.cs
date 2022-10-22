@@ -85,6 +85,7 @@ namespace SariaMod.Items.Emerald
 			}
 			if (!player.HasBuff(ModContent.BuffType<EmeraldFairyBuff>()))
 			{
+				Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<LivingPurpleShard>());
 				projectile.Kill();
 			}
 			if (player.statLife < (player.statLifeMax2) / 2 && !player.HasBuff(ModContent.BuffType<FairyHealBuff>()))

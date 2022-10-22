@@ -23,6 +23,12 @@ The Upgrade progression order for this mod is as follows:
 					This mod will be updated to Terraria 1.4 once finished on 1.3
 					
 **Patch notes(should've done this sooner to be honest)**
+ver 5.4.3
+	-Buffed Explosion while in Overcharged state
+
+	-Made it so the player can unsommon Green Moth Goliath to save for later. Unless you die with it active
+
+	-The player can also put both the emerald and silver fairy back into their shards to save for later. Again, unless you die with them active
 ver 5.4.2
 	-Nerfed ThunderClash when player has Overcharged buff
 
