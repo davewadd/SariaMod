@@ -748,8 +748,8 @@ namespace SariaMod.Items.Diamond
                         {
                             Main.PlaySound(SoundID.Item77, base.projectile.Center);
                             target = base.projectile.Center.MinionHoming(500f, player);// the distance she targets enemies
-                            Main.PlaySound(SoundID.Item77, base.projectile.Center);
-                            Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<AmberGreen>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+                            Main.PlaySound(SoundID.Roar, base.projectile.Center, 0);
+                            Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<GreenMothGoliath>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 
                         }
                         else if (player.ownedProjectileCounts[ModContent.ProjectileType<GreenPoint>()] <= 0f)

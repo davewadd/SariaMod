@@ -45,7 +45,7 @@ namespace SariaMod.Items.Diamond
 		public override void AI()
 		{
 			Player player = Main.player[base.projectile.owner];
-			Lighting.AddLight(base.projectile.Center, 0f, 0.5f, 0f);
+			Lighting.AddLight(projectile.Center, Color.FloralWhite.ToVector3() * 4f);
 			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
 			if (Main.rand.NextBool(50))//controls the speed of when the sparkles spawn
 			{
@@ -54,10 +54,7 @@ namespace SariaMod.Items.Diamond
 				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Sparkle>(), 0f, 0f, 0, default(Color), 1.5f);
 			}
 			
-			if (projectile.timeLeft == 198)
-			{
-				Main.PlaySound(SoundID.DD2_GhastlyGlaiveImpactGhost, base.projectile.Center);
-			}
+			
 			{
 				float distanceFromTarget = 10f;
 				Vector2 targetCenter = projectile.position;
@@ -149,7 +146,7 @@ namespace SariaMod.Items.Diamond
 			}
 			if (projectile.timeLeft >= 200)
             {
-				Main.PlaySound(SoundID.Item25, base.projectile.Center);
+				Main.PlaySound(SoundID.Item8, base.projectile.Center);
 				
 			}
 			
@@ -182,16 +179,41 @@ namespace SariaMod.Items.Diamond
 				Main.PlaySound(SoundID.Item29, base.projectile.Center);
 			}
 			
+			if (damage >= (target.lifeMax * .05f))
+            {
+				if (target.boss)
+                {
+					if (target.lifeMax >= 600000)
+					{
+						damage = (int)((target.lifeMax * .03f));
+					}
+				}
+            }
+			if (damage <= (target.lifeMax * .01))
+            {
+				if (target.boss)
+                {
+					damage = (int)((target.lifeMax * .02f));
+				}
+				else if (!target.boss)
+                {
 
-			if (player.HasBuff(ModContent.BuffType<StatRaise>()))
-			{
-				damage += (damage) / 4;
-			}
-			if (player.HasBuff(ModContent.BuffType<StatLower>()))
-			{
-				damage /= 2;
-
-			}
+					if (player.HasBuff(ModContent.BuffType<StatRaise>()))
+					{
+						damage = (int)((target.lifeMax * .1f));
+					}
+					if (player.HasBuff(ModContent.BuffType<StatLower>()))
+					{
+						damage = (int)((target.lifeMax * .04f));
+					}
+                    else
+                    {
+						damage = (int)((target.lifeMax * .6f));
+					}
+				}
+            }
+			
+			
 		}
 
 

@@ -24,7 +24,7 @@ using Terraria.ModLoader;
 
 namespace SariaMod.Items.Diamond
 {
-	public class Ring3 : ModProjectile
+	public class Ring4 : ModProjectile
 	{
 		public override void SetDefaults()
 		{
@@ -35,7 +35,7 @@ namespace SariaMod.Items.Diamond
 			base.projectile.hostile = false;
 			base.projectile.friendly = false;
 			base.projectile.ignoreWater = true;
-			projectile.alpha = 0;
+			projectile.alpha = 300;
 			base.projectile.timeLeft = 20;
 			base.projectile.penetrate = -1;
 			base.projectile.tileCollide = false;
@@ -105,28 +105,19 @@ namespace SariaMod.Items.Diamond
 
 
 			
-			int soundtimer = 30;
+			int soundtimer = 15;
 			Timer++;
-			if (Timer >= soundtimer && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring4>()] <= 0f))
+			if (Timer >= soundtimer)
 			{
-				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Absorb2"), base.projectile.Center);
+				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Absorb3"), base.projectile.Center);
 				Timer = 0;
 			}
 
-			Lighting.AddLight(projectile.Center, Color.DeepSkyBlue.ToVector3() * 4f);
+			
 			
 		}
 
-		public override Color? GetAlpha(Color lightColor)
-		{
-			if (base.projectile.timeLeft < 250)
-			{
-				byte b2 = (byte)(base.projectile.timeLeft * 6);
-				byte a2 = (byte)(100f * ((float)(int)b2 / 255f));
-				return new Color(b2, b2, b2, a2);
-			}
-			return new Color(255, 255, 255, 100);
-		}
+		
 
 	}
 }

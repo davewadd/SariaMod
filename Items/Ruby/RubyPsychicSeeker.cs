@@ -109,7 +109,7 @@ namespace SariaMod.Items.Ruby
 				}
 				if (player.HasBuff(ModContent.BuffType<Overcharged>()))
 				{
-					if (Main.rand.NextBool(45))//controls the speed of when the sparkles spawn
+					if (Main.rand.NextBool(27))//controls the speed of when the sparkles spawn
 					{
 						Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Explosion>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 					}

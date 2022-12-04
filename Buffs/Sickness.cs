@@ -8,6 +8,7 @@ using SariaMod.Items.Amethyst;
 using SariaMod.Items.Diamond;
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
+using SariaMod.Dusts;
 using System;
 using Terraria;
 using Terraria.ID;
@@ -34,7 +35,7 @@ namespace SariaMod.Buffs
 		public override void SetDefaults()
 		{
 			DisplayName.SetDefault("Old Wounds");
-			Description.SetDefault("Saria's old wounds begin to cause agony\nShe desperately needs a break!\nCrafting Frozen Yogurt may also help!");
+			Description.SetDefault("Saria's old wounds begin to cause agony\nShe desperately needs a break!\nCrafting Frozen Yogurt may also help!\nThe pain is Synchronized!");
 			Main.debuff[base.Type] = true;
 			Main.pvpBuff[base.Type] = false;
 			Main.buffNoSave[base.Type] = false;
@@ -42,6 +43,7 @@ namespace SariaMod.Buffs
 			longerExpertDebuff = false;
 
 		}
+		private const int sphereRadius = 10;
 		public override void Update(Player player, ref int buffIndex)
 		{
 			if (!player.HasBuff(ModContent.BuffType<Soothing>()))
@@ -54,6 +56,17 @@ namespace SariaMod.Buffs
 					player.moveSpeed = .5f;
 					player.maxRunSpeed = .005f;
 					player.runAcceleration = .2f;
+					player.statLifeMax2 /= 2;
+					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
+					{
+						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
+						double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
+						Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow>(), 0f, 0f, 0, default(Color), 1.5f);
+					}
+					if (Main.rand.NextBool(600))
+					{
+						Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Poe"), player.Center);
+					}
 				}
 				else if (player.HasBuff(ModContent.BuffType<SapphireSariaBuff>()))
 				{
@@ -62,6 +75,17 @@ namespace SariaMod.Buffs
 					player.moveSpeed = .5f;
 					player.maxRunSpeed = .005f;
 					player.runAcceleration = .2f;
+					player.statLifeMax2 /= 2;
+					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
+					{
+						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
+						double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
+						Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow>(), 0f, 0f, 0, default(Color), 1.5f);
+					}
+					if (Main.rand.NextBool(600))
+					{
+						Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Poe"), player.Center);
+					}
 				}
 				else if (player.HasBuff(ModContent.BuffType<RubySariaBuff>()))
 				{
@@ -70,6 +94,17 @@ namespace SariaMod.Buffs
 					player.moveSpeed = .5f;
 					player.maxRunSpeed = .005f;
 					player.runAcceleration = .2f;
+					player.statLifeMax2 /= 2;
+					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
+					{
+						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
+						double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
+						Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow>(), 0f, 0f, 0, default(Color), 1.5f);
+					}
+					if (Main.rand.NextBool(600))
+					{
+						Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Poe"), player.Center);
+					}
 				}
 				else if (player.HasBuff(ModContent.BuffType<TopazSariaBuff>()))
 				{
@@ -78,6 +113,17 @@ namespace SariaMod.Buffs
 					player.moveSpeed = .5f;
 					player.maxRunSpeed = .005f;
 					player.runAcceleration = .2f;
+					player.statLifeMax2 /= 2;
+					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
+					{
+						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
+						double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
+						Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow>(), 0f, 0f, 0, default(Color), 1.5f);
+					}
+					if (Main.rand.NextBool(600))
+					{
+						Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Poe"), player.Center);
+					}
 				}
 				else if (player.HasBuff(ModContent.BuffType<EmeraldSariaBuff>()))
 				{
@@ -86,6 +132,17 @@ namespace SariaMod.Buffs
 					player.moveSpeed = .5f;
 					player.maxRunSpeed = .005f;
 					player.runAcceleration = .2f;
+					player.statLifeMax2 /= 2;
+					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
+					{
+						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
+						double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
+						Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow>(), 0f, 0f, 0, default(Color), 1.5f);
+					}
+					if (Main.rand.NextBool(600))
+					{
+						Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Poe"), player.Center);
+					}
 				}
 				else if (player.HasBuff(ModContent.BuffType<AmberSariaBuff>()))
 				{
@@ -94,7 +151,17 @@ namespace SariaMod.Buffs
 					player.moveSpeed = .5f;
 					player.maxRunSpeed = .005f;
 					player.runAcceleration = .2f;
-
+					player.statLifeMax2 /= 2;
+					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
+					{
+						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
+						double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
+						Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow>(), 0f, 0f, 0, default(Color), 1.5f);
+					}
+					if (Main.rand.NextBool(600))
+					{
+						Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Poe"), player.Center);
+					}
 				}
 				else if (player.HasBuff(ModContent.BuffType<AmethystSariaBuff>()))
 				{
@@ -103,7 +170,17 @@ namespace SariaMod.Buffs
 					player.moveSpeed = .5f;
 					player.maxRunSpeed = .005f;
 					player.runAcceleration = .2f;
-
+					player.statLifeMax2 /= 2;
+					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
+					{
+						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
+						double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
+						Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow>(), 0f, 0f, 0, default(Color), 1.5f);
+					}
+					if (Main.rand.NextBool(600))
+					{
+						Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Poe"), player.Center);
+					}
 				}
 				else if (player.HasBuff(ModContent.BuffType<DiamondSariaBuff>()))
 				{
@@ -112,7 +189,17 @@ namespace SariaMod.Buffs
 					player.moveSpeed = .5f;
 					player.maxRunSpeed = .005f;
 					player.runAcceleration = .2f;
-
+					player.statLifeMax2 /= 2;
+					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
+					{
+						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
+						double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
+						Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow>(), 0f, 0f, 0, default(Color), 1.5f);
+					}
+					if (Main.rand.NextBool(600))
+					{
+						Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Poe"), player.Center);
+					}
 				}
 			}
 			else if (player.HasBuff(ModContent.BuffType<Soothing>()))

@@ -88,41 +88,31 @@ namespace SariaMod.Items.Diamond
 			base.projectile.position.X = mother.Center.X -20;
 			base.projectile.position.Y = mother.Center.Y - 180;
 			base.projectile.netUpdate = true;
-			projectile.timeLeft += (player.ownedProjectileCounts[ModContent.ProjectileType<FairyBubble>()]);
-			if (projectile.timeLeft <= 1000)
+			
+			if (projectile.timeLeft <= 100000)
             {
 				projectile.frame = 0;
             }
-			else if (projectile.timeLeft > 1000 && (projectile.timeLeft <= 2500))
-			{
-				
-			}
-			else if (projectile.timeLeft > 2500 && (projectile.timeLeft <= 4500))
-			{
-				
-			}
-			else if (projectile.timeLeft > 4500 && (projectile.timeLeft <= 6500))
-			{
-				
-			}
-			else if (projectile.timeLeft > 6500 && (projectile.timeLeft <= 9000))
-			{
-				
-			}
+			
 			
 			if (projectile.frame == 0 && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring1>()] <= 0))
             {
 				Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 0f, ModContent.ProjectileType<Ring1>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 			
 		}
-			if ((projectile.timeLeft > 2500 && (projectile.timeLeft <= 4500)) && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring2>()] <= 0))
+			if ((projectile.timeLeft > 4500) && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring2>()] <= 0))
 			{
 				Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 0f, ModContent.ProjectileType<Ring2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 
 			}
-			if ((projectile.timeLeft > 4500 && (projectile.timeLeft <= 6500)) && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring3>()] <= 0))
+			if ((projectile.timeLeft > 6500) && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring3>()] <= 0))
 			{
 				Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 0f, ModContent.ProjectileType<Ring3>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+
+			}
+			if ((projectile.timeLeft > 10000) && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring4>()] <= 0))
+			{
+				Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 0f, ModContent.ProjectileType<Ring4>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 
 			}
 			if (player.ownedProjectileCounts[ModContent.ProjectileType<DazzlingGleam2>()] >= 1f)
@@ -144,20 +134,24 @@ namespace SariaMod.Items.Diamond
 					Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Sparkle>(), 0f, 0f, 0, default(Color), 1.5f);
 				}
 				for (int j = 0; j < 1; j++) //set to 2
-				if ((player.ownedProjectileCounts[ModContent.ProjectileType<Ring3>()] <= 0) && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring2>()] <= 0))
+				if ((player.ownedProjectileCounts[ModContent.ProjectileType<Ring3>()] <= 0) && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring2>()] <= 0) && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring4>()] <= 0))
                     {
 						Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<GleamBomb>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 					}
-				if ((player.ownedProjectileCounts[ModContent.ProjectileType<Ring3>()] <= 0) && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring2>()] > 0))
+				if ((player.ownedProjectileCounts[ModContent.ProjectileType<Ring3>()] <= 0) && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring2>()] > 0) && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring4>()] <= 0))
 				{
 					Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<GleamBomb2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 				}
-				if ((player.ownedProjectileCounts[ModContent.ProjectileType<Ring3>()] > 0) && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring2>()] > 0))
+				if ((player.ownedProjectileCounts[ModContent.ProjectileType<Ring3>()] > 0) && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring2>()] > 0) && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring4>()] <= 0))
 				{
 					Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<GleamBomb3>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 				}
+				if ((player.ownedProjectileCounts[ModContent.ProjectileType<Ring3>()] > 0) && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring2>()] > 0) && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring4>()] > 0))
+				{
+					Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<GleamBomb4>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+				}
 			}
-			if ((player.ownedProjectileCounts[ModContent.ProjectileType<GleamBomb>()] > 0) || (player.ownedProjectileCounts[ModContent.ProjectileType<GleamBomb2>()] > 0) || (player.ownedProjectileCounts[ModContent.ProjectileType<GleamBomb3>()] > 0))
+			if ((player.ownedProjectileCounts[ModContent.ProjectileType<GleamBomb>()] > 0) || (player.ownedProjectileCounts[ModContent.ProjectileType<GleamBomb2>()] > 0) || (player.ownedProjectileCounts[ModContent.ProjectileType<GleamBomb3>()] > 0) || (player.ownedProjectileCounts[ModContent.ProjectileType<GleamBomb4>()] > 0))
             {
 				projectile.timeLeft = 340;
             }
@@ -181,6 +175,18 @@ namespace SariaMod.Items.Diamond
 				{
 					Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<SmallBomb>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 				}
+			}
+			if (player.ownedProjectileCounts[ModContent.ProjectileType<GleamBomb4>()] > 0)
+			{
+				if (Main.rand.NextBool())//controls the speed of when the sparkles spawn
+				{
+					Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<SmallBomb>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+				}
+				if (Main.rand.NextBool() && (player.ownedProjectileCounts[ModContent.ProjectileType<Locator>()] <= 3))//controls the speed of when the sparkles spawn
+				{
+					Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Locator>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+				}
+				
 			}
 
 

@@ -47,7 +47,7 @@ namespace SariaMod.Items.Diamond
 
 
 		}
-		
+		public static int Timer;
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Psychic Turret");
@@ -95,10 +95,14 @@ namespace SariaMod.Items.Diamond
 				projectile.Kill();
 			}
 
-
-
-
-
+			
+			int soundtimer = 60;
+			Timer++;
+			if (Timer >= soundtimer && (player.ownedProjectileCounts[ModContent.ProjectileType<Ring3>()] <= 0f))
+            {
+				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Absorb1"), base.projectile.Center);
+				Timer = 0;
+			}
 
 
 			Lighting.AddLight(projectile.Center, Color.MediumPurple.ToVector3() * 4f);

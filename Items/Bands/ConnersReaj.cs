@@ -1,7 +1,7 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-
+using Microsoft.Xna.Framework;
 using SariaMod.Buffs;
 using SariaMod.Items.Sapphire;
 using SariaMod.Items.Ruby;
@@ -20,8 +20,8 @@ namespace SariaMod.Items.Bands
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Connor's Reaj");
-			base.Tooltip.SetDefault("Charge your enemies without fear! Greatly increases defense and slight boost to melee attacks\nRange, Summon, and magic damage\n become much weaker.");
+			DisplayName.SetDefault("Conner's Reajing Workout Supplements");
+			base.Tooltip.SetDefault("Greatly increases defense and slight boost to melee attacks\n Range, Summon, and magic damage\n become much weaker.\n " + "\n " + SariaModUtilities.ColorMessage("Smells like regular flour...", new Color(0, 200, 250, 200)));
 		}
 
 		public override void SetDefaults()
@@ -29,7 +29,7 @@ namespace SariaMod.Items.Bands
 			base.item.width = 28;
 			base.item.height = 20;
 			base.item.value = Item.sellPrice(0, 0, 100);
-			base.item.rare = 2;
+			item.rare = ItemRarityID.Expert;
 			base.item.accessory = true;
 		}
 
@@ -43,7 +43,7 @@ namespace SariaMod.Items.Bands
 			player.minionDamage -= (player.minionDamage / 2);
 			if (player.statLife <= (player.statLifeMax2) / 4 && !player.HasBuff(ModContent.BuffType<ReajBuff>()))
             {
-				player.statLife += 300;
+				player.statLife += player.statLifeMax2/3;
 				player.AddBuff(ModContent.BuffType<ReajBuff>(), 8000);
 				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Healpulse"), player.Center);
 			}

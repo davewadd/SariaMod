@@ -5,13 +5,12 @@ using System;
 
 using Terraria;
 
-
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace SariaMod.Items.Amber
+namespace SariaMod.Items.Diamond
 {
-	public class GreenPoint : ModProjectile
+	public class GleamBomb4 : ModProjectile
 	{
 		public override void SetStaticDefaults()
 		{
@@ -26,13 +25,13 @@ namespace SariaMod.Items.Amber
 			base.projectile.width = 30;
 			base.projectile.height = 30;
 			
-			base.projectile.alpha = 0;
+			base.projectile.alpha = 300;
 			base.projectile.friendly = true;
 			base.projectile.tileCollide = false;
 			
 			
 			base.projectile.penetrate = 1;
-			base.projectile.timeLeft = 3000;
+			base.projectile.timeLeft = 500;
 			base.projectile.ignoreWater = true;
 			
 			base.projectile.usesLocalNPCImmunity = true;
@@ -48,6 +47,7 @@ namespace SariaMod.Items.Amber
 			Player player = Main.player[base.projectile.owner];
 			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
 			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
+			base.projectile.rotation += 0.095f;
 			{
 				
 				
@@ -55,19 +55,11 @@ namespace SariaMod.Items.Amber
 				// friendly needs to be set to false so it doesn't damage things like target dummies while idling
 				// Both things depend on if it has a target or not, so it's just one assignment here
 				// You don't need this assignment if your minion is shooting things instead of dealing contact damage
-				if (player.ownedProjectileCounts[ModContent.ProjectileType<GreenMothGoliath>()] > 0f)
-                {
-					projectile.Kill();
-                }
+				
 
-				if (projectile.timeLeft == 2)
-                {
-					Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<GreenMothItem>());
-					projectile.Kill();
-				}
-
-
-				Lighting.AddLight(projectile.Center, Color.LightYellow.ToVector3() * 1f);
+			
+				
+				
 				// Default movement parameters (here for attacking)
 			
 

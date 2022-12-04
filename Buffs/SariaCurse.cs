@@ -8,6 +8,7 @@ using SariaMod.Items.Amethyst;
 using SariaMod.Items.Diamond;
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
+using SariaMod.Dusts;
 using System;
 using Terraria;
 using Terraria.ID;
@@ -38,20 +39,12 @@ namespace SariaMod.Buffs
 			Main.debuff[base.Type] = true;
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = true;
-			Main.buffNoTimeDisplay[base.Type] = true;
+			Main.buffNoTimeDisplay[base.Type] = false;
 			longerExpertDebuff = false;
 
 		}
-		public override void Update(Player player, ref int buffIndex)
-		{
-			
-			{
-				
-				player.statLifeMax2 /= 2;
-			}
-			
-			
-		}
+		private const int sphereRadius = 30;
+
 		public override void Update(NPC npc, ref int buffIndex)
 		{
 			npc.buffTime[buffIndex] = 18000;
@@ -59,6 +52,47 @@ namespace SariaMod.Buffs
 			{
 				npc.noTileCollide = false;
 				npc.noGravity = false;
+				if (Main.rand.NextBool(800))
+				{
+					if (npc.life > npc.lifeMax / 10)
+					{
+						npc.life -= (npc.lifeMax / 40);
+						Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Poe"), npc.Center);
+					}
+					if (npc.life < npc.lifeMax / 10 && npc.life > 100)
+					{
+						npc.life -= (npc.life / 40) + 1;
+						Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Poe"), npc.Center);
+					}
+				}
+				if (Main.rand.NextBool(2))//controls the speed of when the sparkles spawn
+				{
+					float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
+					double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
+					Dust.NewDust(new Vector2(npc.Center.X + radius * (float)Math.Cos(angle), npc.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow>(), 0f, 0f, 0, default(Color), 1.5f);
+				}
+			}
+			if (npc.boss)
+            {
+				if (Main.rand.NextBool(800))
+				{
+					if (npc.life > npc.lifeMax / 10)
+					{
+						npc.life -= (npc.lifeMax / 50);
+						Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Poe"), npc.Center);
+					}
+					if (npc.life < npc.lifeMax / 10)
+					{
+						npc.life -= (npc.life / 50)+1;
+						Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Poe"), npc.Center);
+					}
+				}
+				if (Main.rand.NextBool(2))//controls the speed of when the sparkles spawn
+				{
+					float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
+					double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
+					Dust.NewDust(new Vector2(npc.Center.X + radius * (float)Math.Cos(angle), npc.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow>(), 0f, 0f, 0, default(Color), 1.5f);
+				}
 			}
 		}
 		}

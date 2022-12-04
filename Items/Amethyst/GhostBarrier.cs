@@ -112,8 +112,16 @@ namespace SariaMod.Items.Amethyst
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Frozen] = false;
 			target.buffImmune[BuffID.Electrified] = false;
+			target.buffImmune[ModContent.BuffType<SariaCurse>()] = false;
 			target.AddBuff(BuffID.Venom, 300);
-			target.AddBuff(ModContent.BuffType<SariaCurse>(), 200);
+			if (!player.HasBuff(ModContent.BuffType<Overcharged>()))
+			{
+				target.AddBuff(ModContent.BuffType<SariaCurse>(), 2000);
+			}
+			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
+			{
+				target.AddBuff(ModContent.BuffType<SariaCurse>(), 300000);
+			}
 			projectile.timeLeft += 5;
 			damage *= 0;
 			knockback = 0;
