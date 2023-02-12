@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 using System;
 using SariaMod.Buffs;
-
+using SariaMod.Items.Strange;
 using Terraria;
 using SariaMod.Items.Amethyst;
 using SariaMod.Items.Diamond;
@@ -78,7 +78,7 @@ namespace SariaMod.Items.Amber
             {
 				item.consumable = true;
             }
-			if (((player.ownedProjectileCounts[ModContent.ProjectileType<AmberSariaMinion>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<AMASariaMinion>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<DASariaMinion>()] <= 0f)) || player.ownedProjectileCounts[ModContent.ProjectileType<GreenPoint>()] > 0f || player.ownedProjectileCounts[ModContent.ProjectileType<AmberGreen>()] > 0f || player.ownedProjectileCounts[ModContent.ProjectileType<GreenMoth>()] > 0f || player.ownedProjectileCounts[ModContent.ProjectileType<GreenMothGiant>()] > 0f || player.ownedProjectileCounts[ModContent.ProjectileType<GreenMothGoliath>()] > 0f)
+			if (((player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] <= 0f)))
 			{
 				return false;
 			}

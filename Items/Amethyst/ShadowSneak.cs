@@ -45,7 +45,7 @@ namespace SariaMod.Items.Amethyst
 			FairyPlayer modPlayer = player.Fairy();
 			
 			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
-			Lighting.AddLight(projectile.Center, Color.Black.ToVector3() * 6f);
+			Lighting.AddLight(projectile.Center, Color.DarkViolet.ToVector3() * 12f);
 			if (projectile.frame >= 5)
 			{
 				if (Main.rand.NextBool())//controls the speed of when the sparkles spawn
@@ -54,6 +54,13 @@ namespace SariaMod.Items.Amethyst
 					float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
 					double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
 					Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), (projectile.Center.Y - 130) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow2>(), 0f, 0f, 0, default(Color), 1.5f);
+			}
+		}
+			if (projectile.frame <= 2)
+			{
+					for (int j = 0; j < 10; j++) //set to 2
+					{
+					Projectile.NewProjectile(base.projectile.Center + new Vector2(20f, 130f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Ghostsmoke>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 				}
 			}
 			{
@@ -82,13 +89,7 @@ namespace SariaMod.Items.Amethyst
 						base.projectile.frame = 14;
 						projectile.timeLeft -= 30;
 					}
-					if (base.projectile.frame == 0)
-                    {
-						for (int j = 0; j < 8; j++) //set to 2
-						{
-							Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 100f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Ghostsmoke>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-						}
-					}
+					
 				}
 			}
 				if (projectile.timeLeft >= 200)
@@ -127,8 +128,9 @@ namespace SariaMod.Items.Amethyst
 			target.buffImmune[BuffID.Poisoned] = false;
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Electrified] = false;
-			target.AddBuff(BuffID.OnFire, 300);
-			target.AddBuff(BuffID.Slow, 300);
+			target.buffImmune[ModContent.BuffType<SariaCurse>()] = false;
+			target.AddBuff(ModContent.BuffType<SariaCurse>(), 2000);
+			modPlayer.SariaXp++;
 			if (target.defense > 200)
 			{
 				target.defense = 200;

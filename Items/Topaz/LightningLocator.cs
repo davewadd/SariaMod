@@ -142,7 +142,7 @@ namespace SariaMod.Items.Topaz
 				}
 				if ((player.ownedProjectileCounts[ModContent.ProjectileType<Static>()] > 1f)&& (player.ownedProjectileCounts[ModContent.ProjectileType<LightningStrike>()] == 0f))
 				{
-					Projectile.NewProjectile(base.projectile.Center + new Vector2( 0f, 170f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<LightningStrike>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+					Projectile.NewProjectile(base.projectile.Center + new Vector2( 2f, 160f), Vector2.One.RotatedByRandom(6.2831854820251465) * 0f, ModContent.ProjectileType<LightningStrike>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 				}
 				Lighting.AddLight(projectile.Center, Color.LightGoldenrodYellow.ToVector3() * 1f);
 				// Default movement parameters (here for attacking)
@@ -160,7 +160,7 @@ namespace SariaMod.Items.Topaz
 					if (player.HasBuff(ModContent.BuffType<StatRaise>()))
 					{
 						projectile.position.Y = targetCenter.Y;
-						projectile.position.X = targetCenter.X;
+						projectile.position.X = targetCenter.X -12;
 
 					}
 					if (player.HasBuff(ModContent.BuffType<StatLower>()))
@@ -180,7 +180,7 @@ namespace SariaMod.Items.Topaz
 						projectile.position = mother.Center;
                     }
 					
-					
+					else
 					{
 						
 						inertia = 10;
@@ -238,8 +238,9 @@ namespace SariaMod.Items.Topaz
 			target.buffImmune[BuffID.Poisoned] = false;
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Electrified] = false;
-			target.AddBuff(BuffID.OnFire, 300);
-			target.AddBuff(BuffID.Slow, 300);
+			target.buffImmune[ModContent.BuffType<Burning2>()] = false;
+			target.AddBuff(ModContent.BuffType<Burning2>(), 200);
+			target.AddBuff(BuffID.Electrified, 300);
 
 			damage /= damage/4;
 			

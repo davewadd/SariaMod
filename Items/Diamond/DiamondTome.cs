@@ -57,7 +57,7 @@ namespace SariaMod.Items.Diamond
 			item.summon = true;
 			item.buffType = ModContent.BuffType<DiamondSariaBuff>();
 			// No buffTime because otherwise the item tooltip would say something like "1 minute duration"
-			item.shoot = ModContent.ProjectileType<DiamondSariaMinion>();
+			item.shoot = ModContent.ProjectileType<Transform>();
 			
 		}
 		public override Color? GetAlpha(Color lightColor)
@@ -69,183 +69,66 @@ namespace SariaMod.Items.Diamond
 
 			Lighting.AddLight(item.Center, Color.OrangeRed.ToVector3() * 2f);
 		}
-		public override bool AltFunctionUse(Player player)
-		{
-			return true;
-		}
 		public override bool CanUseItem(Player player)
 		{
-			if (player.altFunctionUse != 2)
-			{
-				if ((player.ownedProjectileCounts[ModContent.ProjectileType<Nerf>()] > 0f))
-				{
-					item.useTime = 250;
 
-				}
-				if (player.ownedProjectileCounts[ModContent.ProjectileType<Nerf>()] <= 0f)
-				{
-					item.useTime = 36;
-
-				}
-			}
-			if (player.altFunctionUse == 2)
-			{
-				item.useTime = 36;
-			}
-			if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DiamondSariaMinion>()] > 0f))
-			{
-				item.UseSound = SoundID.Item46;
-				item.shoot = ModContent.ProjectileType<DSariaMinion>();
-				return true;
-			}
-
-
-			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DSariaMinion>()] > 0f))
-			{
-				item.UseSound = SoundID.Item46;
-				item.shoot = ModContent.ProjectileType<DSSariaMinion>();
-				return true;
-			}
-			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DSSariaMinion>()] > 0f))
-			{
-				item.UseSound = SoundID.Item46;
-				item.shoot = ModContent.ProjectileType<DRSariaMinion>();
-				return true;
-			}
-			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DRSariaMinion>()] > 0f))
-			{
-				item.UseSound = SoundID.Item46;
-				item.shoot = ModContent.ProjectileType<DTSariaMinion>();
-				return true;
-			}
-			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DTSariaMinion>()] > 0f))
-			{
-				item.UseSound = SoundID.Item46;
-				item.shoot = ModContent.ProjectileType<DESariaMinion>();
-				return true;
-			}
-			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DESariaMinion>()] > 0f))
-			{
-				item.UseSound = SoundID.Item46;
-				item.shoot = ModContent.ProjectileType<DASariaMinion>();
-				return true;
-			}
-			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DASariaMinion>()] > 0f))
-			{
-				item.UseSound = SoundID.Item46;
-				item.shoot = ModContent.ProjectileType<DAMSariaMinion>();
-				return true;
-			}
-			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<DAMSariaMinion>()] > 0f))
-			{
-				item.UseSound = SoundID.Item46;
-				item.shoot = ModContent.ProjectileType<DiamondSariaMinion>();
-				return true;
-			}
-
-			if (player.altFunctionUse != 2 && (!player.HasBuff(ModContent.BuffType<DiamondSariaBuff>())))
-			{
-
-				item.UseSound = SoundID.Item46;
-				item.shoot = ModContent.ProjectileType<DiamondSariaMinion>();
-				if (player.HasBuff(ModContent.BuffType<SariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<SapphireSariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<RubySariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<TopazSariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<EmeraldSariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<AmberSariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<AmethystSariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<DiamondSariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<PlatinumSariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<PlatinumPurpleSariaBuff>()))
-				{
-					return false;
-				}
-				if (player.HasBuff(ModContent.BuffType<PlatinumBlueSariaBuff>()))
-				{
-					return false;
-				}
-				return true;
-			}
-			else
+			if (player.HasBuff(ModContent.BuffType<SariaBuff>()))
 			{
 				return false;
 			}
+			
+			if (player.HasBuff(ModContent.BuffType<DiamondSariaBuff>()))
+			{
+				return true;
+			}
+			if (player.HasBuff(ModContent.BuffType<PlatinumSariaBuff>()))
+			{
+				return false;
+			}
+			if (player.HasBuff(ModContent.BuffType<PlatinumPurpleSariaBuff>()))
+			{
+				return false;
+			}
+			if (player.HasBuff(ModContent.BuffType<PlatinumBlueSariaBuff>()))
+			{
+				return false;
+			}
+			return true;
+
 		}
 
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
-		{ 
-				// This is needed so the buff that keeps your minion alive and allows you to despawn it properly applies
-				player.AddBuff(item.buffType, 30000);
-			
-			// Here you can change where the minion is spawned. Most vanilla minions spawn at the cursor position.
-			position = Main.MouseWorld;
-				return true;
+		{
+			// This is needed so the buff that keeps your minion alive and allows you to despawn it properly applies
+			player.AddBuff(item.buffType, 30000);
+			if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] <= 0f))
+			{
+				{
+					Projectile.NewProjectile(player.Center + Utils.NextVector2CircularEdge(Main.rand, 8f, 8f), Utils.NextVector2Circular(Main.rand, 12f, 12f), ModContent.ProjectileType<Saria>(), damage, knockBack, player.whoAmI);
+				}
 			}
+			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] > 0f))
+			{
+				{
+					Projectile.NewProjectile(player.Center + Utils.NextVector2CircularEdge(Main.rand, 8f, 8f), Utils.NextVector2Circular(Main.rand, 12f, 12f), ModContent.ProjectileType<Transform>(), damage, knockBack, player.whoAmI);
+					for (int j = 0; j < 72; j++)
+					{
+						Dust dust = Dust.NewDustPerfect(player.Center, 113);
+						dust.velocity = ((float)Math.PI * 2f * Vector2.Dot(((float)j / 72f * ((float)Math.PI * 2f)).ToRotationVector2(), player.velocity.SafeNormalize(Vector2.UnitY).RotatedBy((float)j / 72f * ((float)Math.PI * -2f)))).ToRotationVector2();
+						dust.velocity = dust.velocity.RotatedBy((float)j / 36f * ((float)Math.PI * 2f)) * 8f;
+						dust.noGravity = true;
+						dust.scale = 1.9f;
+					}
+				}
+			}
+			return false;
+		}
 
-		
+
 
 		public override void AddRecipes()
 		{
-			{
-				ModRecipe recipe = new ModRecipe(mod);
-
-				recipe.AddIngredient(ItemID.DiamondGemsparkBlock, 5);
-				recipe.AddIngredient(ModContent.ItemType<LargeXpPearl>(), 500);
-				recipe.AddIngredient(ModContent.ItemType<StrangeTome>(), 1);
-				recipe.AddIngredient(ModContent.ItemType<SapphireTome>(), 1);
-				recipe.AddIngredient(ModContent.ItemType<RubyTome>(), 1);
-				recipe.AddIngredient(ModContent.ItemType<TopazTome>(), 1);
-				recipe.AddIngredient(ModContent.ItemType<EmeraldTome>(), 1);
-				recipe.AddIngredient(ModContent.ItemType<AmberTome>(), 1);
-				recipe.AddIngredient(ModContent.ItemType<AmethystTome>(), 1);
-				recipe.AddTile(ModContent.TileType<Tiles.DiamondBookcase>());
-				recipe.SetResult(this);
-				recipe.AddRecipe();
-			}
-			{
-				ModRecipe recipe2 = new ModRecipe(mod);
-
-				recipe2.AddIngredient(ItemID.DiamondGemsparkBlock, 5);
-				recipe2.AddIngredient(ModContent.ItemType<RareXpPearl>(), 10);
-				recipe2.AddIngredient(ModContent.ItemType<StrangeTome>(), 1);
-				recipe2.AddIngredient(ModContent.ItemType<SapphireTome>(), 1);
-				recipe2.AddIngredient(ModContent.ItemType<RubyTome>(), 1);
-				recipe2.AddIngredient(ModContent.ItemType<TopazTome>(), 1);
-				recipe2.AddIngredient(ModContent.ItemType<EmeraldTome>(), 1);
-				recipe2.AddIngredient(ModContent.ItemType<AmberTome>(), 1);
-				recipe2.AddIngredient(ModContent.ItemType<AmethystTome>(), 1);
-				recipe2.AddTile(ModContent.TileType<Tiles.DiamondBookcase>());
-				recipe2.SetResult(this);
-				recipe2.AddRecipe();
-			}
+			
 		}
 	}
 

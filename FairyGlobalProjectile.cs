@@ -88,8 +88,8 @@ namespace SariaMod
 				Main.spriteBatch.Draw(texture, startPos - Main.screenPosition + new Vector2(0f, projectile.gfxOffY), rectangle, projectile.GetAlpha(lightColor), rotation, origin, scale, spriteEffects, 0f);
 			}
 		}
-		
-			public static void HomeInOnNPC(Projectile projectile, bool ignoreTiles, float distanceRequired, float homingVelocity, float N)
+
+		public static void HomeInOnNPC(Projectile projectile, bool ignoreTiles, float distanceRequired, float homingVelocity, float N)
 		{
 			Vector2 center = projectile.Center;
 			bool homeIn = false;
@@ -106,7 +106,7 @@ namespace SariaMod
 					if (Vector2.Distance(Main.npc[i].Center, projectile.Center) < distanceRequired + extraDistance && canHit)
 					{
 						center = Main.npc[i].Center;
-                        break;
+						break;
 					}
 				}
 
@@ -125,6 +125,7 @@ namespace SariaMod
 				projectile.velocity = (projectile.velocity * N + homeInVector * homingVelocity) / (N + 1f);
 			}
 		}
+
 	}
 }
 

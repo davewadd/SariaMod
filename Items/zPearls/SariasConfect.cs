@@ -58,30 +58,7 @@ namespace SariaMod.Items.zPearls
 			{
 				return true;
 			}
-			if (player.HasBuff(ModContent.BuffType<SapphireSariaBuff>()) && (!player.HasBuff(ModContent.BuffType<Drained>())) && (!player.HasBuff(ModContent.BuffType<Sickness>())))
-			{
-				return true;
-			}
-			if (player.HasBuff(ModContent.BuffType<RubySariaBuff>()) && (!player.HasBuff(ModContent.BuffType<Drained>())) && (!player.HasBuff(ModContent.BuffType<Sickness>())))
-			{
-				return true;
-			}
-			if (player.HasBuff(ModContent.BuffType<TopazSariaBuff>()) && (!player.HasBuff(ModContent.BuffType<Drained>())) && (!player.HasBuff(ModContent.BuffType<Sickness>())))
-			{
-				return true;
-			}
-			if (player.HasBuff(ModContent.BuffType<EmeraldSariaBuff>()) && (!player.HasBuff(ModContent.BuffType<Drained>())) && (!player.HasBuff(ModContent.BuffType<Sickness>())))
-			{
-				return true;
-			}
-			if (player.HasBuff(ModContent.BuffType<AmberSariaBuff>()) && (!player.HasBuff(ModContent.BuffType<Drained>())) && (!player.HasBuff(ModContent.BuffType<Sickness>())))
-			{
-				return true;
-			}
-			if (player.HasBuff(ModContent.BuffType<AmethystSariaBuff>()) && (!player.HasBuff(ModContent.BuffType<Drained>())) && (!player.HasBuff(ModContent.BuffType<Sickness>())))
-			{
-				return true;
-			}
+			
 			if (player.HasBuff(ModContent.BuffType<DiamondSariaBuff>()) && (!player.HasBuff(ModContent.BuffType<Drained>())) && (!player.HasBuff(ModContent.BuffType<Sickness>())))
 			{
 				return true;
@@ -95,7 +72,7 @@ namespace SariaMod.Items.zPearls
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
 		{
 			// This is needed so the buff that keeps your minion alive and allows you to despawn it properly applies
-			player.AddBuff(item.buffType, 15000);
+			player.AddBuff(item.buffType, 45000);
 
 			// Here you can change where the minion is spawned. Most vanilla minions spawn at the cursor position.
 			position = Main.MouseWorld;
@@ -106,9 +83,9 @@ namespace SariaMod.Items.zPearls
 		{
 			{
 				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ModContent.ItemType<LargeXpPearl>(), 2);
+				recipe.AddIngredient(ModContent.ItemType<MediumXpPearl>(), 1);
 				recipe.AddIngredient(ModContent.ItemType<FrozenYogurt>(), 1);
-				recipe.AddIngredient(ItemID.SuperManaPotion, 3);
+				recipe.AddIngredient(ItemID.ManaPotion, 3);
 				recipe.AddIngredient(ItemID.SnowBlock, 5);
 				recipe.SetResult(this);
 				recipe.AddRecipe();
@@ -117,7 +94,7 @@ namespace SariaMod.Items.zPearls
 				ModRecipe recipe = new ModRecipe(mod);
 				recipe.AddIngredient(ModContent.ItemType<LivingPurpleShard>(), 1);
 				recipe.AddIngredient(ModContent.ItemType<FrozenYogurt>(), 1);
-				recipe.AddIngredient(ItemID.SuperManaPotion, 3);
+				recipe.AddIngredient(ItemID.ManaPotion, 3);
 				recipe.AddIngredient(ItemID.SnowBlock, 5);
 				recipe.SetResult(this);
 				recipe.AddRecipe();

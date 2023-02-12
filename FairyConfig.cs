@@ -8,6 +8,9 @@ namespace SariaMod
 	
 	public class FairyConfig : ModConfig
 	{
+
+		
+
 		public static FairyConfig Instance;
 
 		

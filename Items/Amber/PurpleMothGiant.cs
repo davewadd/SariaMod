@@ -141,21 +141,14 @@ namespace SariaMod.Items.Amber
 			{
 				projectile.tileCollide = false;
 			}
-			if ((!player.HasBuff(ModContent.BuffType<AmberSariaBuff>())) && (!player.HasBuff(ModContent.BuffType<AmethystSariaBuff>())) && (!player.HasBuff(ModContent.BuffType<DiamondSariaBuff>())) && (!player.HasBuff(ModContent.BuffType<PlatinumSariaBuff>())))
-			{
-				projectile.Kill();
-			}
+			
+			
 			if (player.dead || !player.active)
 			{
 
 				projectile.Kill();
 			}
-			if (player.dead || !player.active)
-			{
-
-				projectile.Kill();
-			}
-			if ((player.ownedProjectileCounts[ModContent.ProjectileType<AmberSariaMinion>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<AMASariaMinion>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<DASariaMinion>()] <= 0f))
+			if ((player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] <= 0f))
 			{
 				projectile.Kill();
 			}

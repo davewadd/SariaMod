@@ -326,7 +326,7 @@ namespace SariaMod.Items.Amber
 				{
 					{
 
-						Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<MothFood>());
+						Item.NewItem(player.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<MothFood>());
 					}
 				}
 			}
@@ -335,7 +335,7 @@ namespace SariaMod.Items.Amber
 				if (Main.rand.NextBool(30))
 
 				{
-					Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<MothFood>());
+					Item.NewItem(player.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<MothFood>());
 				}
 			}
 			if (player.HasBuff(ModContent.BuffType<StatRaise>()))

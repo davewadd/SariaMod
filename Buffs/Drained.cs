@@ -28,7 +28,7 @@ namespace SariaMod.Buffs
 		public override void SetDefaults()
 		{
 			DisplayName.SetDefault("Drained");
-			Description.SetDefault("Saria cannot go overcharged right now!");
+			Description.SetDefault("Saria cannot go overcharged right now!\n Letting Saria rest will git rid of the debuff quicker");
 			Main.debuff[base.Type] = true;
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;

@@ -54,6 +54,12 @@ namespace SariaMod.Items.Topaz
 		public override void AI()
 		{
 			Player player = Main.player[base.projectile.owner];
+			for (int num468 = 0; num468 < 3; num468++)
+			{
+				int num469 = Dust.NewDust(new Vector2(base.projectile.position.X, base.projectile.position.Y), base.projectile.width, base.projectile.height, 255, 255, 93, 0, default(Color), .5f);
+				Main.dust[num469].noGravity = true;
+				Main.dust[num469].velocity *= 0f;
+			}
 			if (Main.rand.NextBool(7))//controls the speed of when the sparkles spawn
 			{
 				float radius = (float)Math.Sqrt(Main.rand.Next(34 * 34));

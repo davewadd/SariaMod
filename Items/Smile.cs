@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 
 
 using SariaMod.Items;
-
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using SariaMod.Buffs;
 using SariaMod.Dusts;
@@ -122,6 +122,34 @@ namespace SariaMod.Items
 
 
             }
+        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
+        {
+            Player player = Main.player[base.projectile.owner];
+            FairyPlayer modPlayer = player.Fairy();
+            Vector2 drawPosition;
+            {
+                Texture2D texture = Main.projectileTexture[ModContent.ProjectileType<Smile>()];
+                Vector2 startPos = base.projectile.Center - Main.screenPosition + new Vector2(0f, base.projectile.gfxOffY);
+                int frameHeight = texture.Height / Main.projFrames[base.projectile.type];
+                int frameY = frameHeight * base.projectile.frame;
+                Color drawColor = Color.Lerp(lightColor, Color.WhiteSmoke, 20f);
+                drawColor = Color.Lerp(drawColor, Color.DarkViolet, 0);
+                Rectangle rectangle = new Rectangle(0, frameY, texture.Width, frameHeight);
+                Vector2 origin = rectangle.Size() / 2f;
+                float rotation = base.projectile.rotation;
+                float scale = base.projectile.scale;
+                SpriteEffects spriteEffects = SpriteEffects.None;
+                startPos.Y -= 10;
+                startPos.X += -30;
+                if (base.projectile.spriteDirection == -1)
+                {
+                    spriteEffects = SpriteEffects.FlipHorizontally;
+                }
+                Main.spriteBatch.Draw(texture, startPos, rectangle, base.projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, 0f);
+            }
+
+            return false;
+        }
     }
 
 

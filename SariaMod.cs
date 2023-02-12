@@ -20,10 +20,10 @@ namespace SariaMod
 
 
 				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/Shipwreck"), ItemType("ShipwreckMusicBox"), TileType("ShipwreckMusicBoxTile"));
-			
-				
-				
-		
+
+
+				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/WiseOwlForest"), ItemType("ForestMusicBox"), TileType("ForestMusicBoxTile"));
+
 				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/WorldMap"), ItemType("WorldMapMusicBox"), TileType("WorldMapMusicBoxTile"));
 
 			}

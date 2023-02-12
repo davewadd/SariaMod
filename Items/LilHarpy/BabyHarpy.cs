@@ -1,6 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
-
+using Microsoft.Xna.Framework.Graphics;
 using SariaMod.Items.Sapphire;
 using SariaMod.Items.Ruby;
 using SariaMod.Items.Topaz;
@@ -43,7 +43,8 @@ namespace SariaMod.Items.LilHarpy
 
 
 		}
-		public static int Timer;
+		private static int Transform;
+		private static int Timer;
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Psychic Turret");
@@ -71,21 +72,29 @@ namespace SariaMod.Items.LilHarpy
 		{
 			Player player = Main.player[base.projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
-			if (NPC.downedMoonlord)
+			if (player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] > 0f)
+            {
+				Transform = 1;
+            }
+			else
+            {
+				Transform = 0;
+            }
+				if (NPC.downedMoonlord)
 			{
 				projectile.damage = 100 * player.maxMinions;
 			}
 			else if (NPC.downedPlantBoss)
 			{
-				projectile.damage = 50 * player.maxMinions;
+				projectile.damage = 75 * player.maxMinions;
 			}
 			else if (Main.hardMode)
 			{
-				projectile.damage = 20 * player.maxMinions;
+				projectile.damage = 40 * player.maxMinions;
 			}
 			else 
 			{
-				projectile.damage = 8 * player.maxMinions;
+				projectile.damage = 10 * player.maxMinions;
 			}
 			
 			if (player.dead || !player.active)
@@ -209,10 +218,14 @@ namespace SariaMod.Items.LilHarpy
 			Timer++;
 			if (Timer >= attacktimer && foundTarget && (player.ownedProjectileCounts[ModContent.ProjectileType<Feather>()] <= 0f))
              {
-				
-				
+				if (Transform == 0)
+				{
 					Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Feather>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-				
+				}
+				else if (Transform == 1)
+				{
+					Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Feather2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+				}
 				Timer = 0;
                 }
 			// friendly needs to be set to true so the minion can deal contact damage
@@ -321,6 +334,63 @@ namespace SariaMod.Items.LilHarpy
 				}
 
 			}
+		}
+		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
+		{
+			{
+
+				Texture2D starTexture = Main.projectileTexture[ModContent.ProjectileType<LocatorBeam2>()];
+				Vector2 drawPosition;
+
+
+
+				if (Transform == 0)
+				{
+					Texture2D texture = Main.projectileTexture[ModContent.ProjectileType<BabyHarpy>()];
+					Vector2 startPos = base.projectile.Center - Main.screenPosition + new Vector2(0f, base.projectile.gfxOffY);
+					int frameHeight = texture.Height / Main.projFrames[base.projectile.type];
+					int frameY = frameHeight * base.projectile.frame;
+					Rectangle rectangle = new Rectangle(0, frameY, texture.Width, frameHeight);
+					Vector2 origin = rectangle.Size() / 2f;
+					float rotation = base.projectile.rotation;
+					float scale = base.projectile.scale;
+					SpriteEffects spriteEffects = SpriteEffects.None;
+					startPos.Y += 1;
+					startPos.X += +17;
+					if (base.projectile.spriteDirection == -1)
+					{
+						spriteEffects = SpriteEffects.FlipHorizontally;
+					}
+					Main.spriteBatch.Draw(texture, startPos, rectangle, base.projectile.GetAlpha(lightColor), rotation, origin, scale, spriteEffects, 0f);
+
+				}
+				else if (Transform == 1)
+				{
+					Texture2D texture = Main.projectileTexture[ModContent.ProjectileType<BabyHarpy2>()];
+					Vector2 startPos = base.projectile.Center - Main.screenPosition + new Vector2(0f, base.projectile.gfxOffY);
+					int frameHeight = texture.Height / Main.projFrames[base.projectile.type];
+					int frameY = frameHeight * base.projectile.frame;
+					Rectangle rectangle = new Rectangle(0, frameY, texture.Width, frameHeight);
+					Vector2 origin = rectangle.Size() / 2f;
+					float rotation = base.projectile.rotation;
+					float scale = base.projectile.scale;
+					SpriteEffects spriteEffects = SpriteEffects.None;
+					startPos.Y += 1;
+					startPos.X += +17;
+					if (base.projectile.spriteDirection == -1)
+					{
+						spriteEffects = SpriteEffects.FlipHorizontally;
+					}
+					Main.spriteBatch.Draw(texture, startPos, rectangle, base.projectile.GetAlpha(lightColor), rotation, origin, scale, spriteEffects, 0f);
+
+				}
+
+				return false;
+
+			}
+
+
+
 		}
 	}
 }

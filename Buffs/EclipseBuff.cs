@@ -52,93 +52,13 @@ namespace SariaMod.Buffs
 				if (player.HasBuff(ModContent.BuffType<SariaBuff>()) && (Main.player[Main.myPlayer].active && Main.eclipse))
 				{
 					player.buffTime[buffIndex] = 18000;
-					player.statLifeMax2 /= 2;
+					player.GetModPlayer<FairyPlayer>().EclipseBuff = true;
 					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
 					{
 						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
 						double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
 						Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<BlackSmoke>(), 0f, 0f, 0, default(Color), 1.5f);
 					}
-				}
-				else if (player.HasBuff(ModContent.BuffType<SapphireSariaBuff>()) && (Main.player[Main.myPlayer].active && Main.eclipse))
-				{
-					player.buffTime[buffIndex] = 18000;
-					player.statLifeMax2 /= 2;
-					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
-					{
-						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
-						double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
-						Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<BlackSmoke>(), 0f, 0f, 0, default(Color), 1.5f);
-					}
-				}
-				else if (player.HasBuff(ModContent.BuffType<RubySariaBuff>()) && (Main.player[Main.myPlayer].active && Main.eclipse))
-				{
-					player.buffTime[buffIndex] = 18000;
-					player.statLifeMax2 /= 2;
-					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
-					{
-						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
-						double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
-						Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<BlackSmoke>(), 0f, 0f, 0, default(Color), 1.5f);
-					}
-				}
-				else if (player.HasBuff(ModContent.BuffType<TopazSariaBuff>()) && (Main.player[Main.myPlayer].active && Main.eclipse))
-				{
-					player.buffTime[buffIndex] = 18000;
-					player.statLifeMax2 /= 2;
-					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
-					{
-						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
-						double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
-						Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<BlackSmoke>(), 0f, 0f, 0, default(Color), 1.5f);
-					}
-				}
-				else if (player.HasBuff(ModContent.BuffType<EmeraldSariaBuff>()) && (Main.player[Main.myPlayer].active && Main.eclipse))
-				{
-					player.buffTime[buffIndex] = 18000;
-					player.statLifeMax2 /= 2;
-					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
-					{
-						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
-						double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
-						Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<BlackSmoke>(), 0f, 0f, 0, default(Color), 1.5f);
-					}
-				}
-				else if (player.HasBuff(ModContent.BuffType<AmberSariaBuff>()) && (Main.player[Main.myPlayer].active && Main.eclipse))
-				{
-					player.buffTime[buffIndex] = 18000;
-					player.statLifeMax2 /= 2;
-					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
-					{
-						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
-						double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
-						Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<BlackSmoke>(), 0f, 0f, 0, default(Color), 1.5f);
-					}
-
-				}
-				else if (player.HasBuff(ModContent.BuffType<AmethystSariaBuff>()) && (Main.player[Main.myPlayer].active && Main.eclipse))
-				{
-					player.buffTime[buffIndex] = 18000;
-					player.statLifeMax2 /= 2;
-					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
-					{
-						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
-						double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
-						Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<BlackSmoke>(), 0f, 0f, 0, default(Color), 1.5f);
-					}
-
-				}
-				else if (player.HasBuff(ModContent.BuffType<DiamondSariaBuff>()) && (Main.player[Main.myPlayer].active && Main.eclipse))
-				{
-					player.buffTime[buffIndex] = 18000;
-					player.statLifeMax2 /= 2;
-					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
-					{
-						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
-						double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
-						Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<BlackSmoke>(), 0f, 0f, 0, default(Color), 1.5f);
-					}
-
 				}
 				else
 				{

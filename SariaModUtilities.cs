@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using SariaMod.Items;
 using System.ComponentModel;
 using Terraria.ModLoader.Config;
 using Microsoft.Xna.Framework;
@@ -35,10 +36,77 @@ namespace SariaMod
 		{
 			return Main.projectile.Count((Projectile proj) => proj.type == Type && proj.active);
 		}
+		public static bool InSpace(this Player player)
+		{
+			float x = (float)Main.maxTilesX / 4200f;
+			x *= x;
+			return (float)((double)(player.position.Y / 16f - (60f + 10f * x)) / (Main.worldSurface / 6.0)) < 1f;
+		}
+		public static void HealingProjectile(Projectile projectile, int healing, int playerToHeal, float homingVelocity, float N, bool autoHomes = true, int timeCheck = 120)
+		{
+			Player player = Main.player[playerToHeal];
+			float homingSpeed = homingVelocity;
+			if (player.lifeMagnet)
+			{
+				homingSpeed *= 1.5f;
+			}
+			Vector2 playerVector = player.Center - projectile.Center;
+			float playerDist = playerVector.Length();
+			if (playerDist < 500f && projectile.position.X < player.position.X + (float)player.width && projectile.position.X + (float)projectile.width > player.position.X && projectile.position.Y < player.position.Y + (float)player.height && projectile.position.Y + (float)projectile.height > player.position.Y)
+			{
+				
+				{
+					player.HealEffect(healing, broadcast: false);
+					player.statLife += healing;
+					if (player.statLife > player.statLifeMax2)
+					{
+						player.statLife = player.statLifeMax2;
+					}
+					NetMessage.SendData(66, -1, -1, null, playerToHeal, healing);
+				}
+				if (player.ownedProjectileCounts[ModContent.ProjectileType<Heal>()] < 1f)
+				{
+					
 
+					for (int j = 0; j < 1; j++) //set to 2
+					{
+						Projectile.NewProjectile(player.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Heal>(), 0, 0, player.whoAmI, projectile.whoAmI);
+
+					}
+				}
+				projectile.Kill();
+			}
+			if (autoHomes)
+			{
+				playerDist = homingSpeed / playerDist;
+				playerVector.X *= playerDist;
+				playerVector.Y *= playerDist;
+				projectile.velocity.X = (projectile.velocity.X * N + playerVector.X) / (N + 1f);
+				projectile.velocity.Y = (projectile.velocity.Y * N + playerVector.Y) / (N + 1f);
+			}
+			else if (player.lifeMagnet && projectile.timeLeft < timeCheck)
+			{
+				playerDist = homingVelocity / playerDist;
+				playerVector.X *= playerDist;
+				playerVector.Y *= playerDist;
+				projectile.velocity.X = (projectile.velocity.X * N + playerVector.X) / (N + 1f);
+				projectile.velocity.Y = (projectile.velocity.Y * N + playerVector.Y) / (N + 1f);
+			}
+		}
 		public static float MinionDamage(this Player player)
 		{
 			return player.allDamage + player.minionDamage - 1f;
+		}
+		public static void KillShootProjectileMany(Player player, params int[] projTypes)
+		{
+			for (int x = 0; x < 1000; x++)
+			{
+				Projectile proj = Main.projectile[x];
+				if (proj.active && proj.owner == player.whoAmI && projTypes.Contains(proj.type))
+				{
+					proj.Kill();
+				}
+			}
 		}
 		public static string ColorMessage(string msg, Color color)
 		{

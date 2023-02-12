@@ -41,7 +41,7 @@ namespace SariaMod.Items.Ruby
 			base.projectile.timeLeft = 1500;
 			
 		}
-		private const int sphereRadius = 30;
+		private const int sphereRadius = 20;
 		public override bool? CanCutTiles()
 		{
 			return false;
@@ -60,25 +60,17 @@ namespace SariaMod.Items.Ruby
 			target.buffImmune[BuffID.Poisoned] = false;
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Electrified] = false;
-			target.AddBuff(BuffID.OnFire, 300);
-			target.AddBuff(BuffID.Slow, 300);
+			target.buffImmune[ModContent.BuffType<Burning2>()] = false;
+			target.AddBuff(ModContent.BuffType<Burning2>(), 200);
 			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
 			{
 				projectile.timeLeft += 6;
 			}
-			if (projectile.timeLeft >= 1400)
-            {
-				damage /= 2;
-            }
-			else if (projectile.timeLeft < 1400)
-			{
-				damage /= 4;
-				knockback /= 1000;
-			}
-			else if (projectile.timeLeft < 1000)
-            {
+	
+            
+				damage /= 15;
 				knockback *= 0;
-            }
+            
 		}
 		public override bool OnTileCollide(Vector2 oldVelocity)
         {
@@ -107,7 +99,13 @@ namespace SariaMod.Items.Ruby
 				double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
 				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), (projectile.Center.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<FlameDust>(), 0f, 0f, 0, default(Color), 1.5f);
 			}
-			
+			if (Main.rand.NextBool(40))//controls the speed of when the sparkles spawn
+			{
+				float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
+				double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
+				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), (projectile.Center.Y - 15) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<SmokeDust3>(), 0f, 0f, 0, default(Color), 1.5f);
+			}
+
 			// friendly needs to be set to true so the minion can deal contact damage
 			// friendly needs to be set to false so it doesn't damage things like target dummies while idling
 			// Both things depend on if it has a target or not, so it's just one assignment here

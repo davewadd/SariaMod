@@ -74,7 +74,7 @@ namespace SariaMod.Items.Strange
                     }
                 }
 
-                if (!mother.active || mother.type != ModContent.ProjectileType<SariaMinion>())
+                if (!mother.active || mother.type != ModContent.ProjectileType<Saria>())
                 {
 
                     base.projectile.Kill();
@@ -99,12 +99,39 @@ namespace SariaMod.Items.Strange
                     }
                     projectile.alpha = 300;
                 }
+                int owner = player.whoAmI;
+                int VeilBubble = ModContent.ProjectileType<Ztarget>();
+                for (int i = 0; i < 1000; i++)
+                {
 
+                    float between = Vector2.Distance(Main.projectile[i].Center, projectile.Center);
+                  
+                    {
+
+
+                        if (Main.projectile[i].active && i != base.projectile.whoAmI && ((Main.projectile[i].type == VeilBubble && Main.projectile[i].owner == owner)))
+                        {
+
+                            {
+
+                               
+                                Main.projectile[i].Kill();
+                               
+                            }
+
+                        }
+
+                    }
+
+                }
 
 
 
                 projectile.friendly = foundTarget;
-                Lighting.AddLight(projectile.Center, Color.LightGoldenrodYellow.ToVector3() * 1f);
+                if (projectile.alpha == 0)
+                {
+                    Lighting.AddLight(projectile.Center, Color.LightGoldenrodYellow.ToVector3() * 1f);
+                }
                 // Default movement parameters (here for attacking)
 
                 float inertia = 13f;
@@ -168,8 +195,7 @@ namespace SariaMod.Items.Strange
             target.buffImmune[BuffID.Poisoned] = false;
             target.buffImmune[BuffID.Venom] = false;
             target.buffImmune[BuffID.Electrified] = false;
-            target.AddBuff(BuffID.OnFire, 300);
-            target.AddBuff(BuffID.Slow, 300);
+           
 
             damage /= damage / 4;
 

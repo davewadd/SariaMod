@@ -23,7 +23,7 @@ namespace SariaMod.Buffs
 		public override void SetDefaults()
 		{
 			DisplayName.SetDefault("Soothing");
-			Description.SetDefault("This special frozen yogurt heals Saria's\nold wounds for now.");
+			Description.SetDefault("Saria's old Wounds are at ease for now.");
 			Main.debuff[base.Type] = true;
 			Main.pvpBuff[base.Type] = false;
 			Main.buffNoSave[base.Type] = false;

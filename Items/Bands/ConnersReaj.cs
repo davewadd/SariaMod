@@ -53,9 +53,7 @@ namespace SariaMod.Items.Bands
 			{
 				ModRecipe recipe = new ModRecipe(mod);
 				recipe.AddIngredient(ItemID.WrathPotion);
-				recipe.AddIngredient(ItemID.Ruby, 1);
-				recipe.AddIngredient(ItemID.ManaCrystal, 2);
-				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 15);
+				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 3);
 				recipe.AddTile(ModContent.TileType<Tiles.StrangeBookcase>());
 				recipe.SetResult(this);
 				recipe.AddRecipe();

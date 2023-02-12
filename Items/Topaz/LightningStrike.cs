@@ -60,7 +60,7 @@ namespace SariaMod.Items.Topaz
 
 				if (projectile.timeLeft >= 140 && projectile.timeLeft <= 150)
 				{
-					Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, -100f), Vector2.One.RotatedByRandom(6.2831854820251465) * 2f, ModContent.ProjectileType<Fiz>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+					Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, -120f), Vector2.One.RotatedByRandom(6.2831854820251465) * 2f, ModContent.ProjectileType<Fiz>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 					if ((player.ownedProjectileCounts[ModContent.ProjectileType<Drop>()] <= 0f))
 					{
 						Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 100f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Drop>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
@@ -133,8 +133,10 @@ namespace SariaMod.Items.Topaz
 			target.buffImmune[BuffID.Poisoned] = false;
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Electrified] = false;
-			target.AddBuff(BuffID.OnFire, 300);
-			target.AddBuff(BuffID.Slow, 300);
+			target.buffImmune[ModContent.BuffType<Burning2>()] = false;
+			target.AddBuff(ModContent.BuffType<Burning2>(), 200);
+			target.AddBuff(BuffID.Electrified, 300);
+			modPlayer.SariaXp++;
 			if (player.HasBuff(ModContent.BuffType<StatRaise>()))
 			{
 				damage += (damage) / 4;

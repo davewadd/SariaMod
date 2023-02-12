@@ -1,4 +1,5 @@
 using Terraria;
+using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 
 namespace SariaMod.Dusts
@@ -17,7 +18,7 @@ namespace SariaMod.Dusts
 			dust.rotation += dust.velocity.X * 0.15f;
 			dust.scale *= 0.99f;
 			float light = 0.35f * dust.scale;
-			Lighting.AddLight(dust.position, light, light, light);
+			Lighting.AddLight(dust.position, Color.DarkViolet.ToVector3() * .6f);
 			if (dust.scale < 0.5f) {
 				dust.active = false;
 			}

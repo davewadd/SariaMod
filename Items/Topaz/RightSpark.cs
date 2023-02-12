@@ -130,8 +130,9 @@ namespace SariaMod.Items.Topaz
 			target.buffImmune[BuffID.Poisoned] = false;
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Electrified] = false;
-			target.AddBuff(BuffID.OnFire, 300);
-			target.AddBuff(BuffID.Slow, 300);
+			target.buffImmune[ModContent.BuffType<Burning2>()] = false;
+			target.AddBuff(ModContent.BuffType<Burning2>(), 200);
+			target.AddBuff(BuffID.Electrified, 300);
 		
 			knockback /= 50;
 			damage /= 2;

@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 using System;
-
+using SariaMod.Buffs;
 using Terraria;
 using SariaMod.Dusts;
 using Terraria.ID;
@@ -165,8 +165,9 @@ public override void ModifyHitNPC(NPC target, ref int damage, ref float knockbac
 			target.buffImmune[BuffID.Poisoned] = false;
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Electrified] = false;
-			target.AddBuff(BuffID.OnFire, 300);
-			target.AddBuff(BuffID.Slow, 300);
+			target.buffImmune[ModContent.BuffType<Burning2>()] = false;
+			target.AddBuff(ModContent.BuffType<Burning2>(), 200);
+			target.AddBuff(BuffID.Electrified, 300);
 
 			damage /= damage/4;
 			

@@ -25,7 +25,6 @@ namespace SariaMod.Items.zBookcases
 
 		public override void AddRecipes() {
 			ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddIngredient(ItemID.ManaCrystal, 5);
 			recipe.AddIngredient(ItemID.BorealWoodBookcase, 1);
 			recipe.AddIngredient(ItemID.HunterPotion, 3);
 			recipe.AddIngredient(ItemID.FeatherfallPotion, 3);

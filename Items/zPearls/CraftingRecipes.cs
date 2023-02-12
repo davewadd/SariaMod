@@ -35,14 +35,6 @@ namespace SariaMod.Items.zPearls
 			{
 				ModRecipe recipe = new ModRecipe(mod);
 				recipe.AddIngredient(ItemID.BottledWater, 1);
-				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 1);
-				recipe.AddTile(TileID.CookingPots);
-				recipe.SetResult(ItemID.SummoningPotion, 1);
-				recipe.AddRecipe();
-			}
-			{
-				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ItemID.BottledWater, 1);
 				recipe.AddIngredient(ItemID.ManaCrystal, 1);
 				recipe.AddTile(TileID.CookingPots);
 				recipe.SetResult(ItemID.LesserManaPotion, 10);
@@ -65,7 +57,7 @@ namespace SariaMod.Items.zPearls
 			{
 				ModRecipe recipe = new ModRecipe(mod);
 				recipe.AddIngredient(ItemID.Gel, 80);
-				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 5);
+				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 3);
 				recipe.AddTile(TileID.Bookcases);
 				recipe.SetResult(ItemID.SlimeStaff, 1);
 				recipe.AddRecipe();
@@ -80,10 +72,10 @@ namespace SariaMod.Items.zPearls
 			}
 			{
 				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ItemID.BottledWater, 1);
+				recipe.AddIngredient(ItemID.BottledWater, 10);
 				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 1);
 				recipe.AddTile(TileID.CookingPots);
-				recipe.SetResult(ItemID.WormholePotion, 1);
+				recipe.SetResult(ItemID.WormholePotion, 10);
 				recipe.AddRecipe();
 			}
 			{
@@ -96,27 +88,27 @@ namespace SariaMod.Items.zPearls
 			}
 			{
 				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ItemID.BottledWater, 1);
+				recipe.AddIngredient(ItemID.BottledWater, 3);
 				recipe.AddIngredient(ItemID.Feather, 1);
-				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 2);
-				recipe.AddTile(TileID.CookingPots);
-				recipe.SetResult(ItemID.FeatherfallPotion, 1);
-				recipe.AddRecipe();
-			}
-			{
-				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ItemID.BottledWater, 1);
-				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 2);
-				recipe.AddTile(TileID.CookingPots);
-				recipe.SetResult(ItemID.HunterPotion, 1);
-				recipe.AddRecipe();
-			}
-			{
-				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ItemID.BottledWater, 1);
 				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 1);
 				recipe.AddTile(TileID.CookingPots);
-				recipe.SetResult(ItemID.EndurancePotion, 1);
+				recipe.SetResult(ItemID.FeatherfallPotion, 3);
+				recipe.AddRecipe();
+			}
+			{
+				ModRecipe recipe = new ModRecipe(mod);
+				recipe.AddIngredient(ItemID.BottledWater, 3);
+				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 1);
+				recipe.AddTile(TileID.CookingPots);
+				recipe.SetResult(ItemID.HunterPotion, 3);
+				recipe.AddRecipe();
+			}
+			{
+				ModRecipe recipe = new ModRecipe(mod);
+				recipe.AddIngredient(ItemID.BottledWater, 10);
+				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 1);
+				recipe.AddTile(TileID.CookingPots);
+				recipe.SetResult(ItemID.EndurancePotion, 10);
 				recipe.AddRecipe();
 			}
 			{
@@ -129,10 +121,10 @@ namespace SariaMod.Items.zPearls
 			}
 			{
 				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ItemID.BottledWater, 1);
+				recipe.AddIngredient(ItemID.BottledWater, 3);
 				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 1);
 				recipe.AddTile(TileID.CookingPots);
-				recipe.SetResult(ItemID.BattlePotion, 1);
+				recipe.SetResult(ItemID.BattlePotion, 3);
 				recipe.AddRecipe();
 			}
 			{
@@ -145,6 +137,7 @@ namespace SariaMod.Items.zPearls
 			{
 				ModRecipe recipe4 = new ModRecipe(mod);
 				recipe4.AddIngredient(ItemID.LesserHealingPotion, 3);
+				recipe4.AddIngredient(ModContent.ItemType<XpPearl>(), 1);
 				recipe4.AddTile(TileID.CookingPots);
 				recipe4.SetResult(ItemID.HealingPotion, 1);
 				recipe4.AddRecipe();
@@ -152,6 +145,7 @@ namespace SariaMod.Items.zPearls
 			{
 				ModRecipe recipe5 = new ModRecipe(mod);
 				recipe5.AddIngredient(ItemID.HealingPotion, 4);
+				recipe5.AddIngredient(ModContent.ItemType<XpPearl>(), 1);
 				recipe5.AddTile(TileID.CookingPots);
 				recipe5.SetResult(ItemID.GreaterHealingPotion, 1);
 				recipe5.AddRecipe();
@@ -159,6 +153,7 @@ namespace SariaMod.Items.zPearls
 			{
 				ModRecipe recipe6 = new ModRecipe(mod);
 				recipe6.AddIngredient(ItemID.GreaterHealingPotion, 2);
+				recipe6.AddIngredient(ModContent.ItemType<XpPearl>(), 1);
 				recipe6.AddTile(TileID.CookingPots);
 				recipe6.SetResult(ItemID.SuperHealingPotion, 1);
 				recipe6.AddRecipe();

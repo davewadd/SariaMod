@@ -20,7 +20,7 @@ namespace SariaMod.Items.Bands
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Charm of Summoning");
-			base.Tooltip.SetDefault("Will increase the number of sentries and Minions\nGrows in power as Saria gets stronger\n\nWithout Saria the stone seems inactive");
+			base.Tooltip.SetDefault("Gives you three minion slots and a turret slot when Saria is active\n\nWithout Saria the stone seems inactive");
 		}
 
 		public override void SetDefaults()
@@ -37,46 +37,10 @@ namespace SariaMod.Items.Bands
 			FairyPlayer modPlayer = player.Fairy();
 			if (player.HasBuff(ModContent.BuffType<SariaBuff>()))
 			{
-				player.maxTurrets += 0;
-				player.maxMinions += 1;
+				player.maxTurrets += 1;
+				player.maxMinions += 3;
 				
 			}
-			if (player.HasBuff(ModContent.BuffType<SapphireSariaBuff>()))
-			{
-				player.maxTurrets += 0;
-				player.maxMinions += 2;
-			}
-			if (player.HasBuff(ModContent.BuffType<RubySariaBuff>()))
-			{
-				player.maxTurrets += 1;
-				player.maxMinions += 2;
-			}
-			if (player.HasBuff(ModContent.BuffType<TopazSariaBuff>()))
-			{
-				player.maxTurrets += 1;
-				player.maxMinions += 3;
-			}
-			if (player.HasBuff(ModContent.BuffType<EmeraldSariaBuff>()))
-			{
-				player.maxTurrets += 1;
-				player.maxMinions += 3;
-			}
-			if (player.HasBuff(ModContent.BuffType<AmberSariaBuff>()))
-			{
-				player.maxTurrets += 1;
-				player.maxMinions += 3;
-			}
-			if (player.HasBuff(ModContent.BuffType<AmethystSariaBuff>()))
-			{
-				player.maxTurrets += 2;
-				player.maxMinions += 4;
-			}
-			if (player.HasBuff(ModContent.BuffType<DiamondSariaBuff>()))
-			{
-				player.maxTurrets += 3;
-				player.maxMinions += 5;
-			}
-			
 			else
             {
 				player.maxTurrets += 0;
@@ -91,7 +55,7 @@ namespace SariaMod.Items.Bands
 				ModRecipe recipe = new ModRecipe(mod);
 				recipe.AddIngredient(ItemID.JungleSpores, 3);
 				recipe.AddIngredient(ItemID.Ruby, 1);
-				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 15);
+				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 3);
 				recipe.AddTile(ModContent.TileType<Tiles.StrangeBookcase>());
 				recipe.SetResult(this);
 				recipe.AddRecipe();

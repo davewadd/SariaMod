@@ -1,7 +1,8 @@
-using Microsoft.Xna.Framework; 
+using Microsoft.Xna.Framework;
 
-
-
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System;
 using SariaMod.Items.Strange;
 using Terraria;
@@ -30,7 +31,7 @@ namespace SariaMod.Items.Strange
 		public override void SetDefaults()
 		{
 			DisplayName.SetDefault("FairySpirit");
-			Description.SetDefault("Saria now watches over you\n-Her foresight will detect nearby enemies\n-Psychic powers keep you from taking fall damage");
+			Description.SetDefault("Saria now watches over you\n-She will give you added buffs as she levels up!");
 			Main.debuff[base.Type] = false;
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;
@@ -40,32 +41,139 @@ namespace SariaMod.Items.Strange
 		}
 		public override void Update(Player player, ref int buffIndex)
 		{
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<SariaMinion>()] > 0)
+			FairyPlayer modPlayer = player.Fairy();
+			if (player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] > 0)
 			{
-
-				player.statLifeMax2 += 25;
-				player.detectCreature = true;
-				player.noFallDmg = true;
-				if (player.buffTime[buffIndex] <= 10)
+				if (modPlayer.Sarialevel == 0)
 				{
 					player.buffTime[buffIndex] = 18000;
-					if (!player.HasBuff(ModContent.BuffType<Soothing>()))
-					{
-						player.AddBuff(ModContent.BuffType<Sickness>(), 18000);
-					}
+					player.statLifeMax2 += 25;
+					player.detectCreature = true;
+					player.noFallDmg = true;
 				}
-
-
-
+				if (modPlayer.Sarialevel == 1)
+				{
+					
+					player.buffTime[buffIndex] = 18000;
+					player.statLifeMax2 += 50;
+					player.waterWalk = true;
+					player.detectCreature = true;
+					player.gills = true;
+					player.dangerSense = true;
+					player.accFlipper = true;
+					player.ignoreWater = true;
+					player.noFallDmg = true;
+					player.AddBuff(BuffID.Warmth, 20);
+				}
+				if (modPlayer.Sarialevel == 2)
+				{
+					player.buffTime[buffIndex] = 18000;
+					player.statLifeMax2 += 75;
+					player.waterWalk = true;
+					player.detectCreature = true;
+					player.lavaImmune = true;
+					player.fireWalk = true;
+					player.dangerSense = true;
+					player.noFallDmg = true;
+					player.resistCold = true;
+					player.gills = true;
+					player.accFlipper = true;
+					player.ignoreWater = true;
+					player.AddBuff(BuffID.ObsidianSkin, 20);
+					player.AddBuff(BuffID.Warmth, 20);
+					player.lavaTime = 180000;
+				}
+				if (modPlayer.Sarialevel == 3)
+				{
+					player.buffTime[buffIndex] = 18000;
+					player.statLifeMax2 += 100;
+					player.waterWalk = true;
+					player.detectCreature = true;
+					player.lavaImmune = true;
+					player.fireWalk = true;
+					player.noFallDmg = true;
+					player.AddBuff(BuffID.WellFed, 20);
+					player.dangerSense = true;
+					player.resistCold = true;
+					player.gills = true;
+					player.accFlipper = true;
+					player.ignoreWater = true;
+					player.AddBuff(BuffID.ObsidianSkin, 20);
+					player.AddBuff(BuffID.Warmth, 20);
+					player.lavaTime = 180000;
+				}
+				if (modPlayer.Sarialevel == 4)
+				{
+					player.buffTime[buffIndex] = 18000;
+					player.statLifeMax2 += 125;
+					player.pickSpeed += -60000;
+					player.accOreFinder = true;
+					player.findTreasure = true;
+					player.waterWalk = true;
+					player.detectCreature = true;
+					player.lavaImmune = true;
+					player.fireWalk = true;
+					player.dangerSense = true;
+					player.noFallDmg = true;
+					player.resistCold = true;
+					player.gills = true;
+					player.accFlipper = true;
+					player.ignoreWater = true;
+					player.AddBuff(BuffID.ObsidianSkin, 20);
+					player.AddBuff(BuffID.Warmth, 20);
+					player.lavaTime = 180000;
+				}
+				if (modPlayer.Sarialevel == 5)
+				{
+					player.buffTime[buffIndex] = 18000;
+					player.statLifeMax2 += 125;
+					player.accOreFinder = true;
+					player.findTreasure = true;
+					player.waterWalk = true;
+					player.detectCreature = true;
+					player.lavaImmune = true;
+					player.fireWalk = true;
+					player.dangerSense = true;
+					player.noFallDmg = true;
+					player.resistCold = true;
+					player.gills = true;
+					player.accFlipper = true;
+					player.noFallDmg = true;
+					player.ignoreWater = true;
+					player.AddBuff(BuffID.ObsidianSkin, 20);
+					player.AddBuff(BuffID.Warmth, 20);
+					player.lavaTime = 180000;
+				}
+				if (modPlayer.Sarialevel == 6)
+				{
+					player.buffTime[buffIndex] = 18000;
+					player.statLifeMax2 += 150;
+					player.accOreFinder = true;
+					player.findTreasure = true;
+					player.waterWalk = true;
+					player.detectCreature = true;
+					player.lavaImmune = true;
+					player.fireWalk = true;
+					player.dangerSense = true;
+					player.noFallDmg = true;
+					player.resistCold = true;
+					player.gills = true;
+					player.accFlipper = true;
+					player.ignoreWater = true;
+					player.AddBuff(BuffID.ObsidianSkin, 20);
+					player.AddBuff(BuffID.Warmth, 20);
+					player.lavaTime = 180000;
+				}
 			}
-			
+
 			else
 			{
 				player.DelBuff(buffIndex);
 				buffIndex--;
 
 			}
-		}
 
+		}
+		
 	}
 }

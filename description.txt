@@ -3,7 +3,15 @@ She is a powerful summon that offers a plethera of abilities beyond just combat 
 
 New recipes for vanilla potions through the use of cooking pots and this mods XPpearls.
 
-Create XPpearls from the money dropped by enemies and use them at one of the mods themed bookshelves to upgrade Saria into a stronger form to change her ability.
+Changed pretty much everything! Xp pearls now drop rarely from enemies and you can use them to level up Saria.
+Saria will now level up as you battle with her and once a checkpoint is reached she will get much stronger as well as gaining a new attack!
+Craft a HealBall to Summon her and an XpStaff to See how much Xp she has until the next level!
+
+There is also only a single bookcase, The strange bookcase, where most of this mod's crafting will take place!
+
+This mod also now adds elemental effects such as freezing in a blizzard or melting in the underworld without decent equipment. Saria will help you fight off these elements but if she is in a biome she is weak in
+you will suffer whether or not you have the right equipment!
+Staying in a biome she is weak in will make Saria grow ill much faster so be sure not to linger for too long!
 
 This mod adds a few soundtracks from other games, some of which are from terraria otherworld, DarkCloud, and Ocarina of Time. This was also my first mod, but honestly I'm really happy with how it turned out so far!
 
@@ -15,14 +23,24 @@ The Upgrade progression order for this mod is as follows:
 ~Emerald : Uses the move GemStorm
 ~Amber : Uses the move AttackOrder
 ~Amethyst : Uses the move ShadowSneak
-~Diamond : Uses the move Moonblast
-        More on these attacks and what they do in their item descriptions!
+        More on these attacks will be shown as you level up!
 
-		I also highly advise using the Recipe Browser created by jopojelly to see all the different crafting recipes and items, however, this mod does also include notes for each item at each of the themed bookshelves. Start by just crafting a PaperNote.
-	Please do keep note that these upgrades will get extremely expensive, however, the effort put into it will certainly pay off!
+		I also highly advise using the Recipe Browser created by jopojelly to see all the different crafting recipes and items, however, this mod does also include notes for most items at the StrangeBookcase. Start by just crafting a PaperNote.
+	Please do keep note that these level ups will get extremely expensive, however, the effort put into it will certainly pay off!
 					This mod will be updated to Terraria 1.4 once finished on 1.3
+		If you discover any bugs or issues please let me know as multiplayer functions differently than single player. My discord is ~David~ #5797
 					
 **Patch notes(should've done this sooner to be honest)**
+ver 6.0.0
+	-Updated animations
+
+	-removed the diamond upgrade(for now)
+
+	-added eye of cthulu pet that drops from the eye(summons the boss to fight for you)
+
+	-Completely overhauled how Saria worked
+
+	-Changed summon item from tomes to the HealBall
 ver 5.4.4
 	-Changed how the Moonblast attack worked and fixed the issue with it softlocking itself, also made it alot easier for the game to handle
 
@@ -34,7 +52,7 @@ ver 5.4.4
 ver 5.4.3
 	-Buffed Explosion while in Overcharged state
 
-	-Made it so the player can unsommon Green Moth Goliath to save for later. Unless you die with it active
+	-Made it so the player can unsummon Green Moth Goliath to save for later. Unless you die with it active
 
 	-The player can also put both the emerald and silver fairy back into their shards to save for later. Again, unless you die with them active
 ver 5.4.2
@@ -56,7 +74,7 @@ ver 5.4.0
 
 	-Saria now has a chance to destroy projectiles.
 
-	-added the blood ocarina, use a blank ocarina durring a bloon moon to get it
+	-added the blood ocarina, use a blank ocarina durring a blood moon to get it
 
 	-lastly, changed the AI for some of the attacks
 ver 5.3.0

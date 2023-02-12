@@ -297,8 +297,8 @@ namespace SariaMod.Items.Amber
 			target.buffImmune[BuffID.Poisoned] = false;
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Electrified] = false;
-			target.AddBuff(BuffID.OnFire, 300);
-			target.AddBuff(BuffID.Slow, 300);
+			target.buffImmune[ModContent.BuffType<Burning2>()] = false;
+			target.AddBuff(ModContent.BuffType<Burning2>(), 200);
 			projectile.timeLeft += 150;
 			if (player.HasBuff(ModContent.BuffType<StatRaise>()))
 			{

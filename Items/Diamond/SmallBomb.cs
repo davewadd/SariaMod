@@ -45,7 +45,7 @@ namespace SariaMod.Items.Diamond
 		public override void AI()
 		{
 			Player player = Main.player[base.projectile.owner];
-			Lighting.AddLight(projectile.Center, Color.FloralWhite.ToVector3() * 4f);
+			Lighting.AddLight(projectile.Center, new Color(Main.DiscoR, Main.DiscoG, Main.DiscoB).ToVector3() * 3f);
 			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
 			if (Main.rand.NextBool(50))//controls the speed of when the sparkles spawn
 			{

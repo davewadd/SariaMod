@@ -41,16 +41,16 @@ namespace SariaMod.Items.Topaz
 		public override bool OnTileCollide(Vector2 oldVelocity)
 		{
 
-			Player player = Main.player[base.projectile.owner];
-			float speed = 2;
-			float inertia = 12;
-			Vector2 direction = player.Center - projectile.Center;
-			direction.Normalize();
-			direction *= speed;
-
 			
+			if (base.projectile.velocity.X != oldVelocity.X)
+			{
+				base.projectile.velocity.X = (0f - oldVelocity.X) * 0.1f;
+			}
+			if (base.projectile.velocity.Y != oldVelocity.Y)
+			{
+				base.projectile.velocity.Y = (0f - oldVelocity.Y) * 0.1f;
+			}
 			return false;
-
 		}
 		public override void AI()
 		{
@@ -206,10 +206,11 @@ namespace SariaMod.Items.Topaz
 			target.buffImmune[BuffID.Poisoned] = false;
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Electrified] = false;
-			target.AddBuff(BuffID.OnFire, 300);
-			target.AddBuff(BuffID.Slow, 300);
-			
-		
+			target.buffImmune[ModContent.BuffType<Burning2>()] = false;
+			target.AddBuff(ModContent.BuffType<Burning2>(), 200);
+			target.AddBuff(BuffID.Electrified, 300);
+			modPlayer.SariaXp++;
+
 			knockback = 0;
 			damage /= 100;
 		}

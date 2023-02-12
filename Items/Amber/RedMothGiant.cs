@@ -140,16 +140,13 @@ namespace SariaMod.Items.Amber
 			{
 				projectile.tileCollide = false;
 			}
-			if ((!player.HasBuff(ModContent.BuffType<AmberSariaBuff>())) && (!player.HasBuff(ModContent.BuffType<AmethystSariaBuff>())) && (!player.HasBuff(ModContent.BuffType<DiamondSariaBuff>())) && (!player.HasBuff(ModContent.BuffType<PlatinumSariaBuff>())))
-			{
-				projectile.Kill();
-			}
+			
 			if (player.dead || !player.active)
 			{
 
 				projectile.Kill();
 			}
-			if ((player.ownedProjectileCounts[ModContent.ProjectileType<AmberSariaMinion>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<AMASariaMinion>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<DASariaMinion>()] <= 0f))
+			if ((player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] <= 0f))
 			{
 				projectile.Kill();
 			}
@@ -333,8 +330,8 @@ namespace SariaMod.Items.Amber
 			target.buffImmune[BuffID.Poisoned] = false;
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Electrified] = false;
-			target.AddBuff(BuffID.OnFire, 300);
-			target.AddBuff(BuffID.Slow, 300);
+			target.buffImmune[ModContent.BuffType<Burning2>()] = false;
+			target.AddBuff(ModContent.BuffType<Burning2>(), 200);
 			projectile.timeLeft += 150;
 			if (player.HasBuff(ModContent.BuffType<StatRaise>()))
 			{

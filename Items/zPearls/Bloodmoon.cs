@@ -37,6 +37,10 @@ namespace SariaMod.Items.zPearls
 			Player player = Main.player[base.projectile.owner];
 			if (base.projectile.timeLeft == 10)
 			{
+				if (Main.dayTime)
+				{
+					Main.time = 54300;
+				}
 				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/DeadHand"), player.Center);
 				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/DLong"), player.Center);
 				if (!Main.dayTime && !Main.bloodMoon)

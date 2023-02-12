@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 
 
-
+using SariaMod.Buffs;
 using System;
 using Terraria;
 using SariaMod.Items.Sapphire;
@@ -62,14 +62,18 @@ namespace SariaMod.Items
 			target.buffImmune[BuffID.Poisoned] = false;
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Electrified] = false;
-			target.AddBuff(BuffID.OnFire, 300);
-			target.AddBuff(BuffID.Slow, 300);
+			target.buffImmune[ModContent.BuffType<Burning2>()] = false;
+			target.AddBuff(ModContent.BuffType<Burning2>(), 200);
 
 		}
 		public override void AI()
 		{
 			Player player = Main.player[projectile.owner];
 			float speed = 2;
+			if (projectile.timeLeft == 99)
+            {
+				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Healpulse"), player.Center);
+			}
 			if (Main.rand.NextBool())//controls the speed of when the sparkles spawn
 			{
 				float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));

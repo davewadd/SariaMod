@@ -32,9 +32,8 @@ namespace SariaMod.Items.Ruby
 			base.projectile.alpha = 100;
 			base.projectile.friendly = true;
 			base.projectile.tileCollide = false;
-			
-			base.projectile.penetrate = 1;
-			base.projectile.timeLeft = 200;
+				projectile.penetrate = 1;
+				base.projectile.timeLeft = 200;
 			base.projectile.ignoreWater = true;
 			
 			base.projectile.usesLocalNPCImmunity = true;
@@ -61,7 +60,7 @@ namespace SariaMod.Items.Ruby
 				float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
 				double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
 				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<FlameDust>(), 0f, 0f, 0, default(Color), 1.5f);
-				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<FlameDust>(), 0f, 0f, 0, default(Color), 1.5f);
+				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<SmokeDust>(), 0f, 0f, 0, default(Color), 1.5f);
 			}
 			
 			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
@@ -107,13 +106,7 @@ namespace SariaMod.Items.Ruby
 						}
 					}
 				}
-				if (player.HasBuff(ModContent.BuffType<Overcharged>()))
-				{
-					if (Main.rand.NextBool(27))//controls the speed of when the sparkles spawn
-					{
-						Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Explosion>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-					}
-				}
+				
 
 
 				Lighting.AddLight(projectile.Center, Color.LightPink.ToVector3() * 0.78f);
@@ -183,9 +176,9 @@ namespace SariaMod.Items.Ruby
 			target.buffImmune[BuffID.Poisoned] = false;
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Electrified] = false;
-			target.AddBuff(BuffID.OnFire, 300);
-			target.AddBuff(BuffID.Slow, 300);
-			
+			target.buffImmune[ModContent.BuffType<Burning2>()] = false;
+			target.AddBuff(ModContent.BuffType<Burning2>(), 200);
+
 			for (int j = 0; j < 1; j++) //set to 2
 			{
 				Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Explosion>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);

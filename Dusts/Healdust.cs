@@ -9,7 +9,7 @@ namespace SariaMod.Dusts
 		public override void OnSpawn(Dust dust) {
 			dust.velocity *= 0.4f;
 			dust.noGravity = true;
-			dust.scale *= .7f;
+			dust.scale *= 1.5f;
 		}
 
 		public override bool Update(Dust dust) {

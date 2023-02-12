@@ -6,7 +6,7 @@ using System;
 using Terraria;
 
 
-
+using SariaMod.Buffs;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -179,8 +179,8 @@ namespace SariaMod.Items.Emerald
 			target.buffImmune[BuffID.Poisoned] = false;
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Electrified] = false;
-			target.AddBuff(BuffID.OnFire, 300);
-			target.AddBuff(BuffID.Slow, 300);
+			target.buffImmune[ModContent.BuffType<Burning2>()] = false;
+			target.AddBuff(ModContent.BuffType<Burning2>(), 200);
 
 			damage /= damage/4;
 			

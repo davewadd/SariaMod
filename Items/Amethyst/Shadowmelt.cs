@@ -53,7 +53,7 @@ namespace SariaMod.Items.Amethyst
 			{
 				float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
 				double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
-				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow>(), 0f, 0f, 0, default(Color), 1.5f);
+				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow2>(), 0f, 0f, 0, default(Color), 1.5f);
 			}
 			
 			if (projectile.timeLeft == 198)
@@ -205,11 +205,11 @@ namespace SariaMod.Items.Amethyst
 			target.buffImmune[BuffID.Poisoned] = false;
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Electrified] = false;
-			target.AddBuff(BuffID.OnFire, 300);
-			target.AddBuff(BuffID.Slow, 300);
-			
-				
-			
+			target.buffImmune[ModContent.BuffType<SariaCurse>()] = false;
+			target.AddBuff(ModContent.BuffType<SariaCurse>(), 2000);
+			modPlayer.SariaXp++;
+
+
 			{
 				Main.PlaySound(SoundID.DD2_LightningBugDeath, base.projectile.Center);
 			}

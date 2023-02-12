@@ -22,7 +22,9 @@ namespace SariaMod.Items.Strange
 			base.DisplayName.SetDefault("Child");
 			Main.projFrames[base.projectile.type] = 1;
 			ProjectileID.Sets.MinionShot[base.projectile.type] = true;
-			ProjectileID.Sets.TrailingMode[base.projectile.type] = 500;
+			ProjectileID.Sets.TrailingMode[base.projectile.type] = 2;
+			ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 30;
+			
 		}
 
 		public override void SetDefaults()
@@ -48,18 +50,12 @@ namespace SariaMod.Items.Strange
 		}
 		public override bool MinionContactDamage()
 		{
-			if (projectile.timeLeft >= 300)
-			{
-				return false;
-			}
-			else if (projectile.timeLeft < 300)
-			{
-				return true;
-			}
-            else
-            {
-				return false;
-            }
+			
+			return true;
+		}
+		public override bool? CanHitNPC(NPC target)
+		{
+			return base.projectile.timeLeft < 450 && target.CanBeChasedBy(base.projectile);
 		}
 		private const int sphereRadius = 3;
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
@@ -78,6 +74,8 @@ namespace SariaMod.Items.Strange
 			target.AddBuff(BuffID.Slow, 300);
 			target.AddBuff(ModContent.BuffType<SariaCurse2>(), 50);
 			Main.PlaySound(SoundID.DD2_WitherBeastDeath, base.projectile.Center);
+			FairyPlayer modPlayer = player.Fairy();
+			modPlayer.SariaXp++;
 			if (player.HasBuff(ModContent.BuffType<StatRaise>()))
 			{
 				damage = damage;
@@ -90,31 +88,21 @@ namespace SariaMod.Items.Strange
             {
 				damage -= (damage)/4;
             }
+			if ((player.HasBuff(ModContent.BuffType<Overcharged>())))
+			{
+
+				
+				projectile.Kill();
+			}
 			knockback /= 4;
+			projectile.Kill();
 		}
 		public override void AI()
 		{
 			Player player = Main.player[projectile.owner];
 
 			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
-			if (projectile.timeLeft >= 400)
-			{
-				if (Main.rand.NextBool(30))//controls the speed of when the sparkles spawn
-				{
-					float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
-					double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
-					Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Psychic>(), 0f, 0f, 0, default(Color), 1.5f);
-				}
-			}
-			if (projectile.timeLeft < 400)
-			{
-				if (Main.rand.NextBool())//controls the speed of when the sparkles spawn
-				{
-					float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
-					double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
-					Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Psychic>(), 0f, 0f, 0, default(Color), 1.5f);
-				}
-			}
+			
 			
 			if (projectile.timeLeft >= 400)
 			{
@@ -124,6 +112,7 @@ namespace SariaMod.Items.Strange
             {
 				projectile.aiStyle = 1;
             }
+			
 			NPC target = base.projectile.Center.MinionHoming(500f, player);
 			if (target != null)
 			{
@@ -220,7 +209,7 @@ namespace SariaMod.Items.Strange
 
 
 
-			Lighting.AddLight(projectile.Center, Color.LightPink.ToVector3() * 0.78f);
+			
 			// Default movement parameters (here for attacking)
 			float speed = 70f;
 			float inertia = 20f;
@@ -273,12 +262,34 @@ namespace SariaMod.Items.Strange
 			}
 		
 		}
-			public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
+		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
 		{
-			FairyGlobalProjectile.DrawCenteredAndAfterimage(base.projectile, lightColor, ProjectileID.Sets.TrailingMode[base.projectile.type]);
-			return true;
+			{
+				Texture2D starTexture2 = Main.projectileTexture[ModContent.ProjectileType<Locator>()];
+				Texture2D starTexture = Main.projectileTexture[ModContent.ProjectileType<LocatorBeam>()];
+				Vector2 drawPosition;
+				for (int i = 1; i < base.projectile.oldPos.Length; i++)
+				{
+					float completionRatio = (float)i / (float)base.projectile.oldPos.Length;
+					Color drawColor = Color.Lerp(lightColor, Color.LightPink, 2f);
+					drawColor = Color.Lerp(drawColor, Color.DarkViolet, completionRatio);
+					drawColor = Color.Lerp(drawColor, Color.Transparent, completionRatio);
+					drawPosition = base.projectile.oldPos[i] + base.projectile.Size * 0.5f - Main.screenPosition;
+					spriteBatch.Draw(starTexture, drawPosition, null, base.projectile.GetAlpha(drawColor),0, Utils.Size(starTexture) * 0.5f, base.projectile.scale, SpriteEffects.None, 0f);
+				}
+				for (int j = 0; j < 1; j++)
+				{
+					drawPosition = base.projectile.Center - Main.screenPosition;
+					spriteBatch.Draw(starTexture2, drawPosition, null, Color.White, base.projectile.oldRot[j], Utils.Size(starTexture2) * 0.5f, base.projectile.scale, SpriteEffects.None, 0f);
+				}
+					return false;
+				
+			}
+
+
+			
 		}
-	
+
 	}
 }
 

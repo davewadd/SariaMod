@@ -1,9 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-
-
-
+using SariaMod.Buffs;
 using System;
 using Terraria;
 using SariaMod.Items.Sapphire;
@@ -23,19 +21,21 @@ namespace SariaMod.Items.Amethyst
 
 		public override void SetDefaults()
 		{
-			base.projectile.width = 20;
-			base.projectile.height = 20;
+			base.projectile.width = 200;
+			base.projectile.height = 200;
 			base.projectile.netImportant = true;
 			base.projectile.friendly = true;
 			base.projectile.ignoreWater = true;
 			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 7;
+			base.projectile.localNPCHitCooldown = 800;
 			base.projectile.minionSlots = 0f;
 			base.projectile.extraUpdates = 1;
-			
+			projectile.alpha = 0;
+			projectile.scale = .5f;
+			projectile.velocity *= .4f;
 			base.projectile.penetrate = -1;
 			base.projectile.tileCollide = false;
-			base.projectile.timeLeft = 500;
+			base.projectile.timeLeft = 2000;
 			base.projectile.minion = true;
 		}
 		public override bool? CanCutTiles()
@@ -45,6 +45,8 @@ namespace SariaMod.Items.Amethyst
 		
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
+			Player player = Main.player[base.projectile.owner];
+			FairyPlayer modPlayer = player.Fairy();
 			target.buffImmune[BuffID.CursedInferno] = false;
 			target.buffImmune[BuffID.Confused] = false;
 			target.buffImmune[BuffID.Slow] = false;
@@ -55,63 +57,49 @@ namespace SariaMod.Items.Amethyst
 			target.buffImmune[BuffID.Poisoned] = false;
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Electrified] = false;
-			target.AddBuff(BuffID.ShadowFlame, 1000);
+			target.buffImmune[ModContent.BuffType<SariaCurse>()] = false;
+			target.AddBuff(ModContent.BuffType<SariaCurse>(), 2000);
 			target.AddBuff(BuffID.Slow, 300);
-			damage = 1;
-			knockback *= 0;
+			if (!player.HasBuff(ModContent.BuffType<Overcharged>()))
+			{
+				target.AddBuff(ModContent.BuffType<SariaCurse>(), 2000);
+			}
+			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
+			{
+				target.AddBuff(ModContent.BuffType<SariaCurse>(), 300000);
+			}
+			if (!player.HasBuff(ModContent.BuffType<Overcharged>()))
+			{
+				damage *= 0;
+			}
+			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
+				{
+					damage /= 4;
+				}
+			knockback = 0;
+
 		}
 		public override void AI()
 		{
-			
+
 			Player player = Main.player[projectile.owner];
-			float speed = 15;
-			float smoke = -1;
 			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
-			Vector2 idlePosition = mother.Center;
-			
-			idlePosition.Y -= 88f;
-			idlePosition.X -= 88f;
-			Vector2 vectorToIdlePosition = idlePosition - projectile.Center;
-			float distanceToIdlePosition = vectorToIdlePosition.Length();
+			projectile.rotation += projectile.velocity.X * 0.01f;
 			{
-				// Minion has a target: attack (here, fly towards the enemy)
-
-				float distanceFromTarget = 10f;
-				Vector2 targetCenter = projectile.position;
-				bool foundTarget = false;
-
-				if (projectile.timeLeft >= 200)
-				{
-					if (projectile.velocity.Y >= 1)
-					{
-						projectile.velocity.Y *= -1;
-					}
-				}
 				
-				else if (projectile.timeLeft < 200 && foundTarget && distanceFromTarget > 1)
-				{
-					Vector2 direction = targetCenter - projectile.Center;
-					projectile.velocity = (projectile.velocity * (12 - 2) + direction) / 20;
-				}
+				
+				projectile.scale *= 1.01f;
+			projectile.alpha += 1;
+			if (projectile.alpha == 300f)
+			{
+				projectile.active = false;
 			}
-
-
-
-
-
-
-
-
-
-					// friendly needs to be set to true so the minion can deal contact damage
-					// friendly needs to be set to false so it doesn't damage things like target dummies while idling
-					// Both things depend on if it has a target or not, so it's just one assignment here
-					// You don't need this assignment if your minion is shooting things instead of dealing contact damage
-
-
-					Lighting.AddLight(projectile.Center, Color.LightBlue.ToVector3() * 0.78f);
-			// Default movement parameters (here for attacking)
 			
+			float light = 0.35f * projectile.scale;
+			Lighting.AddLight(projectile.position, Color.DarkViolet.ToVector3() * 6f);
+			
+			
+		}
 			
 			
 		
@@ -137,16 +125,7 @@ namespace SariaMod.Items.Amethyst
 								
 			}
 		}
-		public override Color? GetAlpha(Color lightColor)
-		{
-			if (base.projectile.timeLeft < 85)
-			{
-				byte b2 = (byte)(base.projectile.timeLeft * 3);
-				byte a2 = (byte)(100f * ((float)(int)b2 / 255f));
-				return new Color(b2, b2, b2, a2);
-			}
-			return new Color(255, 255, 255, 100);
-		}
+		
 	}
 }
 

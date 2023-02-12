@@ -191,6 +191,7 @@ namespace SariaMod.Items.Emerald
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
 		{
 			FairyGlobalProjectile.DrawCenteredAndAfterimage(base.projectile, lightColor, ProjectileID.Sets.TrailingMode[base.projectile.type]);
+		
 			return false;
 		}
 
@@ -214,6 +215,7 @@ namespace SariaMod.Items.Emerald
 			target.AddBuff(BuffID.Electrified, 300);
 			target.AddBuff(BuffID.Slow, 300);
 			projectile.timeLeft -= 15;
+			modPlayer.SariaXp++;
 			if (!player.HasBuff(ModContent.BuffType<Overcharged>()))
 			{
 				if (Main.rand.NextBool(100))

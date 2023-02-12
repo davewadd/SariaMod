@@ -55,46 +55,6 @@ namespace SariaMod.Items.zPearls
 			{
 				return true;
 			}
-			if (player.HasBuff(ModContent.BuffType<SapphireSariaBuff>()))
-			{
-				return true;
-			}
-			if (player.HasBuff(ModContent.BuffType<RubySariaBuff>()))
-			{
-				return true;
-			}
-			if (player.HasBuff(ModContent.BuffType<TopazSariaBuff>()))
-			{
-				return true;
-			}
-			if (player.HasBuff(ModContent.BuffType<EmeraldSariaBuff>()))
-			{
-				return true;
-			}
-			if (player.HasBuff(ModContent.BuffType<AmberSariaBuff>()))
-			{
-				return true;
-			}
-			if (player.HasBuff(ModContent.BuffType<AmethystSariaBuff>()))
-			{
-				return true;
-			}
-			if (player.HasBuff(ModContent.BuffType<DiamondSariaBuff>()))
-			{
-				return true;
-			}
-			if (player.HasBuff(ModContent.BuffType<PlatinumSariaBuff>()))
-			{
-				return true;
-			}
-			if (player.HasBuff(ModContent.BuffType<PlatinumPurpleSariaBuff>()))
-			{
-				return true;
-			}
-			if (player.HasBuff(ModContent.BuffType<PlatinumBlueSariaBuff>()))
-			{
-				return true;
-			}
 			return false;
 		}
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
@@ -111,20 +71,20 @@ namespace SariaMod.Items.zPearls
 		{
 			{
 				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ModContent.ItemType<MediumXpPearl>(), 2);
-				recipe.AddIngredient(ItemID.SuperManaPotion, 3);
+				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 1);
+				recipe.AddIngredient(ItemID.LesserManaPotion, 3);
 				recipe.AddIngredient(ItemID.SnowBlock, 5);
 				
-				recipe.SetResult(this);
+				recipe.SetResult(this, 2);
 				recipe.AddRecipe();
 			}
 			{
 				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ModContent.ItemType<LivingGreenShard>(), 2);
-				recipe.AddIngredient(ItemID.SuperManaPotion, 3);
+				recipe.AddIngredient(ModContent.ItemType<LivingGreenShard>(), 1);
+				recipe.AddIngredient(ItemID.LesserManaPotion, 3);
 				recipe.AddIngredient(ItemID.SnowBlock, 5);
 
-				recipe.SetResult(this);
+				recipe.SetResult(this, 2);
 				recipe.AddRecipe();
 			}
 		}

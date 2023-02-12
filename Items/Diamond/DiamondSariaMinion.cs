@@ -1,5 +1,5 @@
 using Microsoft.Xna.Framework;
-
+using Microsoft.Xna.Framework.Graphics;
 
 using SariaMod.Items;
 using SariaMod.Items.zPearls;
@@ -20,19 +20,22 @@ namespace SariaMod.Items.Diamond
 
     public class DiamondSariaMinion : ModProjectile
     {
-       
+
 
         public const float DistanceToCheck = 1100f;
         private const int sphereRadius3 = 1;
         private const int sphereRadius2 = 6;
-        private const int sphereRadius4 = 32;
+        private const int sphereRadius4 = 42;
+        private const int sphereRadius = 100;
         public override void SetStaticDefaults()
         {
             base.DisplayName.SetDefault("Mother");
             Main.projFrames[base.projectile.type] = 99;
             Main.projPet[projectile.type] = true;
-             ProjectileID.Sets.MinionSacrificable[base.projectile.type] = false;
+            ProjectileID.Sets.MinionSacrificable[base.projectile.type] = false;
             ProjectileID.Sets.MinionTargettingFeature[base.projectile.type] = true;
+            ProjectileID.Sets.TrailingMode[base.projectile.type] = 0;
+            ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 30;
         }
         public override bool? CanCutTiles()
         {
@@ -66,17 +69,17 @@ namespace SariaMod.Items.Diamond
             target.buffImmune[BuffID.Poisoned] = false;
             target.buffImmune[BuffID.Venom] = false;
             target.buffImmune[BuffID.Electrified] = false;
-            
+
             target.AddBuff(BuffID.Electrified, 300);
-            
+
             if (player.HasBuff(ModContent.BuffType<StatRaise>()))
             {
                 damage = damage;
             }
-           else  if (player.HasBuff(ModContent.BuffType<StatLower>()))
+            else if (player.HasBuff(ModContent.BuffType<StatLower>()))
             {
                 damage /= 4;
-                
+
             }
             else
             {
@@ -84,27 +87,27 @@ namespace SariaMod.Items.Diamond
             }
 
         }
-       
+
         public override void SetDefaults()
         {
-           
+
             base.projectile.width = 96;
             base.projectile.height = 78;
-            
+
             base.projectile.netImportant = true;
             base.projectile.friendly = true;
-            
+
             base.projectile.ignoreWater = false;
             base.projectile.usesLocalNPCImmunity = true;
-             base.projectile.localNPCHitCooldown = 50;
-                base.projectile.minionSlots = 0f;
+            base.projectile.localNPCHitCooldown = 50;
+            base.projectile.minionSlots = 0f;
             base.projectile.timeLeft = 1800;
             base.projectile.penetrate = -1;
             base.projectile.tileCollide = false;
-            
+
             base.projectile.minion = true;
         }
-    
+
         public override void AI()
         {
 
@@ -126,7 +129,7 @@ namespace SariaMod.Items.Diamond
             float distanceToIdlePosition3 = vectorToIdlePosition3.Length();
             if ((player.ownedProjectileCounts[ModContent.ProjectileType<FrozenYogurtSignal>()] >= 1f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Happiness>()] <= 0f) && ((player.ownedProjectileCounts[ModContent.ProjectileType<Sad>()] > 0f) || ((!player.HasBuff(ModContent.BuffType<BloodmoonBuff>())) || (!player.HasBuff(ModContent.BuffType<EclipseBuff>())))))
             {
-                 
+
                 Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Happiness>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
             }
             if ((!player.HasBuff(ModContent.BuffType<Sickness>()) && (player.ownedProjectileCounts[ModContent.ProjectileType<Sad>()] >= 1f)))
@@ -138,14 +141,7 @@ namespace SariaMod.Items.Diamond
                     }
                 }
             }
-            if (player.statLife == player.statLifeMax2 && (projectile.frame >= 20 && projectile.frame <= 60 && projectile.ai[0] == 0 && (player.ownedProjectileCounts[ModContent.ProjectileType<SmileTime>()] <= 0f) && (!player.HasBuff(ModContent.BuffType<Sickness>()) && (!player.HasBuff(ModContent.BuffType<BloodmoonBuff>()) && !player.HasBuff(ModContent.BuffType<EclipseBuff>()) && (!player.HasBuff(ModContent.BuffType<StatLower>()) && (player.ownedProjectileCounts[ModContent.ProjectileType<Happiness>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Anger>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Sad>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Smile>()] <= 0f) && player.velocity.X == 0)) && projectile.spriteDirection != player.direction && (distanceToIdlePosition3 <= 10))))
-            {
-                float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius3 * sphereRadius3));
-                double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
-                Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<SmileTime>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-                Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Smile>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-                Dust.NewDust(new Vector2((projectile.Center.X + dustspeed) + radius * (float)Math.Cos(angle), (projectile.Center.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<HeartDust>(), 0f, 0f, 0, default(Color), 1.5f);
-            }
+           
             if ((player.ownedProjectileCounts[ModContent.ProjectileType<Smile>()] >= 1f) && (player.ownedProjectileCounts[ModContent.ProjectileType<Anger>()] <= 0f) && projectile.spriteDirection == player.direction)
             {
                 Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Anger>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
@@ -173,12 +169,7 @@ namespace SariaMod.Items.Diamond
             //////////////////////////////faces end
             if (projectile.frame == 90)
             {
-                if (player.ownedProjectileCounts[ModContent.ProjectileType<Nerf>()] <= 0f)
-                {
-                    {
-                        Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Nerf>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-                    }
-                }
+               
             }
             if (projectile.frame == 62 && (!player.HasBuff(ModContent.BuffType<StatLower>())) && (!player.HasBuff(ModContent.BuffType<Sickness>()) && (!player.HasBuff(ModContent.BuffType<BloodmoonBuff>())) && (!player.HasBuff(ModContent.BuffType<EclipseBuff>()))))
             {
@@ -227,6 +218,12 @@ namespace SariaMod.Items.Diamond
                     }
                     Dust.NewDust(new Vector2((projectile.Center.X + sneezespot) + radius * (float)Math.Cos(angle), (projectile.Center.Y - 16) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Blood>(), 0f, 0f, 0, default(Color), 1.5f);
                 }
+            }
+            if (Main.rand.NextBool(30))//controls the speed of when the sparkles spawn
+            {
+                float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
+                double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
+                Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), (projectile.Center.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<MegaDust>(), 0f, 0f, 0, default(Color), 1.5f);
             }
             if ((Main.player[Main.myPlayer].active && Main.bloodMoon) && ((!player.HasBuff(ModContent.BuffType<Soothing>()))))
             {
@@ -324,39 +321,14 @@ namespace SariaMod.Items.Diamond
                 }
 
             }//end of dust stuff
-            if (base.projectile.localAI[0] == 0f)
-            {
-                base.projectile.Fairy().spawnedPlayerMinionDamageValue = player.MinionDamage();
-                base.projectile.Fairy().spawnedPlayerMinionProjectileDamageValue = base.projectile.damage;
-                for (int j = 0; j < 1; j++) //set to 2
-                {
-                    Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<ZtargetD>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-                }
-                base.projectile.localAI[0] = 1f;
-            }
-            
+           
+
             if (player.MinionDamage() != base.projectile.Fairy().spawnedPlayerMinionDamageValue)
             {
                 int trueDamage = (int)((float)base.projectile.Fairy().spawnedPlayerMinionProjectileDamageValue / base.projectile.Fairy().spawnedPlayerMinionDamageValue * player.MinionDamage());
                 base.projectile.damage = trueDamage;
             }
-            if (player.dead || !player.active)
-            {
-                player.ClearBuff(ModContent.BuffType<DiamondSariaBuff>());
-                projectile.Kill();
-            }
-            if (player.HasBuff(ModContent.BuffType<DiamondSariaBuff>()) && projectile.timeLeft <= 10)
-            {
-                projectile.timeLeft = 500;
-            }
-            if (!player.HasBuff(ModContent.BuffType<DiamondSariaBuff>()))
-            {
-                projectile.Kill();
-            }
-            if ((player.HasBuff(ModContent.BuffType<DiamondSariaBuff>()) && (player.ownedProjectileCounts[ModContent.ProjectileType<DSariaMinion>()] > 0f)))
-            {
-                projectile.Kill();
-            }
+           
             NPC target = base.projectile.Center.MinionHoming(500f, player);// the distance she targets enemies
             if (target != null && projectile.ai[0] == 0)
             {
@@ -445,10 +417,7 @@ namespace SariaMod.Items.Diamond
             }
             if (player.HasBuff(ModContent.BuffType<StatLower>()) && (player.ownedProjectileCounts[ModContent.ProjectileType<period>()] <= 0f))
 
-            {
-                Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Sad2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-                Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<period>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-            }
+           
 
 
             //end of Flashupdate stuff
@@ -456,7 +425,7 @@ namespace SariaMod.Items.Diamond
             if ((Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneJungle || Main.player[Main.myPlayer].ZoneGlowshroom))
             {
                 if (!player.HasBuff(ModContent.BuffType<StatRaise>()) && !player.HasBuff(ModContent.BuffType<StatLower>()))
-                    {
+                {
                     Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/StatLower"), projectile.Center);
                     for (int j = 0; j < 1; j++) //set to 2
                     {
@@ -490,35 +459,34 @@ namespace SariaMod.Items.Diamond
 
             float nothing = 1;
             float speed = 2;
-            
-            
+
+
 
             bool foundTarget = false;
 
-            float minionPositionOffsetX = ((60 + projectile.minionPos / 80) * player.direction)-15;
+            float minionPositionOffsetX = ((60 + projectile.minionPos / 80) * player.direction) - 15;
             idlePosition.Y -= 15f;
             idlePosition.X += minionPositionOffsetX;
             Vector2 vectorToIdlePosition = idlePosition - projectile.Center;
-            
+
             float distanceToIdlePosition = vectorToIdlePosition.Length();
-           
-            Lighting.AddLight(projectile.Center, Color.LightBlue.ToVector3() * 0.78f);
-            
+
+
             Vector2 direction = idlePosition - projectile.Center;
-            
-           
+
+
             if (foundTarget)
             {
-                { 
+                {
                     speed = 2;
                     projectile.velocity = (((projectile.velocity * (13 - speed) + direction) / 20) * nothing);
-                    
+
                 }
             }
             if (!foundTarget)
             {
                 nothing = 1;
-               
+
             }
             if ((base.projectile.frame >= 20) && (base.projectile.frame <= 69) && (distanceToIdlePosition <= 500) && (Math.Abs(projectile.velocity.X) <= .5) && (player.statLife >= player.statLifeMax2))
             {
@@ -529,8 +497,8 @@ namespace SariaMod.Items.Diamond
                 nothing = 1;
             }
             projectile.velocity = ((projectile.velocity * (13 - speed) + direction) / 20) * nothing;
-           
-            if (player.statLife < (player.statLifeMax2)/4 && !player.HasBuff(ModContent.BuffType<HealpulseBuff>()))
+
+            if (player.statLife < (player.statLifeMax2) / 4 && !player.HasBuff(ModContent.BuffType<HealpulseBuff>()))
             {
                 player.statLife += 500;
                 player.AddBuff(ModContent.BuffType<HealpulseBuff>(), 8000);
@@ -552,9 +520,9 @@ namespace SariaMod.Items.Diamond
                     projectile.spriteDirection = -1;
                 }
             }
-           
 
-   
+
+
             if (projectile.frame >= 83 && projectile.frame <= 100)
             {
                 ;
@@ -567,7 +535,7 @@ namespace SariaMod.Items.Diamond
             if (projectile.frameCounter >= frameSpeed)
             {
                 projectile.frameCounter = 0;
-                if (projectile.frame >= Main.projFrames[ModContent.ProjectileType<TopazSariaMinion>()]) //error here! you had the wrong projectile id, so the animation did not use the right frames
+                if (projectile.frame >= Main.projFrames[ModContent.ProjectileType<Saria>()]) //error here! you had the wrong projectile id, so the animation did not use the right frames
                 {
                     projectile.frame = 0;
 
@@ -651,7 +619,7 @@ namespace SariaMod.Items.Diamond
                         }
                         if (base.projectile.frame < 80)
                         {
-                            
+
                             base.projectile.frame = 80;
                         }
                     }
@@ -761,14 +729,14 @@ namespace SariaMod.Items.Diamond
                                 Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<MoonBlast>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
                             }
                         }
-                       
+
                     }
                     if (base.projectile.frame == 90 && !player.HasMinionAttackTargetNPC)
                     {
                         {
                             Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<DazzlingGleam2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-                        
-                        if ((player.ownedProjectileCounts[ModContent.ProjectileType<MoonBlast>()] <= 0f))
+
+                            if ((player.ownedProjectileCounts[ModContent.ProjectileType<MoonBlast>()] <= 0f))
                             {
                                 Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<MoonBlast>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
                             }
@@ -795,6 +763,72 @@ namespace SariaMod.Items.Diamond
 
             }
         }
+        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
+        {
+            {
+
+                Texture2D starTexture = Main.projectileTexture[ModContent.ProjectileType<LocatorBeam2>()];
+                Vector2 drawPosition;
+
+              
+                
+                { 
+                Texture2D texture = Main.projectileTexture[base.projectile.type];
+                Vector2 startPos = base.projectile.Center - Main.screenPosition + new Vector2(0f, base.projectile.gfxOffY);
+                int frameHeight = texture.Height / Main.projFrames[base.projectile.type];
+                int frameY = frameHeight * base.projectile.frame;
+                Rectangle rectangle = new Rectangle(0, frameY, texture.Width, frameHeight);
+                Vector2 origin = rectangle.Size() / 2f;
+                float rotation = base.projectile.rotation;
+                float scale = base.projectile.scale;
+                SpriteEffects spriteEffects = SpriteEffects.None;
+                    startPos.Y += 1;
+                    startPos.X += +17;
+                if (base.projectile.spriteDirection == -1)
+                {
+                    spriteEffects = SpriteEffects.FlipHorizontally;
+                }
+                Main.spriteBatch.Draw(texture, startPos, rectangle, base.projectile.GetAlpha(lightColor), rotation, origin, scale, spriteEffects, 0f);
+                   
+                }
+               
+                return false;
+
+            }
+
+
+
+        }
+        public override void PostDraw(SpriteBatch spriteBatch, Color lightColor)
+        {
+
+            for (int i = 1; i < 1; i++)
+            {
+                Texture2D texture = Main.projectileTexture[ModContent.ProjectileType<DiamondSariaMinionEyes>()];
+                Vector2 startPos = base.projectile.oldPos[i] + base.projectile.Size * 0.5f - Main.screenPosition;
+                int frameHeight = texture.Height / Main.projFrames[base.projectile.type];
+                int frameY = frameHeight * base.projectile.frame;
+                float completionRatio = (float)i / (float)base.projectile.oldPos.Length;
+                Color drawColor = Color.Lerp(lightColor, Color.LightPink, 20f);
+                drawColor = Color.Lerp(drawColor, Color.DarkViolet, completionRatio);
+                drawColor = Color.Lerp(drawColor, Color.Transparent, completionRatio);
+                Rectangle rectangle = new Rectangle(0, frameY, texture.Width, frameHeight);
+                Vector2 origin = rectangle.Size() / 2f;
+                float rotation = base.projectile.rotation;
+                float scale = base.projectile.scale;
+                SpriteEffects spriteEffects = SpriteEffects.None;
+                startPos.Y += 1;
+                startPos.X += +17;
+                if (base.projectile.spriteDirection == -1)
+                {
+                    spriteEffects = SpriteEffects.FlipHorizontally;
+                }
+                Main.spriteBatch.Draw(texture, startPos, rectangle, base.projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, layerDepth: 0f);
+                
+            }
+            
+        }
+        
     }
 
 
