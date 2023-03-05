@@ -71,7 +71,7 @@ namespace SariaMod.Items.zPearls
 		{
 			{
 				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ModContent.ItemType<MediumXpPearl>(), 5);
+				recipe.AddIngredient(ModContent.ItemType<MediumXpPearl>(), 1);
 				recipe.SetResult(this, 5);
 				recipe.AddRecipe();
 			}
