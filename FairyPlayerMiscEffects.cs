@@ -75,6 +75,7 @@ namespace SariaMod
                 else if ((modPlayer.SariaXp > 3000))
                 {
                     modPlayer.XPBarLevel = 8;
+                    modPlayer.SariaXp = 3001;
                 }
             }
             if (modPlayer.Sarialevel == 1)
@@ -114,6 +115,7 @@ namespace SariaMod
                 else if ((modPlayer.SariaXp > 9000))
                 {
                     modPlayer.XPBarLevel = 8;
+                    modPlayer.SariaXp = 9001;
                 }
             }
             if (modPlayer.Sarialevel == 2)
@@ -153,6 +155,7 @@ namespace SariaMod
                 else if ((modPlayer.SariaXp > 20000))
                 {
                     modPlayer.XPBarLevel = 8;
+                    modPlayer.SariaXp = 20001;
                 }
             }
             if (modPlayer.Sarialevel == 3)
@@ -192,6 +195,7 @@ namespace SariaMod
                 else if ((modPlayer.SariaXp > 40000))
                 {
                     modPlayer.XPBarLevel = 8;
+                    modPlayer.SariaXp = 40001;
                 }
             }
             if (modPlayer.Sarialevel == 4)
@@ -231,6 +235,7 @@ namespace SariaMod
                 else if ((modPlayer.SariaXp > 80000))
                 {
                     modPlayer.XPBarLevel = 8;
+                    modPlayer.SariaXp = 80001;
                 }
             }
             if (modPlayer.Sarialevel == 5)
@@ -270,6 +275,7 @@ namespace SariaMod
                 else if ((modPlayer.SariaXp > 240000))
                 {
                     modPlayer.XPBarLevel = 8;
+                    modPlayer.SariaXp = 240001;
                 }
             }
             if (modPlayer.Sarialevel == 6)

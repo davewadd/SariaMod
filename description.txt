@@ -33,6 +33,8 @@ The Upgrade progression order for this mod is as follows:
 		If you discover any bugs or issues please let me know as multiplayer functions differently than single player. My discord is ~David~ #5797
 					
 **Patch notes(should've done this sooner to be honest)**
+ver 6.1.2
+	-fixed saria increasing damage infinintly when maxing Xp
 ver 6.1.1
 	-very small update. Changed the item meant for my brother in this mod
 ver 6.1.0
