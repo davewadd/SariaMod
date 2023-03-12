@@ -354,28 +354,28 @@ namespace SariaMod.Items.Strange
             }
             else if (modPlayer.Sarialevel == 5)
             {
-                projectile.damage = 200 + (modPlayer.SariaXp / 12);
+                projectile.damage = 200 + (modPlayer.SariaXp / 342);
             }
             else if (modPlayer.Sarialevel == 4)
             {
-                projectile.damage = 75 + (modPlayer.SariaXp / 90);
+                projectile.damage = 75 + (modPlayer.SariaXp / 640);
             }
             else if (modPlayer.Sarialevel == 3)
             {
-                projectile.damage = 50 + (modPlayer.SariaXp / 240);
+                projectile.damage = 50 + (modPlayer.SariaXp / 1600);
             }
             else if (modPlayer.Sarialevel == 2)
             {
-                projectile.damage = 26 + (modPlayer.SariaXp / 300);
+                projectile.damage = 26 + (modPlayer.SariaXp / 833);
             }
 
             else if (modPlayer.Sarialevel == 1)
             {
-                projectile.damage = 15 + (modPlayer.SariaXp / 400);
+                projectile.damage = 15 + (modPlayer.SariaXp / 818);
             }
             else
             {
-                projectile.damage = 10 + (modPlayer.SariaXp/500);
+                projectile.damage = 10 + (modPlayer.SariaXp/600);
             }
             
                 if (player.HasBuff(ModContent.BuffType<XPBuff>()))
