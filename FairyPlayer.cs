@@ -32,6 +32,7 @@ namespace SariaMod
 		public int FreezingTemp;
 		public int SariaXp;
 		public int XPBarLevel;
+		public int FairyBreak;
 
 		public override void ResetEffects()
 		{
@@ -136,11 +137,13 @@ namespace SariaMod
 				{ "SariaXp", SariaXp },
 				{ "FeezingTemp", FreezingTemp },
 				{ "XPBarLevel", XPBarLevel },
+				{ "FairyBreak", FairyBreak },
 			};
 		}
 		public override void Load(TagCompound tag)
 		{
 			Sarialevel = tag.GetInt("Sarialevel");
+			FairyBreak = tag.GetInt("FairyBreak");
 			SariaXp = tag.GetInt("SariaXp");
 			FreezingTemp = tag.GetInt("FreezingTemp");
 			XPBarLevel = tag.GetInt("XPBarLevel");
@@ -149,6 +152,7 @@ namespace SariaMod
 		{
 			int loadVersion = reader.ReadInt32();
 			Sarialevel = reader.ReadInt32();
+			FairyBreak = reader.ReadInt32();
 			FreezingTemp = reader.ReadInt32();
 			SariaXp = reader.ReadInt32();
 			XPBarLevel = reader.ReadInt32();

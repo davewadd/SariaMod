@@ -32,7 +32,7 @@ namespace SariaMod
 		{
 			
 
-			if (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneOverworldHeight && !Main.dayTime && !Main.eclipse && !Main.bloodMoon && !Main.player[Main.myPlayer].ZoneBeach && !Main.player[Main.myPlayer].ZoneDesert && !Main.player[Main.myPlayer].ZoneHoly && !(Main.player[Main.myPlayer].ZoneSnow && Main.raining))
+			if (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneOverworldHeight && !Main.dayTime && !Main.eclipse && !Main.bloodMoon && !Main.player[Main.myPlayer].ZoneBeach && !Main.player[Main.myPlayer].ZoneDesert && !Main.player[Main.myPlayer].ZoneHoly && !Main.player[Main.myPlayer].ZoneCorrupt && !Main.player[Main.myPlayer].ZoneCrimson && !(Main.player[Main.myPlayer].ZoneSnow && Main.raining))
 			{
 				music = GetSoundSlot(SoundType.Music, "Sounds/Music/MechonisField");
 				priority = MusicPriority.BiomeLow;
@@ -68,7 +68,7 @@ namespace SariaMod
 				music = GetSoundSlot(SoundType.Music, "Sounds/Music/A_Lonely_Figure");
 				priority = MusicPriority.Environment;
 			}
-			if (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneRain && Main.dayTime && !Main.player[Main.myPlayer].ZoneSnow && !Main.player[Main.myPlayer].ZonePeaceCandle && Main.player[Main.myPlayer].ZoneOverworldHeight)
+			if (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneRain && Main.dayTime && !Main.player[Main.myPlayer].ZoneSnow && !Main.player[Main.myPlayer].ZoneCorrupt && !Main.player[Main.myPlayer].ZoneCrimson && !Main.player[Main.myPlayer].ZonePeaceCandle && Main.player[Main.myPlayer].ZoneOverworldHeight)
 			{
 				music = GetSoundSlot(SoundType.Music, "Sounds/Music/Rain");
 				priority = MusicPriority.BiomeMedium;

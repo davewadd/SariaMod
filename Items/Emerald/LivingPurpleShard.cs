@@ -17,19 +17,19 @@ namespace SariaMod.Items.Emerald
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Living Purple Shard");
-			Tooltip.SetDefault("Can be sold for a High price\n If used, will summon a fairy that auto heals at low health!");
+			Tooltip.SetDefault("Can be sold for a High price\n Can be crafted into a Purple Gem Ball! \n glass, 3\nIron Bar, 3\n Living Purple Shard, 8\n LargeXpPearl, 1 \n at a Strange Bookcase!\nWhen used, the gem will heal the pink fairy's shield!");
 		}
 
 
 		public override void SetDefaults()
 		{
-			
+
 			base.item.width = 26;
 			base.item.height = 22;
 			base.item.maxStack = 999;
 			item.value = Item.buyPrice(20, 0, 0, 0);
 
-			item.rare = ItemRarityID.Expert;
+			item.rare = ItemRarityID.Red;
 			item.consumable = true;
 			item.useTime = 36;
 			item.useAnimation = 15;
@@ -38,55 +38,44 @@ namespace SariaMod.Items.Emerald
 			item.autoReuse = false;
 			// These below are needed for a minion weapon
 			item.noMelee = true;
-			item.buffType = ModContent.BuffType<EmeraldFairyBuff>();
+
 			item.summon = true;
+			item.shootSpeed = 1;
 			// No buffTime because otherwise the item tooltip would say something like "1 minute duration"
-			item.shoot = ModContent.ProjectileType<Emeraldfairy>();
+			item.shoot = ModContent.ProjectileType<PurpleRupee>();
 
 		}
 		public override bool AltFunctionUse(Player player)
 		{
 			return false;
 		}
+		
+
+		public override bool CanUseItem(Player player)
+		{
+			if (player.altFunctionUse == 2)
+			{
+				item.consumable = false;
+				return false;
+			}
+			if (player.altFunctionUse != 2)
+			{
+				item.consumable = true;
+				return true;
+			}
+
+			else
+			{
+				return true;
+			}
+		}
 		public override void Update(ref float gravity, ref float maxFallSpeed)
 		{
 			
 			Lighting.AddLight(item.Center, Color.Purple.ToVector3() * 2f);
 		}
-		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
-		{
-
-			// This is needed so the buff that keeps your minion alive and allows you to despawn it properly applies
-			player.AddBuff(item.buffType, 2);
-
-			// Here you can change where the minion is spawned. Most vanilla minions spawn at the cursor position.
-
-
-			position = Main.MouseWorld;
-
-
-			return true;
-		}
-		public override bool CanUseItem(Player player)
-		{ 
-			if (player.altFunctionUse ==2)
-            {
-				item.consumable = false;
-				return false;
-            }
-			if (player.altFunctionUse !=2)
-            {
-				item.consumable = true;
-            }
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<Emeraldfairy>()] > 0f)
-			{
-				return false;
-			}
-			else
-			{
-				return true;
-			}
-            }
+		
+		
 		public override void AddRecipes()
 		{
 			{
@@ -96,6 +85,7 @@ namespace SariaMod.Items.Emerald
 				recipe.SetResult(this);
 				recipe.AddRecipe();
 			}
+
 		}
 	}
 }

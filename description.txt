@@ -7,6 +7,8 @@ Changed pretty much everything! Xp pearls now drop rarely from enemies and you c
 Saria will now level up as you battle with her and once a checkpoint is reached she will get much stronger as well as gaining a new attack!
 Craft a HealBall to Summon her and an XpStaff to See how much Xp she has until the next level!
 
+Enemies also now have a rare chance of growing much stronger. These cursed enemies are shown with purple smoke. Be very cautious around these enemies!
+
 There is also only a single bookcase, The strange bookcase, where most of this mod's crafting will take place!
 
 This mod also now adds elemental effects such as freezing in a blizzard or melting in the underworld without decent equipment. Saria will help you fight off these elements but if she is in a biome she is weak in
@@ -31,6 +33,18 @@ The Upgrade progression order for this mod is as follows:
 		If you discover any bugs or issues please let me know as multiplayer functions differently than single player. My discord is ~David~ #5797
 					
 **Patch notes(should've done this sooner to be honest)**
+ver 6.1.0
+	-Changed the way healballs are used, also added other pokeballs!
+
+	-GreenMothGoliath now requires a DuskBall to be thrown at it before it can be caught.
+
+	-Changed the way the GemStorm attacks
+
+	-Gem Fairies are now obtained from Gem pokeballs made from their gems
+
+	-added a rare chance for all enemies to grow huge with a massive health, defense and attack increase so be careful!
+
+	-changed a few other small mechanics within the mod.
 ver 6.0.1
 	-Changed amount of MediumXpPearls for XpPearls from 5 to 1
 

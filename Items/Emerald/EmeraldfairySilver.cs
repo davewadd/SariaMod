@@ -47,7 +47,7 @@ namespace SariaMod.Items.Emerald
 
 		}
 		private const int sphereRadius = 1;
-		public static int Timer;
+		private  int Timer;
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Psychic Turret");
@@ -82,12 +82,30 @@ namespace SariaMod.Items.Emerald
 			}
 			if (player.dead || !player.active)
 			{
-				
+				for (int j = 0; j < 72; j++)
+				{
+					Dust dust = Dust.NewDustPerfect(projectile.Center, 113);
+					dust.velocity = ((float)Math.PI * 2f * Vector2.Dot(((float)j / 72f * ((float)Math.PI * 2f)).ToRotationVector2(), player.velocity.SafeNormalize(Vector2.UnitY).RotatedBy((float)j / 72f * ((float)Math.PI * -2f)))).ToRotationVector2();
+					dust.velocity = dust.velocity.RotatedBy((float)j / 36f * ((float)Math.PI * 2f)) * 8f;
+					dust.noGravity = true;
+					dust.scale *= 3.9f;
+
+				}
+				Projectile.NewProjectile(projectile.Center, Utils.NextVector2Circular(Main.rand, 0, 2), ModContent.ProjectileType<SilverGemBallProjectile2>(), projectile.damage, projectile.knockBack, player.whoAmI);
 				projectile.Kill();
 			}
-			if (!player.HasBuff(ModContent.BuffType<EmeraldFairySilverBuff>()))
+			if ((player.ownedProjectileCounts[ModContent.ProjectileType<SilverBallReturn>()] > 0f))
 			{
-				Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<LivingSilverShard>());
+				for (int j = 0; j < 72; j++)
+				{
+					Dust dust = Dust.NewDustPerfect(projectile.Center, 113);
+					dust.velocity = ((float)Math.PI * 2f * Vector2.Dot(((float)j / 72f * ((float)Math.PI * 2f)).ToRotationVector2(), player.velocity.SafeNormalize(Vector2.UnitY).RotatedBy((float)j / 72f * ((float)Math.PI * -2f)))).ToRotationVector2();
+					dust.velocity = dust.velocity.RotatedBy((float)j / 36f * ((float)Math.PI * 2f)) * 8f;
+					dust.noGravity = true;
+					dust.scale *= 3.9f;
+
+				}
+				Projectile.NewProjectile(projectile.Center, Utils.NextVector2Circular(Main.rand, 0, 2), ModContent.ProjectileType<SilverGemBallProjectile2>(), projectile.damage, projectile.knockBack, player.whoAmI);
 				projectile.Kill();
 			}
 			if (player.statLife < (player.statLifeMax2) / 2 && Timer >= Healtimer)

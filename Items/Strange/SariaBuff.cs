@@ -42,10 +42,12 @@ namespace SariaMod.Items.Strange
 		public override void Update(Player player, ref int buffIndex)
 		{
 			FairyPlayer modPlayer = player.Fairy();
+			
 			if (player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] > 0)
 			{
 				if (modPlayer.Sarialevel == 0)
 				{
+					
 					player.buffTime[buffIndex] = 18000;
 					player.statLifeMax2 += 25;
 					player.detectCreature = true;
@@ -67,6 +69,7 @@ namespace SariaMod.Items.Strange
 				}
 				if (modPlayer.Sarialevel == 2)
 				{
+				
 					player.buffTime[buffIndex] = 18000;
 					player.statLifeMax2 += 75;
 					player.waterWalk = true;
@@ -85,6 +88,7 @@ namespace SariaMod.Items.Strange
 				}
 				if (modPlayer.Sarialevel == 3)
 				{
+					
 					player.buffTime[buffIndex] = 18000;
 					player.statLifeMax2 += 100;
 					player.waterWalk = true;
@@ -104,6 +108,7 @@ namespace SariaMod.Items.Strange
 				}
 				if (modPlayer.Sarialevel == 4)
 				{
+					
 					player.buffTime[buffIndex] = 18000;
 					player.statLifeMax2 += 125;
 					player.pickSpeed += -60000;
@@ -125,6 +130,7 @@ namespace SariaMod.Items.Strange
 				}
 				if (modPlayer.Sarialevel == 5)
 				{
+					
 					player.buffTime[buffIndex] = 18000;
 					player.statLifeMax2 += 125;
 					player.accOreFinder = true;
@@ -146,6 +152,7 @@ namespace SariaMod.Items.Strange
 				}
 				if (modPlayer.Sarialevel == 6)
 				{
+					
 					player.buffTime[buffIndex] = 18000;
 					player.statLifeMax2 += 150;
 					player.accOreFinder = true;

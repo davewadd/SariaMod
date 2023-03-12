@@ -28,7 +28,7 @@ namespace SariaMod.Items.zBookcases
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Strange Note");
-			Tooltip.SetDefault("Craft a Strange Tome!\nIngredients include:\nBook, 1\nManaCrystal, 3\nXpPearl, 3\nAt a Strange Bookcase");
+			Tooltip.SetDefault("Craft a Heal Ball!\nIngredients include:\nGlass, 3\nManaCrystal, 3\nXpPearl, 3\nIron Bar, 3\nAt a Strange Bookcase");
 		}
 
 

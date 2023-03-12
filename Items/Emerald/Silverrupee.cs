@@ -41,13 +41,13 @@ namespace SariaMod.Items.Emerald
 
 		public override bool? CanHitNPC(NPC target)
         {
-			return false;
+			return true;
         }
 		public override void AI()
 		{
 			Player player = Main.player[base.projectile.owner];
 			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
-			
+
 			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
 			{
 				float distanceFromTarget = 10f;
@@ -59,25 +59,25 @@ namespace SariaMod.Items.Emerald
 				{
 					NPC npc = Main.npc[player.MinionAttackTargetNPC];
 					float between = Vector2.Distance(npc.Center, player.Center);
-					
-						
-						bool closest = Vector2.Distance(projectile.Center, targetCenter) > between;
-						bool inRange = between < distanceFromTarget;
 
-						// Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
-						// The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
-						bool closeThroughWall = between < 1000f;
-						if (((closest && inRange) || !foundTarget) && (closeThroughWall))
+
+					bool closest = Vector2.Distance(projectile.Center, targetCenter) > between;
+					bool inRange = between < distanceFromTarget;
+
+					// Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
+					// The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
+					bool closeThroughWall = between < 1000f;
+					if (((closest && inRange) || !foundTarget) && (closeThroughWall))
 					{
 						distanceFromTarget = between;
 						targetCenter = npc.Center;
-						targetCenter.Y += 80f;
+						targetCenter.Y += 0f;
 						targetCenter.X += 0f;
 						foundTarget = true;
 					}
 				}
-				
-				
+
+
 				if (!foundTarget)
 				{
 					// This code is required either way, used for finding a target
@@ -97,7 +97,7 @@ namespace SariaMod.Items.Emerald
 							{
 								distanceFromTarget = between;
 								targetCenter = npc.Center;
-								targetCenter.Y += 80f;
+								targetCenter.Y += 0f;
 								targetCenter.X += 0f;
 								foundTarget = true;
 							}
@@ -112,11 +112,9 @@ namespace SariaMod.Items.Emerald
 				projectile.friendly = foundTarget;
 
 
-
-				
 				if (projectile.timeLeft == 10)
 				{
-					Projectile.NewProjectile(base.projectile.Center + new Vector2( 0f, -80f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Silverspike1>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+					Projectile.NewProjectile(base.projectile.Center + new Vector2( 0f, -80f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Silverrupee2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 				}
 				Lighting.AddLight(projectile.Center, Color.Gray.ToVector3() * 2f);
 				// Default movement parameters (here for attacking)
@@ -183,8 +181,10 @@ namespace SariaMod.Items.Emerald
 			target.buffImmune[ModContent.BuffType<Burning2>()] = false;
 			target.AddBuff(ModContent.BuffType<Burning2>(), 200);
 
-			damage /= damage/4;
-			
+			{
+				Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, -80f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Silverrupee2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+			}
+
 		}
 
 

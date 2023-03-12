@@ -34,6 +34,7 @@ namespace SariaMod.Items.Strange
         private static int Mood;
         private static int MoodTimer;
         private static int MoveTimer;
+        private static int SleepHeal;
         private static int Heal;
         private static int Sleep;
         private static int TimeAsleep;
@@ -46,6 +47,7 @@ namespace SariaMod.Items.Strange
             Main.projFrames[base.projectile.type] = 99;
             Main.projPet[projectile.type] = true;
              ProjectileID.Sets.MinionSacrificable[base.projectile.type] = false;
+            ProjectileID.Sets.MinionShot[base.projectile.type] = false;
             ProjectileID.Sets.MinionTargettingFeature[base.projectile.type] = true;
             ProjectileID.Sets.TrailingMode[base.projectile.type] = 0;
             ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 30;
@@ -237,7 +239,7 @@ namespace SariaMod.Items.Strange
             base.projectile.penetrate = -1;
             base.projectile.tileCollide = false;
             
-            base.projectile.minion = true;
+            base.projectile.minion = false;
         }
         private const int sphereRadius3 = 1;
         private const int sphereRadius2 = 6;
@@ -249,7 +251,26 @@ namespace SariaMod.Items.Strange
 
             Player player = Main.player[base.projectile.owner];
             FairyPlayer modPlayer = player.Fairy();
+           
+            
             int owner = player.whoAmI;
+            int GiantMoth = ModContent.ProjectileType<DuskBallProjectile>();
+            for (int i = 0; i < 1000; i++)
+            {
+                if ((player.ownedProjectileCounts[ModContent.ProjectileType<GreenMothGoliath>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<GreenMothGiant>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<GreenMoth>()] <= 0f))
+                {
+                    if (Main.projectile[i].active && i != base.projectile.whoAmI && ((Main.projectile[i].type == GiantMoth && Main.projectile[i].owner == owner && Main.projectile[i].timeLeft == 10)))
+                    {
+
+                        {
+                            Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Pokeball"), Main.projectile[i].Center);
+                            Projectile.NewProjectile(Main.projectile[i].Center + Utils.NextVector2CircularEdge(Main.rand, 8f, 8f), Utils.NextVector2Circular(Main.rand, 12f, 12f), ModContent.ProjectileType<GreenMothGoliath2>(), projectile.damage, projectile.knockBack, player.whoAmI);
+                        }
+
+                    }
+
+                }
+            }
             int XpProjectile = ModContent.ProjectileType<XpProjectile>();
             for (int i = 0; i < 1000; i++)
             {
@@ -305,6 +326,22 @@ namespace SariaMod.Items.Strange
 
                 }
 
+            }
+            int Lightning = ModContent.ProjectileType<LightningLocator>();
+            for (int i = 0; i < 1000; i++)
+            {
+                if (Transform != 3)
+                { 
+                    if (Main.projectile[i].active && i != base.projectile.whoAmI && ((Main.projectile[i].type == Lightning && Main.projectile[i].owner == owner)))
+                    {
+
+                        {
+                            Main.projectile[i].Kill();
+                        }
+
+                    }
+
+                }
             }
             //////////////Transformation Timer
             ///
@@ -457,12 +494,14 @@ namespace SariaMod.Items.Strange
             if (MoveTimer == 0)
             {
                 TimeAsleep = 0;
+                SleepHeal = 0;
             }
-            if (TimeAsleep >= 200 && !player.HasBuff(ModContent.BuffType<Soothing>()))
+            if (TimeAsleep >= 200 && SleepHeal<= 0)
             {
                 Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Healpulse"), player.Center);
                 player.AddBuff(ModContent.BuffType<Soothing>(), 44000);
                 Mood = 0;
+                SleepHeal = 1;
                 if (player.HasBuff(ModContent.BuffType<Drained>()))
                 {
                     player.ClearBuff(ModContent.BuffType<Drained>());
@@ -491,6 +530,7 @@ namespace SariaMod.Items.Strange
                 }
                 Mood = 0;
                 MoveTimer = 0;
+               
             }
             
                 if (Mood >= 1200)
@@ -516,10 +556,7 @@ namespace SariaMod.Items.Strange
 
             
             {
-                if (player.HasBuff(ModContent.BuffType<SariaBuff>()))
-                {
-                    base.projectile.minionSlots = 3f;
-                }
+                
                
             }
             float sneezespot = 5;
@@ -769,9 +806,18 @@ namespace SariaMod.Items.Strange
             {
                 modPlayer.SariaXp /= 2;
             }
+            
             if (player.dead || !player.active)
             {
-
+                for (int j = 0; j < 72; j++)
+                {
+                    Dust dust = Dust.NewDustPerfect(projectile.Center, 113);
+                    dust.velocity = ((float)Math.PI * 2f * Vector2.Dot(((float)j / 72f * ((float)Math.PI * 2f)).ToRotationVector2(), player.velocity.SafeNormalize(Vector2.UnitY).RotatedBy((float)j / 72f * ((float)Math.PI * -2f)))).ToRotationVector2();
+                    dust.velocity = dust.velocity.RotatedBy((float)j / 36f * ((float)Math.PI * 2f)) * 8f;
+                    dust.noGravity = true;
+                    dust.scale *= 3.9f;
+                }
+                Projectile.NewProjectile(projectile.Center, Utils.NextVector2Circular(Main.rand, 0, 2), ModContent.ProjectileType<HealBallProjectile2>(), projectile.damage, projectile.knockBack, player.whoAmI);
                 projectile.Kill();
             }
            
@@ -781,6 +827,16 @@ namespace SariaMod.Items.Strange
             }
             if (!player.HasBuff(ModContent.BuffType<SariaBuff>()))
             {
+                for (int j = 0; j < 72; j++)
+                {
+                    Dust dust = Dust.NewDustPerfect(projectile.Center, 113);
+                    dust.velocity = ((float)Math.PI * 2f * Vector2.Dot(((float)j / 72f * ((float)Math.PI * 2f)).ToRotationVector2(), player.velocity.SafeNormalize(Vector2.UnitY).RotatedBy((float)j / 72f * ((float)Math.PI * -2f)))).ToRotationVector2();
+                    dust.velocity = dust.velocity.RotatedBy((float)j / 36f * ((float)Math.PI * 2f)) * 8f;
+                    dust.noGravity = true;
+                    dust.scale *= 3.9f;
+                    
+                }
+                Projectile.NewProjectile(projectile.Center, Utils.NextVector2Circular(Main.rand, 0, 2), ModContent.ProjectileType<HealBallProjectile2>(), projectile.damage, projectile.knockBack, player.whoAmI);
                 projectile.Kill();
             }
 
@@ -1121,38 +1177,7 @@ namespace SariaMod.Items.Strange
             }
             if (Transform == 5)
             {
-                if ((Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneSkyHeight || Main.player[Main.myPlayer].ZoneBeach))
-                {
-                    if (!player.HasBuff(ModContent.BuffType<StatRaise>()) && !player.HasBuff(ModContent.BuffType<StatLower>()))
-                    {
-                        Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/StatLower"), projectile.Center);
-                        for (int j = 0; j < 1; j++) //set to 2
-                        {
-                            Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<PowerDown>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-                        }
-                        player.AddBuff(ModContent.BuffType<StatLower>(), 20);
-                    }
-                    if (player.HasBuff(ModContent.BuffType<StatLower>()))
-                    {
-                        player.AddBuff(ModContent.BuffType<StatLower>(), 20);
-                    }
-                }
-                if ((Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneUndergroundDesert || Main.player[Main.myPlayer].ZoneUnderworldHeight || Main.player[Main.myPlayer].ZoneRockLayerHeight))
-                {
-                    if (!player.HasBuff(ModContent.BuffType<StatRaise>()) && !player.HasBuff(ModContent.BuffType<StatLower>()))
-                    {
-                        Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/StatRaise"), projectile.Center);
-                        for (int j = 0; j < 1; j++) //set to 2
-                        {
-                            Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<PowerUp>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-                        }
-                        player.AddBuff(ModContent.BuffType<StatRaise>(), 20);
-                    }
-                    if (player.HasBuff(ModContent.BuffType<StatRaise>()))
-                    {
-                        player.AddBuff(ModContent.BuffType<StatRaise>(), 20);
-                    }
-                }
+               
             }
             if (Transform == 6)
             {
@@ -1631,7 +1656,7 @@ namespace SariaMod.Items.Strange
 
                                         target = base.projectile.Center.MinionHoming(500f, player);// the distance she targets enemies
                                         Main.PlaySound(SoundID.Item77, base.projectile.Center);
-                                        Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Specialrupee>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+                                        Projectile.NewProjectile(base.projectile.Center + new Vector2(0, 370f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Specialrupee>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
                                     }
                                 }
                                 else
@@ -1641,7 +1666,7 @@ namespace SariaMod.Items.Strange
                                     Main.PlaySound(SoundID.Item77, base.projectile.Center);
                                     for (int j = 0; j < 1; j++) //set to 2
                                     {
-                                        Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Rupee>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+                                        Projectile.NewProjectile(base.projectile.Center + new Vector2(0, 370f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Rupee>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
                                     }
                                 }
                             }
@@ -1650,19 +1675,10 @@ namespace SariaMod.Items.Strange
                         {
                             if (base.projectile.frame == 90 && SwarmTimer >= 1000)
                             {
-                                if (player.ownedProjectileCounts[ModContent.ProjectileType<GreenPoint>()] > 0f)
+                                
+                                if (player.ownedProjectileCounts[ModContent.ProjectileType<DuskBallProjectile>()] <= 0f)
                                 {
-                                   
-                                    modPlayer.SariaXp++;
-                                    Main.PlaySound(SoundID.Item77, base.projectile.Center);
-                                    target = base.projectile.Center.MinionHoming(500f, player);// the distance she targets enemies
-                                    Main.PlaySound(SoundID.Roar, base.projectile.Center, 0);
-                                    Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<GreenMothGoliath>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-
-                                }
-                                else if (player.ownedProjectileCounts[ModContent.ProjectileType<GreenPoint>()] <= 0f)
-                                {
-                                    if (((Main.rand.NextBool(100)) && (player.ownedProjectileCounts[ModContent.ProjectileType<GreenMoth>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<AmberGreen>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<GreenMothGiant>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<GreenMothGoliath>()] <= 0f) && ((player.ownedProjectileCounts[ModContent.ProjectileType<RedMoth>()] == 1f) || (player.ownedProjectileCounts[ModContent.ProjectileType<RedMothGiant>()] == 1f)) && ((player.ownedProjectileCounts[ModContent.ProjectileType<PurpleMoth>()] == 1f) || (player.ownedProjectileCounts[ModContent.ProjectileType<PurpleMothGiant>()] == 1f))))
+                                    if (((Main.rand.NextBool(60)) && (player.ownedProjectileCounts[ModContent.ProjectileType<GreenMoth>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<GreenMothGoliath2>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<AmberGreen>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<GreenMothGiant>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<GreenMothGoliath>()] <= 0f) && ((player.ownedProjectileCounts[ModContent.ProjectileType<RedMoth>()] == 1f) || (player.ownedProjectileCounts[ModContent.ProjectileType<RedMothGiant>()] == 1f)) && ((player.ownedProjectileCounts[ModContent.ProjectileType<PurpleMoth>()] == 1f) || (player.ownedProjectileCounts[ModContent.ProjectileType<PurpleMothGiant>()] == 1f))))
                                     {
                                         {
                                             modPlayer.SariaXp++;
@@ -1675,13 +1691,13 @@ namespace SariaMod.Items.Strange
                                     }
                                     else
                                     {
-                                        if ((BugTimer >= 50 && BugTimer <= 350) && (player.ownedProjectileCounts[ModContent.ProjectileType<PurpleMoth>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<PurpleMothGiant>()] <= 0f) && ((player.ownedProjectileCounts[ModContent.ProjectileType<RedMoth>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<RedMothGiant>()] <= 0f)))
+                                        if ((BugTimer >= 50 && BugTimer <= 350) && ((player.ownedProjectileCounts[ModContent.ProjectileType<RedMoth>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<RedMothGiant>()] <= 0f)))
                                         {
                                             modPlayer.SariaXp++;
                                             Projectile.NewProjectile(base.projectile.Center + new Vector2(-250f, 370f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<AmberRed>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 
                                         }
-                                        if ((BugTimer >= 50 && BugTimer <= 250) && ((player.ownedProjectileCounts[ModContent.ProjectileType<RedMoth>()] == 1f) || (player.ownedProjectileCounts[ModContent.ProjectileType<RedMothGiant>()] == 1f)) && ((player.ownedProjectileCounts[ModContent.ProjectileType<PurpleMoth>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<PurpleMothGiant>()] <= 0f)))
+                                        if ((BugTimer >= 50 && BugTimer <= 250) && ((player.ownedProjectileCounts[ModContent.ProjectileType<PurpleMoth>()] <= 0f) && (player.ownedProjectileCounts[ModContent.ProjectileType<PurpleMothGiant>()] <= 0f)))
                                         {
                                             modPlayer.SariaXp++;
                                             Projectile.NewProjectile(base.projectile.Center + new Vector2(250f, 370f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<AmberPurple>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);

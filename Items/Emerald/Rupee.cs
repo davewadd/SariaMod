@@ -41,7 +41,7 @@ namespace SariaMod.Items.Emerald
 
 		public override bool? CanHitNPC(NPC target)
         {
-			return false;
+			return true;
         }
 		public override void AI()
 		{
@@ -71,7 +71,7 @@ namespace SariaMod.Items.Emerald
 					{
 						distanceFromTarget = between;
 						targetCenter = npc.Center;
-						targetCenter.Y += 80f;
+						targetCenter.Y += 0f;
 						targetCenter.X += 0f;
 						foundTarget = true;
 					}
@@ -97,7 +97,7 @@ namespace SariaMod.Items.Emerald
 							{
 								distanceFromTarget = between;
 								targetCenter = npc.Center;
-								targetCenter.Y += 80f;
+								targetCenter.Y += 0f;
 								targetCenter.X += 0f;
 								foundTarget = true;
 							}
@@ -111,7 +111,7 @@ namespace SariaMod.Items.Emerald
 				// You don't need this assignment if your minion is shooting things instead of dealing contact damage
 				projectile.friendly = foundTarget;
 
-				if (Main.rand.NextBool(2500))
+				if (Main.rand.NextBool(900))
 				{
 					Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Silverrupee>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 					projectile.Kill();
@@ -119,15 +119,15 @@ namespace SariaMod.Items.Emerald
 
 				if (projectile.timeLeft == 10)
 				{
-					Projectile.NewProjectile(base.projectile.Center + new Vector2( 0f, -80f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Emeraldspike>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+					Projectile.NewProjectile(base.projectile.Center + new Vector2( 0f, 0f),new Vector2(projectile.oldVelocity.X, projectile.oldVelocity.Y) , ModContent.ProjectileType<Rupee2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 				}
-				Lighting.AddLight(projectile.Center, Color.LightGoldenrodYellow.ToVector3() * 1f);
+				Lighting.AddLight(projectile.Center, Color.Green.ToVector3() * 1f);
 				// Default movement parameters (here for attacking)
 				
 				float inertia = 13f;
 				Vector2 idlePosition = player.Center;
 				float minionPositionOffsetX = ((60 + projectile.minionPos / 80) * player.direction) - 15;
-				idlePosition.Y -= 70f;
+				
 				idlePosition.X += minionPositionOffsetX;
 				Vector2 vectorToIdlePosition = idlePosition - projectile.Center;
 
@@ -183,10 +183,12 @@ namespace SariaMod.Items.Emerald
 			target.buffImmune[BuffID.Poisoned] = false;
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Electrified] = false;
-			target.buffImmune[ModContent.BuffType<Burning2>()] = false;
-			target.AddBuff(ModContent.BuffType<Burning2>(), 200);
-
-			damage /= damage/4;
+			
+			
+			{
+				Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 0f), new Vector2(projectile.oldVelocity.X, projectile.oldVelocity.Y), ModContent.ProjectileType<Rupee2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+			}
+			damage /= 2;
 			
 		}
 

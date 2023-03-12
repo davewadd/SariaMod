@@ -27,7 +27,7 @@ namespace SariaMod.Items.Strange
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("HealBall");
-			Tooltip.SetDefault(SariaModUtilities.ColorMessage("Calls on Saria, the Champion of Foresight!", new Color(135, 206, 180)) + "\n" + SariaModUtilities.ColorMessage("Requires 3 minion slots", new Color(50, 200, 250)) + "\n" + SariaModUtilities.ColorMessage("Saria will level up as you battle with her!", new Color(0, 200, 250, 200)) + "\n " + SariaModUtilities.ColorMessage("As she levels up, she learns new attacks and gives added buffs depending on what biome she is in", new Color(0, 200, 250, 200)));
+			Tooltip.SetDefault(SariaModUtilities.ColorMessage("Calls on Saria, the Champion of Foresight!", new Color(135, 206, 180)) + "\n" + SariaModUtilities.ColorMessage("Requires 3 minion slots to summon but doensn't occupy the slots", new Color(50, 200, 250)) + "\n" + SariaModUtilities.ColorMessage("Saria will level up as you battle with her!", new Color(0, 200, 250, 200)) + "\n " + SariaModUtilities.ColorMessage("As she levels up, she learns new attacks and gives added buffs depending on what biome she is in", new Color(0, 200, 250, 200)));
 			ItemID.Sets.GamepadWholeScreenUseRange[item.type] = true; // This lets the player target anywhere on the whole screen while using a controller.
 			ItemID.Sets.LockOnIgnoresCollision[item.type] = true;
 		}
@@ -42,20 +42,21 @@ namespace SariaMod.Items.Strange
 			base.item.useTime = (base.item.useAnimation = 10);
 			item.useStyle = 1;
 			item.value = Item.buyPrice(0, 30, 0, 0);
-			item.rare = ItemRarityID.Cyan;
+			item.rare = ItemRarityID.Expert;
 			item.UseSound = SoundID.Item46;
-
+			item.shootSpeed = 8;
+			item.noUseGraphic = true;
 			// These below are needed for a minion weapon
 			item.noMelee = true;
 			item.summon = true;
-			item.buffType = ModContent.BuffType<SariaBuff>();
+			
 			// No buffTime because otherwise the item tooltip would say something like "1 minute duration"
 			item.shoot = ModContent.ProjectileType<Transform>();
 		}
 		public override void Update(ref float gravity, ref float maxFallSpeed)
 		{
 
-			Lighting.AddLight(item.Center, Color.SeaShell.ToVector3() * 2f);
+			Lighting.AddLight(item.Center, Color.LightPink.ToVector3() * 2f);
 		}
 
 		public override bool CanUseItem(Player player)
@@ -65,33 +66,29 @@ namespace SariaMod.Items.Strange
 			{
 				return true;
 			}
-			
-			return true;
+			if (player.ownedProjectileCounts[ModContent.ProjectileType<HealBallProjectile>()] > 0f || player.ownedProjectileCounts[ModContent.ProjectileType<HealBallProjectile2>()] > 0f || player.ownedProjectileCounts[ModContent.ProjectileType<ReturnBall>()] > 0f)
+			{
+				return false;
+            }
+				return true;
 
 		}
 
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
 		{
 			// This is needed so the buff that keeps your minion alive and allows you to despawn it properly applies
-			player.AddBuff(item.buffType, 30000);
+			
 			if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] <= 0f))
 			{
 				{
-					Projectile.NewProjectile(player.Center + Utils.NextVector2CircularEdge(Main.rand, 8f, 8f), Utils.NextVector2Circular(Main.rand, 12f, 12f), ModContent.ProjectileType<Saria>(), damage, knockBack, player.whoAmI);
+					Projectile.NewProjectile(position, new Vector2(speedX, speedY), ModContent.ProjectileType<HealBallProjectile>(), damage, knockBack, player.whoAmI);
 				}
 			}
 			else if (player.altFunctionUse != 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] > 0f))
 			{
 				{
 					Projectile.NewProjectile(player.Center + Utils.NextVector2CircularEdge(Main.rand, 8f, 8f), Utils.NextVector2Circular(Main.rand, 12f, 12f), ModContent.ProjectileType<Transform>(), damage, knockBack, player.whoAmI);
-					for (int j = 0; j < 72; j++)
-					{
-						Dust dust = Dust.NewDustPerfect(player.Center, 113);
-						dust.velocity = ((float)Math.PI * 2f * Vector2.Dot(((float)j / 72f * ((float)Math.PI * 2f)).ToRotationVector2(), player.velocity.SafeNormalize(Vector2.UnitY).RotatedBy((float)j / 72f * ((float)Math.PI * -2f)))).ToRotationVector2();
-						dust.velocity = dust.velocity.RotatedBy((float)j / 36f * ((float)Math.PI * 2f)) * 8f;
-						dust.noGravity = true;
-						dust.scale = 1.9f;
-					}
+					
 				}
 			}
 			return false;

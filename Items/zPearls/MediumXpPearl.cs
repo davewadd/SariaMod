@@ -48,6 +48,11 @@ namespace SariaMod.Items.zPearls
 			item.rare = ItemRarityID.Expert;
 			item.shoot = ModContent.ProjectileType<XpProjectile2>();
 		}
+		public override void Update(ref float gravity, ref float maxFallSpeed)
+		{
+
+			Lighting.AddLight(item.Center, Color.Blue.ToVector3() * 2f);
+		}
 		public override bool CanUseItem(Player player)
 		{
 

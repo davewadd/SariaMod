@@ -20,7 +20,7 @@ namespace SariaMod.Items.Bands
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Charm of Summoning");
-			base.Tooltip.SetDefault("Gives you three minion slots and a turret slot when Saria is active\n\nWithout Saria the stone seems inactive");
+			base.Tooltip.SetDefault("Gives you 1 minion slot and a turret slot when Saria is active\nGives more slots as Saria levels up\n\nWithout Saria the stone seems inactive");
 		}
 
 		public override void SetDefaults()
@@ -37,8 +37,43 @@ namespace SariaMod.Items.Bands
 			FairyPlayer modPlayer = player.Fairy();
 			if (player.HasBuff(ModContent.BuffType<SariaBuff>()))
 			{
-				player.maxTurrets += 1;
-				player.maxMinions += 3;
+				if (modPlayer.Sarialevel == 6)
+				{
+					player.maxTurrets += 3;
+					player.maxMinions += 4;
+				}
+				else if (modPlayer.Sarialevel == 5)
+				{
+					player.maxTurrets += 2;
+					player.maxMinions += 3;
+				}
+				else if (modPlayer.Sarialevel == 4)
+				{
+					player.maxTurrets += 2;
+					player.maxMinions += 2;
+				}
+				else if (modPlayer.Sarialevel == 3)
+				{
+					player.maxTurrets += 2;
+					player.maxMinions += 2;
+				}
+				else if (modPlayer.Sarialevel == 2)
+				{
+					player.maxTurrets += 1;
+					player.maxMinions += 2;
+				}
+
+				else if (modPlayer.Sarialevel == 1)
+				{
+					player.maxTurrets += 2;
+					player.maxMinions += 1;
+				}
+				else
+				{
+					player.maxTurrets += 1;
+					player.maxMinions += 1;
+				}
+				
 				
 			}
 			else

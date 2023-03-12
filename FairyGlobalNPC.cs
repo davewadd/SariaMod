@@ -15,6 +15,7 @@ namespace SariaMod
 		
 		public bool SariaCurseD;
 		public bool Burning2;
+		public bool Stronger;
 		public bool Frostburn2;
 
 		public override void ResetEffects(NPC npc)
@@ -22,6 +23,7 @@ namespace SariaMod
 			SariaCurseD = false;
 			Burning2 = false;
 			Frostburn2 = false;
+			Stronger = false;
 		}
 		public override void UpdateLifeRegen(NPC npc, ref int damage)
 		{
@@ -69,6 +71,11 @@ namespace SariaMod
 						npc.noGravity = false;
 					}
 				}
+				
+			}
+			if (Stronger)
+            {
+				
 			}
 		}
 
@@ -76,7 +83,28 @@ namespace SariaMod
 		{
 			if (npc.friendly == false && npc.lifeMax > 10)
 			{
+				if (Main.rand.Next(24000) == 0 && !npc.HasBuff(ModContent.BuffType<Stronger>()))
+				{
+					npc.AddBuff(ModContent.BuffType<Stronger>(), 50000);
+					Main.PlaySound(SoundID.DD2_SkeletonSummoned, npc.Center);
+					npc.lifeMax *= 6;
+					npc.life += npc.lifeMax;
+					npc.Size *= 1.8f;
+					npc.scale *= 1.8f;
+					npc.damage *= 3;
 				
+				}
+				if (Main.bloodMoon && Main.rand.Next(9000) == 0 && !npc.HasBuff(ModContent.BuffType<Stronger>()))
+				{
+					npc.AddBuff(ModContent.BuffType<Stronger>(), 50000);
+					Main.PlaySound(SoundID.DD2_SkeletonSummoned, npc.Center);
+					npc.lifeMax *= 6;
+					npc.life += npc.lifeMax;
+					npc.Size *= 1.8f;
+					npc.scale *= 1.8f;
+					npc.damage *= 3;
+
+				}
 			}
 			
             
@@ -98,7 +126,7 @@ namespace SariaMod
 				{
 					Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, base.mod.ItemType("XpPearl"), 1, noBroadcast: false, 83);
 				}
-				if (Main.rand.Next(100) == 0)
+				if (Main.rand.Next(150) == 0)
 				{
 					Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, base.mod.ItemType("MediumXpPearl"), 1, noBroadcast: false, 82);
 				}
@@ -111,6 +139,7 @@ namespace SariaMod
 					Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, base.mod.ItemType("RareXpPearl"));
 				}
 			}
+			
 		}
 		}
 }

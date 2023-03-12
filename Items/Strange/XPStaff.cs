@@ -51,7 +51,7 @@ namespace SariaMod.Items.Strange
 			item.summon = true;
 			// No buffTime because otherwise the item tooltip would say something like "1 minute duration"
 			item.buffType = ModContent.BuffType<XPBuff>();
-			item.buffTime = 10000;
+			item.buffTime = 100000;
 		}
 		public override void Update(ref float gravity, ref float maxFallSpeed)
 		{

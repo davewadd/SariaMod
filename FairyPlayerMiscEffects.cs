@@ -12,7 +12,7 @@ using Terraria.GameInput;
 using Terraria.Graphics.Effects;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
-
+using SariaMod.Items.Emerald;
 using SariaMod.Items.zBookcases;
 using Terraria.Localization;
 using SariaMod;
@@ -34,8 +34,11 @@ namespace SariaMod
         
         private static void MiscEffects(Player player, FairyPlayer modPlayer, Mod mod)
 		{
-           
-            if (modPlayer.Sarialevel == 0)
+           if (player.ownedProjectileCounts[ModContent.ProjectileType<PurpleRupee>()] > 0f)
+            {
+                modPlayer.FairyBreak = 0;
+            }
+                if (modPlayer.Sarialevel == 0)
             {
                 if (modPlayer.SariaXp <= 375)
                 {

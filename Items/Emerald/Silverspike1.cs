@@ -31,7 +31,7 @@ namespace SariaMod.Items.Emerald
 			base.projectile.aiStyle = 21;
 			base.projectile.alpha = 100;
 			base.projectile.friendly = true;
-			base.projectile.tileCollide = true;
+			base.projectile.tileCollide = false;
 			base.projectile.penetrate = -1;
 			base.projectile.timeLeft = 2000;
 			base.projectile.ignoreWater = true;
@@ -72,19 +72,7 @@ namespace SariaMod.Items.Emerald
 			float speed = 20;
 			Vector2 direction = targetCenter - projectile.Center;
 
-			if (projectile.timeLeft >= 1990)
-			{
-				base.projectile.velocity.X = (float)((.001) * player.direction);
-			}
-
-			if (projectile.timeLeft >= 1700)
-			{
-				base.projectile.velocity.Y = 15;
-			}
-			else
-			{
-				projectile.velocity.Y = 0;
-			}
+			
 			if (projectile.velocity.X > 0)
 			{
 				projectile.spriteDirection = 1;

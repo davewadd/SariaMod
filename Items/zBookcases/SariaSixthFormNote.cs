@@ -27,7 +27,7 @@ namespace SariaMod.Items.zBookcases
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Saria's Amber Form");
-			Tooltip.SetDefault("~AttackOrder will cause Saria to swarm enemies in bloodmoths stuck in amber!\n~Only two black moths can be active at once\n~Rare Red and Purple moths my also spawn\nfeed them to make them grow!\nThe Green moth is the strongest of its kind!\n " + "\n " + SariaModUtilities.ColorMessage("Super effective in:", new Color(0, 200, 250, 200)) + "\n" + SariaModUtilities.ColorMessage("~Underground", new Color(0, 200, 250, 200)) + "\n " + "\n " + SariaModUtilities.ColorMessage("Not very effective in:", new Color(135, 206, 180)) + "\n" + SariaModUtilities.ColorMessage("~Space, and Ocean", new Color(135, 206, 180)));
+			Tooltip.SetDefault("~AttackOrder will cause Saria to swarm enemies in bloodmoths stuck in amber!\n~Only two black moths can be active at once\n~Rare Red and Purple moths my also spawn\nfeed them to make them grow!\nThe Green moth is the strongest of its kind!\nCraft a DuskBall to Catch the Goliath!\n " + "\n " + SariaModUtilities.ColorMessage("Super effective in:", new Color(0, 200, 250, 200)) + "\n" + SariaModUtilities.ColorMessage("No Biomes", new Color(0, 200, 250, 200)) + "\n " + "\n " + SariaModUtilities.ColorMessage("Not very effective in:", new Color(135, 206, 180)) + "\n" + SariaModUtilities.ColorMessage("No Biomes", new Color(135, 206, 180)));
 		}
 
 
