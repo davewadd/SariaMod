@@ -33,8 +33,9 @@ namespace SariaMod.Items.Topaz
 			base.projectile.localNPCHitCooldown = 7;
 			base.projectile.minionSlots = 0f;
 			base.projectile.extraUpdates = 1;
-			
-		
+			projectile.alpha = 0;
+			projectile.aiStyle = 14;
+			base.projectile.tileCollide = true;
 			base.projectile.penetrate = -1;
 			projectile.tileCollide = true;
 			base.projectile.timeLeft = 1500;
@@ -67,22 +68,19 @@ namespace SariaMod.Items.Topaz
 			knockback /= 1000;
 		}
 		public override bool OnTileCollide(Vector2 oldVelocity)
-        {
+		{
 			Player player = Main.player[base.projectile.owner];
-			projectile.velocity.Y = 1/4;
-			projectile.velocity.X = 0;
-			if (projectile.timeLeft > 20)
-            {
-				projectile.timeLeft = 20;
-            }
-			
-			 
-			
+			FairyPlayer modPlayer = player.Fairy();
+			{
+				Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 12f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<StaticFloor>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+				projectile.Kill();
+			}
+
+
 			return false;
+		}
 
-        }
-
-        public override bool MinionContactDamage()
+		public override bool MinionContactDamage()
 		{
 		
 			
@@ -93,8 +91,7 @@ namespace SariaMod.Items.Topaz
 		public override void AI()
 		{
 			Player player = Main.player[projectile.owner];
-			projectile.velocity.Y = 2;
-			projectile.velocity.X = 0;
+			
 			
 			// friendly needs to be set to true so the minion can deal contact damage
 			// friendly needs to be set to false so it doesn't damage things like target dummies while idling
@@ -102,15 +99,9 @@ namespace SariaMod.Items.Topaz
 			// You don't need this assignment if your minion is shooting things instead of dealing contact damage
 
 
-			Lighting.AddLight(projectile.Center, Color.LightSkyBlue.ToVector3() * 1f);
+			Lighting.AddLight(projectile.Center, Color.LightYellow.ToVector3() * 1f);
 			// Default movement parameters (here for attacking)
-			if (projectile.timeLeft == 15)
-            {
-				{
-					Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<StaticFloor>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-					projectile.Kill();
-				}
-			}
+			
 			
 
 

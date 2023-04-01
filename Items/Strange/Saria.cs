@@ -9,6 +9,7 @@ using SariaMod.Items.Ruby;
 using SariaMod.Items;
 using SariaMod.Items.zPearls;
 using System;
+using SariaMod.Items.Bands;
 using SariaMod.Buffs;
 using SariaMod.Dusts;
 using Terraria;
@@ -203,6 +204,7 @@ namespace SariaMod.Items.Strange
             {
                 target.buffImmune[ModContent.BuffType<SariaCurse>()] = false;
                 target.AddBuff(ModContent.BuffType<SariaCurse>(), 2000);
+                if (!player.HasBuff(ModContent.BuffType<StatLower>()))
                 {
                     Projectile.NewProjectile(target.Center + new Vector2(10f, 2f), Vector2.One.RotatedByRandom(6.2831854820251465) * 0f, ModContent.ProjectileType<ShadowClaw>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
                 }
@@ -880,6 +882,7 @@ namespace SariaMod.Items.Strange
                                     npc.buffImmune[ModContent.BuffType<SariaCurse3>()] = false;
                                     npc.AddBuff(ModContent.BuffType<SariaCurse3>(), 500);
                                     if (npc.HasBuff(ModContent.BuffType<SariaCurse3>()))
+                                        if (!player.HasBuff(ModContent.BuffType<StatLower>()))
                                     {
                                         Projectile.NewProjectile(npc.Center + new Vector2(10f, 2f), Vector2.One.RotatedByRandom(6.2831854820251465) * 0f, ModContent.ProjectileType<ShadowClaw>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
                                     }
@@ -992,10 +995,52 @@ namespace SariaMod.Items.Strange
             //end of Flashupdate stuff
 
            
+            if (projectile.frame >= 84 && projectile.frame <= 95 && Transform == 1)
+            {
+                if (Main.rand.NextBool(8))//controls the speed of when the sparkles spawn
+                {
+                    float radius = (float)Math.Sqrt(Main.rand.Next(34 * 34));
+                    double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
 
 
+                    {
+                        Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<BubbleDust>(), 0f, 0f, 0, default(Color), 1.5f);
+                    }
+                }
+            }
+            if (projectile.frame >= 84 && projectile.frame <= 95 && Transform == 2)
+            {
+                if (Main.rand.NextBool(8))//controls the speed of when the sparkles spawn
+                {
+                    float radius = (float)Math.Sqrt(Main.rand.Next(34 * 34));
+                    double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
 
 
+                    Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<FlameDust>(), 0f, 0f, 0, default(Color), 1.5f);
+                }
+            }
+            if (projectile.frame >= 84 && projectile.frame <= 95 && Transform == 3)
+            {
+                if (Main.rand.NextBool())//controls the speed of when the sparkles spawn
+                {
+                    float radius = (float)Math.Sqrt(Main.rand.Next(34 * 34));
+                    double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
+
+
+                    Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<StaticDust>(), 0f, 0f, 0, default(Color), 1.5f);
+                }
+            }
+            if (projectile.frame >= 84 && projectile.frame <= 95 && Transform == 6)
+            {
+                if (Main.rand.NextBool())//controls the speed of when the sparkles spawn
+                {
+                    float radius = (float)Math.Sqrt(Main.rand.Next(34 * 34));
+                    double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
+
+
+                    Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<ShadowFlameDust>(), 0f, 0f, 0, default(Color), 1.5f);
+                }
+            }
 
             //Statraise and lower
             if (Transform == 0)
@@ -1037,7 +1082,7 @@ namespace SariaMod.Items.Strange
             }
             if (Transform == 1)
             {
-                if ((Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneDesert || Main.player[Main.myPlayer].ZoneSnow || Main.player[Main.myPlayer].ZoneJungle) || Main.player[Main.myPlayer].ZoneGlowshroom)
+                if ((Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneDesert || Main.player[Main.myPlayer].ZoneJungle) || Main.player[Main.myPlayer].ZoneGlowshroom)
                 {
                     if (!player.HasBuff(ModContent.BuffType<StatLower>()))
                     {
@@ -1072,7 +1117,7 @@ namespace SariaMod.Items.Strange
             }
             if (Transform == 2)
             {
-                if ((Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneBeach || Main.player[Main.myPlayer].ZoneUnderworldHeight || Main.player[Main.myPlayer].ZoneMeteor || (Main.player[Main.myPlayer].ZoneRain && !Main.player[Main.myPlayer].ZoneSnow) || Main.player[Main.myPlayer].ZoneSandstorm))
+                if ((Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneBeach || (Main.player[Main.myPlayer].ZoneRain && !Main.player[Main.myPlayer].ZoneSnow) || Main.player[Main.myPlayer].ZoneSandstorm))
                 {
                     if (!player.HasBuff(ModContent.BuffType<StatRaise>()) && !player.HasBuff(ModContent.BuffType<StatLower>()))
                     {
@@ -1142,7 +1187,7 @@ namespace SariaMod.Items.Strange
             }
             if (Transform == 4)
             {
-                if ((Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneSkyHeight || Main.player[Main.myPlayer].ZoneBeach))
+                if ((Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneSkyHeight || Main.player[Main.myPlayer].ZoneRain || Main.player[Main.myPlayer].ZoneBeach))
                 {
                     if (!player.HasBuff(ModContent.BuffType<StatRaise>()) && !player.HasBuff(ModContent.BuffType<StatLower>()))
                     {
@@ -1592,6 +1637,7 @@ namespace SariaMod.Items.Strange
                             {
                                 target = base.projectile.Center.MinionHoming(500f, player);// the distance she targets enemies
                                 Main.PlaySound(SoundID.Item77, base.projectile.Center);
+
                                 if (player.HasBuff(ModContent.BuffType<Overcharged>()))
                                 {
                                     for (int j = 0; j < 12; j++) //set to 2
@@ -2454,6 +2500,108 @@ namespace SariaMod.Items.Strange
                         SpriteEffects spriteEffects = SpriteEffects.None;
                         startPos.Y += 60;
                         startPos.X += +17;
+                        Main.spriteBatch.Draw(texture, startPos, null, base.projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, 0f);
+                    }
+                   if (modPlayer.Sarialevel == 0)
+                    {
+                        Texture2D texture = Main.projectileTexture[ModContent.ProjectileType<KingSlime>()];
+                        Vector2 startPos = base.projectile.Center - Main.screenPosition + new Vector2(0f, base.projectile.gfxOffY);
+                        int frameHeight = texture.Height;
+                        int frameY = frameHeight;
+                        Color drawColor = Color.Lerp(lightColor, Color.LightPink, 20f);
+                        drawColor = Color.Lerp(drawColor, Color.DarkViolet, 0);
+                        Rectangle rectangle = new Rectangle(0, frameY, texture.Width, frameHeight);
+                        Vector2 origin = rectangle.Size() / 2f;
+                        float rotation = base.projectile.rotation;
+                        float scale = base.projectile.scale;
+                        SpriteEffects spriteEffects = SpriteEffects.None;
+                        startPos.Y += 60;
+                        startPos.X += +60;
+                        Main.spriteBatch.Draw(texture, startPos, null, base.projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, 0f);
+                    }
+                    if (modPlayer.Sarialevel == 1)
+                    {
+                        Texture2D texture = Main.projectileTexture[ModContent.ProjectileType<QueenBee>()];
+                        Vector2 startPos = base.projectile.Center - Main.screenPosition + new Vector2(0f, base.projectile.gfxOffY);
+                        int frameHeight = texture.Height;
+                        int frameY = frameHeight;
+                        Color drawColor = Color.Lerp(lightColor, Color.LightPink, 20f);
+                        drawColor = Color.Lerp(drawColor, Color.DarkViolet, 0);
+                        Rectangle rectangle = new Rectangle(0, frameY, texture.Width, frameHeight);
+                        Vector2 origin = rectangle.Size() / 2f;
+                        float rotation = base.projectile.rotation;
+                        float scale = base.projectile.scale;
+                        SpriteEffects spriteEffects = SpriteEffects.None;
+                        startPos.Y += 60;
+                        startPos.X += +60;
+                        Main.spriteBatch.Draw(texture, startPos, null, base.projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, 0f);
+                    }
+                    if (modPlayer.Sarialevel == 2)
+                    {
+                        Texture2D texture = Main.projectileTexture[ModContent.ProjectileType<WallOfFlesh>()];
+                        Vector2 startPos = base.projectile.Center - Main.screenPosition + new Vector2(0f, base.projectile.gfxOffY);
+                        int frameHeight = texture.Height;
+                        int frameY = frameHeight;
+                        Color drawColor = Color.Lerp(lightColor, Color.LightPink, 20f);
+                        drawColor = Color.Lerp(drawColor, Color.DarkViolet, 0);
+                        Rectangle rectangle = new Rectangle(0, frameY, texture.Width, frameHeight);
+                        Vector2 origin = rectangle.Size() / 2f;
+                        float rotation = base.projectile.rotation;
+                        float scale = base.projectile.scale;
+                        SpriteEffects spriteEffects = SpriteEffects.None;
+                        startPos.Y += 60;
+                        startPos.X += +60;
+                        Main.spriteBatch.Draw(texture, startPos, null, base.projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, 0f);
+                    }
+                    if (modPlayer.Sarialevel == 3)
+                    {
+                        Texture2D texture = Main.projectileTexture[ModContent.ProjectileType<Retinazer>()];
+                        Vector2 startPos = base.projectile.Center - Main.screenPosition + new Vector2(0f, base.projectile.gfxOffY);
+                        int frameHeight = texture.Height;
+                        int frameY = frameHeight;
+                        Color drawColor = Color.Lerp(lightColor, Color.LightPink, 20f);
+                        drawColor = Color.Lerp(drawColor, Color.DarkViolet, 0);
+                        Rectangle rectangle = new Rectangle(0, frameY, texture.Width, frameHeight);
+                        Vector2 origin = rectangle.Size() / 2f;
+                        float rotation = base.projectile.rotation;
+                        float scale = base.projectile.scale;
+                        SpriteEffects spriteEffects = SpriteEffects.None;
+                        startPos.Y += 60;
+                        startPos.X += +60;
+                        Main.spriteBatch.Draw(texture, startPos, null, base.projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, 0f);
+                    }
+                    if (modPlayer.Sarialevel == 4)
+                    {
+                        Texture2D texture = Main.projectileTexture[ModContent.ProjectileType<Plantera>()];
+                        Vector2 startPos = base.projectile.Center - Main.screenPosition + new Vector2(0f, base.projectile.gfxOffY);
+                        int frameHeight = texture.Height;
+                        int frameY = frameHeight;
+                        Color drawColor = Color.Lerp(lightColor, Color.LightPink, 20f);
+                        drawColor = Color.Lerp(drawColor, Color.DarkViolet, 0);
+                        Rectangle rectangle = new Rectangle(0, frameY, texture.Width, frameHeight);
+                        Vector2 origin = rectangle.Size() / 2f;
+                        float rotation = base.projectile.rotation;
+                        float scale = base.projectile.scale;
+                        SpriteEffects spriteEffects = SpriteEffects.None;
+                        startPos.Y += 60;
+                        startPos.X += +60;
+                        Main.spriteBatch.Draw(texture, startPos, null, base.projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, 0f);
+                    }
+                    if (modPlayer.Sarialevel == 5)
+                    {
+                        Texture2D texture = Main.projectileTexture[ModContent.ProjectileType<TheDuke>()];
+                        Vector2 startPos = base.projectile.Center - Main.screenPosition + new Vector2(0f, base.projectile.gfxOffY);
+                        int frameHeight = texture.Height;
+                        int frameY = frameHeight;
+                        Color drawColor = Color.Lerp(lightColor, Color.LightPink, 20f);
+                        drawColor = Color.Lerp(drawColor, Color.DarkViolet, 0);
+                        Rectangle rectangle = new Rectangle(0, frameY, texture.Width, frameHeight);
+                        Vector2 origin = rectangle.Size() / 2f;
+                        float rotation = base.projectile.rotation;
+                        float scale = base.projectile.scale;
+                        SpriteEffects spriteEffects = SpriteEffects.None;
+                        startPos.Y += 60;
+                        startPos.X += +60;
                         Main.spriteBatch.Draw(texture, startPos, null, base.projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, 0f);
                     }
                 }

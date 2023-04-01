@@ -44,33 +44,43 @@ namespace SariaMod
 		}
 		public static void HealingProjectile(Projectile projectile, int healing, int playerToHeal, float homingVelocity, float N, bool autoHomes = true, int timeCheck = 120)
 		{
-			Player player = Main.player[playerToHeal];
+			Player player = Main.player[projectile.owner];
+			Player player2 = Main.LocalPlayer;
+			Player targetplayer = Main.LocalPlayer;
+			if ((player.statLife > ((player.statLifeMax2) - player.statLifeMax2/4)) && (player2.statLife < ((player2.statLifeMax2) - player2.statLifeMax2 / 4)))
+			{
+				targetplayer = player2;
+			}
+			else
+            {
+				targetplayer = player;
+            }
 			float homingSpeed = homingVelocity;
-			if (player.lifeMagnet)
+			if (targetplayer.lifeMagnet)
 			{
 				homingSpeed *= 1.5f;
 			}
-			Vector2 playerVector = player.Center - projectile.Center;
+			Vector2 playerVector = targetplayer.Center - projectile.Center;
 			float playerDist = playerVector.Length();
-			if (playerDist < 500f && projectile.position.X < player.position.X + (float)player.width && projectile.position.X + (float)projectile.width > player.position.X && projectile.position.Y < player.position.Y + (float)player.height && projectile.position.Y + (float)projectile.height > player.position.Y)
+			if (playerDist < 500f && projectile.position.X < targetplayer.position.X + (float)targetplayer.width && projectile.position.X + (float)projectile.width > targetplayer.position.X && projectile.position.Y < targetplayer.position.Y + (float)targetplayer.height && projectile.position.Y + (float)projectile.height > targetplayer.position.Y)
 			{
-				
+
 				{
-					player.HealEffect(healing, broadcast: false);
-					player.statLife += healing;
-					if (player.statLife > player.statLifeMax2)
+					targetplayer.HealEffect(healing, broadcast: false);
+					targetplayer.statLife += healing;
+					if (targetplayer.statLife > targetplayer.statLifeMax2)
 					{
-						player.statLife = player.statLifeMax2;
+						targetplayer.statLife = targetplayer.statLifeMax2;
 					}
 					NetMessage.SendData(66, -1, -1, null, playerToHeal, healing);
 				}
-				if (player.ownedProjectileCounts[ModContent.ProjectileType<Heal>()] < 1f)
+				if (targetplayer.ownedProjectileCounts[ModContent.ProjectileType<Heal>()] < 1f)
 				{
-					
+
 
 					for (int j = 0; j < 1; j++) //set to 2
 					{
-						Projectile.NewProjectile(player.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Heal>(), 0, 0, player.whoAmI, projectile.whoAmI);
+						Projectile.NewProjectile(targetplayer.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Heal>(), 0, 0, targetplayer.whoAmI, projectile.whoAmI);
 
 					}
 				}
@@ -84,15 +94,26 @@ namespace SariaMod
 				projectile.velocity.X = (projectile.velocity.X * N + playerVector.X) / (N + 1f);
 				projectile.velocity.Y = (projectile.velocity.Y * N + playerVector.Y) / (N + 1f);
 			}
-			else if (player.lifeMagnet && projectile.timeLeft < timeCheck)
-			{
-				playerDist = homingVelocity / playerDist;
-				playerVector.X *= playerDist;
-				playerVector.Y *= playerDist;
-				projectile.velocity.X = (projectile.velocity.X * N + playerVector.X) / (N + 1f);
-				projectile.velocity.Y = (projectile.velocity.Y * N + playerVector.Y) / (N + 1f);
-			}
+			
 		}
+		public static void HealingProjectile2(Projectile projectile, int healing, int playerToHeal, float homingVelocity, float N, bool autoHomes = true, int timeCheck = 120)
+		{
+			Player player = Main.player[playerToHeal];
+			float homingSpeed = homingVelocity;
+
+
+			player.HealEffect(healing, broadcast: false);
+			player.statLife += healing;
+			if (player.statLife > player.statLifeMax2)
+			{
+				player.statLife = player.statLifeMax2;
+			}
+			NetMessage.SendData(66, -1, -1, null, playerToHeal, healing);
+		}
+
+
+	
+		
 		public static float MinionDamage(this Player player)
 		{
 			return player.allDamage + player.minionDamage - 1f;

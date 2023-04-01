@@ -124,7 +124,7 @@ namespace SariaMod.Items.Topaz
 						}
 					}
 				}
-				if (foundTarget)
+				
                 {
 					projectile.timeLeft = 2000;
                 }
@@ -148,30 +148,33 @@ namespace SariaMod.Items.Topaz
 				// Default movement parameters (here for attacking)
 				float speed = 20;
 				float inertia = 13f;
-				Vector2 idlePosition = player.Center;
-				float minionPositionOffsetX = ((60 + projectile.minionPos / 80) * player.direction) - 15;
+				Vector2 idlePosition = mother.Center;
+				float minionPositionOffsetX = (mother.direction)+ 10;
 				idlePosition.Y -= 70f;
 				idlePosition.X += minionPositionOffsetX;
 				Vector2 vectorToIdlePosition = idlePosition - projectile.Center;
 
 				float distanceToIdlePosition = vectorToIdlePosition.Length();
-				if (distanceFromTarget > 5f)
+				if (foundTarget)
 				{
-					if (player.HasBuff(ModContent.BuffType<StatRaise>()))
+					if (distanceFromTarget > 5f)
 					{
-						projectile.position.Y = targetCenter.Y;
-						projectile.position.X = targetCenter.X -12;
+						if (player.HasBuff(ModContent.BuffType<StatRaise>()))
+						{
+							projectile.position.Y = targetCenter.Y;
+							projectile.position.X = targetCenter.X - 12;
 
-					}
-					if (player.HasBuff(ModContent.BuffType<StatLower>()))
-					{
-						speed = 2;
+						}
+						if (player.HasBuff(ModContent.BuffType<StatLower>()))
+						{
+							speed = 2;
 
+						}
+						// The immediate range around the target (so it doesn't latch onto it when close)
+						Vector2 direction = targetCenter - projectile.Center;
+
+						projectile.velocity = (projectile.velocity * (speed - inertia) + direction) / 20;
 					}
-					// The immediate range around the target (so it doesn't latch onto it when close)
-					Vector2 direction = targetCenter - projectile.Center;
-					
-					projectile.velocity = (projectile.velocity * (speed - inertia) + direction) / 20;
 				}
 				if (!foundTarget)
                 {
@@ -189,12 +192,7 @@ namespace SariaMod.Items.Topaz
 						projectile.velocity = (projectile.velocity * (inertia - 8) + direction2) / 20;
 					}
 				}
-				else if (projectile.velocity == Vector2.Zero)
-				{
-					// If there is a case where it's not moving at all, give it a little "poke"
-					projectile.velocity.X = -0.15f;
-					projectile.velocity.Y = -0.05f;
-				}
+				
 				int frameSpeed = 30; //reduced by half due to framecounter speedup
 				projectile.frameCounter += 2;
 				if (projectile.frameCounter >= frameSpeed)

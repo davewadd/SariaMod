@@ -72,6 +72,12 @@ namespace SariaMod.Items.Emerald
 			float speed = 20;
 			Vector2 direction = targetCenter - projectile.Center;
 
+
+			if (projectile.timeLeft >= 1990)
+			{
+				base.projectile.velocity.X = (float)((.001) * player.direction);
+			}
+
 			
 			
 			if (projectile.velocity.X > 0)
@@ -82,6 +88,7 @@ namespace SariaMod.Items.Emerald
 			{
 				projectile.spriteDirection = -1;
 			}
+			
 
 			{
 				float between = Vector2.Distance(player2.Center, projectile.Center);

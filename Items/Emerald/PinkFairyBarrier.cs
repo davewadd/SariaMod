@@ -63,7 +63,7 @@ namespace SariaMod.Items.Emerald
 			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
 			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
 			number++;
-			if (number >= 900)
+			if (number >= 600)
 			{
 				if (modPlayer.FairyBreak >= 1)
 				{
@@ -72,22 +72,22 @@ namespace SariaMod.Items.Emerald
 				}
 				number = 0;
 			}
-			if (modPlayer.FairyBreak == 4)
-            {
+			else if (modPlayer.FairyBreak >= 10 )
+			{
 				projectile.alpha = 300;
 				Lighting.AddLight(projectile.Center, Color.Magenta.ToVector3() * .1f);
 			}
-			else if (modPlayer.FairyBreak == 3)
+			else if (modPlayer.FairyBreak > 4 && modPlayer.FairyBreak < 10)
 			{
 				projectile.alpha = 230;
 				Lighting.AddLight(projectile.Center, Color.Magenta.ToVector3() * 1f);
 			}
-			else if (modPlayer.FairyBreak == 2)
-			{
+			else if (modPlayer.FairyBreak > 2 && modPlayer.FairyBreak <= 4)
+				{
 				projectile.alpha = 214;
 				Lighting.AddLight(projectile.Center, Color.Magenta.ToVector3() * 2f);
 			}
-			else if (modPlayer.FairyBreak == 1)
+			else if (modPlayer.FairyBreak > 0 && modPlayer.FairyBreak <= 2)
 			{
 				projectile.alpha = 190;
 				Lighting.AddLight(projectile.Center, Color.Magenta.ToVector3() * 3f);
@@ -108,7 +108,7 @@ namespace SariaMod.Items.Emerald
 					if (Main.projectile[i].active && i != base.projectile.whoAmI && Main.projectile[i].Hitbox.Intersects(base.projectile.Hitbox) && Main.projectile[i].active && ((!Main.projectile[i].friendly && Main.projectile[i].hostile) || (Main.projectile[i].trap)))
 					{
 						Main.projectile[i].Kill();
-						if (modPlayer.FairyBreak < 4)
+						if (modPlayer.FairyBreak < 10)
 						{
 							Main.PlaySound(SoundID.DD2_WitherBeastCrystalImpact, base.projectile.Center);
 							modPlayer.FairyBreak += 1;
@@ -158,12 +158,7 @@ namespace SariaMod.Items.Emerald
 			projectile.timeLeft += 5;
 			damage *= 0;
 			knockback = 0;
-			if (!target.boss)
-			{
-				target.noTileCollide = false;
-				
-				
-			}
+			
 				
 			
 			

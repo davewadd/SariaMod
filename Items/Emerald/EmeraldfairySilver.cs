@@ -73,7 +73,7 @@ namespace SariaMod.Items.Emerald
 				
 				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Psychic3>(), 0f, 0f, 0, default(Color), 1.5f);
 			}//end of dust stuff
-			int Healtimer = 350;
+			int Healtimer = 550;
 			Timer++;
 			if (player.MinionDamage() != base.projectile.Fairy().spawnedPlayerMinionDamageValue)
 			{
@@ -108,14 +108,15 @@ namespace SariaMod.Items.Emerald
 				Projectile.NewProjectile(projectile.Center, Utils.NextVector2Circular(Main.rand, 0, 2), ModContent.ProjectileType<SilverGemBallProjectile2>(), projectile.damage, projectile.knockBack, player.whoAmI);
 				projectile.Kill();
 			}
+
 			if (player.statLife < (player.statLifeMax2) / 2 && Timer >= Healtimer)
 			{
-				player.statLife += 120;
+				SariaModUtilities.HealingProjectile2(base.projectile, 120, base.projectile.owner, 12f, 15f, autoHomes: false);
 				Timer = 0;
 			}
 			else if (player.statLife < (player.statLifeMax2) && Timer >= Healtimer)
 			{
-				player.statLife += 45;
+				SariaModUtilities.HealingProjectile2(base.projectile, 45, base.projectile.owner, 12f, 15f, autoHomes: false);
 				Timer = 0;
 			}
 			projectile.timeLeft = 200;
@@ -161,20 +162,7 @@ namespace SariaMod.Items.Emerald
 				}
 
 				// If your minion is flying, you want to do this independently of any conditions
-				float overlapVelocity = 0.04f;
-				for (int i = 0; i < Main.maxProjectiles; i++)
-				{
-					// Fix overlap with other minions
-					Projectile other = Main.projectile[i];
-					if (i != projectile.whoAmI && other.active && other.owner == projectile.owner && Math.Abs(projectile.position.X - other.position.X) + Math.Abs(projectile.position.Y - other.position.Y) < projectile.width)
-					{
-						if (projectile.position.X < other.position.X) projectile.velocity.X -= overlapVelocity;
-						else projectile.velocity.X += overlapVelocity;
-
-						if (projectile.position.Y < other.position.Y) projectile.velocity.Y -= overlapVelocity;
-						else projectile.velocity.Y += overlapVelocity;
-					}
-				}
+				
 
 
 

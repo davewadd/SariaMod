@@ -185,9 +185,8 @@ namespace SariaMod.Items.Emerald
 			target.buffImmune[BuffID.Electrified] = false;
 			
 			
-			{
 				Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 0f), new Vector2(projectile.oldVelocity.X, projectile.oldVelocity.Y), ModContent.ProjectileType<Rupee2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-			}
+			
 			damage /= 2;
 			
 		}

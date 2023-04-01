@@ -83,28 +83,7 @@ namespace SariaMod
 		{
 			if (npc.friendly == false && npc.lifeMax > 10)
 			{
-				if (Main.rand.Next(24000) == 0 && !npc.HasBuff(ModContent.BuffType<Stronger>()))
-				{
-					npc.AddBuff(ModContent.BuffType<Stronger>(), 50000);
-					Main.PlaySound(SoundID.DD2_SkeletonSummoned, npc.Center);
-					npc.lifeMax *= 6;
-					npc.life += npc.lifeMax;
-					npc.Size *= 1.8f;
-					npc.scale *= 1.8f;
-					npc.damage *= 3;
 				
-				}
-				if (Main.bloodMoon && Main.rand.Next(9000) == 0 && !npc.HasBuff(ModContent.BuffType<Stronger>()))
-				{
-					npc.AddBuff(ModContent.BuffType<Stronger>(), 50000);
-					Main.PlaySound(SoundID.DD2_SkeletonSummoned, npc.Center);
-					npc.lifeMax *= 6;
-					npc.life += npc.lifeMax;
-					npc.Size *= 1.8f;
-					npc.scale *= 1.8f;
-					npc.damage *= 3;
-
-				}
 			}
 			
             

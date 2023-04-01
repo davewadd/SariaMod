@@ -120,20 +120,7 @@ namespace SariaMod.Items.Emerald
 
 
 
-			float overlapVelocity = 0.04f;
-			for (int i = 0; i < Main.maxProjectiles; i++)
-			{
-				// Fix overlap with other minions
-				Projectile other = Main.projectile[i];
-				if (i != projectile.whoAmI && other.active && other.owner == projectile.owner && Math.Abs(projectile.position.X - other.position.X) + Math.Abs(projectile.position.Y - other.position.Y) < projectile.width)
-				{
-					if (projectile.position.X < other.position.X) projectile.velocity.X -= overlapVelocity;
-					else projectile.velocity.X += overlapVelocity;
-
-					if (projectile.position.Y < other.position.Y) projectile.velocity.Y -= overlapVelocity;
-					else projectile.velocity.Y += overlapVelocity;
-				}
-			}
+			
 
 			int owner = player.whoAmI;
 			int GiantMoth = ModContent.ProjectileType<EmeraldfairyGem>();
@@ -149,8 +136,8 @@ namespace SariaMod.Items.Emerald
 
 					// If your minion doesn't aimlessly move around when it's idle, you need to "put" it into the line of other summoned minions
 					// The index is projectile.minionPos
-					float minionPositionOffsetX = (projectile.minionPos * 10) * player.direction;
-					idlePosition.X += minionPositionOffsetX; // Go behind the player
+					
+					
 
 					// All of this code below this line is adapted from Spazmamini code (ID 388, aiStyle 66)
 
@@ -174,7 +161,7 @@ namespace SariaMod.Items.Emerald
 			
 					Vector2 idlePosition2 = Main.projectile[i].Center;
 					idlePosition2.Y -= 48f;
-					idlePosition2.X += minionPositionOffsetX;
+					
 					// Default movement parameters (here for attacking)
 					projectile.rotation = projectile.velocity.X * 0.05f;
 

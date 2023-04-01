@@ -54,8 +54,14 @@ namespace SariaMod.Items.Emerald
 				projectile.localNPCHitCooldown = 160;
 
 			}
-			projectile.velocity.X = 0;
+			if (projectile.timeLeft >= 1990)
+			{
+				base.projectile.velocity.X = (float)((.001) * player.direction);
+			}
 			projectile.velocity.Y = 0;
+
+
+			
 			{
 				projectile.localNPCHitCooldown = 14;
 			}

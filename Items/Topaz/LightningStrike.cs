@@ -61,9 +61,16 @@ namespace SariaMod.Items.Topaz
 				if (projectile.timeLeft >= 140 && projectile.timeLeft <= 150)
 				{
 					Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, -120f), Vector2.One.RotatedByRandom(6.2831854820251465) * 2f, ModContent.ProjectileType<Fiz>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-					if ((player.ownedProjectileCounts[ModContent.ProjectileType<Drop>()] <= 0f))
+					
+				}
+				if (projectile.timeLeft == 149)
+				{
+					if (!player.HasBuff(ModContent.BuffType<StatLower>()))
 					{
-						Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 100f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Drop>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+
+						{
+							Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, -120f), Utils.NextVector2Circular(Main.rand, 0, 2), ModContent.ProjectileType<Drop>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+						}
 					}
 				}
 				if (projectile.timeLeft >= 190)

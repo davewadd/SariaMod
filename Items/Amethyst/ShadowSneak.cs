@@ -43,24 +43,27 @@ namespace SariaMod.Items.Amethyst
 		{
 			Player player = Main.player[base.projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
-			
+
 			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
 			Lighting.AddLight(projectile.Center, Color.DarkViolet.ToVector3() * 12f);
 			if (projectile.frame >= 5)
 			{
 				if (Main.rand.NextBool())//controls the speed of when the sparkles spawn
 				{
-					
+
 					float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
 					double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
 					Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), (projectile.Center.Y - 130) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow2>(), 0f, 0f, 0, default(Color), 1.5f);
+				}
 			}
-		}
 			if (projectile.frame <= 2)
 			{
+				if (!player.HasBuff(ModContent.BuffType<StatLower>()))
+				{
 					for (int j = 0; j < 10; j++) //set to 2
 					{
-					Projectile.NewProjectile(base.projectile.Center + new Vector2(20f, 130f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Ghostsmoke>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+						Projectile.NewProjectile(base.projectile.Center + new Vector2(20f, 130f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Ghostsmoke>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+					}
 				}
 			}
 			{

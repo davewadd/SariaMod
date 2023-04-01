@@ -88,13 +88,16 @@ namespace SariaMod.Items.Emerald
 			
 			if (projectile.timeLeft == 10)
 			{
-				for (int k = 0; k < 3; k++)
+				if (!player.HasBuff(ModContent.BuffType<StatLower>()))
 				{
+					for (int k = 0; k < 3; k++)
+					{
 
-					Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, -80f), Vector2.One.RotatedByRandom(6.2831854820251465) * 3f, ModContent.ProjectileType<Shard2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+						Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, -80f), Vector2.One.RotatedByRandom(6.2831854820251465) * 3f, ModContent.ProjectileType<Shard2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+					}
+					Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, -80f), new Vector2(0, 0), ModContent.ProjectileType<Emeraldspike2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+					projectile.Kill();
 				}
-				Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, -80f), new Vector2(0, 0), ModContent.ProjectileType<Emeraldspike2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-				projectile.Kill();
 			}
 			Lighting.AddLight(projectile.Center, Color.Magenta.ToVector3() * 1f);
 		}

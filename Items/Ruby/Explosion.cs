@@ -94,7 +94,7 @@ namespace SariaMod.Items.Ruby
 					base.projectile.frame = 0;
 					base.projectile.Kill();
 				}
-				if (base.projectile.timeLeft == 195)
+				if (base.projectile.timeLeft == 195 && !player.HasBuff(ModContent.BuffType<StatLower>()))
 				{
 					
 						if (player.ownedProjectileCounts[ModContent.ProjectileType<Flame>()] < 60f)

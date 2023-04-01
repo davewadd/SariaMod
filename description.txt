@@ -7,7 +7,7 @@ Changed pretty much everything! Xp pearls now drop rarely from enemies and you c
 Saria will now level up as you battle with her and once a checkpoint is reached she will get much stronger as well as gaining a new attack!
 Craft a HealBall to Summon her and an XpStaff to See how much Xp she has until the next level!
 
-Enemies also now have a rare chance of growing much stronger. These cursed enemies are shown with purple smoke. Be very cautious around these enemies!
+Dying will Half your current experience with Saria in half! If Saria's exp is maxed out and nothing happens, you may need to progress in the game before she can learn a new move!
 
 There is also only a single bookcase, The strange bookcase, where most of this mod's crafting will take place!
 
@@ -19,12 +19,12 @@ This mod adds a few soundtracks from other games, some of which are from terrari
 
 The Upgrade progression order for this mod is as follows:
 ~Strange : Uses the move Psyshock
-~Sapphire : Uses the move ColdSoul
-~Ruby : Uses the move Eruption
-~Topaz : Uses the move ThunderClash
-~Emerald : Uses the move GemStorm
-~Amber : Uses the move AttackOrder
-~Amethyst : Uses the move ShadowSneak
+~Sapphire : Uses the move ColdSoul :must kill king slime to unlock
+~Ruby : Uses the move Eruption	   :must Kill Queen Bee to Unlock
+~Topaz : Uses the move ThunderClash	  :must Kill the Wall of Flesh to Unlock
+~Emerald : Uses the move GemStorm	  :must Kill Any Mech Boss to Unlock
+~Amber : Uses the move AttackOrder	  :must Kill Plantera to Unlock
+~Amethyst : Uses the move ShadowSneak	  :must Kill The Duke Fishron to Unlock
         More on these attacks will be shown as you level up!
 
 		I also highly advise using the Recipe Browser created by jopojelly to see all the different crafting recipes and items, however, this mod does also include notes for most items at the StrangeBookcase. Start by just crafting a PaperNote.
@@ -33,6 +33,10 @@ The Upgrade progression order for this mod is as follows:
 		If you discover any bugs or issues please let me know as multiplayer functions differently than single player. My discord is ~David~ #5797
 					
 **Patch notes(should've done this sooner to be honest)**
+ver 6.1.3
+	-scraped the newely added chance for enemies to get stronger due to issues
+
+	-romoved some items that were meant to be cut before
 ver 6.1.2
 	-fixed saria increasing damage infinintly when maxing Xp
 ver 6.1.1

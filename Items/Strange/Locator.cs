@@ -99,7 +99,6 @@ namespace SariaMod.Items.Strange
 
 			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
 			
-			
 			if (projectile.timeLeft >= 400)
 			{
 				base.projectile.rotation += 0.095f;

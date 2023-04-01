@@ -54,6 +54,7 @@ namespace SariaMod.Items.Topaz
 		public override void AI()
 		{
 			Player player = Main.player[base.projectile.owner];
+			projectile.rotation += .05f;
 			for (int num468 = 0; num468 < 3; num468++)
 			{
 				int num469 = Dust.NewDust(new Vector2(base.projectile.position.X, base.projectile.position.Y), base.projectile.width, base.projectile.height, 255, 255, 93, 0, default(Color), .5f);

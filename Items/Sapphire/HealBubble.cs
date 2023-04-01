@@ -90,7 +90,8 @@ namespace SariaMod.Items.Sapphire
 		}
 		public override void AI()
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[projectile.owner];
+			Player player2 = Main.LocalPlayer;
 			projectile.rotation += projectile.velocity.X * 0.15f;
 
 			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
@@ -113,8 +114,8 @@ namespace SariaMod.Items.Sapphire
 			{
 				SariaModUtilities.HealingProjectile(base.projectile, 10, base.projectile.owner, 12f, 15f, autoHomes: true);
 			}
-			
 
+			
 
 
 

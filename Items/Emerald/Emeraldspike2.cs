@@ -93,8 +93,15 @@ namespace SariaMod.Items.Emerald
 			bool foundTarget = false;
 			float speed = 20;
 			Vector2 direction = targetCenter - projectile.Center;
-			
-			
+
+
+			if (projectile.timeLeft >= 1990)
+			{
+				base.projectile.velocity.X = (float)((.001) * player.direction);
+			}
+
+
+
 			if (projectile.velocity.X > 0)
 			{
 				projectile.spriteDirection = 1;

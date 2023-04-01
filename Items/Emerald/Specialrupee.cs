@@ -178,7 +178,7 @@ namespace SariaMod.Items.Emerald
 			target.buffImmune[BuffID.Electrified] = false;
 			target.buffImmune[ModContent.BuffType<Burning2>()] = false;
 			target.AddBuff(ModContent.BuffType<Burning2>(), 200);
-
+		
 			{
 				Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, -80f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Specialrupee2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 			}

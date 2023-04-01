@@ -22,6 +22,8 @@ namespace SariaMod.Items.Topaz
 			ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 6;
 			ProjectileID.Sets.TrailingMode[base.projectile.type] = 0;
 			Main.projFrames[base.projectile.type] = 4;
+			ProjectileID.Sets.TrailingMode[base.projectile.type] = 1;
+			ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 30;
 		}
 
 		public override void SetDefaults()
@@ -112,10 +114,42 @@ namespace SariaMod.Items.Topaz
 
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
 		{
-			FairyGlobalProjectile.DrawCenteredAndAfterimage(base.projectile, lightColor, ProjectileID.Sets.TrailingMode[base.projectile.type]);
+			Player player = Main.player[base.projectile.owner];
+			FairyPlayer modPlayer = player.Fairy();
+			{
+
+
+				Vector2 drawPosition;
+				for (int i = 1; i < 10; i++)
+				{
+					Texture2D texture = Main.projectileTexture[ModContent.ProjectileType<LeftSpark>()];
+					Vector2 startPos = base.projectile.oldPos[i] + base.projectile.Size * 0.5f - Main.screenPosition;
+					int frameHeight = texture.Height / Main.projFrames[base.projectile.type];
+					int frameY = frameHeight * base.projectile.frame;
+					float completionRatio = (float)i / (float)base.projectile.oldPos.Length;
+					Color drawColor = Color.Lerp(lightColor, Color.LightPink, 20f);
+					drawColor = Color.Lerp(drawColor, Color.DarkViolet, completionRatio);
+					drawColor = Color.Lerp(drawColor, Color.Transparent, completionRatio);
+					Rectangle rectangle = new Rectangle(0, frameY, texture.Width, frameHeight);
+					Vector2 origin = rectangle.Size() / 2f;
+					float rotation = base.projectile.rotation;
+					float scale = base.projectile.scale;
+					SpriteEffects spriteEffects = SpriteEffects.None;
+					startPos.Y += 1;
+					startPos.X += +17;
+
+					if (base.projectile.spriteDirection == -1)
+					{
+						spriteEffects = SpriteEffects.FlipHorizontally;
+					}
+					Main.spriteBatch.Draw(texture, startPos, rectangle, base.projectile.GetAlpha(drawColor), 0.05f , origin, scale, spriteEffects, layerDepth: 0f);
+
+				}
+			}
 			return false;
 		}
-		
+
+
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
 			Player player = Main.player[base.projectile.owner];

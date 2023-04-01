@@ -23,7 +23,7 @@ namespace SariaMod.Dusts
 
 			if (dust.noLight)
 			{
-				return false;
+				return true;
 			}
 
 			float strength = dust.scale * 1.4f;
@@ -31,7 +31,7 @@ namespace SariaMod.Dusts
 			{
 				strength = 1f;
 			}
-			Lighting.AddLight(dust.position, 0.1f * strength, 0.2f * strength, 0.7f * strength);
+			
 			return false;
 		}
 

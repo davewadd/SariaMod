@@ -4,26 +4,33 @@ using Terraria.ModLoader;
 
 namespace SariaMod.Dusts
 {
-	public class Water : ModDust
+	public class PsychicStuff : ModDust
 	{
-		
-		public override void OnSpawn(Dust dust)
-		{
-			dust.velocity.Y = Main.rand.Next(-10, 6) * 0.1f;
-			dust.velocity.X *= 0.3f;
-			dust.scale *= 1.2f;
+		public override void OnSpawn(Dust dust) {
+			dust.velocity *= 0f;
+			dust.noGravity = true;
+			dust.scale *= 0.99f;
 		}
 
+		public override bool Update(Dust dust) {
+
+			
+			dust.scale *= .99f;
+			float light = 0.35f * dust.scale;
+			Lighting.AddLight(dust.position, light, light, light);
+			
+			return false;
+		}
 		public override bool MidUpdate(Dust dust)
 		{
-			if (!dust.noGravity)
-			{
-				dust.velocity.Y += 0.05f;
-			}
 
+			if (dust.scale < 0.5f)
+			{
+				dust.active = false;
+			}
 			if (dust.noLight)
 			{
-				return true;
+				return false;
 			}
 
 			float strength = dust.scale * 1.4f;
@@ -38,5 +45,4 @@ namespace SariaMod.Dusts
 		public override Color? GetAlpha(Dust dust, Color lightColor)
 			=> new Color(lightColor.R, lightColor.G, lightColor.B, 25);
 	}
-
 }

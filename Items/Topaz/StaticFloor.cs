@@ -19,7 +19,7 @@ namespace SariaMod.Items.Topaz
 			base.DisplayName.SetDefault("Blade");
 			ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 6;
 			ProjectileID.Sets.TrailingMode[base.projectile.type] = 0;
-			Main.projFrames[base.projectile.type] = 4;
+			Main.projFrames[base.projectile.type] = 5;
 		}
 
 		public override void SetDefaults()
@@ -29,7 +29,7 @@ namespace SariaMod.Items.Topaz
 			
 			base.projectile.alpha = 100;
 			base.projectile.friendly = true;
-			base.projectile.tileCollide = true;
+			base.projectile.tileCollide = false;
 			
 			base.projectile.penetrate = -1;
 			base.projectile.timeLeft = 1000;
@@ -38,25 +38,14 @@ namespace SariaMod.Items.Topaz
 			base.projectile.usesLocalNPCImmunity = true;
 			base.projectile.localNPCHitCooldown = 3;
 		}
-		public override bool OnTileCollide(Vector2 oldVelocity)
-		{
-
-			
-			if (base.projectile.velocity.X != oldVelocity.X)
-			{
-				base.projectile.velocity.X = (0f - oldVelocity.X) * 0.1f;
-			}
-			if (base.projectile.velocity.Y != oldVelocity.Y)
-			{
-				base.projectile.velocity.Y = (0f - oldVelocity.Y) * 0.1f;
-			}
-			return false;
-		}
+		
 		public override void AI()
 		{
 			Player player = Main.player[base.projectile.owner];
 			Player player2 = Main.LocalPlayer;
 			FairyPlayer modPlayer = player.Fairy();
+			projectile.velocity.X = 0;
+			projectile.velocity.Y = 0;
 			if (Main.rand.NextBool(30))//controls the speed of when the sparkles spawn
 			{
 				float radius = (float)Math.Sqrt(Main.rand.Next(34 * 34));
@@ -70,16 +59,7 @@ namespace SariaMod.Items.Topaz
 
 			{
 
-				if (projectile.timeLeft >= 990)
-				{
-					base.projectile.velocity.X = (1 * player.direction);
-
-				}
-				else if (projectile.timeLeft < 990)
-				{
-					base.projectile.velocity.X = 0;
-					projectile.velocity.Y = 1;
-				}
+				
 				base.projectile.frameCounter++;
 				if (base.projectile.frameCounter >= 2)
 				{

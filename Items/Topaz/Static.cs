@@ -17,7 +17,7 @@ namespace SariaMod.Items.Topaz
 			base.DisplayName.SetDefault("Blade");
 			ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 7;
 			ProjectileID.Sets.TrailingMode[base.projectile.type] = 0;
-			Main.projFrames[base.projectile.type] = 4;
+			Main.projFrames[base.projectile.type] = 7;
 		}
 
 		public override void SetDefaults()

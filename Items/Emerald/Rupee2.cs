@@ -87,13 +87,15 @@ namespace SariaMod.Items.Emerald
 			FairyPlayer modPlayer = player.Fairy();
 			if (projectile.timeLeft == 10)
 			{
-				for (int k = 0; k < 3; k++)
+				if (!player.HasBuff(ModContent.BuffType<StatLower>()))
 				{
-					
-					Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, -80f), Vector2.One.RotatedByRandom(6.2831854820251465) * 3f, ModContent.ProjectileType<Shard1>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-				}
-				Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, -80f), new Vector2(0, 0), ModContent.ProjectileType<Emeraldspike>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+					for (int k = 0; k < 3; k++)
+					{
 
+						Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, -80f), Vector2.One.RotatedByRandom(6.2831854820251465) * 3f, ModContent.ProjectileType<Shard1>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+					}
+					Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, -80f), new Vector2(0, 0), ModContent.ProjectileType<Emeraldspike>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+				}
 			}
 			Lighting.AddLight(projectile.Center, Color.Green.ToVector3() * 1f);
 		}
