@@ -33,6 +33,14 @@ The Upgrade progression order for this mod is as follows:
 		If you discover any bugs or issues please let me know as multiplayer functions differently than single player. My discord is ~David~ #5797
 					
 **Patch notes(should've done this sooner to be honest)**
+ver 6.2.0
+	-changed some biome weaknesses 
+
+	-Biome weaknesses now effect moves much more than before
+
+	-some graphical updates
+
+	-lots of other smaller changes, mainly concerning attacks
 ver 6.1.3
 	-scraped the newely added chance for enemies to get stronger due to issues
 
