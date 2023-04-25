@@ -43,8 +43,8 @@ namespace SariaMod.Items.LilHarpy
 
 
 		}
-		private static int Transform;
-		private static int Timer;
+		static int Transform;
+		static int Timer;
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Psychic Turret");

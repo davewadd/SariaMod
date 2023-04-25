@@ -33,6 +33,8 @@ The Upgrade progression order for this mod is as follows:
 		If you discover any bugs or issues please let me know as multiplayer functions differently than single player. My discord is ~David~ #5797
 					
 **Patch notes(should've done this sooner to be honest)**
+ver 6.2.1
+	-trying to fix a multiplayer issue with animations
 ver 6.2.0
 	-changed some biome weaknesses 
 

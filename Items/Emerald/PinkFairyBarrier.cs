@@ -54,7 +54,7 @@ namespace SariaMod.Items.Emerald
 			base.projectile.localNPCHitCooldown = 20;
 		}
 
-		private int number;
+		int number;
 		public override void AI()
 		{
 			Player player = Main.player[base.projectile.owner];

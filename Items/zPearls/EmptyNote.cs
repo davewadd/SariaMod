@@ -52,7 +52,7 @@ namespace SariaMod.Items.zPearls
 			Lighting.AddLight(projectile.Center, Color.LightGreen.ToVector3() * 1f);
 			projectile.position.X = player.position.X ;
 			projectile.position.Y = player.position.Y;
-		 if (projectile.timeLeft == 2 && Main.player[Main.myPlayer].active && Main.bloodMoon && Main.player[Main.myPlayer].ZoneOverworldHeight)
+		 if (projectile.timeLeft == 2 && Main.player[Main.myPlayer].active && Main.bloodMoon)
 			{
 				Item.NewItem(base.projectile.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<BloodOcarina>());
 			}

@@ -43,9 +43,9 @@ namespace SariaMod.Items.LilHarpy
 
 
 		}
-		private static int TimetoCharge;
-		private static int Form;
-		private static int Form2;
+		static int TimetoCharge;
+		static int Form;
+		static int Form2;
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Psychic Turret");

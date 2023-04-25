@@ -27,20 +27,20 @@ namespace SariaMod.Items.Strange
        
 
         public const float DistanceToCheck = 1100f;
-        private static int Transform;
-        private static int GemTimer;
-        private static int BugTimer;
-        private static int SwarmTimer;
-        private static int SicknessTimer;
-        private static int Mood;
-        private static int MoodTimer;
-        private static int MoveTimer;
-        private static int SleepHeal;
-        private static int Heal;
-        private static int Sleep;
-        private static int TimeAsleep;
-        private static int XpTimer;
-        private static int Cursed;
+        static int Transform;
+        static int GemTimer;
+        static int BugTimer;
+        static int SwarmTimer;
+        static int SicknessTimer;
+        static int Mood;
+        static int MoodTimer;
+        static int MoveTimer;
+        static int SleepHeal;
+        static int Heal;
+        static int Sleep;
+        static int TimeAsleep;
+        static int XpTimer;
+        static int Cursed;
         
         public override void SetStaticDefaults()
         {
