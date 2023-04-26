@@ -202,7 +202,7 @@ namespace SariaMod.Items.Amber
 					Projectile.NewProjectile(base.projectile.Center + new Vector2( 0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<AmberShard>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 				}
 				Main.PlaySound(SoundID.DD2_WitherBeastCrystalImpact, base.projectile.Center);
-				for (int j = 0; j < 1; j++) //set to 2
+				for (int j = 0; j < 2; j++) //set to 2
 				{
 					Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<BlackMoth>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
 				}

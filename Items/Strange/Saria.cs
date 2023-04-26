@@ -27,20 +27,20 @@ namespace SariaMod.Items.Strange
        
 
         public const float DistanceToCheck = 1100f;
-        static int Transform;
-        static int GemTimer;
-        static int BugTimer;
-        static int SwarmTimer;
-        static int SicknessTimer;
-        static int Mood;
-        static int MoodTimer;
-        static int MoveTimer;
-        static int SleepHeal;
-        static int Heal;
-        static int Sleep;
-        static int TimeAsleep;
-        static int XpTimer;
-        static int Cursed;
+       private static int Transform;
+       private static int GemTimer;
+       private static int BugTimer;
+       private static int SwarmTimer;
+       private static int SicknessTimer;
+       private static int Mood;
+       private static int MoodTimer;
+       private static int MoveTimer;
+       private static int SleepHeal;
+       private static int Heal;
+       private static int Sleep;
+       private static int TimeAsleep;
+       private static int XpTimer;
+       private static int Cursed;
         
         public override void SetStaticDefaults()
         {
@@ -1819,7 +1819,7 @@ namespace SariaMod.Items.Strange
 
             }
         }
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
+        public override void PostDraw(SpriteBatch spriteBatch, Color lightColor)
         {
             Player player = Main.player[base.projectile.owner];
             FairyPlayer modPlayer = player.Fairy();
@@ -2605,7 +2605,6 @@ namespace SariaMod.Items.Strange
                         Main.spriteBatch.Draw(texture, startPos, null, base.projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, 0f);
                     }
                 }
-                return false;
 
             }
 

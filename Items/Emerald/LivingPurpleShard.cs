@@ -85,7 +85,13 @@ namespace SariaMod.Items.Emerald
 				recipe.SetResult(this);
 				recipe.AddRecipe();
 			}
-
+			{
+				ModRecipe recipe = new ModRecipe(mod);
+				recipe.AddIngredient(ModContent.ItemType<LivingSilverShard>(), 1);
+				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 5);
+				recipe.SetResult(this, 2);
+				recipe.AddRecipe();
+			}
 		}
 	}
 }

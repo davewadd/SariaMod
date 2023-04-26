@@ -38,7 +38,6 @@ namespace SariaMod.Items.Emerald
 			base.projectile.localNPCHitCooldown = 7;
 			base.projectile.minionSlots = 0f;
 			base.projectile.extraUpdates = 1;
-			projectile.aiStyle = 14;
 			base.projectile.penetrate = 2;
 			base.projectile.tileCollide = true;
 			base.projectile.timeLeft = 200;
@@ -78,6 +77,8 @@ namespace SariaMod.Items.Emerald
 		{
 			Player player = Main.player[base.projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
+			projectile.Center = player.Center;
+			
 			if (base.projectile.localAI[0] == 0f)
 			{
 				base.projectile.Fairy().spawnedPlayerMinionDamageValue = player.MinionDamage();
