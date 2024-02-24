@@ -7,7 +7,7 @@ Changed pretty much everything! Xp pearls now drop rarely from enemies and you c
 Saria will now level up as you battle with her and once a checkpoint is reached she will get much stronger as well as gaining a new attack!
 Craft a HealBall to Summon her and an XpStaff to See how much Xp she has until the next level!
 
-Dying will Half your current experience with Saria in half! If Saria's exp is maxed out and nothing happens, you may need to progress in the game before she can learn a new move!
+Dying will Half the XP Saria has earned since her last level up but it will not lower her base level. If Saria's exp is maxed out and nothing happens, you may need to progress in the game before she can learn a new move!
 
 There is also only a single bookcase, The strange bookcase, where most of this mod's crafting will take place!
 
@@ -29,10 +29,12 @@ The Upgrade progression order for this mod is as follows:
 
 		I also highly advise using the Recipe Browser created by jopojelly to see all the different crafting recipes and items, however, this mod does also include notes for most items at the StrangeBookcase. Start by just crafting a PaperNote.
 	Please do keep note that these level ups will get extremely expensive, however, the effort put into it will certainly pay off!
-					This mod will be updated to Terraria 1.4 once finished on 1.3
-		If you discover any bugs or issues please let me know as multiplayer functions differently than single player. My discord is ~David~ #5797
+					This mod, as far as I know will not be updated to 1.4 unless I can get some serious help
+		If you discover any bugs or issues please let me know as multiplayer functions differently than single player. My discord is david5797 (feel free to ask anything!)
 					
 **Patch notes(should've done this sooner to be honest)**
+ver 6.2.3
+	-edited the description page as well as my new discord.
 ver 6.2.2
 	-changed how purple gem ball functions
 
