@@ -24,11 +24,26 @@ namespace SariaMod
 		{
 			typeof(Sandstorm).GetMethod("StartSandstorm", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, null);
 		}
+		public static void SendPacket(Player player, ModPacket packet, bool server)
+		{
+			if (!server)
+			{
+				packet.Send();
+			}
+			else
+			{
+				packet.Send(-1, player.whoAmI);
+			}
+		}
 		public static void StopSandstorm()
 		{
 			Sandstorm.Happening = false;
 		}
 		public static FairyPlayer Fairy(this Player player)
+		{
+			return player.GetModPlayer<FairyPlayer>();
+		}
+		public static FairyPlayer Fairy2(this Player player)
 		{
 			return player.GetModPlayer<FairyPlayer>();
 		}
@@ -44,47 +59,38 @@ namespace SariaMod
 		}
 		public static void HealingProjectile(Projectile projectile, int healing, int playerToHeal, float homingVelocity, float N, bool autoHomes = true, int timeCheck = 120)
 		{
-			Player player = Main.player[projectile.owner];
-			Player player2 = Main.LocalPlayer;
-			Player targetplayer = Main.LocalPlayer;
-			if ((player.statLife > ((player.statLifeMax2) - player.statLifeMax2/4)) && (player2.statLife < ((player2.statLifeMax2) - player2.statLifeMax2 / 4)))
-			{
-				targetplayer = player2;
-			}
-			else
-            {
-				targetplayer = player;
-            }
+			Player player = Main.player[playerToHeal];
+			
 			float homingSpeed = homingVelocity;
-			if (targetplayer.lifeMagnet)
+			if (player.lifeMagnet)
 			{
 				homingSpeed *= 1.5f;
 			}
-			Vector2 playerVector = targetplayer.Center - projectile.Center;
+			Vector2 playerVector = player.Center - projectile.Center;
 			float playerDist = playerVector.Length();
-			if (playerDist < 500f && projectile.position.X < targetplayer.position.X + (float)targetplayer.width && projectile.position.X + (float)projectile.width > targetplayer.position.X && projectile.position.Y < targetplayer.position.Y + (float)targetplayer.height && projectile.position.Y + (float)projectile.height > targetplayer.position.Y)
+			if (playerDist < 50f && projectile.position.X < player.position.X + (float)player.width && projectile.position.X + (float)projectile.width > player.position.X && projectile.position.Y < player.position.Y + (float)player.height && projectile.position.Y + (float)projectile.height > player.position.Y)
 			{
 
 				{
-					targetplayer.HealEffect(healing, broadcast: false);
-					targetplayer.statLife += healing;
-					if (targetplayer.statLife > targetplayer.statLifeMax2)
+					player.HealEffect(healing, broadcast: false);
+					player.statLife += healing;
+					if (player.statLife > player.statLifeMax2)
 					{
-						targetplayer.statLife = targetplayer.statLifeMax2;
+						player.statLife = player.statLifeMax2;
 					}
 					NetMessage.SendData(66, -1, -1, null, playerToHeal, healing);
 				}
-				if (targetplayer.ownedProjectileCounts[ModContent.ProjectileType<Heal>()] < 1f)
+				if (player.ownedProjectileCounts[ModContent.ProjectileType<Heal>()] < 1f)
 				{
 
 
 					for (int j = 0; j < 1; j++) //set to 2
 					{
-						Projectile.NewProjectile(targetplayer.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Heal>(), 0, 0, targetplayer.whoAmI, projectile.whoAmI);
+						Projectile.NewProjectile(player.GetSource_FromThis(), player.position.X + 0, player.position.Y + 0, 0, 0, ModContent.ProjectileType<Heal>(), (int)(0), 0f, player.whoAmI);
 
 					}
 				}
-				projectile.Kill();
+				
 			}
 			if (autoHomes)
 			{
@@ -114,10 +120,7 @@ namespace SariaMod
 
 	
 		
-		public static float MinionDamage(this Player player)
-		{
-			return player.allDamage + player.minionDamage - 1f;
-		}
+		
 		public static void KillShootProjectileMany(Player player, params int[] projTypes)
 		{
 			for (int x = 0; x < 1000; x++)

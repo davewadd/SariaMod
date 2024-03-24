@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
+using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 
@@ -9,7 +10,7 @@ namespace SariaMod.Tiles
 {
 	public class StrangeBookcase : ModTile
 	{
-		public override void SetDefaults() {
+		public override void SetStaticDefaults() {
 			Main.tileSolidTop[Type] = true;
 			Main.tileFrameImportant[Type] = true;
 			Main.tileNoAttach[Type] = true;
@@ -24,8 +25,8 @@ namespace SariaMod.Tiles
 			name.SetDefault("Strange Bookcase");
 			AddMapEntry(new Color(200, 200, 200), name);
 	
-			disableSmartCursor = true;
-			adjTiles = new int[] { TileID.WorkBenches };
+			
+			AdjTiles = new int[] { TileID.WorkBenches };
 
 		}
 	
@@ -34,7 +35,8 @@ namespace SariaMod.Tiles
 		}
 
 		public override void KillMultiTile(int i, int j, int frameX, int frameY) {
-			Item.NewItem(i * 16, j * 16, 32, 16, ModContent.ItemType<Items.zBookcases.StrangeBookcase>());
+			
+			Item.NewItem(new EntitySource_TileBreak(i, j), i * 16, j * 16, 32, 16, ModContent.ItemType<Items.zBookcases.StrangeBookcase>());
 		}
 
 	}

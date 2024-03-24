@@ -19,27 +19,27 @@ namespace SariaMod.Items.Amber
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Blade");
-			ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 7;
-			ProjectileID.Sets.TrailingMode[base.projectile.type] = 0;
+			ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 7;
+			ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
 			
 		}
 
 		public override void SetDefaults()
 		{
-			base.projectile.width = 30;
-			base.projectile.height = 30;
+			base.Projectile.width = 30;
+			base.Projectile.height = 30;
 			
-			base.projectile.alpha = 0;
-			base.projectile.friendly = true;
-			base.projectile.tileCollide = false;
+			base.Projectile.alpha = 300;
+			base.Projectile.friendly = true;
+			base.Projectile.tileCollide = false;
 			
 			
-			base.projectile.penetrate = 1;
-			base.projectile.timeLeft = 3;
-			base.projectile.ignoreWater = true;
+			base.Projectile.penetrate = 1;
+			base.Projectile.timeLeft = 3;
+			base.Projectile.ignoreWater = true;
 			
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 4;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 4;
 		}
 
 		public override bool? CanHitNPC(NPC target)
@@ -48,10 +48,10 @@ namespace SariaMod.Items.Amber
         }
 		public override void AI()
 		{
-			Player player = Main.player[base.projectile.owner];
-			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
-			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
-			base.projectile.rotation += 0.095f;
+			Player player = Main.player[base.Projectile.owner];
+			Projectile mother = Main.projectile[(int)base.Projectile.ai[1]];
+			FairyGlobalProjectile.HomeInOnNPC(base.Projectile, ignoreTiles: true, 600f, 25f, 20f);
+			base.Projectile.rotation += 0.095f;
 			{
 				
 				
@@ -63,7 +63,7 @@ namespace SariaMod.Items.Amber
 
 			
 				
-				Lighting.AddLight(projectile.Center, Color.LightYellow.ToVector3() * 1f);
+				Lighting.AddLight(Projectile.Center, Color.LightYellow.ToVector3() * 1f);
 				// Default movement parameters (here for attacking)
 			
 

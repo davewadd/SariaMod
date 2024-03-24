@@ -3,6 +3,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -24,7 +25,7 @@ namespace SariaMod
 		{
 			if (texture == null)
 			{
-				texture = Main.projectileTexture[projectile.type];
+				texture = TextureAssets.Projectile[projectile.type].Value;
 			}
 			int frameHeight = texture.Height / Main.projFrames[projectile.type];
 			int frameY = frameHeight * projectile.frame;

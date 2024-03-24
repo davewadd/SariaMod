@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 
 using Terraria;
+using Terraria.Audio;
 
 
 
@@ -21,68 +22,65 @@ namespace SariaMod.Items.Amethyst
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Blade");
-			ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 8;
-			ProjectileID.Sets.TrailingMode[base.projectile.type] = 0;
-			Main.projFrames[base.projectile.type] = 10;
+			ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 8;
+			ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
+			Main.projFrames[base.Projectile.type] = 10;
 		}
 
 		public override void SetDefaults()
 		{
-			base.projectile.width = 30;
-			base.projectile.height = 30;
-			base.projectile.aiStyle = 1;
-			base.projectile.alpha = 0;
-			base.projectile.friendly = true;
-			base.projectile.tileCollide = false;
+			base.Projectile.width = 30;
+			base.Projectile.height = 30;
+			base.Projectile.aiStyle = 1;
+			base.Projectile.alpha = 0;
+			base.Projectile.friendly = true;
+			base.Projectile.tileCollide = false;
 			
-			base.projectile.penetrate = 1;
-			base.projectile.timeLeft = 200;
-			base.projectile.ignoreWater = true;
+			base.Projectile.penetrate = 1;
+			base.Projectile.timeLeft = 200;
+			base.Projectile.ignoreWater = true;
 			
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 4;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 4;
 		}
 
 		private const int sphereRadius = 3;
 		public override void AI()
 		{
-			Player player = Main.player[base.projectile.owner];
-			Lighting.AddLight(base.projectile.Center, 0f, 0.5f, 0f);
-			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
+			Player player = Main.player[base.Projectile.owner];
+			Lighting.AddLight(base.Projectile.Center, 0f, 0.5f, 0f);
+			FairyGlobalProjectile.HomeInOnNPC(base.Projectile, ignoreTiles: true, 600f, 25f, 20f);
 			if (Main.rand.NextBool())//controls the speed of when the sparkles spawn
 			{
 				float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
 				double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
-				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow2>(), 0f, 0f, 0, default(Color), 1.5f);
+				Dust.NewDust(new Vector2(Projectile.Center.X + radius * (float)Math.Cos(angle), Projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow2>(), 0f, 0f, 0, default(Color), 1.5f);
 			}
 			
-			if (projectile.timeLeft == 198)
+			if (Projectile.timeLeft == 198)
 			{
-				Main.PlaySound(SoundID.DD2_GhastlyGlaiveImpactGhost, base.projectile.Center);
+				SoundEngine.PlaySound(SoundID.DD2_GhastlyGlaiveImpactGhost, base.Projectile.Center);
 			}
 			{
 				float distanceFromTarget = 10f;
-				Vector2 targetCenter = projectile.position;
+				Vector2 targetCenter = Projectile.position;
 				bool foundTarget = false;
 
 				// This code is required if your minion weapon has the targeting feature
 				if (player.HasMinionAttackTargetNPC)
 				{
 					NPC npc = Main.npc[player.MinionAttackTargetNPC];
-					float between = Vector2.Distance(npc.Center, projectile.Center);
+					float between = Vector2.Distance(npc.Center, Projectile.Center);
 					// Reasonable distance away so it doesn't target across multiple screens
 					if (between < 2000f)
 					{
 						distanceFromTarget = between;
 						targetCenter = npc.Center;
-						if (projectile.timeLeft >= 90)
+						if (Projectile.timeLeft >= 90)
 						{
 							targetCenter.Y += 50;
 						}
-						else if (projectile.timeLeft < 90)
-						{
-							targetCenter.Y = 0;
-						}
+						
 						foundTarget = true;
 					}
 				}
@@ -95,7 +93,7 @@ namespace SariaMod.Items.Amethyst
 						if (npc.CanBeChasedBy())
 						{
 							float between = Vector2.Distance(npc.Center, player.Center);
-							bool closest = Vector2.Distance(projectile.Center, targetCenter) > between;
+							bool closest = Vector2.Distance(Projectile.Center, targetCenter) > between;
 							bool inRange = between < distanceFromTarget;
 
 							// Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
@@ -105,14 +103,11 @@ namespace SariaMod.Items.Amethyst
 							{
 								distanceFromTarget = between;
 								targetCenter = npc.Center;
-								if (projectile.timeLeft >= 90)
+								if (Projectile.timeLeft >= 90)
 								{
 									targetCenter.Y += 50;
 								}
-								else if (projectile.timeLeft < 90)
-								{
-									targetCenter.Y = 0;
-								}
+								
 								foundTarget = true;
 							}
 						}
@@ -123,66 +118,66 @@ namespace SariaMod.Items.Amethyst
 				// friendly needs to be set to false so it doesn't damage things like target dummies while idling
 				// Both things depend on if it has a target or not, so it's just one assignment here
 				// You don't need this assignment if your minion is shooting things instead of dealing contact damage
-				projectile.friendly = foundTarget;
+				Projectile.friendly = foundTarget;
 
 
 				float speed = 70f;
 				float inertia = 20f;
-				Lighting.AddLight(projectile.Center, Color.LightPink.ToVector3() * 0.78f);
+				Lighting.AddLight(Projectile.Center, Color.LightPink.ToVector3() * 0.78f);
 				// Default movement parameters (here for attacking)
-				if (projectile.timeLeft >= 120)
+				if (Projectile.timeLeft >= 120)
                 {
 					speed = 10f;
 					
 				}
-				if (projectile.timeLeft < 120)
+				if (Projectile.timeLeft < 120)
 				{
 					speed = 70f;
 				}
 
-				if (distanceFromTarget > 40f && projectile.timeLeft <= 400)
+				if (distanceFromTarget > 40f && Projectile.timeLeft <= 400)
 				{
 					// The immediate range around the target (so it doesn't latch onto it when close)
-					Vector2 direction = targetCenter - projectile.Center;
+					Vector2 direction = targetCenter - Projectile.Center;
 					direction.Normalize();
 					direction *= speed;
 
-					projectile.velocity = (projectile.velocity * (inertia - 2) + direction) / inertia;
+					Projectile.velocity = (Projectile.velocity * (inertia - 2) + direction) / inertia;
 				}
-				base.projectile.frameCounter++;
-				if (base.projectile.frameCounter > 3)
+				base.Projectile.frameCounter++;
+				if (base.Projectile.frameCounter > 3)
 				{
-					base.projectile.frame++;
-					base.projectile.frameCounter = 0;
+					base.Projectile.frame++;
+					base.Projectile.frameCounter = 0;
 				}
-				if (Math.Abs(projectile.velocity.X) >= 3)
+				if (Math.Abs(Projectile.velocity.X) >= 3)
 				{
-					if (base.projectile.frame >= 8)
+					if (base.Projectile.frame >= 8)
 				{
-						base.projectile.frame = 0;
+						base.Projectile.frame = 0;
 					}
 				}
-				else if (Math.Abs(projectile.velocity.X) < 3)
+				else if (Math.Abs(Projectile.velocity.X) < 3)
 				{
-					if (base.projectile.frame >= 10)
+					if (base.Projectile.frame >= 10)
 					{
-						base.projectile.frame = 8;
+						base.Projectile.frame = 8;
 					}
-					if (base.projectile.frame < 8)
+					if (base.Projectile.frame < 8)
 					{
-						base.projectile.frame = 8;
+						base.Projectile.frame = 8;
 					}
 				}
 			}
-			if (projectile.timeLeft >= 200)
+			if (Projectile.timeLeft >= 200)
             {
-				Main.PlaySound(SoundID.Item69, base.projectile.Center);
+				SoundEngine.PlaySound(SoundID.Item69, base.Projectile.Center);
 			}
-			if (projectile.timeLeft == 1)
+			if (Projectile.timeLeft == 1)
             {
 				for (int j = 0; j < 1; j++) //set to 2
 				{
-					Projectile.NewProjectile(base.projectile.Center + new Vector2( 0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<ShadowSneak>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+					Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center + new Vector2(30f, -80f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<ShadowSneak>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
 				}
 			}
 			}
@@ -193,7 +188,7 @@ namespace SariaMod.Items.Amethyst
 
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
 			target.buffImmune[BuffID.CursedInferno] = false;
 			target.buffImmune[BuffID.Confused] = false;
@@ -211,10 +206,10 @@ namespace SariaMod.Items.Amethyst
 
 
 			{
-				Main.PlaySound(SoundID.DD2_LightningBugDeath, base.projectile.Center);
+				SoundEngine.PlaySound(SoundID.DD2_LightningBugDeath, base.Projectile.Center);
 			}
 			{
-				Projectile.NewProjectile(base.projectile.Center + new Vector2( 0f, -135f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<ShadowSneak>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+				Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center + new Vector2(4f, -100f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<ShadowSneak>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
 			}
 
 			if (player.HasBuff(ModContent.BuffType<StatRaise>()))

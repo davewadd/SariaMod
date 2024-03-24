@@ -1,4 +1,5 @@
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -9,22 +10,22 @@ namespace SariaMod.Items.zPearls
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Blade");
-			ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 7;
-			ProjectileID.Sets.TrailingMode[base.projectile.type] = 0;
+			ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 7;
+			ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
 		}
 
 		public override void SetDefaults()
 		{
-			base.projectile.width = 30;
-			base.projectile.height = 30;
-			base.projectile.alpha = 300;
-			base.projectile.friendly = true;
-			base.projectile.tileCollide = false;
-			base.projectile.penetrate = 1;
-			base.projectile.timeLeft = 10;
-			base.projectile.ignoreWater = true;
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 4;
+			base.Projectile.width = 30;
+			base.Projectile.height = 30;
+			base.Projectile.alpha = 300;
+			base.Projectile.friendly = true;
+			base.Projectile.tileCollide = false;
+			base.Projectile.penetrate = 1;
+			base.Projectile.timeLeft = 10;
+			base.Projectile.ignoreWater = true;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 4;
 		}
 
 		public override bool? CanHitNPC(NPC target)
@@ -34,15 +35,16 @@ namespace SariaMod.Items.zPearls
 
 		public override void AI()
 		{
-			Player player = Main.player[base.projectile.owner];
-			if (base.projectile.timeLeft == 10)
+			Player player = Main.player[base.Projectile.owner];
+			if (base.Projectile.timeLeft == 10)
 			{
 				if (Main.dayTime)
 				{
 					Main.time = 54300;
 				}
-				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/DeadHand"), player.Center);
-				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/DLong"), player.Center);
+				SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/DeadHand"), player.Center);
+				SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/DLong"), player.Center);
+				
 				if (!Main.dayTime && !Main.bloodMoon)
                 {
 					Main.bloodMoon = true;
@@ -51,8 +53,8 @@ namespace SariaMod.Items.zPearls
 
 			}
 			
-			base.projectile.position.X = player.position.X;
-			base.projectile.position.Y = player.position.Y - 80f;
+			base.Projectile.position.X = player.position.X;
+			base.Projectile.position.Y = player.position.Y - 80f;
 		}
 	}
 }

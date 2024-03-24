@@ -16,25 +16,25 @@ namespace SariaMod.Items.Amber
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Child");
-			Main.projFrames[base.projectile.type] = 1;
-			ProjectileID.Sets.MinionShot[base.projectile.type] = true;
+			Main.projFrames[base.Projectile.type] = 1;
+			ProjectileID.Sets.MinionShot[base.Projectile.type] = true;
 		}
 
 		public override void SetDefaults()
 		{
-			base.projectile.width = 10;
-			base.projectile.height = 10;
-			base.projectile.netImportant = true;
-			base.projectile.friendly = true;
-			base.projectile.ignoreWater = true;
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 7;
-			base.projectile.minionSlots = 0f;
-			base.projectile.extraUpdates = 1;
-			base.projectile.aiStyle = 1;
-			base.projectile.penetrate = -1;
-			projectile.tileCollide = true;
-			base.projectile.timeLeft = 500;
+			base.Projectile.width = 10;
+			base.Projectile.height = 10;
+			base.Projectile.netImportant = true;
+			base.Projectile.friendly = true;
+			base.Projectile.ignoreWater = true;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 7;
+			base.Projectile.minionSlots = 0f;
+			base.Projectile.extraUpdates = 1;
+			base.Projectile.aiStyle = 1;
+			base.Projectile.penetrate = -1;
+			Projectile.tileCollide = true;
+			base.Projectile.timeLeft = 500;
 			
 		}
 		public override bool? CanCutTiles()
@@ -60,8 +60,8 @@ namespace SariaMod.Items.Amber
 		}
 		public override bool OnTileCollide(Vector2 oldVelocity)
         {
-			projectile.velocity.Y = 1/4;
-			projectile.velocity.X = 0;
+			Projectile.velocity.Y = 1/4;
+			Projectile.velocity.X = 0;
 			return false;
 
         }
@@ -76,7 +76,7 @@ namespace SariaMod.Items.Amber
 		
 		public override void AI()
 		{
-			Player player = Main.player[projectile.owner];
+			Player player = Main.player[Projectile.owner];
 
 
 			
@@ -86,7 +86,7 @@ namespace SariaMod.Items.Amber
 			// You don't need this assignment if your minion is shooting things instead of dealing contact damage
 
 
-			Lighting.AddLight(projectile.Center, Color.Orange.ToVector3() * 2f);
+			Lighting.AddLight(Projectile.Center, Color.Orange.ToVector3() * 2f);
 			// Default movement parameters (here for attacking)
 
 			
@@ -100,9 +100,9 @@ namespace SariaMod.Items.Amber
 		}
 		public override Color? GetAlpha(Color lightColor)
 		{
-			if (base.projectile.timeLeft < 85)
+			if (base.Projectile.timeLeft < 85)
 			{
-				byte b2 = (byte)(base.projectile.timeLeft * 3);
+				byte b2 = (byte)(base.Projectile.timeLeft * 3);
 				byte a2 = (byte)(100f * ((float)(int)b2 / 255f));
 				return new Color(b2, b2, b2, a2);
 			}

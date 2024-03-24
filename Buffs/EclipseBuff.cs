@@ -5,7 +5,7 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
 using System;
@@ -32,7 +32,7 @@ namespace SariaMod.Buffs
 
 	public class EclipseBuff : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("BloodLust");
 			Description.SetDefault("You feel uneasy as Saria gazes at the Eclipse\n\nShe unconsciously steals your lifeforce!");
@@ -40,7 +40,6 @@ namespace SariaMod.Buffs
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;
 			Main.buffNoTimeDisplay[base.Type] = true;
-			longerExpertDebuff = false;
 
 		}
 		private const int sphereRadius = 10;

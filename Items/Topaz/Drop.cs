@@ -18,27 +18,27 @@ namespace SariaMod.Items.Topaz
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Child");
-			Main.projFrames[base.projectile.type] = 4;
-			ProjectileID.Sets.MinionShot[base.projectile.type] = true;
+			Main.projFrames[base.Projectile.type] = 4;
+			ProjectileID.Sets.MinionShot[base.Projectile.type] = true;
 		}
 
 		public override void SetDefaults()
 		{
-			base.projectile.width = 20;
-			base.projectile.height = 20;
-			base.projectile.netImportant = true;
-			base.projectile.friendly = true;
-			base.projectile.ignoreWater = true;
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 7;
-			base.projectile.minionSlots = 0f;
-			base.projectile.extraUpdates = 1;
-			projectile.alpha = 0;
-			projectile.aiStyle = 14;
-			base.projectile.tileCollide = true;
-			base.projectile.penetrate = -1;
-			projectile.tileCollide = true;
-			base.projectile.timeLeft = 1500;
+			base.Projectile.width = 20;
+			base.Projectile.height = 20;
+			base.Projectile.netImportant = true;
+			base.Projectile.friendly = true;
+			base.Projectile.ignoreWater = true;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 7;
+			base.Projectile.minionSlots = 0f;
+			base.Projectile.extraUpdates = 1;
+			Projectile.alpha = 0;
+			Projectile.aiStyle = 14;
+			base.Projectile.tileCollide = true;
+			base.Projectile.penetrate = -1;
+			Projectile.tileCollide = true;
+			base.Projectile.timeLeft = 1500;
 			
 		}
 		public override bool? CanHitNPC(NPC target)
@@ -69,11 +69,11 @@ namespace SariaMod.Items.Topaz
 		}
 		public override bool OnTileCollide(Vector2 oldVelocity)
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
 			{
-				Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 12f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<StaticFloor>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-				projectile.Kill();
+				Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.position.X + 0, Projectile.position.Y + 0, 0, 0, ModContent.ProjectileType<StaticFloor>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
+				Projectile.Kill();
 			}
 
 
@@ -90,7 +90,7 @@ namespace SariaMod.Items.Topaz
 		
 		public override void AI()
 		{
-			Player player = Main.player[projectile.owner];
+			Player player = Main.player[Projectile.owner];
 			
 			
 			// friendly needs to be set to true so the minion can deal contact damage
@@ -99,7 +99,7 @@ namespace SariaMod.Items.Topaz
 			// You don't need this assignment if your minion is shooting things instead of dealing contact damage
 
 
-			Lighting.AddLight(projectile.Center, Color.LightYellow.ToVector3() * 1f);
+			Lighting.AddLight(Projectile.Center, Color.LightYellow.ToVector3() * 1f);
 			// Default movement parameters (here for attacking)
 			
 			
@@ -113,9 +113,9 @@ namespace SariaMod.Items.Topaz
 		}
 		public override Color? GetAlpha(Color lightColor)
 		{
-			if (base.projectile.timeLeft < 85)
+			if (base.Projectile.timeLeft < 85)
 			{
-				byte b2 = (byte)(base.projectile.timeLeft * 3);
+				byte b2 = (byte)(base.Projectile.timeLeft * 3);
 				byte a2 = (byte)(100f * ((float)(int)b2 / 255f));
 				return new Color(b2, b2, b2, a2);
 			}

@@ -28,15 +28,14 @@ namespace SariaMod.Items.Strange
 
 	public class SariaBuff : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("FairySpirit");
-			Description.SetDefault("Saria now watches over you\n-She will give you added buffs as she levels up!");
+			Description.SetDefault("Saria now watches over you\n-She will give you added buffs as she levels up!\n Saria will only attack while pokeball is held!");
 			Main.debuff[base.Type] = false;
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;
 			Main.buffNoTimeDisplay[base.Type] = true;
-			longerExpertDebuff = false;
 
 		}
 		public override void Update(Player player, ref int buffIndex)
@@ -45,7 +44,8 @@ namespace SariaMod.Items.Strange
 			
 			if (player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] > 0)
 			{
-				if (modPlayer.Sarialevel == 0)
+				
+					if (modPlayer.Sarialevel == 0)
 				{
 					
 					player.buffTime[buffIndex] = 18000;
@@ -152,7 +152,6 @@ namespace SariaMod.Items.Strange
 				}
 				if (modPlayer.Sarialevel == 6)
 				{
-					
 					player.buffTime[buffIndex] = 18000;
 					player.statLifeMax2 += 150;
 					player.accOreFinder = true;
@@ -170,6 +169,7 @@ namespace SariaMod.Items.Strange
 					player.AddBuff(BuffID.ObsidianSkin, 20);
 					player.AddBuff(BuffID.Warmth, 20);
 					player.lavaTime = 180000;
+					
 				}
 			}
 

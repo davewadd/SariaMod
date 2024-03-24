@@ -9,7 +9,7 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
 using Terraria;
@@ -31,19 +31,19 @@ namespace SariaMod.Items.zPearls
 
 		public override void SetDefaults()
 		{
-			base.item.width = 26;
-			base.item.height = 22;
-			base.item.maxStack = 1;
-			item.useTime = 40;
-			item.useAnimation = 40;
-			item.useStyle = ItemUseStyleID.HoldingOut;
-			base.item.value = 0;
-			item.shoot = ModContent.ProjectileType<Bloodmoon>();
+			base.Item.width = 26;
+			base.Item.height = 22;
+			base.Item.maxStack = 1;
+			Item.useTime = 40;
+			Item.useAnimation = 40;
+			Item.useStyle = ItemUseStyleID.Shoot;
+			base.Item.value = 0;
+			Item.shoot = ModContent.ProjectileType<Bloodmoon>();
 		}
 		public override void Update(ref float gravity, ref float maxFallSpeed)
 		{
 
-			Lighting.AddLight(item.Center, Color.Red.ToVector3() * 2f);
+			Lighting.AddLight(Item.Center, Color.Red.ToVector3() * 2f);
 		}
 		public override bool AltFunctionUse(Player player)
 		{

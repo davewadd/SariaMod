@@ -5,7 +5,7 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
 using System;
@@ -31,7 +31,7 @@ namespace SariaMod.Buffs
 
 	public class SariaCurse2 : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("SariaCurse");
 			Description.SetDefault("Saria Curses your enemies!");
@@ -39,7 +39,6 @@ namespace SariaMod.Buffs
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = true;
 			Main.buffNoTimeDisplay[base.Type] = true;
-			longerExpertDebuff = false;
 
 		}
 		public override void Update(Player player, ref int buffIndex)

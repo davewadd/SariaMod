@@ -9,10 +9,11 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -31,24 +32,24 @@ namespace SariaMod.Items.zPearls
 
 		public override void SetDefaults()
 		{
-			base.item.width = 26;
-			base.item.height = 22;
-			item.useTime = 36;
-			item.useAnimation = 36;
-			base.item.maxStack = 999;
-			item.useStyle = ItemUseStyleID.HoldingOut;
-			item.UseSound = SoundID.Item3;
-			item.noMelee = true;
-			item.summon = true;
-			base.item.value = 0;
-			base.item.consumable = true;
-			item.rare = ItemRarityID.Expert;
-			item.shoot = ModContent.ProjectileType<XpProjectile>();
+			base.Item.width = 26;
+			base.Item.height = 22;
+			Item.useTime = 36;
+			Item.useAnimation = 36;
+			base.Item.maxStack = 999;
+			Item.useStyle = ItemUseStyleID.Shoot;
+			Item.UseSound = SoundID.Item3;
+			Item.noMelee = true;
+			Item.DamageType = DamageClass.Summon;
+			Item.value = Item.buyPrice(0, 4, 0, 0);
+			base.Item.consumable = true;
+			Item.rare = ItemRarityID.Expert;
+			Item.shoot = ModContent.ProjectileType<XpProjectile>();
 		}
 		public override void Update(ref float gravity, ref float maxFallSpeed)
 		{
 
-			Lighting.AddLight(item.Center, Color.FloralWhite.ToVector3() * 2f);
+			Lighting.AddLight(Item.Center, Color.FloralWhite.ToVector3() * 2f);
 		}
 		public override bool CanUseItem(Player player)
 		{
@@ -63,7 +64,7 @@ namespace SariaMod.Items.zPearls
 				return false;
 			}
 		}
-		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
 		{
 			
 
@@ -74,10 +75,9 @@ namespace SariaMod.Items.zPearls
 		public override void AddRecipes()
 		{
 			{
-				ModRecipe recipe = new ModRecipe(mod);
+				Recipe recipe = CreateRecipe(5);
 				recipe.AddIngredient(ModContent.ItemType<MediumXpPearl>(), 1);
-				recipe.SetResult(this, 5);
-				recipe.AddRecipe();
+				recipe.Register();
 			}
 		}
 	}

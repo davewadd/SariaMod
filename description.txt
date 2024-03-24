@@ -1,13 +1,13 @@
-Saria comes from another world in order to help you on your adventure!
+Saria returns from another world in order to rejoin you on your adventure!
 She is a powerful summon that offers a plethera of abilities beyond just combat AND each of these abilities have strengths and weaknesses depending on what biome the player is in! 
 
 New recipes for vanilla potions through the use of cooking pots and this mods XPpearls.
 
-Changed pretty much everything! Xp pearls now drop rarely from enemies and you can use them to level up Saria.
-Saria will now level up as you battle with her and once a checkpoint is reached she will get much stronger as well as gaining a new attack!
+Rechanged pretty much everything! Saria's moves require alot more attention to get the max utilization out of them.
+Saria will level up as you battle with her and once a checkpoint is reached she will get much stronger as well as gaining a new attack!
 Craft a HealBall to Summon her and an XpStaff to See how much Xp she has until the next level!
 
-Dying will Half your current experience with Saria in half! If Saria's exp is maxed out and nothing happens, you may need to progress in the game before she can learn a new move!
+Dying will Half the XP Saria has earned since her last level up but it will not lower her base level. If Saria's exp is maxed out and nothing happens, you may need to progress in the game before she can learn a new move!
 
 There is also only a single bookcase, The strange bookcase, where most of this mod's crafting will take place!
 
@@ -29,10 +29,28 @@ The Upgrade progression order for this mod is as follows:
 
 		I also highly advise using the Recipe Browser created by jopojelly to see all the different crafting recipes and items, however, this mod does also include notes for most items at the StrangeBookcase. Start by just crafting a PaperNote.
 	Please do keep note that these level ups will get extremely expensive, however, the effort put into it will certainly pay off!
-					This mod will be updated to Terraria 1.4 once finished on 1.3
-		If you discover any bugs or issues please let me know as multiplayer functions differently than single player. My discord is ~David~ #5797
+					This mod will 100% be updated to 1.4.4 **Special Shoutout to all of those who reached out and supported my mod, this is for you guys!
+		If you discover any bugs or issues please let me know as multiplayer functions differently than single player. My discord is david5797 (feel free to ask anything!)
 					
 **Patch notes(should've done this sooner to be honest)**
+ver 7.0.4
+	-fixed SOME of the multiplayer issues. this one is more of a test
+ver 7.0.3
+	-fixed multiplayer bug where Saria would not spawn. expect many more updates for multiplayer
+ver 7.0.2
+	-added the lead variant to the crafting recipe for heal balls
+
+	-fixed evil biome music playing correctly
+ver 7.0.1
+	-changed the baby harpy pet to behave as intended
+ver 7.0.0
+	-updated to Tmodloader ver 1.4.3
+
+	-changed soooo much about this mod, more animations, better attacks and so on!
+
+	-Saira will now only attack while the pokeball is held!
+ver 6.2.3
+	-edited the description page as well as my new discord.
 ver 6.2.2
 	-changed how purple gem ball functions
 

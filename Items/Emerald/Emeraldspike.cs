@@ -6,6 +6,7 @@ using System;
 
 using Terraria;
 using SariaMod.Buffs;
+using Terraria.Audio;
 
 
 
@@ -19,79 +20,79 @@ namespace SariaMod.Items.Emerald
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Blade");
-			ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 6;
-			ProjectileID.Sets.TrailingMode[base.projectile.type] = 0;
-			Main.projFrames[base.projectile.type] = 3;
+			ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 6;
+			ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
+			Main.projFrames[base.Projectile.type] = 3;
 		}
 
 		public override void SetDefaults()
 		{
-			base.projectile.width = 150;
-			base.projectile.height = 150;
-			base.projectile.aiStyle = 21;
-			base.projectile.alpha = 100;
-			base.projectile.friendly = true;
-			base.projectile.tileCollide = false;
-			base.projectile.penetrate = -1;
-			base.projectile.timeLeft = 2000;
-			base.projectile.ignoreWater = true;
-			aiType = 274;
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 20;
+			base.Projectile.width = 150;
+			base.Projectile.height = 150;
+			base.Projectile.aiStyle = 21;
+			base.Projectile.alpha = 100;
+			base.Projectile.friendly = true;
+			base.Projectile.tileCollide = false;
+			base.Projectile.penetrate = -1;
+			base.Projectile.timeLeft = 2000;
+			base.Projectile.ignoreWater = true;
+			AIType = 274;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 20;
 		}
 		public override bool OnTileCollide(Vector2 oldVelocity)
 		{
-			projectile.velocity.Y = 0;
+			Projectile.velocity.Y = 0;
 			
 				return false;
 
 		}
 		public override void AI()
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			Player player2 = Main.LocalPlayer;
 			FairyPlayer modPlayer = player.Fairy();
 			if (player.HasBuff(ModContent.BuffType<StatRaise>()))
 			{
-				projectile.localNPCHitCooldown = 16;
+				Projectile.localNPCHitCooldown = 16;
 			}
 			if (player.HasBuff(ModContent.BuffType<StatLower>()))
 			{
-				projectile.localNPCHitCooldown = 160;
+				Projectile.localNPCHitCooldown = 160;
 
 			}
 			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
 			{
-				projectile.localNPCHitCooldown = 14;
+				Projectile.localNPCHitCooldown = 14;
 			}
-			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
-			Lighting.AddLight(projectile.Center, Color.LimeGreen.ToVector3() * 0.78f);
+			FairyGlobalProjectile.HomeInOnNPC(base.Projectile, ignoreTiles: true, 600f, 25f, 20f);
+			Lighting.AddLight(Projectile.Center, Color.LimeGreen.ToVector3() * 0.78f);
 			float distanceFromTarget = 10f;
-			Vector2 targetCenter = projectile.position;
+			Vector2 targetCenter = Projectile.position;
 			bool foundTarget = false;
 			float speed = 20;
-			Vector2 direction = targetCenter - projectile.Center;
+			Vector2 direction = targetCenter - Projectile.Center;
 
 
-			if (projectile.timeLeft >= 1990)
+			if (Projectile.timeLeft >= 1990)
 			{
-				base.projectile.velocity.X = (float)((.001) * player.direction);
+				base.Projectile.velocity.X = (float)((.001) * player.direction);
 			}
 
 			
 			
-			if (projectile.velocity.X > 0)
+			if (Projectile.velocity.X > 0)
 			{
-				projectile.spriteDirection = 1;
+				Projectile.spriteDirection = 1;
 			}
-			if (projectile.velocity.X < 0)
+			if (Projectile.velocity.X < 0)
 			{
-				projectile.spriteDirection = -1;
+				Projectile.spriteDirection = -1;
 			}
 			
 
 			{
-				float between = Vector2.Distance(player2.Center, projectile.Center);
+				float between = Vector2.Distance(player2.Center, Projectile.Center);
 				// Reasonable distance away so it doesn't target across multiple screens
 				if (between < 1000f)
 				{
@@ -103,19 +104,19 @@ namespace SariaMod.Items.Emerald
 
 			int frameSpeed = 15;
 			{
-				base.projectile.frameCounter++;
-				if (projectile.frameCounter >= frameSpeed)
+				base.Projectile.frameCounter++;
+				if (Projectile.frameCounter >= frameSpeed)
 
 
-					if (base.projectile.frameCounter > 3)
+					if (base.Projectile.frameCounter > 3)
 					{
-						base.projectile.frame++;
-						base.projectile.frameCounter = 0;
+						base.Projectile.frame++;
+						base.Projectile.frameCounter = 0;
 					}
-				if (base.projectile.frame >= 3)
+				if (base.Projectile.frame >= 3)
 				{
 
-					base.projectile.frame = 2;
+					base.Projectile.frame = 2;
 				}
 
 			}
@@ -129,7 +130,7 @@ namespace SariaMod.Items.Emerald
 					if (npc.CanBeChasedBy())
 					{
 						float between = Vector2.Distance(npc.Center, player.Center);
-						bool closest = Vector2.Distance(projectile.Center, targetCenter) > between;
+						bool closest = Vector2.Distance(Projectile.Center, targetCenter) > between;
 						bool inRange = between < distanceFromTarget;
 
 						// Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
@@ -148,45 +149,45 @@ namespace SariaMod.Items.Emerald
 			}
 			if ((player.ownedProjectileCounts[ModContent.ProjectileType<Emeraldspike>()] >= 4f) && (!player.HasBuff(ModContent.BuffType<Overcharged>())))
             {
-				projectile.timeLeft -= 2;
+				Projectile.timeLeft -= 2;
             }
-			if (projectile.frame == 0)
+			if (Projectile.frame == 0)
 			{
-				Main.PlaySound(SoundID.DD2_WitherBeastCrystalImpact, base.projectile.Center);
+				SoundEngine.PlaySound(SoundID.DD2_WitherBeastCrystalImpact, base.Projectile.Center);
 			}
-			if (projectile.frame == 1)
+			if (Projectile.frame == 1)
 			{
-				Main.PlaySound(SoundID.DD2_WitherBeastDeath, base.projectile.Center);
+				SoundEngine.PlaySound(SoundID.DD2_WitherBeastDeath, base.Projectile.Center);
 			}
-			if (projectile.frame == 1)
+			if (Projectile.frame == 1)
 			{
-				Main.PlaySound(SoundID.DD2_DarkMageHealImpact, base.projectile.Center);
+				SoundEngine.PlaySound(SoundID.DD2_DarkMageHealImpact, base.Projectile.Center);
 			}
-			if (projectile.timeLeft <= 50)
+			if (Projectile.timeLeft <= 50)
 			{
 				for (int j = 0; j < 5; j++) //set to 2
 				{
-					Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Crystalshard>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+					Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Crystalshard>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
 				}
-				Main.PlaySound(SoundID.DD2_WitherBeastCrystalImpact, base.projectile.Center);
-				projectile.Kill();
+				SoundEngine.PlaySound(SoundID.DD2_WitherBeastCrystalImpact, base.Projectile.Center);
+				Projectile.Kill();
 			}
 		}
 
 		public override Color? GetAlpha(Color lightColor)
 		{
-			if (base.projectile.timeLeft < 85)
+			if (base.Projectile.timeLeft < 85)
 			{
-				byte b2 = (byte)(base.projectile.timeLeft * 3);
+				byte b2 = (byte)(base.Projectile.timeLeft * 3);
 				byte a2 = (byte)(100f * ((float)(int)b2 / 255f));
 				return new Color(b2, b2, b2, a2);
 			}
 			return new Color(255, 255, 255, 100);
 		}
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
+		public override bool PreDraw(ref Color lightColor)
 		{
-			FairyGlobalProjectile.DrawCenteredAndAfterimage(base.projectile, lightColor, ProjectileID.Sets.TrailingMode[base.projectile.type]);
+			FairyGlobalProjectile.DrawCenteredAndAfterimage(base.Projectile, lightColor, ProjectileID.Sets.TrailingMode[base.Projectile.type]);
 		
 			return false;
 		}
@@ -194,7 +195,7 @@ namespace SariaMod.Items.Emerald
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
 			
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			Player player2 = Main.LocalPlayer;
 			FairyPlayer modPlayer = player.Fairy();
 			Vector2 direction = target.Center - player.Center;
@@ -210,7 +211,7 @@ namespace SariaMod.Items.Emerald
 			target.buffImmune[BuffID.Electrified] = false;
 			target.AddBuff(BuffID.Electrified, 300);
 			target.AddBuff(BuffID.Slow, 300);
-			projectile.timeLeft -= 15;
+			Projectile.timeLeft -= 15;
 			modPlayer.SariaXp++;
 			if (!player.HasBuff(ModContent.BuffType<Overcharged>()))
 			{
@@ -218,8 +219,7 @@ namespace SariaMod.Items.Emerald
 
 				{
 					{
-
-						Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<LivingGreenShard>());
+						Item.NewItem(Projectile.GetSource_FromThis(), Projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), ModContent.ItemType<LivingGreenShard>());
 					}
 				}
 			}
@@ -228,9 +228,9 @@ namespace SariaMod.Items.Emerald
 				if (Main.rand.NextBool(20))
 
 				{
-						Item.NewItem(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<LivingGreenShard>());
+					Item.NewItem(Projectile.GetSource_FromThis(), Projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), ModContent.ItemType<LivingGreenShard>());
 				}
-				float between = Vector2.Distance(player2.Center, projectile.Center);
+				float between = Vector2.Distance(player2.Center, Projectile.Center);
 				// Reasonable distance away so it doesn't target across multiple screens
 				if (between < 120f)
                 {

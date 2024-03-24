@@ -19,26 +19,26 @@ namespace SariaMod.Items.zPearls
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Blade");
-			ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 7;
-			ProjectileID.Sets.TrailingMode[base.projectile.type] = 0;
+			ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 7;
+			ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
 			
 		}
 
 		public override void SetDefaults()
 		{
-			base.projectile.width = 30;
-			base.projectile.height = 30;
+			base.Projectile.width = 30;
+			base.Projectile.height = 30;
 			
-			base.projectile.alpha = 300;
-			base.projectile.friendly = true;
-			base.projectile.tileCollide = false;
+			base.Projectile.alpha = 300;
+			base.Projectile.friendly = true;
+			base.Projectile.tileCollide = false;
 			
-			base.projectile.penetrate = 1;
-			base.projectile.timeLeft = 2;
-			base.projectile.ignoreWater = true;
+			base.Projectile.penetrate = 1;
+			base.Projectile.timeLeft = 2;
+			base.Projectile.ignoreWater = true;
 			
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 4;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 4;
 		}
 
 		public override bool? CanHitNPC(NPC target)
@@ -47,14 +47,14 @@ namespace SariaMod.Items.zPearls
         }
 		public override void AI()
 		{
-			Player player = Main.player[base.projectile.owner];
-			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
-			Lighting.AddLight(projectile.Center, Color.LightGreen.ToVector3() * 1f);
-			projectile.position.X = player.position.X ;
-			projectile.position.Y = player.position.Y;
-		 if (projectile.timeLeft == 2 && Main.player[Main.myPlayer].active && Main.bloodMoon)
+			Player player = Main.player[base.Projectile.owner];
+			Projectile mother = Main.projectile[(int)base.Projectile.ai[1]];
+			Lighting.AddLight(Projectile.Center, Color.LightGreen.ToVector3() * 1f);
+			Projectile.position.X = player.position.X ;
+			Projectile.position.Y = player.position.Y;
+		 if (Projectile.timeLeft == 2 && Main.player[Main.myPlayer].active && Main.bloodMoon)
 			{
-				Item.NewItem(base.projectile.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<BloodOcarina>());
+				Item.NewItem(Projectile.GetSource_FromThis(), (int)(Projectile.position.X + 0), (int)(Projectile.position.Y + 0), 0, 0, ModContent.ItemType<BloodOcarina>());
 			}
 			
 		}

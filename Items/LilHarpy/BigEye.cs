@@ -7,15 +7,17 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Barrier;
 using SariaMod.Items.Strange;
 using SariaMod.Items.zPearls;
 using SariaMod.Items.Bands;
 using SariaMod.Buffs;
-
+using System.IO;
 using Terraria;
+using Terraria.Audio;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -23,45 +25,65 @@ namespace SariaMod.Items.LilHarpy
 {
 	public class BigEye : ModProjectile
 	{
+		
 		public override void SetDefaults()
 		{
 
 
-			base.projectile.width = 114;
-			base.projectile.height = 110;
-			base.projectile.friendly = true;
-			base.projectile.ignoreWater = true;
-			base.projectile.timeLeft = 200;
-			base.projectile.penetrate = -1;
-			base.projectile.tileCollide = false;
-			base.projectile.minion = true;
-			base.projectile.localNPCHitCooldown = 15;
-			base.projectile.minionSlots = 0f;
-			base.projectile.netImportant = true;
-			base.projectile.usesLocalNPCImmunity = true;
+			base.Projectile.width = 114;
+			base.Projectile.height = 110;
+			base.Projectile.friendly = true;
+			base.Projectile.ignoreWater = true;
+			base.Projectile.timeLeft = 200;
+			base.Projectile.penetrate = -1;
+			base.Projectile.tileCollide = false;
+			base.Projectile.minion = true;
+			base.Projectile.localNPCHitCooldown = 15;
+			base.Projectile.minionSlots = 0f;
+			base.Projectile.netImportant = true;
+			base.Projectile.usesLocalNPCImmunity = true;
 
 
 
 		}
-		private static int TimetoCharge;
-		private static int Form;
-		private static int Form2;
+		private static int ETime;
+		private static int ETimetoCharge;
+		private static int Overtime;
+		private static int EForm2;
+		private static int EForm;
+		public override void SendExtraAI(BinaryWriter writer)
+		{
+			writer.Write(Overtime);
+			writer.Write(ETime);
+			writer.Write(ETimetoCharge);
+			writer.Write(EForm2);
+			writer.Write(EForm);
+		}
+
+		public override void ReceiveExtraAI(BinaryReader reader)
+		{
+			Overtime = (int)reader.ReadInt32();
+			ETime = (int)reader.ReadInt32();
+			ETimetoCharge = (int)reader.ReadInt32();
+			EForm2 = (int)reader.ReadInt32();
+			EForm = (int)reader.ReadInt32();
+		}
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Psychic Turret");
-			Main.projFrames[base.projectile.type] = 6;
-			Main.projPet[projectile.type] = true;
-			ProjectileID.Sets.MinionSacrificable[base.projectile.type] = false;
-			ProjectileID.Sets.MinionTargettingFeature[base.projectile.type] = true;
-			ProjectileID.Sets.TrailingMode[base.projectile.type] = 0;
-			ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 10;
+			Main.projFrames[base.Projectile.type] = 6;
+			Main.projPet[Projectile.type] = true;
+			ProjectileID.Sets.MinionSacrificable[base.Projectile.type] = false;
+			ProjectileID.Sets.MinionTargettingFeature[base.Projectile.type] = true;
+			ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
+			ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 20;
 		}
 
 		public override bool MinionContactDamage()
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
-			NPC target = base.projectile.Center.MinionHoming(500f, player);
+			NPC target = base.Projectile.Center.MinionHoming(500f, player);
 			if (target != null)
 			{
 				return true;
@@ -73,72 +95,90 @@ namespace SariaMod.Items.LilHarpy
 		}
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
-			
-			if (Form <= 0)
+			Player player = Main.player[base.Projectile.owner];
+			FairyPlayer modPlayer = player.Fairy();
+			if (EForm <= 0)
 			{
-				Form2++;
+				EForm2++;
+				Projectile.netUpdate = true;
 			}
 		}
 		public override void AI()
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
-			if (Form2 >= 50)
-			{
-				Form = 3000;
-				Form2 = 0;
-			}
-			Form--;
-			if (Form <= 0)
-			{
-				if (NPC.downedMoonlord)
-				{
-					projectile.damage = 500 + (player.statDefense / 2);
-				}
-				else if (NPC.downedPlantBoss)
-				{
-					projectile.damage = 200 + (player.statDefense / 2);
-				}
-				else if (Main.hardMode)
-				{
-					projectile.damage = 90 + (player.statDefense / 2);
-				}
-				else
-				{
-					projectile.damage = 10 + (player.statDefense / 2);
-				}
-			}
-			if (Form > 0 )
+			if (Overtime >= 1)
             {
+				Overtime--;
+				Projectile.netUpdate = true;
+            }
+			if (Overtime <= 0 && EForm > 1)
+            {
+				EForm = 0;
+            }
+			if (EForm2 >= 50)
+			{
+
+				
+				EForm2 = 0;
+				EForm ++;
+				Projectile.netUpdate = true;
+			}
+			
+			if (EForm <= 1)
+			{
+				
 				if (NPC.downedMoonlord)
 				{
-					projectile.damage = ((int)((500 + (player.statDefense / 2)) * 1.5));
+					Projectile.damage = 500 + (player.statDefense / 2);
 				}
 				else if (NPC.downedPlantBoss)
 				{
-					projectile.damage = ((int)((200 + (player.statDefense / 2)) * 1.5));
+					Projectile.damage = 200 + (player.statDefense / 2);
 				}
 				else if (Main.hardMode)
 				{
-					projectile.damage = ((int)((90 + (player.statDefense / 2)) * 1.5));
+					Projectile.damage = 90 + (player.statDefense / 2);
 				}
 				else
 				{
-					projectile.damage = ((int)((10 + (player.statDefense / 2)) * 1.5));
+					Projectile.damage = 10 + (player.statDefense / 2);
 				}
+				Projectile.netUpdate = true;
+			}
+			if (EForm >= 2 )
+            {
+				
+				if (NPC.downedMoonlord)
+				{
+					Projectile.damage = ((int)((500 + (player.statDefense / 2)) * 1.5));
+				}
+				else if (NPC.downedPlantBoss)
+				{
+					Projectile.damage = ((int)((200 + (player.statDefense / 2)) * 1.5));
+				}
+				else if (Main.hardMode)
+				{
+					Projectile.damage = ((int)((90 + (player.statDefense / 2)) * 1.5));
+				}
+				else
+				{
+					Projectile.damage = ((int)((10 + (player.statDefense / 2)) * 1.5));
+				}
+				Projectile.netUpdate = true;
 			}
 			if (player.dead || !player.active)
 			{
 				player.ClearBuff(ModContent.BuffType<BigEyeBuff>());
-				projectile.Kill();
+				Projectile.Kill();
 			}
 			if (player.HasBuff(ModContent.BuffType<BigEyeBuff>()))
 			{
-				projectile.timeLeft = 2;
+				Projectile.timeLeft = 2;
 			}
 			if (!player.HasBuff(ModContent.BuffType<BigEyeBuff>()))
 			{
-				projectile.Kill();
+				Projectile.Kill();
 			}
 			float speed = 4f;
 			float inertia = 20f;
@@ -149,21 +189,21 @@ namespace SariaMod.Items.LilHarpy
 
 			// If your minion doesn't aimlessly move around when it's idle, you need to "put" it into the line of other summoned minions
 			// The index is projectile.minionPos
-			float minionPositionOffsetX = (20 + projectile.minionPos * 40) * -player.direction;
+			float minionPositionOffsetX = (20 + Projectile.minionPos * 40) * -player.direction;
 			idlePosition.X += minionPositionOffsetX; // Go behind the player
 
 			// All of this code below this line is adapted from Spazmamini code (ID 388, aiStyle 66)
 
 			// Teleport to player if distance is too big
-			Vector2 vectorToIdlePosition = idlePosition - projectile.Center;
+			Vector2 vectorToIdlePosition = idlePosition - Projectile.Center;
 			float distanceToIdlePosition = vectorToIdlePosition.Length();
 			if (Main.myPlayer == player.whoAmI && distanceToIdlePosition > 2000f)
 			{
 				// Whenever you deal with non-regular events that change the behavior or position drastically, make sure to only run the code on the owner of the projectile,
 				// and then set netUpdate to true
-				projectile.position = idlePosition;
-				projectile.velocity *= 0.1f;
-				projectile.netUpdate = true;
+				Projectile.position = idlePosition;
+				Projectile.velocity *= 0.1f;
+				Projectile.netUpdate = true;
 			}
 
 			// If your minion is flying, you want to do this independently of any conditions
@@ -172,13 +212,13 @@ namespace SariaMod.Items.LilHarpy
 			{
 				// Fix overlap with other minions
 				Projectile other = Main.projectile[i];
-				if (i != projectile.whoAmI && other.active && other.owner == projectile.owner && Math.Abs(projectile.position.X - other.position.X) + Math.Abs(projectile.position.Y - other.position.Y) < projectile.width)
+				if (i != Projectile.whoAmI && other.active && other.owner == Projectile.owner && Math.Abs(Projectile.position.X - other.position.X) + Math.Abs(Projectile.position.Y - other.position.Y) < Projectile.width)
 				{
-					if (projectile.position.X < other.position.X) projectile.velocity.X -= overlapVelocity;
-					else projectile.velocity.X += overlapVelocity;
+					if (Projectile.position.X < other.position.X) Projectile.velocity.X -= overlapVelocity;
+					else Projectile.velocity.X += overlapVelocity;
 
-					if (projectile.position.Y < other.position.Y) projectile.velocity.Y -= overlapVelocity;
-					else projectile.velocity.Y += overlapVelocity;
+					if (Projectile.position.Y < other.position.Y) Projectile.velocity.Y -= overlapVelocity;
+					else Projectile.velocity.Y += overlapVelocity;
 				}
 			}
 
@@ -186,14 +226,14 @@ namespace SariaMod.Items.LilHarpy
 
 			// Starting search distance
 			float distanceFromTarget = 10f;
-			Vector2 targetCenter = projectile.position;
+			Vector2 targetCenter = Projectile.position;
 			bool foundTarget = false;
 
 			// This code is required if your minion weapon has the targeting feature
-			if (player.HasMinionAttackTargetNPC)
+			if (player.HasMinionAttackTargetNPC && EForm != 1)
 			{
 				NPC npc = Main.npc[player.MinionAttackTargetNPC];
-				float between = Vector2.Distance(npc.Center, projectile.Center);
+				float between = Vector2.Distance(npc.Center, Projectile.Center);
 				// Reasonable distance away so it doesn't target across multiple screens
 				bool closeThroughWall = between < 2000f;
 				if (between < 2000f && (closeThroughWall))
@@ -203,7 +243,7 @@ namespace SariaMod.Items.LilHarpy
 					foundTarget = true;
 				}
 			}
-			if (!foundTarget)
+			if (!foundTarget && EForm != 1)
 			{
 				// This code is required either way, used for finding a target
 				for (int i = 0; i < Main.maxNPCs; i++)
@@ -212,7 +252,7 @@ namespace SariaMod.Items.LilHarpy
 					if (npc.CanBeChasedBy())
 					{
 						float between = Vector2.Distance(npc.Center, player.Center);
-						bool closest = Vector2.Distance(projectile.Center, targetCenter) > between;
+						bool closest = Vector2.Distance(Projectile.Center, targetCenter) > between;
 						bool inRange = between < distanceFromTarget;
 
 						// Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
@@ -230,7 +270,7 @@ namespace SariaMod.Items.LilHarpy
 
 
 			{
-				if (foundTarget)
+				if (foundTarget && EForm != 1)
 				{
 					{
 						Vector2 idlePosition3 = targetCenter;
@@ -238,49 +278,49 @@ namespace SariaMod.Items.LilHarpy
 						idlePosition3.X -= 60;
 						speed = 30f;
 						inertia = 120f;
-						Vector2 vectorToIdlePosition3 = idlePosition3 - projectile.Center;
+						Vector2 vectorToIdlePosition3 = idlePosition3 - Projectile.Center;
 						float distanceToIdlePosition3 = vectorToIdlePosition3.Length();
-						Vector2 direction2 = idlePosition3 - projectile.Center;
+						Vector2 direction2 = idlePosition3 - Projectile.Center;
 						direction2.Normalize();
 						direction2 *= speed;
 
-						projectile.velocity = (projectile.velocity * (inertia - 8) + direction2) / inertia;
+						Projectile.velocity = (Projectile.velocity * (inertia - 8) + direction2) / inertia;
 						if (distanceToIdlePosition3 < 310)
 						{
-							TimetoCharge++;
+							ETimetoCharge++;
 						}
 					}
-					if (Form > 0)
+					if (EForm > 0)
 					{
-						if (TimetoCharge >= 30)
+						if (ETimetoCharge >= 30)
 						{
 							speed = 2110f;
 							inertia = 60f;
 							{
 								// The immediate range around the target (so it doesn't latch onto it when close)
-								Vector2 direction = targetCenter - projectile.Center;
+								Vector2 direction = targetCenter - Projectile.Center;
 								direction.Normalize();
 								direction *= speed;
-								projectile.velocity = (projectile.velocity * (inertia - 8) + direction) / inertia;
-								Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Roar"), projectile.Center);
-								TimetoCharge = 0;
+								Projectile.velocity = (Projectile.velocity * (inertia - 8) + direction) / inertia;
+								SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Roar"), base.Projectile.Center);
+								ETimetoCharge = 0;
 							}
 						}
 					}
-					if (Form < 0)
+					if (EForm <= 0)
 					{
-						if (TimetoCharge >= 80)
+						if (ETimetoCharge >= 80)
 						{
 							speed = 2110f;
 							inertia = 60f;
 							{
 								// The immediate range around the target (so it doesn't latch onto it when close)
-								Vector2 direction = targetCenter - projectile.Center;
+								Vector2 direction = targetCenter - Projectile.Center;
 								direction.Normalize();
 								direction *= speed;
-								projectile.velocity = (projectile.velocity * (inertia - 8) + direction) / inertia;
-								Main.PlaySound(SoundID.Roar, base.projectile.Center, 0);
-								TimetoCharge = 0;
+								Projectile.velocity = (Projectile.velocity * (inertia - 8) + direction) / inertia;
+								SoundEngine.PlaySound(SoundID.Roar, base.Projectile.Center);
+								ETimetoCharge = 0;
 							}
 						}
 					}
@@ -296,62 +336,94 @@ namespace SariaMod.Items.LilHarpy
 			idlePosition2.Y -= 148f;
 			idlePosition2.X += minionPositionOffsetX;
 			// Default movement parameters (here for attacking)
-			if (!foundTarget)
+			if (EForm != 1)
 			{
-				projectile.rotation = projectile.AngleTo(player.Center) + (float)(base.projectile.spriteDirection == 1).ToInt() * (float)Math.PI;
-			}
-			if (foundTarget)
-			{
-				projectile.rotation = projectile.AngleTo(targetCenter) + (float)(base.projectile.spriteDirection == 1).ToInt() * (float)Math.PI;
-			}
-			if (!foundTarget)
-			{
-
+				if (!foundTarget)
 				{
-					// Minion doesn't have a target: return to player and idle
-					if (distanceToIdlePosition > 450f)
-					{
-						// Speed up the minion if it's away from the player
-						speed = 30f;
-						inertia = 60f;
-					}
-					if (distanceToIdlePosition > 400f)
-					{
-						// Speed up the minion if it's away from the player
-						speed = 8f;
-						inertia = 60f;
-					}
-					else
-					{
-						// Slow down the minion if closer to the player
-						speed = 4f;
-						inertia = 80f;
-					}
-					if (distanceToIdlePosition > 20f)
-					{
-						// The immediate range around the player (when it passively floats about)
+					Projectile.rotation = Projectile.AngleTo(player.Center) + (float)(base.Projectile.spriteDirection == 1).ToInt() * (float)Math.PI;
+				}
+				if (foundTarget)
+				{
+					Projectile.rotation = Projectile.AngleTo(targetCenter) + (float)(base.Projectile.spriteDirection == 1).ToInt() * (float)Math.PI;
+				}
+				if (!foundTarget)
+				{
 
-						// This is a simple movement formula using the two parameters and its desired direction to create a "homing" movement
-						vectorToIdlePosition.Normalize();
-						vectorToIdlePosition *= speed;
-						projectile.velocity = (projectile.velocity * (inertia - 1) + vectorToIdlePosition) / inertia;
-					}
-					else if (projectile.velocity == Vector2.Zero)
 					{
-						// If there is a case where it's not moving at all, give it a little "poke"
-						projectile.velocity.X = -0.15f;
-						projectile.velocity.Y = -0.15f;
+						// Minion doesn't have a target: return to player and idle
+						if (distanceToIdlePosition > 450f)
+						{
+							// Speed up the minion if it's away from the player
+							speed = 30f;
+							inertia = 60f;
+						}
+						if (distanceToIdlePosition > 400f)
+						{
+							// Speed up the minion if it's away from the player
+							speed = 8f;
+							inertia = 60f;
+						}
+						else
+						{
+							// Slow down the minion if closer to the player
+							speed = 4f;
+							inertia = 80f;
+						}
+						if (distanceToIdlePosition > 20f)
+						{
+							// The immediate range around the player (when it passively floats about)
+
+							// This is a simple movement formula using the two parameters and its desired direction to create a "homing" movement
+							vectorToIdlePosition.Normalize();
+							vectorToIdlePosition *= speed;
+							Projectile.velocity = (Projectile.velocity * (inertia - 1) + vectorToIdlePosition) / inertia;
+						}
+						else if (Projectile.velocity == Vector2.Zero)
+						{
+							// If there is a case where it's not moving at all, give it a little "poke"
+							Projectile.velocity.X = -0.15f;
+							Projectile.velocity.Y = -0.15f;
+						}
 					}
 				}
 			}
-
-
-			Lighting.AddLight(projectile.Center, Color.LightBlue.ToVector3() * 0.78f);
-			int frameSpeed = 10; //reduced by half due to framecounter speedup
-			projectile.frameCounter += 2;
-			if (projectile.frameCounter >= frameSpeed)
+			if (EForm == 1)
 			{
-				projectile.frameCounter = 0;
+				float intertia = .92f;
+				Projectile.velocity = Projectile.velocity * intertia;
+				if (Projectile.rotation <= 1)
+				{
+					Projectile.rotation++;
+				}
+				else
+				{
+					Projectile.rotation *= 1.012f;
+				}
+				ETime++;
+				
+			}
+			if (ETime >= 400)
+			{
+				
+				
+				
+				if (EForm < 2)
+				{
+					EForm += 1;
+					ETime = 0;
+					Overtime = 3000;
+					Projectile.netUpdate = true;
+				}
+			}
+			
+			
+
+			Lighting.AddLight(Projectile.Center, Color.LightBlue.ToVector3() * 0.78f);
+			int frameSpeed = 10; //reduced by half due to framecounter speedup
+			Projectile.frameCounter += 2;
+			if (Projectile.frameCounter >= frameSpeed)
+			{
+				Projectile.frameCounter = 0;
 
 
 				{
@@ -360,34 +432,36 @@ namespace SariaMod.Items.LilHarpy
 
 					{
 
-						base.projectile.frame++;
-						if (Form <= 0)
+						base.Projectile.frame++;
+						if (EForm <= 1)
 						{
-							if (base.projectile.frameCounter >= 10)
+							if (base.Projectile.frameCounter >= 10)
 							{
 
-								base.projectile.frameCounter = 0;
+								base.Projectile.frameCounter = 0;
 
 							}
-							if (base.projectile.frame >= 3)
+							if (base.Projectile.frame >= 3)
 							{
-								base.projectile.frame = 0;
+								base.Projectile.frame = 0;
 
 							}
+							Projectile.netUpdate = true;
 						}
-						if (Form > 0)
+						if (EForm >= 2)
 						{
-							if (base.projectile.frameCounter >= 10)
+							if (base.Projectile.frameCounter >= 10)
 							{
 
-								base.projectile.frameCounter = 4;
+								base.Projectile.frameCounter = 4;
 
 							}
-							if (base.projectile.frame >= 6)
+							if (base.Projectile.frame >= 6)
 							{
-								base.projectile.frame = 4;
+								base.Projectile.frame = 4;
 
 							}
+							Projectile.netUpdate = true;
 						}
 					}
 				}
@@ -397,58 +471,117 @@ namespace SariaMod.Items.LilHarpy
 
 		}
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
+		public override bool PreDraw(ref Color lightColor)
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
 			Vector2 drawPosition;
-
-			for (int i = 1; i < 3; i++)
+			if (EForm <= 0)
 			{
-				Texture2D texture = Main.projectileTexture[ModContent.ProjectileType<BigEye>()];
-				Vector2 startPos = base.projectile.oldPos[i] + base.projectile.Size * 0.5f - Main.screenPosition;
-				int frameHeight = texture.Height / Main.projFrames[base.projectile.type];
-				int frameY = frameHeight * base.projectile.frame;
-				float completionRatio = (float)i / (float)base.projectile.oldPos.Length;
-				Color drawColor = Color.Lerp(lightColor, Color.LightPink, 20f);
-				drawColor = Color.Lerp(drawColor, Color.DarkViolet, completionRatio);
-				drawColor = Color.Lerp(drawColor, Color.Transparent, completionRatio);
-				Rectangle rectangle = new Rectangle(0, frameY, texture.Width, frameHeight);
-				Vector2 origin = rectangle.Size() / 2f;
-				float rotation = base.projectile.rotation;
-				float scale = base.projectile.scale;
-				SpriteEffects spriteEffects = SpriteEffects.None;
-				startPos.Y += 1;
-				startPos.X += +17;
-
-				if (base.projectile.spriteDirection == -1)
+				for (int i = 1; i < 3; i++)
 				{
-					spriteEffects = SpriteEffects.FlipHorizontally;
+					Texture2D texture = TextureAssets.Projectile[ModContent.ProjectileType<BigEye>()].Value;
+					Vector2 startPos = base.Projectile.oldPos[i] + base.Projectile.Size * 0.5f - Main.screenPosition;
+					int frameHeight = texture.Height / Main.projFrames[base.Projectile.type];
+					int frameY = frameHeight * base.Projectile.frame;
+					float completionRatio = (float)i / (float)base.Projectile.oldPos.Length;
+					Color drawColor = Color.Lerp(lightColor, Color.LightPink, 20f);
+					drawColor = Color.Lerp(drawColor, Color.DarkViolet, completionRatio);
+					drawColor = Color.Lerp(drawColor, Color.Transparent, completionRatio);
+					Rectangle rectangle = new Rectangle(0, frameY, texture.Width, frameHeight);
+					Vector2 origin = rectangle.Size() / 2f;
+					float rotation = base.Projectile.rotation;
+					float scale = base.Projectile.scale;
+					SpriteEffects spriteEffects = SpriteEffects.None;
+					startPos.Y += 1;
+					startPos.X += +17;
+
+					if (base.Projectile.spriteDirection == -1)
+					{
+						spriteEffects = SpriteEffects.FlipHorizontally;
+					}
+					Main.spriteBatch.Draw(texture, startPos, rectangle, base.Projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, layerDepth: 0f);
+
 				}
-				Main.spriteBatch.Draw(texture, startPos, rectangle, base.projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, layerDepth: 0f);
-
 			}
-			
-			
+			if (EForm == 1)
 				{
-					Texture2D texture = Main.projectileTexture[ModContent.ProjectileType<BigEye>()];
-					Vector2 startPos = base.projectile.Center - Main.screenPosition + new Vector2(0f, base.projectile.gfxOffY);
-					int frameHeight = texture.Height / Main.projFrames[base.projectile.type];
-					int frameY = frameHeight * base.projectile.frame;
+					for (int i = 1; i < 20; i++)
+					{
+						Texture2D texture = TextureAssets.Projectile[ModContent.ProjectileType<BigEye>()].Value;
+						Vector2 startPos = base.Projectile.oldPos[i] + base.Projectile.Size * 0.5f - Main.screenPosition;
+						int frameHeight = texture.Height / Main.projFrames[base.Projectile.type];
+						int frameY = frameHeight * base.Projectile.frame;
+						float completionRatio = (float)i / (float)base.Projectile.oldPos.Length;
+						Color drawColor = Color.Lerp(lightColor, Color.PaleVioletRed, 20f);
+						drawColor = Color.Lerp(drawColor, Color.DarkViolet, completionRatio);
+						drawColor = Color.Lerp(drawColor, Color.Transparent, completionRatio);
+						Rectangle rectangle = new Rectangle(0, frameY, texture.Width, frameHeight);
+						Vector2 origin = rectangle.Size() / 2f;
+						float rotation = base.Projectile.rotation;
+						float scale = base.Projectile.scale;
+						SpriteEffects spriteEffects = SpriteEffects.None;
+						startPos.Y += 1;
+						startPos.X += +17;
+
+						if (base.Projectile.spriteDirection == -1)
+						{
+							spriteEffects = SpriteEffects.FlipHorizontally;
+						}
+						Main.spriteBatch.Draw(texture, startPos, rectangle, base.Projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, layerDepth: 0f);
+
+					}
+				}
+			if (EForm == 2)
+			{
+				for (int i = 1; i < 4; i++)
+				{
+					Texture2D texture = TextureAssets.Projectile[ModContent.ProjectileType<BigEye>()].Value;
+					Vector2 startPos = base.Projectile.oldPos[i] + base.Projectile.Size * 0.5f - Main.screenPosition;
+					int frameHeight = texture.Height / Main.projFrames[base.Projectile.type];
+					int frameY = frameHeight * base.Projectile.frame;
+					float completionRatio = (float)i / (float)base.Projectile.oldPos.Length;
+					Color drawColor = Color.Lerp(lightColor, Color.DarkRed, 20f);
+					drawColor = Color.Lerp(drawColor, Color.DarkViolet, completionRatio);
+					drawColor = Color.Lerp(drawColor, Color.Transparent, completionRatio);
+					Rectangle rectangle = new Rectangle(0, frameY, texture.Width, frameHeight);
+					Vector2 origin = rectangle.Size() / 2f;
+					float rotation = base.Projectile.rotation;
+					float scale = base.Projectile.scale;
+					SpriteEffects spriteEffects = SpriteEffects.None;
+					startPos.Y += 1;
+					startPos.X += +17;
+
+					if (base.Projectile.spriteDirection == -1)
+					{
+						spriteEffects = SpriteEffects.FlipHorizontally;
+					}
+					Main.spriteBatch.Draw(texture, startPos, rectangle, base.Projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, layerDepth: 0f);
+
+				}
+			}
+
+			
+
+				{
+					Texture2D texture = TextureAssets.Projectile[ModContent.ProjectileType<BigEye>()].Value;
+					Vector2 startPos = base.Projectile.Center - Main.screenPosition + new Vector2(0f, base.Projectile.gfxOffY);
+					int frameHeight = texture.Height / Main.projFrames[base.Projectile.type];
+					int frameY = frameHeight * base.Projectile.frame;
 					Color drawColor = Color.Lerp(lightColor, Color.WhiteSmoke, 20f);
 					drawColor = Color.Lerp(drawColor, Color.DarkViolet, 0);
 					Rectangle rectangle = new Rectangle(0, frameY, texture.Width, frameHeight);
 					Vector2 origin = rectangle.Size() / 2f;
-					float rotation = base.projectile.rotation;
-					float scale = base.projectile.scale;
+					float rotation = base.Projectile.rotation;
+					float scale = base.Projectile.scale;
 					SpriteEffects spriteEffects = SpriteEffects.None;
 					startPos.Y += 1;
 					startPos.X += +17;
-					if (base.projectile.spriteDirection == -1)
+					if (base.Projectile.spriteDirection == -1)
 					{
 						spriteEffects = SpriteEffects.FlipHorizontally;
 					}
-					Main.spriteBatch.Draw(texture, startPos, rectangle, base.projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, 0f);
+					Main.spriteBatch.Draw(texture, startPos, rectangle, base.Projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, 0f);
 				}
 			
 			return false;

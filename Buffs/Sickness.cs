@@ -5,12 +5,13 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
 using SariaMod.Dusts;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -32,7 +33,7 @@ namespace SariaMod.Buffs
 
 	public class Sickness : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Old Wounds");
 			Description.SetDefault("Saria's old wounds begin to cause agony\nShe desperately needs a break!\nCrafting Frozen Yogurt or Increasing her mood may help!\nThe pain is Synchronized!");
@@ -40,7 +41,6 @@ namespace SariaMod.Buffs
 			Main.pvpBuff[base.Type] = false;
 			Main.buffNoSave[base.Type] = false;
 			Main.buffNoTimeDisplay[base.Type] = false;
-			longerExpertDebuff = false;
 
 		}
 		private const int sphereRadius = 10;
@@ -65,7 +65,7 @@ namespace SariaMod.Buffs
 					}
 					if (Main.rand.NextBool(600))
 					{
-						Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Poe"), player.Center);
+						SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Poe"), player.Center);
 					}
 				}
 				

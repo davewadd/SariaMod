@@ -5,7 +5,7 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
 using System;
@@ -32,7 +32,7 @@ namespace SariaMod.Buffs
 
 	public class BloodmoonBuff : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("BloodLust");
 			Description.SetDefault("You feel uneasy as Saria gazes at the BloodMoon\n\nShe unconsciously steals your lifeforce!");
@@ -40,7 +40,6 @@ namespace SariaMod.Buffs
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;
 			Main.buffNoTimeDisplay[base.Type] = true;
-			longerExpertDebuff = false;
 
 		}
 		private const int sphereRadius = 10;
@@ -61,18 +60,7 @@ namespace SariaMod.Buffs
 					}
 				}
 				
-				else if (player.HasBuff(ModContent.BuffType<DiamondSariaBuff>()) && (Main.player[Main.myPlayer].active && Main.bloodMoon))
-				{
-					player.buffTime[buffIndex] = 18000;
-					player.GetModPlayer<FairyPlayer>().BloodmoonBuff = true;
-					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
-					{
-						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
-						double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
-						Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<BlackSmoke>(), 0f, 0f, 0, default(Color), 1.5f);
-					}
-
-				}
+				
 				else
 				{
 					player.DelBuff(buffIndex);

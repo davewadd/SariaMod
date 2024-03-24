@@ -7,6 +7,7 @@ using Terraria;
 
 
 using SariaMod.Dusts;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -17,66 +18,66 @@ namespace SariaMod.Items.Amethyst
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Blade");
-			ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 7;
-			ProjectileID.Sets.TrailingMode[base.projectile.type] = 0;
-			Main.projFrames[base.projectile.type] = 4;
+			ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 7;
+			ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
+			Main.projFrames[base.Projectile.type] = 4;
 		}
 
 		public override void SetDefaults()
 		{
-			base.projectile.width = 48;
-			base.projectile.height = 52;
+			base.Projectile.width = 48;
+			base.Projectile.height = 52;
 			
-			base.projectile.alpha = 0;
-			base.projectile.friendly = true;
-			base.projectile.tileCollide = false;
+			base.Projectile.alpha = 0;
+			base.Projectile.friendly = true;
+			base.Projectile.tileCollide = false;
 			
-			base.projectile.penetrate = -1;
-			base.projectile.timeLeft = 500;
-			base.projectile.ignoreWater = true;
+			base.Projectile.penetrate = -1;
+			base.Projectile.timeLeft = 500;
+			base.Projectile.ignoreWater = true;
 			
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 400;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 400;
 		}
 
 		private const int sphereRadius = 40;
 		public override void AI()
 		{
-			Player player = Main.player[base.projectile.owner];
-			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
-			projectile.velocity.X = 0;
-			projectile.velocity.Y = 0;
-			projectile.alpha += 1;
-			if (projectile.alpha == 300f)
+			Player player = Main.player[base.Projectile.owner];
+			Projectile mother = Main.projectile[(int)base.Projectile.ai[1]];
+			Projectile.velocity.X = 0;
+			Projectile.velocity.Y = 0;
+			Projectile.alpha += 1;
+			if (Projectile.alpha == 300f)
 			{
-				projectile.active = false;
+				Projectile.active = false;
 			}
-			Lighting.AddLight(projectile.Center, Color.DarkViolet.ToVector3() * 2f);
+			Lighting.AddLight(Projectile.Center, Color.DarkViolet.ToVector3() * 2f);
 			if (Main.rand.NextBool(30))//controls the speed of when the sparkles spawn
 			{
 				
 				{
 					float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
 					double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
-					Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), (projectile.Center.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<ShadowFlameDust>(), 0f, 0f, 0, default(Color), 1.5f);
+					Dust.NewDust(new Vector2(Projectile.Center.X + radius * (float)Math.Cos(angle), (Projectile.Center.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<ShadowFlameDust>(), 0f, 0f, 0, default(Color), 1.5f);
 
 				}
 			}
 			
 			int frameSpeed = 5;
 			{
-				base.projectile.frameCounter++;
-				if (projectile.frameCounter >= frameSpeed)
+				base.Projectile.frameCounter++;
+				if (Projectile.frameCounter >= frameSpeed)
 
 
-					if (base.projectile.frameCounter > 4)
+					if (base.Projectile.frameCounter > 4)
 					{
-						base.projectile.frame++;
-						base.projectile.frameCounter = 0;
+						base.Projectile.frame++;
+						base.Projectile.frameCounter = 0;
 					}
-				if (base.projectile.frame >= 4)
+				if (base.Projectile.frame >= 4)
 				{
-					base.projectile.frame = 3;
+					base.Projectile.frame = 3;
 				}
 
 			}
@@ -89,7 +90,7 @@ namespace SariaMod.Items.Amethyst
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
 			int noise = 0;
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
 			target.buffImmune[BuffID.CursedInferno] = false;
 			target.buffImmune[BuffID.Confused] = false;
@@ -107,7 +108,7 @@ namespace SariaMod.Items.Amethyst
 			modPlayer.SariaXp++;
 			if (noise == 0)
 			{
-				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/ShadowClaw"), base.projectile.Center);
+				SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/ShadowClaw"), base.Projectile.Center);
 				noise++;
 			}
 		}

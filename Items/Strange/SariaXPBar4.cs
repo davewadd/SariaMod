@@ -7,7 +7,7 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Barrier;
 using SariaMod.Items.Strange;
@@ -27,20 +27,20 @@ namespace SariaMod.Items.Strange
 		{
 			
 			
-			base.projectile.width = 40;
-			base.projectile.height = 20;
-			base.projectile.hostile = false;
-			base.projectile.friendly = false;
-			base.projectile.ignoreWater = true;
+			base.Projectile.width = 40;
+			base.Projectile.height = 20;
+			base.Projectile.hostile = false;
+			base.Projectile.friendly = false;
+			base.Projectile.ignoreWater = true;
 			
-			base.projectile.timeLeft = 200;
-			base.projectile.penetrate = -1;
-			base.projectile.tileCollide = false;
-			base.projectile.minion = true;
-			base.projectile.localNPCHitCooldown = 5;
-			base.projectile.minionSlots = 0f;
-			base.projectile.netImportant = true;
-			base.projectile.usesLocalNPCImmunity = true;
+			base.Projectile.timeLeft = 200;
+			base.Projectile.penetrate = -1;
+			base.Projectile.tileCollide = false;
+			base.Projectile.minion = true;
+			base.Projectile.localNPCHitCooldown = 5;
+			base.Projectile.minionSlots = 0f;
+			base.Projectile.netImportant = true;
+			base.Projectile.usesLocalNPCImmunity = true;
 			
 
 
@@ -48,74 +48,74 @@ namespace SariaMod.Items.Strange
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Psychic Turret");
-			Main.projFrames[base.projectile.type] = 1;
-			Main.projPet[projectile.type] = true;
-			ProjectileID.Sets.MinionSacrificable[base.projectile.type] = false;
-			ProjectileID.Sets.MinionTargettingFeature[base.projectile.type] = true;
+			Main.projFrames[base.Projectile.type] = 1;
+			Main.projPet[Projectile.type] = true;
+			ProjectileID.Sets.MinionSacrificable[base.Projectile.type] = false;
+			ProjectileID.Sets.MinionTargettingFeature[base.Projectile.type] = true;
 		}
-        public override bool CanDamage()
+        public override bool? CanDamage()/* tModPorter Suggestion: Return null instead of true */
         {
 			return false;
         }
 
         public override void AI()
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
 
 
-			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
+			Projectile mother = Main.projectile[(int)base.Projectile.ai[1]];
 			if (!mother.active)
 			{
-				base.projectile.Kill();
+				base.Projectile.Kill();
 				return;
 			}
 			if (player.ownedProjectileCounts[ModContent.ProjectileType<Transform>()] > 0f)
             {
-				projectile.timeLeft = 200;
+				Projectile.timeLeft = 200;
             }
-			projectile.position.X = mother.Center.X;
-			projectile.position.Y = mother.Center.Y - 70;
-			projectile.spriteDirection = mother.spriteDirection;
+			Projectile.position.X = mother.Center.X;
+			Projectile.position.Y = mother.Center.Y - 70;
+			Projectile.spriteDirection = mother.spriteDirection;
 
 
 			if (modPlayer.Sarialevel == 0)
 			{
 				if (modPlayer.SariaXp <= 375)
 				{
-					projectile.frame = 0;
+					Projectile.frame = 0;
 				}
 				else if (modPlayer.SariaXp > 375 && (modPlayer.SariaXp <= 750))
 				{
-					projectile.frame = 1;
+					Projectile.frame = 1;
 				}
 				else if (modPlayer.SariaXp > 750 && (modPlayer.SariaXp <= 1125))
 				{
-					projectile.frame = 2;
+					Projectile.frame = 2;
 				}
 				else if (modPlayer.SariaXp > 1125 && (modPlayer.SariaXp <= 1500))
 				{
-					projectile.frame = 3;
+					Projectile.frame = 3;
 				}
 				else if (modPlayer.SariaXp > 1500 && (modPlayer.SariaXp <= 1875))
 				{
-					projectile.frame = 4;
+					Projectile.frame = 4;
 				}
 				else if (modPlayer.SariaXp > 1875 && (modPlayer.SariaXp <= 2250))
 				{
-					projectile.frame = 5;
+					Projectile.frame = 5;
 				}
 				else if (modPlayer.SariaXp > 2250 && (modPlayer.SariaXp <= 2625))
 				{
-					projectile.frame = 6;
+					Projectile.frame = 6;
 				}
 				else if (modPlayer.SariaXp > 2625 && (modPlayer.SariaXp <= 3000))
 				{
-					projectile.frame = 7;
+					Projectile.frame = 7;
 				}
 				else if ((modPlayer.SariaXp > 3000))
 				{
-					projectile.frame = 8;
+					Projectile.frame = 8;
 				}
 			}
 
@@ -124,7 +124,7 @@ namespace SariaMod.Items.Strange
 
 
 
-			Lighting.AddLight(projectile.Center, Color.Red.ToVector3() * 1f);
+			Lighting.AddLight(Projectile.Center, Color.Red.ToVector3() * 1f);
 			
 		}
 	}

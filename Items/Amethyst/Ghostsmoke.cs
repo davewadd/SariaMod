@@ -15,28 +15,28 @@ namespace SariaMod.Items.Amethyst
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Child");
-			Main.projFrames[base.projectile.type] = 4;
-			ProjectileID.Sets.MinionShot[base.projectile.type] = true;
+			Main.projFrames[base.Projectile.type] = 4;
+			ProjectileID.Sets.MinionShot[base.Projectile.type] = true;
 		}
 
 		public override void SetDefaults()
 		{
-			base.projectile.width = 200;
-			base.projectile.height = 200;
-			base.projectile.netImportant = true;
-			base.projectile.friendly = true;
-			base.projectile.ignoreWater = true;
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 800;
-			base.projectile.minionSlots = 0f;
-			base.projectile.extraUpdates = 1;
-			projectile.alpha = 0;
-			projectile.scale = .5f;
-			projectile.velocity *= .4f;
-			base.projectile.penetrate = -1;
-			base.projectile.tileCollide = false;
-			base.projectile.timeLeft = 2000;
-			base.projectile.minion = true;
+			base.Projectile.width = 200;
+			base.Projectile.height = 200;
+			base.Projectile.netImportant = true;
+			base.Projectile.friendly = true;
+			base.Projectile.ignoreWater = true;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 800;
+			base.Projectile.minionSlots = 0f;
+			base.Projectile.extraUpdates = 1;
+			Projectile.alpha = 0;
+			Projectile.scale = .5f;
+			Projectile.velocity *= .4f;
+			base.Projectile.penetrate = -1;
+			base.Projectile.tileCollide = false;
+			base.Projectile.timeLeft = 2000;
+			base.Projectile.minion = true;
 		}
 		public override bool? CanCutTiles()
 		{
@@ -45,7 +45,7 @@ namespace SariaMod.Items.Amethyst
 		
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
 			target.buffImmune[BuffID.CursedInferno] = false;
 			target.buffImmune[BuffID.Confused] = false;
@@ -82,21 +82,21 @@ namespace SariaMod.Items.Amethyst
 		public override void AI()
 		{
 
-			Player player = Main.player[projectile.owner];
-			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
-			projectile.rotation += projectile.velocity.X * 0.01f;
+			Player player = Main.player[Projectile.owner];
+			Projectile mother = Main.projectile[(int)base.Projectile.ai[1]];
+			Projectile.rotation += Projectile.velocity.X * 0.01f;
 			{
 				
 				
-				projectile.scale *= 1.01f;
-			projectile.alpha += 1;
-			if (projectile.alpha == 300f)
+				Projectile.scale *= 1.01f;
+			Projectile.alpha += 1;
+			if (Projectile.alpha == 300f)
 			{
-				projectile.active = false;
+				Projectile.active = false;
 			}
 			
-			float light = 0.35f * projectile.scale;
-			Lighting.AddLight(projectile.position, Color.DarkViolet.ToVector3() * 6f);
+			float light = 0.35f * Projectile.scale;
+			Lighting.AddLight(Projectile.position, Color.DarkViolet.ToVector3() * 6f);
 			
 			
 		}
@@ -109,18 +109,18 @@ namespace SariaMod.Items.Amethyst
 			
 			int frameSpeed = 15;
 			{
-				base.projectile.frameCounter++;
-				if (projectile.frameCounter >= frameSpeed)
+				base.Projectile.frameCounter++;
+				if (Projectile.frameCounter >= frameSpeed)
 					
           
-					if (base.projectile.frameCounter > 4)
+					if (base.Projectile.frameCounter > 4)
 					{
-						base.projectile.frame++;
-						base.projectile.frameCounter = 0;
+						base.Projectile.frame++;
+						base.Projectile.frameCounter = 0;
 					}
-				if (base.projectile.frame >= 4)
+				if (base.Projectile.frame >= 4)
 				{
-					base.projectile.frame = 3;
+					base.Projectile.frame = 3;
 				}
 								
 			}

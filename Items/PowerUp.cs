@@ -19,26 +19,26 @@ namespace SariaMod.Items
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Child");
-			Main.projFrames[base.projectile.type] = 1;
-			ProjectileID.Sets.MinionShot[base.projectile.type] = true;
+			Main.projFrames[base.Projectile.type] = 1;
+			ProjectileID.Sets.MinionShot[base.Projectile.type] = true;
 		}
 		private const int sphereRadius = 1;
 		public override void SetDefaults()
 		{
-			base.projectile.width = 20;
-			base.projectile.height = 20;
-			base.projectile.netImportant = true;
-			base.projectile.friendly = false;
-			base.projectile.ignoreWater = true;
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 7;
-			base.projectile.minionSlots = 0f;
-			base.projectile.extraUpdates = 1;
+			base.Projectile.width = 20;
+			base.Projectile.height = 20;
+			base.Projectile.netImportant = true;
+			base.Projectile.friendly = false;
+			base.Projectile.ignoreWater = true;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 7;
+			base.Projectile.minionSlots = 0f;
+			base.Projectile.extraUpdates = 1;
 			
-			base.projectile.penetrate = -1;
-			base.projectile.tileCollide = false;
-			base.projectile.timeLeft = 100;
-			base.projectile.minion = true;
+			base.Projectile.penetrate = -1;
+			base.Projectile.tileCollide = false;
+			base.Projectile.timeLeft = 100;
+			base.Projectile.minion = true;
 		}
 		public override bool? CanCutTiles()
 		{
@@ -69,26 +69,26 @@ namespace SariaMod.Items
 		}
 		public override void AI()
 		{
-			Player player = Main.player[projectile.owner];
+			Player player = Main.player[Projectile.owner];
 			float speed = 2;
 			if (Main.rand.NextBool())//controls the speed of when the sparkles spawn
 			{
 				float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
 				double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
-				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), (projectile.Center.Y + 34) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Powerupdust>(), 0f, 0f, 0, default(Color), 1.5f);
+				Dust.NewDust(new Vector2(Projectile.Center.X + radius * (float)Math.Cos(angle), (Projectile.Center.Y + 34) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Powerupdust>(), 0f, 0f, 0, default(Color), 1.5f);
 			}//end of dust stuff
-			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
+			Projectile mother = Main.projectile[(int)base.Projectile.ai[1]];
 			Vector2 idlePosition = player.Center;
 			idlePosition.Y = 80f;
 
 
-			Vector2 vectorToIdlePosition = idlePosition - projectile.Center;
+			Vector2 vectorToIdlePosition = idlePosition - Projectile.Center;
 			float distanceToIdlePosition = vectorToIdlePosition.Length();
 			{
 				// Minion has a target: attack (here, fly towards the enemy)
 				
-					projectile.position.Y =  player.position.Y + 10;
-					projectile.position.X = player.position.X;
+					Projectile.position.Y =  player.position.Y + 10;
+					Projectile.position.X = player.position.X;
                 
 				
 			}
@@ -107,7 +107,7 @@ namespace SariaMod.Items
 			// You don't need this assignment if your minion is shooting things instead of dealing contact damage
 
 
-			Lighting.AddLight(projectile.Center, Color.IndianRed.ToVector3() * 0.78f);
+			Lighting.AddLight(Projectile.Center, Color.IndianRed.ToVector3() * 0.78f);
 			// Default movement parameters (here for attacking)
 
 
@@ -120,9 +120,9 @@ namespace SariaMod.Items
 		}
 		public override Color? GetAlpha(Color lightColor)
 		{
-			if (base.projectile.timeLeft < 85)
+			if (base.Projectile.timeLeft < 85)
 			{
-				byte b2 = (byte)(base.projectile.timeLeft * 3);
+				byte b2 = (byte)(base.Projectile.timeLeft * 3);
 				byte a2 = (byte)(100f * ((float)(int)b2 / 255f));
 				return new Color(b2, b2, b2, a2);
 			}

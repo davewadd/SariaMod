@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using SariaMod.Items.LilHarpy;
 using SariaMod.Buffs;
 using Terraria;
@@ -17,18 +18,19 @@ namespace SariaMod.Items.Bands
 
 		public override void SetDefaults() {
 			
-			item.CloneDefaults(ItemID.ZephyrFish);
-			item.shoot = ModContent.ProjectileType<BigEye>();
-			item.buffType = ModContent.BuffType<BigEyeBuff>();
-			item.noMelee = true;
-			
+			Item.CloneDefaults(ItemID.ZephyrFish);
+			Item.shoot = ModContent.ProjectileType<BigEye>();
+			Item.buffType = ModContent.BuffType<BigEyeBuff>();
+			Item.noMelee = true;
+			Item.value = Item.buyPrice(0, 16, 0, 0);
+
 		}
 
-		
 
-		public override void UseStyle(Player player) {
+		
+		public override void UseStyle(Player player, Rectangle heldItemFrame) {
 			if (player.whoAmI == Main.myPlayer && player.itemTime == 0) {
-				player.AddBuff(item.buffType, 3600, true);
+				player.AddBuff(Item.buffType, 3600, true);
 			}
 		}
 	}

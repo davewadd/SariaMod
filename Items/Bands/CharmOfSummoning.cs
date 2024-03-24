@@ -8,7 +8,7 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
 using SariaMod.Items.zPearls;
@@ -25,11 +25,11 @@ namespace SariaMod.Items.Bands
 
 		public override void SetDefaults()
 		{
-			base.item.width = 28;
-			base.item.height = 20;
-			base.item.value = Item.sellPrice(0, 0, 100);
-			item.rare = ItemRarityID.Expert;
-			base.item.accessory = true;
+			base.Item.width = 28;
+			base.Item.height = 20;
+			base.Item.value = Item.sellPrice(0, 0, 100);
+			Item.rare = ItemRarityID.Expert;
+			base.Item.accessory = true;
 		}
 
 		public override void UpdateAccessory(Player player, bool hideVisual)
@@ -39,13 +39,13 @@ namespace SariaMod.Items.Bands
 			{
 				if (modPlayer.Sarialevel == 6)
 				{
-					player.maxTurrets += 3;
-					player.maxMinions += 4;
+					player.maxTurrets += 50;
+					player.maxMinions += 1000;
 				}
 				else if (modPlayer.Sarialevel == 5)
 				{
-					player.maxTurrets += 2;
-					player.maxMinions += 3;
+					player.maxTurrets += 50;
+					player.maxMinions += 1000;
 				}
 				else if (modPlayer.Sarialevel == 4)
 				{
@@ -78,24 +78,12 @@ namespace SariaMod.Items.Bands
 			}
 			else
             {
-				player.maxTurrets += 0;
-				player.maxMinions += 0;
+				player.maxTurrets += 50;
+				player.maxMinions += 1000;
             }
 			
 
 		}
-		public override void AddRecipes()
-		{
-			{
-				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ItemID.JungleSpores, 3);
-				recipe.AddIngredient(ItemID.Ruby, 1);
-				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 3);
-				recipe.AddTile(ModContent.TileType<Tiles.StrangeBookcase>());
-				recipe.SetResult(this);
-				recipe.AddRecipe();
-			}
-
-		}
+		
 	}
 }

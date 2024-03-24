@@ -25,20 +25,20 @@ namespace SariaMod.Buffs
 
 	public class StatLower : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("LowStats");
-			Description.SetDefault("Saria feels weak in this current environment!");
+			Description.SetDefault("Saria feels weak in this current environment!\n Your defense is Lowered as a result!");
 			Main.debuff[base.Type] = true;
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = true;
 			Main.buffNoTimeDisplay[base.Type] = true;
-			longerExpertDebuff = false;
+		
 
 		}
 		public override void Update(Player player, ref int buffIndex)
 		{
-			
+			player.GetModPlayer<FairyPlayer>().Statlowered = true;
 		}
 			
 		

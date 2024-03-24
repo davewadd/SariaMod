@@ -27,10 +27,10 @@ namespace SariaMod.Items.zPearls
         public override void SetStaticDefaults()
         {
             base.DisplayName.SetDefault("Mother");
-            Main.projFrames[base.projectile.type] = 1;
-            Main.projPet[projectile.type] = true;
-            ProjectileID.Sets.MinionSacrificable[base.projectile.type] = false;
-            ProjectileID.Sets.MinionTargettingFeature[base.projectile.type] = true;
+            Main.projFrames[base.Projectile.type] = 1;
+            Main.projPet[Projectile.type] = true;
+            ProjectileID.Sets.MinionSacrificable[base.Projectile.type] = false;
+            ProjectileID.Sets.MinionTargettingFeature[base.Projectile.type] = true;
         }
         public override bool? CanCutTiles()
         {
@@ -38,9 +38,9 @@ namespace SariaMod.Items.zPearls
         }
         public override bool MinionContactDamage()
         {
-            Player player = Main.player[base.projectile.owner];
+            Player player = Main.player[base.Projectile.owner];
             FairyPlayer modPlayer = player.Fairy();
-            NPC target = base.projectile.Center.MinionHoming(500f, player);
+            NPC target = base.Projectile.Center.MinionHoming(500f, player);
             if (target != null)
             {
                 return true;
@@ -58,21 +58,21 @@ namespace SariaMod.Items.zPearls
         public override void SetDefaults()
         {
 
-            base.projectile.width = 96;
-            base.projectile.height = 78;
+            base.Projectile.width = 96;
+            base.Projectile.height = 78;
 
-            base.projectile.netImportant = true;
-            base.projectile.friendly = true;
-            projectile.alpha = 300;
-            base.projectile.ignoreWater = false;
-            base.projectile.usesLocalNPCImmunity = true;
-             base.projectile.localNPCHitCooldown = 50;
-            base.projectile.minionSlots = 0f;
-            base.projectile.timeLeft = 1800;
-            base.projectile.penetrate = -1;
-            base.projectile.tileCollide = false;
+            base.Projectile.netImportant = true;
+            base.Projectile.friendly = true;
+            Projectile.alpha = 300;
+            base.Projectile.ignoreWater = false;
+            base.Projectile.usesLocalNPCImmunity = true;
+             base.Projectile.localNPCHitCooldown = 50;
+            base.Projectile.minionSlots = 0f;
+            base.Projectile.timeLeft = 1800;
+            base.Projectile.penetrate = -1;
+            base.Projectile.tileCollide = false;
             
-            base.projectile.minion = true;
+            base.Projectile.minion = true;
         }
        
         public override void AI()
@@ -81,15 +81,15 @@ namespace SariaMod.Items.zPearls
             float dustspot = 14;
             float dustspeed = 40;
            
-            Player player = Main.player[base.projectile.owner];
+            Player player = Main.player[base.Projectile.owner];
             FairyPlayer modPlayer = player.Fairy();
            
             //////////////////////////////faces start
             Vector2 idlePosition2 = player.Center;
-            float minionPositionOffsetX2 = ((60 + projectile.minionPos / 80) * player.direction) - 15;
+            float minionPositionOffsetX2 = ((60 + Projectile.minionPos / 80) * player.direction) - 15;
             idlePosition2.Y -= 15f;
             idlePosition2.X += minionPositionOffsetX2;
-            Vector2 vectorToIdlePosition3 = idlePosition2 - projectile.Center;
+            Vector2 vectorToIdlePosition3 = idlePosition2 - Projectile.Center;
             float distanceToIdlePosition3 = vectorToIdlePosition3.Length();
             
 
@@ -103,23 +103,23 @@ namespace SariaMod.Items.zPearls
 
             bool foundTarget = false;
 
-            float minionPositionOffsetX = ((60 + projectile.minionPos / 80) * player.direction) - 15;
+            float minionPositionOffsetX = ((60 + Projectile.minionPos / 80) * player.direction) - 15;
             idlePosition.Y -= 15f;
             idlePosition.X += minionPositionOffsetX;
-            Vector2 vectorToIdlePosition = idlePosition - projectile.Center;
+            Vector2 vectorToIdlePosition = idlePosition - Projectile.Center;
 
             float distanceToIdlePosition = vectorToIdlePosition.Length();
 
-            Lighting.AddLight(projectile.Center, Color.OrangeRed.ToVector3() * 3f);
+            Lighting.AddLight(Projectile.Center, Color.OrangeRed.ToVector3() * 3f);
 
-            Vector2 direction = idlePosition - projectile.Center;
+            Vector2 direction = idlePosition - Projectile.Center;
            
 
             if (foundTarget)
             {
                 {
                     speed = 2;
-                    projectile.velocity = (((projectile.velocity * (13 - speed) + direction) / 20) * nothing);
+                    Projectile.velocity = (((Projectile.velocity * (13 - speed) + direction) / 20) * nothing);
 
                 }
             }
@@ -128,7 +128,7 @@ namespace SariaMod.Items.zPearls
                 nothing = 1;
 
             }
-            if ((base.projectile.frame >= 20) && (base.projectile.frame <= 69) && (distanceToIdlePosition <= 500) && (Math.Abs(projectile.velocity.X) <= .5) && (player.statLife >= player.statLifeMax2))
+            if ((base.Projectile.frame >= 20) && (base.Projectile.frame <= 69) && (distanceToIdlePosition <= 500) && (Math.Abs(Projectile.velocity.X) <= .5) && (player.statLife >= player.statLifeMax2))
             {
                 nothing = 0;
             }
@@ -136,18 +136,18 @@ namespace SariaMod.Items.zPearls
             {
                 nothing = 1;
             }
-            projectile.velocity = ((projectile.velocity * (13 - speed) + direction) / 20) * nothing;
+            Projectile.velocity = ((Projectile.velocity * (13 - speed) + direction) / 20) * nothing;
 
           
             if (!foundTarget)
             {
-                if (projectile.velocity.X >= 0.25)
+                if (Projectile.velocity.X >= 0.25)
                 {
-                    projectile.spriteDirection = 1;
+                    Projectile.spriteDirection = 1;
                 }
-                if (projectile.velocity.X <= -0.25)
+                if (Projectile.velocity.X <= -0.25)
                 {
-                    projectile.spriteDirection = -1;
+                    Projectile.spriteDirection = -1;
                 }
             }
 

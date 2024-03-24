@@ -5,12 +5,13 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
 using SariaMod.Dusts;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -32,14 +33,13 @@ namespace SariaMod.Buffs
 
 	public class SariaCurse : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("SariaCurse");
 			Description.SetDefault("Saria Has Cursed You!");
 			Main.debuff[Type] = true;
 			Main.pvpBuff[Type] = true;
 			Main.buffNoSave[Type] = true;
-			longerExpertDebuff = true;
 		}
 		private const int sphereRadius = 30;
 		public override void Update(Player player, ref int buffIndex)
@@ -47,8 +47,7 @@ namespace SariaMod.Buffs
 			player.GetModPlayer<FairyPlayer>().SariaCurseD = true;
 			if (Main.rand.NextBool(800))
 			{
-
-				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Poe"), player.Center);
+				SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Poe"), player.Center);
 
 			}
 			if (Main.rand.NextBool(2))//controls the speed of when the sparkles spawn
@@ -64,8 +63,7 @@ namespace SariaMod.Buffs
 			npc.GetGlobalNPC<FairyGlobalNPC>().SariaCurseD = true;
 			if (Main.rand.NextBool(800))
 			{
-
-				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Poe"), npc.Center);
+				SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Poe"), npc.Center);
 
 			}
 			if (Main.rand.NextBool(2))//controls the speed of when the sparkles spawn

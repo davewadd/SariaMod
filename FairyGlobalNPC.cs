@@ -2,9 +2,12 @@ using System;
 using SariaMod.Buffs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SariaMod.Items.zPearls;
+using SariaMod.Items.Bands;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Audio;
 
 namespace SariaMod
 {
@@ -80,21 +83,44 @@ namespace SariaMod
 		}
 
 		public override void AI(NPC npc)
-		{
-			if (npc.friendly == false && npc.lifeMax > 10)
-			{
+        {
+            if (npc.friendly == false && npc.lifeMax > 10)
+            {
+
+            }
+            if (npc.lifeMax <= 20)
+            {
+				if (Main.rand.Next(4) == 0)
+				{
+					npc.DeathSound = new SoundStyle($"{nameof(SariaMod)}/Sounds/Blunt");
+				}
+				else if (Main.rand.Next(4) == 1)
+				{
+					npc.DeathSound = new SoundStyle($"{nameof(SariaMod)}/Sounds/Euh");
+				}
+				else if (Main.rand.Next(4) == 1)
+				{
+					npc.DeathSound = new SoundStyle($"{nameof(SariaMod)}/Sounds/Die");
+				}
+				else if (Main.rand.Next(4) == 1)
+				{
+					npc.DeathSound = new SoundStyle($"{nameof(SariaMod)}/Sounds/Die2");
+				}
+				else if (Main.rand.Next(4) == 1)
+				{
+					npc.DeathSound = new SoundStyle($"{nameof(SariaMod)}/Sounds/Die3");
+				}
 				
 			}
-			
-            
-		}
-		public override void NPCLoot(NPC npc)
+
+        }
+        public override void OnKill(NPC npc)
 		{
 			if (npc.type == NPCID.EyeofCthulhu)
 			{
 				if (Main.rand.Next(4) == 0)
 				{
-					Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, base.mod.ItemType("SusEye"), 1, noBroadcast: false, 81);
+					Item.NewItem(npc.GetSource_FromThis(), (int)(npc.position.X + 0), (int)(npc.position.Y + 0), 0, 0, ModContent.ItemType<SusEye>());
 				}
 			}
 			if (!npc.SpawnedFromStatue)
@@ -103,21 +129,34 @@ namespace SariaMod
 				
 				if (Main.rand.Next(50) == 0)
 				{
-					Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, base.mod.ItemType("XpPearl"), 1, noBroadcast: false, 83);
+					Item.NewItem(npc.GetSource_FromThis(), (int)(npc.position.X + 0), (int)(npc.position.Y + 0), 0, 0, ModContent.ItemType<XpPearl>());
+				}
+				if (Main.rand.Next(70) == 0)
+				{
+					Item.NewItem(npc.GetSource_FromThis(), (int)(npc.position.X + 0), (int)(npc.position.Y + 0), 0, 0, ModContent.ItemType<FrozenYogurt>());
 				}
 				if (Main.rand.Next(150) == 0)
 				{
-					Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, base.mod.ItemType("MediumXpPearl"), 1, noBroadcast: false, 82);
+					Item.NewItem(npc.GetSource_FromThis(), (int)(npc.position.X + 0), (int)(npc.position.Y + 0), 0, 0, ModContent.ItemType<MediumXpPearl>());
+				}
+				if (Main.rand.Next(300) == 0)
+				{
+					Item.NewItem(npc.GetSource_FromThis(), (int)(npc.position.X + 0), (int)(npc.position.Y + 0), 0, 0, ModContent.ItemType<SariasConfect>());
 				}
 				if (Main.rand.Next(600) == 0)
 				{
-					Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, base.mod.ItemType("LargeXpPearl"));
+					Item.NewItem(npc.GetSource_FromThis(), (int)(npc.position.X + 0), (int)(npc.position.Y + 0), 0, 0, ModContent.ItemType<LargeXpPearl>());
+				}
+				if (Main.rand.Next(1000) == 0)
+				{
+					Item.NewItem(npc.GetSource_FromThis(), (int)(npc.position.X + 0), (int)(npc.position.Y + 0), 0, 0, ModContent.ItemType<SoaringConcoction>());
 				}
 				if (Main.rand.Next(25000) == 0)
 				{
-					Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, base.mod.ItemType("RareXpPearl"));
+					Item.NewItem(npc.GetSource_FromThis(), (int)(npc.position.X + 0), (int)(npc.position.Y + 0), 0, 0, ModContent.ItemType<RareXpPearl>());
 				}
 			}
+			
 			
 		}
 		}

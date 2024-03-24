@@ -25,7 +25,7 @@ namespace SariaMod.Buffs
 
 	public class ReajBuff : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Rage!");
 			
@@ -33,7 +33,7 @@ namespace SariaMod.Buffs
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = true;
 			Main.buffNoTimeDisplay[base.Type] = false;
-			longerExpertDebuff = false;
+			
 
 		}
 		private const int sphereRadius = 30;

@@ -12,17 +12,17 @@ namespace SariaMod.Items.Barrier
 		public override void SetDefaults()
 		{
 			
-			base.projectile.width = 42;
-			base.projectile.height = 350;
-			base.projectile.friendly = true;
-			base.projectile.usesLocalNPCImmunity = true; 
-			base.projectile.ignoreWater = true;
-			Main.projFrames[base.projectile.type] = 16;
-			base.projectile.timeLeft = 3000;
-			base.projectile.penetrate = -1;
-			base.projectile.tileCollide = false;
-			base.projectile.minion = true;
-			base.projectile.minionSlots = 0f;
+			base.Projectile.width = 42;
+			base.Projectile.height = 350;
+			base.Projectile.friendly = true;
+			base.Projectile.usesLocalNPCImmunity = true; 
+			base.Projectile.ignoreWater = true;
+			Main.projFrames[base.Projectile.type] = 16;
+			base.Projectile.timeLeft = 3000;
+			base.Projectile.penetrate = -1;
+			base.Projectile.tileCollide = false;
+			base.Projectile.minion = true;
+			base.Projectile.minionSlots = 0f;
 		}
 		public override bool MinionContactDamage()
 		{
@@ -31,7 +31,7 @@ namespace SariaMod.Items.Barrier
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Barrier");
-			 ProjectileID.Sets.MinionSacrificable[base.projectile.type] = false;
+			 ProjectileID.Sets.MinionSacrificable[base.Projectile.type] = false;
 		}
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
         {
@@ -48,32 +48,28 @@ namespace SariaMod.Items.Barrier
 
         public override void AI()
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
 			
-			if (base.projectile.localAI[0] == 0f)
+			if (base.Projectile.localAI[0] == 0f)
 			{
-				base.projectile.Fairy().spawnedPlayerMinionDamageValue = player.MinionDamage();
-				base.projectile.Fairy().spawnedPlayerMinionProjectileDamageValue = base.projectile.damage/4;
+				
+				base.Projectile.Fairy().spawnedPlayerMinionProjectileDamageValue = base.Projectile.damage/4;
 				
 			
 			}
-			if (player.MinionDamage() != base.projectile.Fairy().spawnedPlayerMinionDamageValue)
-			{
-				int trueDamage = (int)((float)base.projectile.Fairy().spawnedPlayerMinionProjectileDamageValue / base.projectile.Fairy().spawnedPlayerMinionDamageValue * player.MinionDamage());
-				base.projectile.damage = trueDamage/4;
-			}
+			
 
-			Lighting.AddLight(projectile.Center, Color.LightBlue.ToVector3() * 0.78f);
-			base.projectile.frameCounter++;
-			if (base.projectile.frameCounter > 5)
+			Lighting.AddLight(Projectile.Center, Color.LightBlue.ToVector3() * 0.78f);
+			base.Projectile.frameCounter++;
+			if (base.Projectile.frameCounter > 5)
 			{
-				base.projectile.frame++;
-				base.projectile.frameCounter = 0;
+				base.Projectile.frame++;
+				base.Projectile.frameCounter = 0;
 			}
-			if (base.projectile.frame >= 16)
+			if (base.Projectile.frame >= 16)
 			{
-				base.projectile.frame = 0;
+				base.Projectile.frame = 0;
 			}
 		}
 

@@ -20,27 +20,27 @@ namespace SariaMod.Items.LilHarpy
 		{
 		    
 			base.DisplayName.SetDefault("Child");
-			Main.projFrames[base.projectile.type] = 1;
-			ProjectileID.Sets.MinionShot[base.projectile.type] = true;
-			ProjectileID.Sets.TrailingMode[base.projectile.type] = 500;
+			Main.projFrames[base.Projectile.type] = 1;
+			ProjectileID.Sets.MinionShot[base.Projectile.type] = true;
+			ProjectileID.Sets.TrailingMode[base.Projectile.type] = 500;
 		}
 
 		public override void SetDefaults()
 		{
-			base.projectile.width = 20;
-			base.projectile.height = 20;
-			base.projectile.netImportant = true;
-			base.projectile.friendly = false;
-			base.projectile.ignoreWater = true;
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 7;
-			base.projectile.minionSlots = 0f;
-			base.projectile.extraUpdates = 1;
+			base.Projectile.width = 20;
+			base.Projectile.height = 20;
+			base.Projectile.netImportant = true;
+			base.Projectile.friendly = false;
+			base.Projectile.ignoreWater = true;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 7;
+			base.Projectile.minionSlots = 0f;
+			base.Projectile.extraUpdates = 1;
 			
-			base.projectile.penetrate = -1;
-			base.projectile.tileCollide = false;
-			base.projectile.timeLeft = 500;
-			base.projectile.minion = true;
+			base.Projectile.penetrate = -1;
+			base.Projectile.tileCollide = false;
+			base.Projectile.timeLeft = 500;
+			base.Projectile.minion = true;
 		}
 		public override bool? CanCutTiles()
 		{
@@ -54,7 +54,7 @@ namespace SariaMod.Items.LilHarpy
 		private const int sphereRadius = 3;
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
-			Player player = Main.player[projectile.owner];
+			Player player = Main.player[Projectile.owner];
 			target.buffImmune[BuffID.CursedInferno] = false;
 			target.buffImmune[BuffID.Confused] = false;
 			target.buffImmune[BuffID.Slow] = false;
@@ -66,49 +66,77 @@ namespace SariaMod.Items.LilHarpy
 			target.buffImmune[BuffID.Venom] = false;
 			target.buffImmune[BuffID.Electrified] = false;
 			target.AddBuff(BuffID.Slow, 300);
-			projectile.velocity.Y = target.velocity.Y;
-			projectile.velocity.X = target.velocity.X;
-			projectile.timeLeft = 2;
+			Projectile.velocity.Y = target.velocity.Y;
+			Projectile.velocity.X = target.velocity.X;
+			Projectile.timeLeft = 2;
 		}
 		public override void AI()
 		{
-			Player player = Main.player[projectile.owner];
+			Player player = Main.player[Projectile.owner];
+			FairyPlayer modPlayer = player.Fairy();
+			Projectile mother = Main.projectile[(int)base.Projectile.ai[1]];
 
-			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
-
-
-
-
-
+			if (modPlayer.Sarialevel == 6)
 			{
-				projectile.aiStyle = 1;
+				Projectile.damage = 900 + (modPlayer.SariaXp / 40);
+			}
+			else if (modPlayer.Sarialevel == 5)
+			{
+				Projectile.damage = 200 + (modPlayer.SariaXp / 342);
+			}
+			else if (modPlayer.Sarialevel == 4)
+			{
+				Projectile.damage = 75 + (modPlayer.SariaXp / 640);
+			}
+			else if (modPlayer.Sarialevel == 3)
+			{
+				Projectile.damage = 50 + (modPlayer.SariaXp / 1600);
+			}
+			else if (modPlayer.Sarialevel == 2)
+			{
+				Projectile.damage = 26 + (modPlayer.SariaXp / 833);
 			}
 
-			NPC target = base.projectile.Center.MinionHoming(500f, player);
+			else if (modPlayer.Sarialevel == 1)
+			{
+				Projectile.damage = 15 + (modPlayer.SariaXp / 818);
+			}
+			else
+			{
+				Projectile.damage = 10 + (modPlayer.SariaXp / 600);
+			}
+
+
+
+			{
+				Projectile.aiStyle = 1;
+			}
+
+			NPC target = base.Projectile.Center.MinionHoming(500f, player);
 			if (target != null)
 			{
-				base.projectile.ai[1] += 1f;
+				base.Projectile.ai[1] += 1f;
 			}
 			Vector2 idlePosition = player.Center;
 			idlePosition.Y -= 48f; // Go up 48 coordinates (three tiles from the center of the player)
 
 			// If your minion doesn't aimlessly move around when it's idle, you need to "put" it into the line of other summoned minions
 			// The index is projectile.minionPos
-			float minionPositionOffsetX = (10 + projectile.minionPos * 40) * -player.direction;
+			float minionPositionOffsetX = (10 + Projectile.minionPos * 40) * -player.direction;
 			idlePosition.X += minionPositionOffsetX; // Go behind the player
 
 			// All of this code below this line is adapted from Spazmamini code (ID 388, aiStyle 66)
 
 			// Teleport to player if distance is too big
-			Vector2 vectorToIdlePosition = idlePosition - projectile.Center;
+			Vector2 vectorToIdlePosition = idlePosition - Projectile.Center;
 			float distanceToIdlePosition = vectorToIdlePosition.Length();
 			if (Main.myPlayer == player.whoAmI && distanceToIdlePosition > 2000f)
 			{
 				// Whenever you deal with non-regular events that change the behavior or position drastically, make sure to only run the code on the owner of the projectile,
 				// and then set netUpdate to true
-				projectile.position = idlePosition;
-				projectile.velocity *= 0.1f;
-				projectile.netUpdate = true;
+				Projectile.position = idlePosition;
+				Projectile.velocity *= 0.1f;
+				Projectile.netUpdate = true;
 			}
 
 			// If your minion is flying, you want to do this independently of any conditions
@@ -117,13 +145,13 @@ namespace SariaMod.Items.LilHarpy
 			{
 				// Fix overlap with other minions
 				Projectile other = Main.projectile[i];
-				if (i != projectile.whoAmI && other.active && other.owner == projectile.owner && Math.Abs(projectile.position.X - other.position.X) + Math.Abs(projectile.position.Y - other.position.Y) < projectile.width)
+				if (i != Projectile.whoAmI && other.active && other.owner == Projectile.owner && Math.Abs(Projectile.position.X - other.position.X) + Math.Abs(Projectile.position.Y - other.position.Y) < Projectile.width)
 				{
-					if (projectile.position.X < other.position.X) projectile.velocity.X -= overlapVelocity;
-					else projectile.velocity.X += overlapVelocity;
+					if (Projectile.position.X < other.position.X) Projectile.velocity.X -= overlapVelocity;
+					else Projectile.velocity.X += overlapVelocity;
 
-					if (projectile.position.Y < other.position.Y) projectile.velocity.Y -= overlapVelocity;
-					else projectile.velocity.Y += overlapVelocity;
+					if (Projectile.position.Y < other.position.Y) Projectile.velocity.Y -= overlapVelocity;
+					else Projectile.velocity.Y += overlapVelocity;
 				}
 			}
 
@@ -131,14 +159,14 @@ namespace SariaMod.Items.LilHarpy
 
 			// Starting search distance
 			float distanceFromTarget = 10f;
-			Vector2 targetCenter = projectile.position;
+			Vector2 targetCenter = Projectile.position;
 			bool foundTarget = false;
 
 			// This code is required if your minion weapon has the targeting feature
 			if (player.HasMinionAttackTargetNPC)
 			{
 				NPC npc = Main.npc[player.MinionAttackTargetNPC];
-				float between = Vector2.Distance(npc.Center, projectile.Center);
+				float between = Vector2.Distance(npc.Center, Projectile.Center);
 				// Reasonable distance away so it doesn't target across multiple screens
 				if (between < 2000f)
 				{
@@ -156,7 +184,7 @@ namespace SariaMod.Items.LilHarpy
 					if (npc.CanBeChasedBy())
 					{
 						float between = Vector2.Distance(npc.Center, player.Center);
-						bool closest = Vector2.Distance(projectile.Center, targetCenter) > between;
+						bool closest = Vector2.Distance(Projectile.Center, targetCenter) > between;
 						bool inRange = between < distanceFromTarget;
 
 						// Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
@@ -176,11 +204,11 @@ namespace SariaMod.Items.LilHarpy
 			// friendly needs to be set to false so it doesn't damage things like target dummies while idling
 			// Both things depend on if it has a target or not, so it's just one assignment here
 			// You don't need this assignment if your minion is shooting things instead of dealing contact damage
-			projectile.friendly = foundTarget;
+			Projectile.friendly = foundTarget;
 
 
 
-			Lighting.AddLight(projectile.Center, Color.LightPink.ToVector3() * 0.78f);
+			Lighting.AddLight(Projectile.Center, Color.LightPink.ToVector3() * 0.78f);
 			// Default movement parameters (here for attacking)
 			float speed = 10f;
 			float inertia = 20f;
@@ -190,19 +218,19 @@ namespace SariaMod.Items.LilHarpy
 			if (distanceFromTarget > 40f)
 			{
 				// The immediate range around the target (so it doesn't latch onto it when close)
-				Vector2 direction = targetCenter - projectile.Center;
+				Vector2 direction = targetCenter - Projectile.Center;
 				direction.Normalize();
 				direction *= speed;
 
-				projectile.velocity = (projectile.velocity * (inertia - 2) + direction) / inertia;
+				Projectile.velocity = (Projectile.velocity * (inertia - 2) + direction) / inertia;
 			}
 
 			
 		
 		}
-			public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
+			public override bool PreDraw(ref Color lightColor)
 		{
-			FairyGlobalProjectile.DrawCenteredAndAfterimage(base.projectile, lightColor, ProjectileID.Sets.TrailingMode[base.projectile.type]);
+			FairyGlobalProjectile.DrawCenteredAndAfterimage(base.Projectile, lightColor, ProjectileID.Sets.TrailingMode[base.Projectile.type]);
 			return true;
 		}
 	

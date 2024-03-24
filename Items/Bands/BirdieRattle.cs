@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using SariaMod.Items.LilHarpy;
 using SariaMod.Buffs;
 using Terraria;
@@ -17,23 +18,25 @@ namespace SariaMod.Items.Bands
 
 		public override void SetDefaults() {
 			
-			item.CloneDefaults(ItemID.ZephyrFish);
-			item.shoot = ModContent.ProjectileType<BabyHarpy>();
-			item.buffType = ModContent.BuffType<BabyHarpyBuff>();
-			item.noMelee = true;
+			Item.CloneDefaults(ItemID.ZephyrFish);
+			Item.shoot = ModContent.ProjectileType<BabyHarpy>();
+			Item.buffType = ModContent.BuffType<BabyHarpyBuff>();
+			Item.noMelee = true;
 			
 		}
 
-		public override void AddRecipes() {
-			ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddIngredient(ItemID.Feather, 5);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+		public override void AddRecipes()
+		{
+			{
+				Recipe recipe = CreateRecipe();
+				recipe.AddIngredient(ItemID.Feather, 5);
+				recipe.Register();
+			}
 		}
 
-		public override void UseStyle(Player player) {
+		public override void UseStyle(Player player, Rectangle heldItemFrame) {
 			if (player.whoAmI == Main.myPlayer && player.itemTime == 0) {
-				player.AddBuff(item.buffType, 3600, true);
+				player.AddBuff(Item.buffType, 3600, true);
 			}
 		}
 	}

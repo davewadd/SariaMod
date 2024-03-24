@@ -8,6 +8,7 @@ using System;
 using SariaMod.Buffs;
 using SariaMod.Dusts;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using SariaMod.Items.Strange;
 using SariaMod.Items.Sapphire;
@@ -26,10 +27,10 @@ namespace SariaMod.Items
         public override void SetStaticDefaults()
         {
             base.DisplayName.SetDefault("Mother");
-            Main.projFrames[base.projectile.type] = 1;
-            Main.projPet[projectile.type] = true;
-             ProjectileID.Sets.MinionSacrificable[base.projectile.type] = false;
-            ProjectileID.Sets.MinionTargettingFeature[base.projectile.type] = true;
+            Main.projFrames[base.Projectile.type] = 1;
+            Main.projPet[Projectile.type] = true;
+             ProjectileID.Sets.MinionSacrificable[base.Projectile.type] = false;
+            ProjectileID.Sets.MinionTargettingFeature[base.Projectile.type] = true;
         }
         public override bool? CanCutTiles()
         {
@@ -47,55 +48,42 @@ namespace SariaMod.Items
         public override void SetDefaults()
         {
            
-            base.projectile.width = 11;
-            base.projectile.height = 27;
+            base.Projectile.width = 11;
+            base.Projectile.height = 27;
             
-            base.projectile.netImportant = true;
-            base.projectile.friendly = true;
-            
-            base.projectile.ignoreWater = false;
-            base.projectile.usesLocalNPCImmunity = true;
-             base.projectile.localNPCHitCooldown = 50;
-                base.projectile.minionSlots = 0f;
-            base.projectile.timeLeft = 100;
-            base.projectile.penetrate = -1;
-            base.projectile.tileCollide = false;
-            base.projectile.minion = true;
+            base.Projectile.netImportant = true;
+            base.Projectile.friendly = true;
+            Projectile.alpha = 300;
+            base.Projectile.ignoreWater = false;
+            base.Projectile.usesLocalNPCImmunity = true;
+             base.Projectile.localNPCHitCooldown = 50;
+                base.Projectile.minionSlots = 0f;
+            base.Projectile.timeLeft = 100;
+            base.Projectile.penetrate = -1;
+            base.Projectile.tileCollide = false;
+            base.Projectile.minion = true;
         }
        
         public override void AI()
         {
 
-            Player player = Main.player[base.projectile.owner];
+            Player player = Main.player[base.Projectile.owner];
             FairyPlayer modPlayer = player.Fairy();
 
-            if (projectile.timeLeft >= 200)
+            if (Projectile.timeLeft >= 200)
             {
-                Main.PlaySound(SoundID.Item30, base.projectile.Center);
+                SoundEngine.PlaySound(SoundID.Item30, base.Projectile.Center);
             }
 
 
 
 
-            if (projectile.timeLeft == 100)
+            if (Projectile.timeLeft == 100)
             {
-                Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Notice"), base.projectile.Center);
+                SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Notice"), base.Projectile.Center);
             }
 
-            Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
-            if (!mother.active)
-            {
-                base.projectile.Kill();
-                return;
-            }
-           if (player.ownedProjectileCounts[ModContent.ProjectileType<Anger>()] >= 1f || (mother.velocity.X >= .5f))
-            {
-                projectile.Kill();
-            }
-
-                projectile.position.X = mother.Center.X;
-            projectile.position.Y = mother.Center.Y-70;
-            projectile.spriteDirection = mother.spriteDirection;
+           
 
 
 

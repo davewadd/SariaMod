@@ -5,8 +5,8 @@ namespace SariaMod.Dusts
 {
 	public class Blood : ModDust
 	{
-		public override void SetDefaults() {
-			updateType = 33;
+		public override void SetStaticDefaults() {
+			UpdateType = 33;
 
 		}
 

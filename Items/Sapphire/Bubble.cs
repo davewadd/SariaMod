@@ -1,10 +1,11 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
+using SariaMod.Items.Strange;
 using SariaMod.Dusts;
 using System;
 using Terraria;
 using SariaMod.Items.Sapphire;
+using Terraria.Audio;
 using Terraria.ID;
 using SariaMod.Buffs;
 using Terraria.ModLoader;
@@ -16,28 +17,28 @@ namespace SariaMod.Items.Sapphire
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Child");
-			Main.projFrames[base.projectile.type] = 1;
-			ProjectileID.Sets.MinionShot[base.projectile.type] = true;
-			ProjectileID.Sets.TrailingMode[base.projectile.type] = 2;
+			Main.projFrames[base.Projectile.type] = 1;
+			ProjectileID.Sets.MinionShot[base.Projectile.type] = true;
+			ProjectileID.Sets.TrailingMode[base.Projectile.type] = 2;
 			
 		}
 
 		public override void SetDefaults()
 		{
-			base.projectile.width = 34;
-			base.projectile.height = 34;
-			base.projectile.netImportant = true;
-			base.projectile.friendly = false;
-			base.projectile.ignoreWater = true;
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 7;
-			base.projectile.minionSlots = 0f;
-			base.projectile.extraUpdates = 1;
-			projectile.alpha = 100;
-			base.projectile.penetrate = -1;
-			base.projectile.tileCollide = false;
-			base.projectile.timeLeft = 1000;
-			base.projectile.minion = true;
+			base.Projectile.width = 34;
+			base.Projectile.height = 34;
+			base.Projectile.netImportant = true;
+			base.Projectile.friendly = false;
+			base.Projectile.ignoreWater = true;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 7;
+			base.Projectile.minionSlots = 0f;
+			base.Projectile.extraUpdates = 1;
+			Projectile.alpha = 100;
+			base.Projectile.penetrate = -1;
+			base.Projectile.tileCollide = false;
+			base.Projectile.timeLeft = 500;
+			Projectile.DamageType = DamageClass.Magic;
 		}
 		public override bool? CanCutTiles()
 		{
@@ -45,10 +46,10 @@ namespace SariaMod.Items.Sapphire
 		}
 		public override bool MinionContactDamage()
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
-			NPC target = base.projectile.Center.MinionHoming(500f, player);
-			if (projectile.frame <= 2)
+			NPC target = base.Projectile.Center.MinionHoming(500f, player);
+			if (Projectile.frame <= 2)
 			{
 				return true;
 			}
@@ -60,7 +61,7 @@ namespace SariaMod.Items.Sapphire
 		private const int sphereRadius2 = 6;
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
-			Player player = Main.player[projectile.owner];
+			Player player = Main.player[Projectile.owner];
 			Player player2 = Main.LocalPlayer;
 			target.buffImmune[BuffID.CursedInferno] = false;
 			target.buffImmune[BuffID.Confused] = false;
@@ -82,15 +83,14 @@ namespace SariaMod.Items.Sapphire
 				double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
 
 
-				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Water>(), 0f, 0f, 0, default(Color), 1.5f);
+				Dust.NewDust(new Vector2(Projectile.Center.X + radius * (float)Math.Cos(angle), Projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Water>(), 0f, 0f, 0, default(Color), 1.5f);
 			}//end of dust stuff
 			
-			projectile.scale = 1.5f;
+			Projectile.scale = 1.5f;
 			knockback /= 100;
-
-			Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Bubblepop"), projectile.Center);
-			
-				if (Main.rand.NextBool(10))//controls the speed of when the sparkles spawn
+			////ahhhhhh
+			SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Bubblepop"));
+			if (Main.rand.NextBool(10))//controls the speed of when the sparkles spawn
 				{
 					float radius = (float)Math.Sqrt(Main.rand.Next(34 * 34));
 					double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
@@ -113,38 +113,61 @@ namespace SariaMod.Items.Sapphire
 			{
 				damage -= (damage) / 2;
 			}
-			if (projectile.timeLeft > 20 && (!player.HasBuff(ModContent.BuffType<Overcharged>())))
-			{
-				projectile.timeLeft = 20;
-			}
-			else if (projectile.timeLeft > 40 && (player.HasBuff(ModContent.BuffType<Overcharged>())))
-			{
-				projectile.timeLeft = 40;
-			}
+			
 			
 		}
 		public override void AI()
 		{
-			Player player = Main.player[projectile.owner];
+			Player player = Main.player[Projectile.owner];
+			FairyPlayer modPlayer = player.Fairy();
 			Player player2 = Main.LocalPlayer;
-			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
-			if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
+			Projectile mother = Main.projectile[(int)base.Projectile.ai[1]];
+			if (modPlayer.Sarialevel == 6)
 			{
-				float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius2 * sphereRadius2));
-				double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
+				Projectile.damage = 900 + (modPlayer.SariaXp / 40);
+			}
+			else if (modPlayer.Sarialevel == 5)
+			{
+				Projectile.damage = 200 + (modPlayer.SariaXp / 342);
+			}
+			else if (modPlayer.Sarialevel == 4)
+			{
+				Projectile.damage = 75 + (modPlayer.SariaXp / 640);
+			}
+			else if (modPlayer.Sarialevel == 3)
+			{
+				Projectile.damage = 50 + (modPlayer.SariaXp / 1600);
+			}
+			else if (modPlayer.Sarialevel == 2)
+			{
+				Projectile.damage = 26 + (modPlayer.SariaXp / 833);
+			}
 
-				Dust.NewDust(new Vector2((projectile.Center.X) + radius * (float)Math.Cos(angle), (projectile.Center.Y) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Cold>(), 0f, 0f, 0, default(Color), 1.5f);
+			else if (modPlayer.Sarialevel == 1)
+			{
+				Projectile.damage = 15 + (modPlayer.SariaXp / 818);
+			}
+			else
+			{
+				Projectile.damage = 10 + (modPlayer.SariaXp / 600);
 			}
 			if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
 			{
 				float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius2 * sphereRadius2));
 				double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
 
-				Dust.NewDust(new Vector2((projectile.Center.X) + radius * (float)Math.Cos(angle), (projectile.Center.Y) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Snow2>(), 0f, 0f, 0, default(Color), 1.5f);
+				Dust.NewDust(new Vector2((Projectile.Center.X) + radius * (float)Math.Cos(angle), (Projectile.Center.Y) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Cold>(), 0f, 0f, 0, default(Color), 1.5f);
 			}
-
+			if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
 			{
-				float between = Vector2.Distance(player2.Center, projectile.Center);
+				float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius2 * sphereRadius2));
+				double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
+
+				Dust.NewDust(new Vector2((Projectile.Center.X) + radius * (float)Math.Cos(angle), (Projectile.Center.Y) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Snow2>(), 0f, 0f, 0, default(Color), 1.5f);
+			}
+			
+			{
+				float between = Vector2.Distance(player2.Center, Projectile.Center);
 				// Reasonable distance away so it doesn't target across multiple screens
 				if (between < 1000f)
 				{
@@ -152,61 +175,23 @@ namespace SariaMod.Items.Sapphire
 
 				}
 			}
-			NPC target = base.projectile.Center.MinionHoming(500f, player);
-			if (target != null)
-			{
-				base.projectile.ai[1] += 1f;
-			}
+			
 
-			Vector2 idlePosition = player.Center;
-			idlePosition.Y -= 48f; // Go up 48 coordinates (three tiles from the center of the player)
-
-			// If your minion doesn't aimlessly move around when it's idle, you need to "put" it into the line of other summoned minions
-			// The index is projectile.minionPos
-			float minionPositionOffsetX = (10 + projectile.minionPos * 40) * player.direction;
-			idlePosition.X += minionPositionOffsetX; // Go behind the player
-
-			// All of this code below this line is adapted from Spazmamini code (ID 388, aiStyle 66)
-
-			// Teleport to player if distance is too big
-			Vector2 vectorToIdlePosition = idlePosition - projectile.Center;
-			float distanceToIdlePosition = vectorToIdlePosition.Length();
-			if (Main.myPlayer == player.whoAmI && distanceToIdlePosition > 2000f)
-			{
-				// Whenever you deal with non-regular events that change the behavior or position drastically, make sure to only run the code on the owner of the projectile,
-				// and then set netUpdate to true
-				projectile.position = idlePosition;
-				projectile.velocity *= 0.1f;
-				projectile.netUpdate = true;
-			}
+			
 
 			// If your minion is flying, you want to do this independently of any conditions
-			float overlapVelocity = 0.04f;
-			int Bubble = ModContent.ProjectileType<Bubble>();
-			for (int i = 0; i < Main.maxProjectiles; i++)
-			{
-				// Fix overlap with other minions
-				Projectile other = Main.projectile[i];
-				if (i != projectile.whoAmI && other.active && other.owner == projectile.owner && Main.projectile[i].type == Bubble && Math.Abs(projectile.position.X - other.position.X) + Math.Abs(projectile.position.Y - other.position.Y) < projectile.width)
-				{
-					if (projectile.position.X < other.position.X) projectile.velocity.X -= overlapVelocity;
-					else projectile.velocity.X += overlapVelocity;
+		
 
-					if (projectile.position.Y < other.position.Y) projectile.velocity.Y -= overlapVelocity;
-					else projectile.velocity.Y += overlapVelocity;
-				}
-			}
-
-			if (projectile.timeLeft <= 10)
+			if (Projectile.timeLeft <= 10)
 			{
-				projectile.scale = 1.5f;
+				Projectile.scale = 1.5f;
 				if (Main.rand.NextBool())//controls the speed of when the sparkles spawn
 				{
 					float radius = (float)Math.Sqrt(Main.rand.Next(34 * 34));
 					double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
 
 
-					Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Water>(), 0f, 0f, 0, default(Color), 1.5f);
+					Dust.NewDust(new Vector2(Projectile.Center.X + radius * (float)Math.Cos(angle), Projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Water>(), 0f, 0f, 0, default(Color), 1.5f);
 				}//end of dust stuff
 				if (Main.rand.NextBool())//controls the speed of when the sparkles spawn
 				{
@@ -214,105 +199,45 @@ namespace SariaMod.Items.Sapphire
 					double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
 
 
-					Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<BubbleDust>(), 0f, 0f, 0, default(Color), 1.5f);
+					Dust.NewDust(new Vector2(Projectile.Center.X + radius * (float)Math.Cos(angle), Projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<BubbleDust>(), 0f, 0f, 0, default(Color), 1.5f);
 				}//end of dust stuff
-				if (projectile.timeLeft == 1)
-				{
-					Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6) * 3f, ModContent.ProjectileType<HealBubble>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-				}
-				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Bubblepop"), projectile.Center);
+				
+				SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Bubblepop") with { Volume = 2f, Pitch = 1.3f });
+				
 
 			}
-
-			// Starting search distance
-			float distanceFromTarget = 10f;
-			Vector2 targetCenter = projectile.position;
-			bool foundTarget = false;
-
-			// This code is required if your minion weapon has the targeting feature
-			if (player.HasMinionAttackTargetNPC)
+			
+			bool foundTarget = true;
+			
+			if (Projectile.timeLeft < 20)
 			{
-				NPC npc = Main.npc[player.MinionAttackTargetNPC];
-				float between = Vector2.Distance(npc.Center, projectile.Center);
-				// Reasonable distance away so it doesn't target across multiple screens
-				if (between < 2000f)
-				{
-					distanceFromTarget = between;
-					targetCenter = npc.Center;
-					foundTarget = true;
-				}
-			}
-			if (!foundTarget)
-			{
-				// This code is required either way, used for finding a target
-				for (int i = 0; i < Main.maxNPCs; i++)
-				{
-					NPC npc = Main.npc[i];
-					if (npc.CanBeChasedBy())
-					{
-						float between = Vector2.Distance(npc.Center, player.Center);
-						bool closest = Vector2.Distance(projectile.Center, targetCenter) > between;
-						bool inRange = between < distanceFromTarget;
-
-						// Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
-						// The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
-						bool closeThroughWall = between < 1000f;
-						if (((closest && inRange) || !foundTarget) && (closeThroughWall))
-						{
-							distanceFromTarget = between;
-							targetCenter = npc.Center;
-							foundTarget = true;
-						}
-					}
-				}
-			}
-			if (projectile.timeLeft < 20)
-			{
-				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/BubblePop"), projectile.Center);
+				SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Bubblepop"));
 			}
 			// friendly needs to be set to true so the minion can deal contact damage
 			// friendly needs to be set to false so it doesn't damage things like target dummies while idling
 			// Both things depend on if it has a target or not, so it's just one assignment here
 			// You don't need this assignment if your minion is shooting things instead of dealing contact damage
-			projectile.friendly = foundTarget;
+			Projectile.friendly = foundTarget;
 
 
 
-			Lighting.AddLight(projectile.Center, new Color(0, 0, Main.DiscoB).ToVector3() * 2f);
+			Lighting.AddLight(Projectile.Center, new Color(0, 0, Main.DiscoB).ToVector3() * 2f);
 			// Default movement parameters (here for attacking)
 			float speed = 13f;
 			float inertia = 12f;
-			if (projectile.timeLeft == 3000)
+			if (Projectile.timeLeft == 3000)
 			{
-				Main.PlaySound(SoundID.Drown, base.projectile.Center);
+				SoundEngine.PlaySound(SoundID.Drown, base.Projectile.Center);
 			}
+			Vector2 idlePosition = Main.MouseWorld;
 
-			{
-				// Minion has a target: attack (here, fly towards the enemy)
-				if (distanceFromTarget > 20f)
-				{
+			
 
-					if (player.HasBuff(ModContent.BuffType<StatRaise>()))
-					{
-						speed *= 2;
-					}
-					if (player.HasBuff(ModContent.BuffType<StatLower>()))
-					{
-						speed = 9;
-
-					}
-					// The immediate range around the target (so it doesn't latch onto it when close)
-					Vector2 direction = targetCenter - projectile.Center;
-					direction.Normalize();
-					direction *= speed;
-
-					projectile.velocity = (projectile.velocity * (inertia - 2) + direction) / 20;
-				}
-			}
+			
+		
+			
 
 		}
-
-		
 
 
 

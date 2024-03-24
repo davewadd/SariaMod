@@ -20,25 +20,25 @@ namespace SariaMod.Items.Ruby
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Child");
-			Main.projFrames[base.projectile.type] = 6;
-			ProjectileID.Sets.MinionShot[base.projectile.type] = true;
+			Main.projFrames[base.Projectile.type] = 6;
+			ProjectileID.Sets.MinionShot[base.Projectile.type] = true;
 		}
 
 		public override void SetDefaults()
 		{
-			base.projectile.width = 20;
-			base.projectile.height = 20;
-			base.projectile.netImportant = true;
-			base.projectile.friendly = true;
-			base.projectile.ignoreWater = true;
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 7;
-			base.projectile.minionSlots = 0f;
-			base.projectile.extraUpdates = 1;
-			base.projectile.aiStyle = 1;
-			base.projectile.penetrate = -1;
-			projectile.tileCollide = true;
-			base.projectile.timeLeft = 1500;
+			base.Projectile.width = 20;
+			base.Projectile.height = 20;
+			base.Projectile.netImportant = true;
+			base.Projectile.friendly = true;
+			base.Projectile.ignoreWater = true;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 7;
+			base.Projectile.minionSlots = 0f;
+			base.Projectile.extraUpdates = 1;
+			base.Projectile.aiStyle = 1;
+			base.Projectile.penetrate = -1;
+			Projectile.tileCollide = true;
+			base.Projectile.timeLeft = 1500;
 			
 		}
 		private const int sphereRadius = 20;
@@ -48,7 +48,7 @@ namespace SariaMod.Items.Ruby
 		}
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
-			Player player = Main.player[projectile.owner];
+			Player player = Main.player[Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
 			target.buffImmune[BuffID.CursedInferno] = false;
 			target.buffImmune[BuffID.Confused] = false;
@@ -64,7 +64,7 @@ namespace SariaMod.Items.Ruby
 			target.AddBuff(ModContent.BuffType<Burning2>(), 200);
 			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
 			{
-				projectile.timeLeft += 6;
+				Projectile.timeLeft += 6;
 			}
 	
             
@@ -74,8 +74,8 @@ namespace SariaMod.Items.Ruby
 		}
 		public override bool OnTileCollide(Vector2 oldVelocity)
         {
-			projectile.velocity.Y = 1/4;
-			projectile.velocity.X = 0;
+			Projectile.velocity.Y = 1/4;
+			Projectile.velocity.X = 0;
 			return false;
 
         }
@@ -90,20 +90,20 @@ namespace SariaMod.Items.Ruby
 		
 		public override void AI()
 		{
-			Player player = Main.player[projectile.owner];
+			Player player = Main.player[Projectile.owner];
 			Player player2 = Main.LocalPlayer;
 			FairyPlayer modPlayer = player.Fairy();
 			if (Main.rand.NextBool(30))//controls the speed of when the sparkles spawn
 			{
 				float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
 				double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
-				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), (projectile.Center.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<FlameDust>(), 0f, 0f, 0, default(Color), 1.5f);
+				Dust.NewDust(new Vector2(Projectile.Center.X + radius * (float)Math.Cos(angle), (Projectile.Center.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<FlameDust>(), 0f, 0f, 0, default(Color), 1.5f);
 			}
 			if (Main.rand.NextBool(40))//controls the speed of when the sparkles spawn
 			{
 				float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
 				double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
-				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), (projectile.Center.Y - 15) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<SmokeDust3>(), 0f, 0f, 0, default(Color), 1.5f);
+				Dust.NewDust(new Vector2(Projectile.Center.X + radius * (float)Math.Cos(angle), (Projectile.Center.Y - 15) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<SmokeDust3>(), 0f, 0f, 0, default(Color), 1.5f);
 			}
 
 			// friendly needs to be set to true so the minion can deal contact damage
@@ -112,13 +112,13 @@ namespace SariaMod.Items.Ruby
 			// You don't need this assignment if your minion is shooting things instead of dealing contact damage
 
 
-			Lighting.AddLight(projectile.Center, Color.OrangeRed.ToVector3() * 2f);
+			Lighting.AddLight(Projectile.Center, Color.OrangeRed.ToVector3() * 2f);
 			// Default movement parameters (here for attacking)
 
 			if (player.ownedProjectileCounts[ModContent.ProjectileType<Flame>()] > 12f && !player.HasBuff(ModContent.BuffType<Overcharged>()))
 
 			{
-				projectile.timeLeft -= 3;
+				Projectile.timeLeft -= 3;
 			}
 
 			
@@ -126,7 +126,7 @@ namespace SariaMod.Items.Ruby
 
 			// This code is required if your minion weapon has the targeting feature
 			{ 
-				float between = Vector2.Distance(player2.Center, projectile.Center);
+				float between = Vector2.Distance(player2.Center, Projectile.Center);
 				// Reasonable distance away so it doesn't target across multiple screens
 				if (between <600f)
 				{
@@ -140,28 +140,28 @@ namespace SariaMod.Items.Ruby
 
 			int frameSpeed = 15;
 			{
-				base.projectile.frameCounter++;
-				if (projectile.frameCounter >= frameSpeed)
+				base.Projectile.frameCounter++;
+				if (Projectile.frameCounter >= frameSpeed)
 					
           
-					if (base.projectile.frameCounter > 6)
+					if (base.Projectile.frameCounter > 6)
 					{
-						base.projectile.frame++;
-						base.projectile.frameCounter = 0;
+						base.Projectile.frame++;
+						base.Projectile.frameCounter = 0;
 					}
-				if (base.projectile.frame >= 6)
+				if (base.Projectile.frame >= 6)
 				{
 					
-					base.projectile.frame = 0;
+					base.Projectile.frame = 0;
 				}
 								
 			}
 		}
 		public override Color? GetAlpha(Color lightColor)
 		{
-			if (base.projectile.timeLeft < 85)
+			if (base.Projectile.timeLeft < 85)
 			{
-				byte b2 = (byte)(base.projectile.timeLeft * 3);
+				byte b2 = (byte)(base.Projectile.timeLeft * 3);
 				byte a2 = (byte)(100f * ((float)(int)b2 / 255f));
 				return new Color(b2, b2, b2, a2);
 			}

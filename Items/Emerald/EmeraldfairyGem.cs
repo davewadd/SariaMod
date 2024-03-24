@@ -20,27 +20,27 @@ namespace SariaMod.Items.Emerald
 		{
 
 			base.DisplayName.SetDefault("Child");
-			Main.projFrames[base.projectile.type] = 1;
-			ProjectileID.Sets.MinionShot[base.projectile.type] = true;
-			ProjectileID.Sets.TrailingMode[base.projectile.type] = 2;
-			ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 30;
+			Main.projFrames[base.Projectile.type] = 1;
+			ProjectileID.Sets.MinionShot[base.Projectile.type] = true;
+			ProjectileID.Sets.TrailingMode[base.Projectile.type] = 2;
+			ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 30;
 
 		}
 
 		public override void SetDefaults()
 		{
-			base.projectile.width = 16;
-			base.projectile.height = 16;
-			base.projectile.netImportant = true;
-			base.projectile.friendly = false;
-			base.projectile.ignoreWater = true;
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 7;
-			base.projectile.minionSlots = 0f;
-			base.projectile.extraUpdates = 1;
-			base.projectile.penetrate = 2;
-			base.projectile.tileCollide = true;
-			base.projectile.timeLeft = 200;
+			base.Projectile.width = 16;
+			base.Projectile.height = 16;
+			base.Projectile.netImportant = true;
+			base.Projectile.friendly = false;
+			base.Projectile.ignoreWater = true;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 7;
+			base.Projectile.minionSlots = 0f;
+			base.Projectile.extraUpdates = 1;
+			base.Projectile.penetrate = 2;
+			base.Projectile.tileCollide = true;
+			base.Projectile.timeLeft = 200;
 		}
 		public override bool? CanCutTiles()
 		{
@@ -57,14 +57,14 @@ namespace SariaMod.Items.Emerald
 		}
 		public override bool OnTileCollide(Vector2 oldVelocity)
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
-			if (base.projectile.velocity.X != oldVelocity.X)
+			if (base.Projectile.velocity.X != oldVelocity.X)
 			{
-				base.projectile.velocity.X = 0f - oldVelocity.X;
+				base.Projectile.velocity.X = 0f - oldVelocity.X;
 			}
 			{
-				base.projectile.velocity.Y = 0f - (oldVelocity.Y * .6f);
+				base.Projectile.velocity.Y = 0f - (oldVelocity.Y * .6f);
 
 			}
 
@@ -75,24 +75,15 @@ namespace SariaMod.Items.Emerald
 
 		public override void AI()
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
-			projectile.Center = player.Center;
+			Projectile.Center = player.Center;
 			
-			if (base.projectile.localAI[0] == 0f)
-			{
-				base.projectile.Fairy().spawnedPlayerMinionDamageValue = player.MinionDamage();
-				base.projectile.Fairy().spawnedPlayerMinionProjectileDamageValue = base.projectile.damage;
-				for (int j = 0; j < 1; j++) //set to 2
-				{
-					Projectile.NewProjectile(base.projectile.Center, new Vector2(0, 0), ModContent.ProjectileType<PinkFairyBarrier>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-				}
-				base.projectile.localAI[0] = 1f;
-			}
-			projectile.timeLeft = 2;
+			
+			Projectile.timeLeft = 2;
 			if ((player.ownedProjectileCounts[ModContent.ProjectileType<PurpleBallReturn>()] > 0f))
 			{
-				projectile.Kill();
+				Projectile.Kill();
 			}
 
 		}

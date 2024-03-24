@@ -5,7 +5,7 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
 using SariaMod.Dusts;
@@ -32,7 +32,7 @@ namespace SariaMod.Buffs
 
 	public class Frostburn3 : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("ArcticSpace");
 			Description.SetDefault("Space boils your blood with cold");
@@ -41,7 +41,6 @@ namespace SariaMod.Buffs
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = true;
 			Main.buffNoTimeDisplay[base.Type] = false;
-			longerExpertDebuff = false;
 
 		}
 		private const int sphereRadius = 30;

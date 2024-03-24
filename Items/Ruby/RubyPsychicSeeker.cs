@@ -5,6 +5,7 @@ using System;
 
 using SariaMod.Dusts;
 using Terraria;
+using Terraria.Audio;
 
 
 
@@ -19,32 +20,32 @@ namespace SariaMod.Items.Ruby
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Blade");
-			ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 8;
-			ProjectileID.Sets.TrailingMode[base.projectile.type] = 0;
-			Main.projFrames[base.projectile.type] = 8;
+			ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 8;
+			ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
+			Main.projFrames[base.Projectile.type] = 8;
 		}
 
 		public override void SetDefaults()
 		{
-			base.projectile.width = 30;
-			base.projectile.height = 30;
+			base.Projectile.width = 30;
+			base.Projectile.height = 30;
 			
-			base.projectile.alpha = 100;
-			base.projectile.friendly = true;
-			base.projectile.tileCollide = false;
-				projectile.penetrate = 1;
-				base.projectile.timeLeft = 200;
-			base.projectile.ignoreWater = true;
+			base.Projectile.alpha = 100;
+			base.Projectile.friendly = true;
+			base.Projectile.tileCollide = false;
+				Projectile.penetrate = 1;
+				base.Projectile.timeLeft = 200;
+			base.Projectile.ignoreWater = true;
 			
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 4;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 4;
 		}
 
 		public override Color? GetAlpha(Color lightColor)
 		{
-			if (base.projectile.timeLeft < 85)
+			if (base.Projectile.timeLeft < 85)
 			{
-				byte b2 = (byte)(base.projectile.timeLeft * 3);
+				byte b2 = (byte)(base.Projectile.timeLeft * 3);
 				byte a2 = (byte)(100f * ((float)(int)b2 / 255f));
 				return new Color(b2, b2, b2, a2);
 			}
@@ -53,27 +54,27 @@ namespace SariaMod.Items.Ruby
 		private const int sphereRadius = 2;
 		public override void AI()
 		{
-			Player player = Main.player[base.projectile.owner];
-			Lighting.AddLight(base.projectile.Center, 0f, 0.5f, 0f);
+			Player player = Main.player[base.Projectile.owner];
+			Lighting.AddLight(base.Projectile.Center, 0f, 0.5f, 0f);
 			if (Main.rand.NextBool())//controls the speed of when the sparkles spawn
 			{
 				float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
 				double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
-				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<FlameDust>(), 0f, 0f, 0, default(Color), 1.5f);
-				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<SmokeDust>(), 0f, 0f, 0, default(Color), 1.5f);
+				Dust.NewDust(new Vector2(Projectile.Center.X + radius * (float)Math.Cos(angle), Projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<FlameDust>(), 0f, 0f, 0, default(Color), 1.5f);
+				Dust.NewDust(new Vector2(Projectile.Center.X + radius * (float)Math.Cos(angle), Projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<SmokeDust>(), 0f, 0f, 0, default(Color), 1.5f);
 			}
 			
-			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
+			FairyGlobalProjectile.HomeInOnNPC(base.Projectile, ignoreTiles: true, 600f, 25f, 20f);
 			{
 				float distanceFromTarget = 10f;
-				Vector2 targetCenter = projectile.position;
+				Vector2 targetCenter = Projectile.position;
 				bool foundTarget = false;
 
 				// This code is required if your minion weapon has the targeting feature
 				if (player.HasMinionAttackTargetNPC)
 				{
 					NPC npc = Main.npc[player.MinionAttackTargetNPC];
-					float between = Vector2.Distance(npc.Center, projectile.Center);
+					float between = Vector2.Distance(npc.Center, Projectile.Center);
 					// Reasonable distance away so it doesn't target across multiple screens
 					if (between < 2000f)
 					{
@@ -91,7 +92,7 @@ namespace SariaMod.Items.Ruby
 						if (npc.CanBeChasedBy())
 						{
 							float between = Vector2.Distance(npc.Center, player.Center);
-							bool closest = Vector2.Distance(projectile.Center, targetCenter) > between;
+							bool closest = Vector2.Distance(Projectile.Center, targetCenter) > between;
 							bool inRange = between < distanceFromTarget;
 
 							// Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
@@ -109,12 +110,12 @@ namespace SariaMod.Items.Ruby
 				
 
 
-				Lighting.AddLight(projectile.Center, Color.LightPink.ToVector3() * 0.78f);
+				Lighting.AddLight(Projectile.Center, Color.LightPink.ToVector3() * 0.78f);
 				// Default movement parameters (here for attacking)
 				float speed = 20f;
 				float nah = 20;
 				float inertia = 20f;
-				if (distanceFromTarget > 40f && projectile.timeLeft <= 400)
+				if (distanceFromTarget > 40f && Projectile.timeLeft <= 400)
 				{
 					if (player.HasBuff(ModContent.BuffType<StatRaise>()))
 					{
@@ -126,34 +127,36 @@ namespace SariaMod.Items.Ruby
 
 					}
 					// The immediate range around the target (so it doesn't latch onto it when close)
-					Vector2 direction = targetCenter - projectile.Center;
+					Vector2 direction = targetCenter - Projectile.Center;
 					direction.Normalize();
 					direction *= speed;
 
-					projectile.velocity = (projectile.velocity * (inertia - 2) + direction) / inertia;
+					Projectile.velocity = (Projectile.velocity * (inertia - 2) + direction) / inertia;
 				}
-				base.projectile.frameCounter++;
-				if (base.projectile.frameCounter > 6)
+				base.Projectile.frameCounter++;
+				if (base.Projectile.frameCounter > 6)
 				{
-					base.projectile.frame++;
-					base.projectile.frameCounter = 0;
+					base.Projectile.frame++;
+					base.Projectile.frameCounter = 0;
 				}
-				if (base.projectile.frame >= Main.projFrames[base.projectile.type])
+				if (base.Projectile.frame >= Main.projFrames[base.Projectile.type])
 				{
-					base.projectile.frame = 0;
+					base.Projectile.frame = 0;
 				}
 			}
-			if (projectile.timeLeft >= 200)
+			if (Projectile.timeLeft >= 200)
             {
-				Main.PlaySound(SoundID.Item69, base.projectile.Center);
+				SoundEngine.PlaySound(SoundID.Item69, base.Projectile.Center);
 			}
-			if (projectile.timeLeft == 1)
+			if (Projectile.timeLeft == 1)
             {
 				
 					for (int j = 0; j < 1; j++) //set to 2
 					{
-						Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Explosion>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-					}
+					Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.position.X + 0, Projectile.position.Y + 0, 0, 0, ModContent.ProjectileType<Explosion>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
+					
+					SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Bomb"));
+				}
 				
 			}
 			}
@@ -164,7 +167,7 @@ namespace SariaMod.Items.Ruby
 
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
 			target.buffImmune[BuffID.CursedInferno] = false;
 			target.buffImmune[BuffID.Confused] = false;
@@ -181,7 +184,9 @@ namespace SariaMod.Items.Ruby
 
 			for (int j = 0; j < 1; j++) //set to 2
 			{
-				Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Explosion>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+				Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.position.X + 0, Projectile.position.Y + 0, 0, 0, ModContent.ProjectileType<Explosion>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
+				SoundEngine.PlaySound(SoundID.Item116, base.Projectile.Center);
+				SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Bomb"), Projectile.Center);
 			}
 			if (player.HasBuff(ModContent.BuffType<StatRaise>()))
 			{

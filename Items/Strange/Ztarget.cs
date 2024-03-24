@@ -8,7 +8,7 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -19,26 +19,26 @@ namespace SariaMod.Items.Strange
         public override void SetStaticDefaults()
         {
             base.DisplayName.SetDefault("Blade");
-            ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 7;
-            ProjectileID.Sets.TrailingMode[base.projectile.type] = 0;
-            Main.projFrames[base.projectile.type] = 1;
+            ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 7;
+            ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
+            Main.projFrames[base.Projectile.type] = 1;
         }
 
         public override void SetDefaults()
         {
-            base.projectile.width = 80;
-            base.projectile.height = 80;
+            base.Projectile.width = 80;
+            base.Projectile.height = 80;
+            base.Projectile.netImportant = true;
+            base.Projectile.alpha = 0;
+            base.Projectile.friendly = true;
+            base.Projectile.tileCollide = false;
 
-            base.projectile.alpha = 0;
-            base.projectile.friendly = true;
-            base.projectile.tileCollide = false;
+            base.Projectile.penetrate = 1;
+            base.Projectile.timeLeft = 500;
+            base.Projectile.ignoreWater = true;
 
-            base.projectile.penetrate = 1;
-            base.projectile.timeLeft = 500;
-            base.projectile.ignoreWater = true;
-
-            base.projectile.usesLocalNPCImmunity = true;
-            base.projectile.localNPCHitCooldown = 4;
+            base.Projectile.usesLocalNPCImmunity = true;
+            base.Projectile.localNPCHitCooldown = 4;
         }
 
         public override bool? CanHitNPC(NPC target)
@@ -47,22 +47,22 @@ namespace SariaMod.Items.Strange
         }
         public override void AI()
         {
-            Player player = Main.player[base.projectile.owner];
-            Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
-            projectile.scale = (float)0.7;
-            base.projectile.rotation += (float)0.07;
+            Player player = Main.player[base.Projectile.owner];
+            Projectile mother = Main.projectile[(int)base.Projectile.ai[1]];
+            Projectile.scale = (float)0.7;
+            base.Projectile.rotation += (float)0.07;
 
-            FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
+            FairyGlobalProjectile.HomeInOnNPC(base.Projectile, ignoreTiles: true, 600f, 25f, 20f);
             {
                 float distanceFromTarget = 10f;
-                Vector2 targetCenter = projectile.position;
+                Vector2 targetCenter = Projectile.position;
                 bool foundTarget = false;
 
                 // This code is required if your minion weapon has the targeting feature
                 if (player.HasMinionAttackTargetNPC)
                 {
                     NPC npc = Main.npc[player.MinionAttackTargetNPC];
-                    float between = Vector2.Distance(npc.Center, projectile.Center);
+                    float between = Vector2.Distance(npc.Center, Projectile.Center);
                     // Reasonable distance away so it doesn't target across multiple screens
                     if (between < 2000f)
                     {
@@ -74,42 +74,37 @@ namespace SariaMod.Items.Strange
                     }
                 }
 
-                if (!mother.active || mother.type != ModContent.ProjectileType<Saria>())
+               
+                if (player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] > 0f && Projectile.timeLeft <= 10)
                 {
-
-                    base.projectile.Kill();
-                    return;
-                }
-                if (mother.active && projectile.timeLeft <= 10)
-                {
-                    projectile.timeLeft = 20;
+                    Projectile.timeLeft = 20;
                 }
 
-                if (player.HasMinionAttackTargetNPC && projectile.alpha >= 200)
+                if (player.HasMinionAttackTargetNPC && Projectile.alpha >= 200)
                 {
-                    Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/ZtargetEnemy"), base.projectile.Center);
-                    projectile.alpha = 0;
-                    projectile.scale = (float).7;
+                    SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/ZtargetEnemy"), Projectile.Center);
+                    Projectile.alpha = 0;
+                    Projectile.scale = (float).7;
                 }
-                if (!player.HasMinionAttackTargetNPC && projectile.alpha <= 100 )
+                if (!player.HasMinionAttackTargetNPC && Projectile.alpha <= 100 )
                 {
-                    if (projectile.timeLeft <= 490)
+                    if (Projectile.timeLeft <= 490)
                     {
-                        Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/ZtargetCancel"), base.projectile.Center);
+                        SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/ZtargetCancel"), Projectile.Center);
                     }
-                    projectile.alpha = 300;
+                    Projectile.alpha = 300;
                 }
                 int owner = player.whoAmI;
                 int VeilBubble = ModContent.ProjectileType<Ztarget>();
                 for (int i = 0; i < 1000; i++)
                 {
 
-                    float between = Vector2.Distance(Main.projectile[i].Center, projectile.Center);
+                    float between = Vector2.Distance(Main.projectile[i].Center, Projectile.Center);
                   
                     {
 
 
-                        if (Main.projectile[i].active && i != base.projectile.whoAmI && ((Main.projectile[i].type == VeilBubble && Main.projectile[i].owner == owner)))
+                        if (Main.projectile[i].active && Main.projectile[i].whoAmI != base.Projectile.whoAmI && ((Main.projectile[i].type == VeilBubble && Main.projectile[i].owner == owner)))
                         {
 
                             {
@@ -127,26 +122,26 @@ namespace SariaMod.Items.Strange
 
 
 
-                projectile.friendly = foundTarget;
-                if (projectile.alpha == 0)
+                Projectile.friendly = foundTarget;
+                if (Projectile.alpha == 0)
                 {
-                    Lighting.AddLight(projectile.Center, Color.LightGoldenrodYellow.ToVector3() * 1f);
+                    Lighting.AddLight(Projectile.Center, Color.LightGoldenrodYellow.ToVector3() * 1f);
                 }
                 // Default movement parameters (here for attacking)
 
                 float inertia = 13f;
                 Vector2 idlePosition = player.Center;
-                float minionPositionOffsetX = ((60 + projectile.minionPos / 80) * player.direction) - 15;
+                float minionPositionOffsetX = ((60 + Projectile.minionPos / 80) * player.direction) - 15;
                 idlePosition.Y -= 70f;
                 idlePosition.X += minionPositionOffsetX;
-                Vector2 vectorToIdlePosition = idlePosition - projectile.Center;
+                Vector2 vectorToIdlePosition = idlePosition - Projectile.Center;
 
                 float distanceToIdlePosition = vectorToIdlePosition.Length();
                 if (player.HasMinionAttackTargetNPC)
                 {
                     // The immediate range around the target (so it doesn't latch onto it when close)
 
-                    projectile.Center = targetCenter;
+                    Projectile.Center = targetCenter;
 
                 }
                 if (!foundTarget)
@@ -154,23 +149,23 @@ namespace SariaMod.Items.Strange
 
                     if ((distanceToIdlePosition >= 2000))
                     {
-                        projectile.position = mother.Center;
+                        Projectile.position = mother.Center;
                     }
 
 
                     {
 
                         inertia = 10;
-                        Vector2 direction2 = idlePosition - projectile.Center;
+                        Vector2 direction2 = idlePosition - Projectile.Center;
 
-                        projectile.velocity = (projectile.velocity * (inertia - 8) + direction2) / 20;
+                        Projectile.velocity = (Projectile.velocity * (inertia - 8) + direction2) / 20;
                     }
                 }
-                else if (projectile.velocity == Vector2.Zero)
+                else if (Projectile.velocity == Vector2.Zero)
                 {
                     // If there is a case where it's not moving at all, give it a little "poke"
-                    projectile.velocity.X = -0.15f;
-                    projectile.velocity.Y = -0.05f;
+                    Projectile.velocity.X = -0.15f;
+                    Projectile.velocity.Y = -0.05f;
                 }
 
             }
@@ -183,7 +178,7 @@ namespace SariaMod.Items.Strange
 
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
         {
-            Player player = Main.player[base.projectile.owner];
+            Player player = Main.player[base.Projectile.owner];
             FairyPlayer modPlayer = player.Fairy();
             target.buffImmune[BuffID.CursedInferno] = false;
             target.buffImmune[BuffID.Confused] = false;

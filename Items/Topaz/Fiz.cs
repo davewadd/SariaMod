@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using SariaMod.Dusts;
 using Terraria;
+using Terraria.Audio;
 
 
 
@@ -19,32 +20,32 @@ namespace SariaMod.Items.Topaz
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Blade");
-			ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 7;
-			ProjectileID.Sets.TrailingMode[base.projectile.type] = 0;
-			Main.projFrames[base.projectile.type] = 4;
+			ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 7;
+			ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
+			Main.projFrames[base.Projectile.type] = 4;
 		}
 
 		public override void SetDefaults()
 		{
-			base.projectile.width = 30;
-			base.projectile.height = 30;
+			base.Projectile.width = 30;
+			base.Projectile.height = 30;
 			
-			base.projectile.alpha = 0;
-			base.projectile.friendly = true;
-			base.projectile.tileCollide = false;
-			projectile.scale = .5f;
+			base.Projectile.alpha = 0;
+			base.Projectile.friendly = true;
+			base.Projectile.tileCollide = false;
+			Projectile.scale = .5f;
 			
-			base.projectile.penetrate = 1;
-			base.projectile.timeLeft = 300;
-			base.projectile.ignoreWater = true;
+			base.Projectile.penetrate = 1;
+			base.Projectile.timeLeft = 300;
+			base.Projectile.ignoreWater = true;
 			
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 4;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 4;
 		}
 
 		public override bool? CanHitNPC(NPC target)
         {
-			if (projectile.timeLeft <= 200 && !target.friendly)
+			if (Projectile.timeLeft <= 200 && !target.friendly)
             {
 				return true;
             }
@@ -53,11 +54,11 @@ namespace SariaMod.Items.Topaz
         }
 		public override void AI()
 		{
-			Player player = Main.player[base.projectile.owner];
-			projectile.rotation += .05f;
+			Player player = Main.player[base.Projectile.owner];
+			Projectile.rotation += .05f;
 			for (int num468 = 0; num468 < 3; num468++)
 			{
-				int num469 = Dust.NewDust(new Vector2(base.projectile.position.X, base.projectile.position.Y), base.projectile.width, base.projectile.height, 255, 255, 93, 0, default(Color), .5f);
+				int num469 = Dust.NewDust(new Vector2(base.Projectile.position.X, base.Projectile.position.Y), base.Projectile.width, base.Projectile.height, 255, 255, 93, 0, default(Color), .5f);
 				Main.dust[num469].noGravity = true;
 				Main.dust[num469].velocity *= 0f;
 			}
@@ -67,19 +68,19 @@ namespace SariaMod.Items.Topaz
 				double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
 
 
-				Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<StaticDust>(), 0f, 0f, 0, default(Color), 1.5f);
+				Dust.NewDust(new Vector2(Projectile.Center.X + radius * (float)Math.Cos(angle), Projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<StaticDust>(), 0f, 0f, 0, default(Color), 1.5f);
 			}//end of dust stuff
-			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
+			FairyGlobalProjectile.HomeInOnNPC(base.Projectile, ignoreTiles: true, 600f, 25f, 20f);
 			{
 				float distanceFromTarget = 10f;
-				Vector2 targetCenter = projectile.position;
+				Vector2 targetCenter = Projectile.position;
 				bool foundTarget = false;
 
 				// This code is required if your minion weapon has the targeting feature
 				if (player.HasMinionAttackTargetNPC)
 				{
 					NPC npc = Main.npc[player.MinionAttackTargetNPC];
-					float between = Vector2.Distance(npc.Center, projectile.Center);
+					float between = Vector2.Distance(npc.Center, Projectile.Center);
 					// Reasonable distance away so it doesn't target across multiple screens
 					if (between < 20f)
 					{
@@ -100,8 +101,8 @@ namespace SariaMod.Items.Topaz
 						NPC npc = Main.npc[i];
 						if (npc.CanBeChasedBy())
 						{
-							float between = Vector2.Distance(npc.Center, projectile.Center);
-							bool closest = Vector2.Distance(projectile.Center, targetCenter) > between;
+							float between = Vector2.Distance(npc.Center, Projectile.Center);
+							bool closest = Vector2.Distance(Projectile.Center, targetCenter) > between;
 							bool inRange = between < distanceFromTarget;
 
 							// Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
@@ -123,48 +124,48 @@ namespace SariaMod.Items.Topaz
 				// friendly needs to be set to false so it doesn't damage things like target dummies while idling
 				// Both things depend on if it has a target or not, so it's just one assignment here
 				// You don't need this assignment if your minion is shooting things instead of dealing contact damage
-				projectile.friendly = foundTarget;
-				if (projectile.timeLeft >= 200)
+				Projectile.friendly = foundTarget;
+				if (Projectile.timeLeft >= 200)
 				{
-					if (projectile.velocity.Y <= -1)
+					if (Projectile.velocity.Y <= -1)
 					{
-						projectile.velocity.Y *= -1;
+						Projectile.velocity.Y *= -1;
 					}
 				}
-				else if (projectile.timeLeft < 200 && !foundTarget)
+				else if (Projectile.timeLeft < 200 && !foundTarget)
                 {
-					projectile.velocity.Y = (projectile.velocity.Y * (12 - 2) + 1) / 20;
-					projectile.velocity.X = (projectile.velocity.X * (12 - 2) + 1) / 20;
+					Projectile.velocity.Y = (Projectile.velocity.Y * (12 - 2) + 1) / 20;
+					Projectile.velocity.X = (Projectile.velocity.X * (12 - 2) + 1) / 20;
 
 				}
-				else if (projectile.timeLeft < 200 && foundTarget && distanceFromTarget > 1)
+				else if (Projectile.timeLeft < 200 && foundTarget && distanceFromTarget > 1)
                 {
-					Vector2 direction = targetCenter - projectile.Center;
-					projectile.velocity = (projectile.velocity * (12 - 2) + direction) / 20;
+					Vector2 direction = targetCenter - Projectile.Center;
+					Projectile.velocity = (Projectile.velocity * (12 - 2) + direction) / 20;
 				}
 
-				Lighting.AddLight(projectile.Center, Color.LightGoldenrodYellow.ToVector3() * 1f);
+				Lighting.AddLight(Projectile.Center, Color.LightGoldenrodYellow.ToVector3() * 1f);
 				// Default movement parameters (here for attacking)
 
-				if (projectile.timeLeft >= 300)
+				if (Projectile.timeLeft >= 300)
 				{
 					
-					Main.PlaySound(SoundID.DD2_LightningAuraZap, base.projectile.Center);
+					SoundEngine.PlaySound(SoundID.DD2_LightningAuraZap, base.Projectile.Center);
 				}
 			}
 
 
 
-			base.projectile.frameCounter++;
-			if (base.projectile.frameCounter >= 4)
+			base.Projectile.frameCounter++;
+			if (base.Projectile.frameCounter >= 4)
 			{
-				base.projectile.frame++;
-				base.projectile.frameCounter = 0;
+				base.Projectile.frame++;
+				base.Projectile.frameCounter = 0;
 
 			}
-			if (base.projectile.frame >= Main.projFrames[base.projectile.type])
+			if (base.Projectile.frame >= Main.projFrames[base.Projectile.type])
 			{
-				base.projectile.frame = 0;
+				base.Projectile.frame = 0;
 
 			}
 
@@ -172,7 +173,7 @@ namespace SariaMod.Items.Topaz
 
 public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
 			target.buffImmune[BuffID.CursedInferno] = false;
 			target.buffImmune[BuffID.Confused] = false;

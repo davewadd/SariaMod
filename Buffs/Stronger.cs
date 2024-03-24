@@ -5,7 +5,7 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
 using SariaMod.Dusts;
@@ -32,7 +32,7 @@ namespace SariaMod.Buffs
 
 	public class Stronger : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Stronger");
 			Description.SetDefault("Enemies are stronger!");
@@ -40,7 +40,6 @@ namespace SariaMod.Buffs
 			Main.pvpBuff[base.Type] = false;
 			Main.buffNoSave[base.Type] = false;
 			Main.buffNoTimeDisplay[base.Type] = true;
-			longerExpertDebuff = false;
 
 		}
 	

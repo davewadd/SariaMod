@@ -7,6 +7,7 @@ using Terraria;
 using SariaMod.Buffs;
 
 using SariaMod.Dusts;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -17,108 +18,106 @@ namespace SariaMod.Items.Amethyst
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Blade");
-			ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 6;
-			ProjectileID.Sets.TrailingMode[base.projectile.type] = 0;
-			Main.projFrames[base.projectile.type] = 15;
+			ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 6;
+			ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
+			Main.projFrames[base.Projectile.type] = 15;
 		}
 
 		public override void SetDefaults()
 		{
-			base.projectile.width = 100;
-			base.projectile.height = 270;
-			base.projectile.aiStyle = 21;
-			base.projectile.alpha = 0;
-			base.projectile.friendly = true;
-			base.projectile.tileCollide = false;
+			base.Projectile.width = 100;
+			base.Projectile.height = 270;
+			base.Projectile.alpha = 0;
+			base.Projectile.friendly = true;
+			base.Projectile.tileCollide = false;
 			
-			base.projectile.penetrate = -1;
-			base.projectile.timeLeft = 200;
-			base.projectile.ignoreWater = true;
-			aiType = 274;
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 20;
+			base.Projectile.penetrate = -1;
+			base.Projectile.timeLeft = 200;
+			base.Projectile.ignoreWater = true;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 20;
 		}
 		private const int sphereRadius = 3;
 		public override void AI()
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
 
-			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
-			Lighting.AddLight(projectile.Center, Color.DarkViolet.ToVector3() * 12f);
-			if (projectile.frame >= 5)
+			FairyGlobalProjectile.HomeInOnNPC(base.Projectile, ignoreTiles: true, 600f, 25f, 20f);
+			Lighting.AddLight(Projectile.Center, Color.DarkViolet.ToVector3() * 12f);
+			if (Projectile.frame >= 5)
 			{
 				if (Main.rand.NextBool())//controls the speed of when the sparkles spawn
 				{
 
 					float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
 					double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
-					Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), (projectile.Center.Y - 130) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow2>(), 0f, 0f, 0, default(Color), 1.5f);
+					Dust.NewDust(new Vector2(Projectile.Center.X + radius * (float)Math.Cos(angle), (Projectile.Center.Y - 130) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Shadow2>(), 0f, 0f, 0, default(Color), 1.5f);
 				}
 			}
-			if (projectile.frame <= 2)
+			if (Projectile.frame <= 2)
 			{
-				if (!player.HasBuff(ModContent.BuffType<StatLower>()))
-				{
+				
+				
 					for (int j = 0; j < 10; j++) //set to 2
 					{
-						Projectile.NewProjectile(base.projectile.Center + new Vector2(20f, 130f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Ghostsmoke>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+						Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center + new Vector2(20f, 130f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Ghostsmoke>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
 					}
-				}
+				
 			}
 			{
 
-				projectile.knockBack = 5;
-				if (projectile.timeLeft >= 190)
+				Projectile.knockBack = 5;
+				if (Projectile.timeLeft >= 190)
 				{
-					base.projectile.velocity.X = (float)((.001) * player.direction);
+					base.Projectile.velocity.X = (float)((.001) * player.direction);
 				}
-				base.projectile.velocity.Y = 0;
-				base.projectile.frameCounter++;
+				base.Projectile.velocity.Y = 0;
+				base.Projectile.frameCounter++;
 				int frameSpeed = 15;
 				{
-					base.projectile.frameCounter++;
-					if (projectile.frameCounter >= frameSpeed)
+					base.Projectile.frameCounter++;
+					if (Projectile.frameCounter >= frameSpeed)
 
 
-						if (base.projectile.frameCounter > 14)
+						if (base.Projectile.frameCounter > 14)
 						{
-							base.projectile.frame++;
-							base.projectile.frameCounter = 0;
+							base.Projectile.frame++;
+							base.Projectile.frameCounter = 0;
 						}
-					if (base.projectile.frame >= 14)
+					if (base.Projectile.frame >= 14)
 					{
 
-						base.projectile.frame = 14;
-						projectile.timeLeft -= 30;
+						base.Projectile.frame = 14;
+						Projectile.timeLeft -= 30;
 					}
 					
 				}
 			}
-				if (projectile.timeLeft >= 200)
+				if (Projectile.timeLeft >= 200)
             {
-				Main.PlaySound(SoundID.NPCDeath59, base.projectile.Center);
+				SoundEngine.PlaySound(SoundID.NPCDeath59, base.Projectile.Center);
 				
 			}
-			if (projectile.timeLeft == 90)
+			if (Projectile.timeLeft == 90)
 			{
-				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Spiritcrawl"), base.projectile.Center);
-				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Poe"), base.projectile.Center);
+				SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Spiritcrawl"), base.Projectile.Center);
+				SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Poe"), base.Projectile.Center);
 			}
 			
 		}
 
 		
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
+		public override bool PreDraw(ref Color lightColor)
 		{
-			FairyGlobalProjectile.DrawCenteredAndAfterimage(base.projectile, lightColor, ProjectileID.Sets.TrailingMode[base.projectile.type]);
+			FairyGlobalProjectile.DrawCenteredAndAfterimage(base.Projectile, lightColor, ProjectileID.Sets.TrailingMode[base.Projectile.type]);
 			return false;
 		}
 
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
 			Vector2 direction = target.Center - player.Center;
 			target.buffImmune[BuffID.CursedInferno] = false;

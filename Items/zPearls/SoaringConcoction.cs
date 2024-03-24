@@ -9,7 +9,7 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
 using SariaMod.Buffs;
@@ -33,22 +33,23 @@ namespace SariaMod.Items.zPearls
 		public override void SetDefaults()
 		{
 
-			item.width = 32;
-			item.height = 32;
-			item.useTime = 36;
-			item.useAnimation = 36;
-			item.useStyle = ItemUseStyleID.HoldingOut;
-			base.item.width = 26;
-			base.item.height = 22;
-			base.item.maxStack = 999;
-			base.item.value = 0;
-			base.item.consumable = true;
-			item.rare = ItemRarityID.Expert;
-			item.UseSound = SoundID.Item3;
-			item.noMelee = true;
-			item.summon = true;
-			item.buffType = ModContent.BuffType<AerialAceBuff>();
-			item.buffTime = 10000;
+			Item.width = 32;
+			Item.height = 32;
+			Item.useTime = 36;
+			Item.useAnimation = 36;
+			Item.useStyle = ItemUseStyleID.Shoot;
+			base.Item.width = 26;
+			base.Item.height = 22;
+			base.Item.maxStack = 999;
+			base.Item.value = 0;
+			base.Item.consumable = true;
+			Item.rare = ItemRarityID.Expert;
+			Item.UseSound = SoundID.Item3;
+			Item.noMelee = true;
+			Item.value = Item.buyPrice(50, 0, 0, 0);
+			Item.DamageType = DamageClass.Summon;
+			Item.buffType = ModContent.BuffType<AerialAceBuff>();
+			Item.buffTime = 10000;
 		}
 		public override bool CanUseItem(Player player)
 		{
@@ -60,20 +61,18 @@ namespace SariaMod.Items.zPearls
 		public override void AddRecipes()
 		{
 			{
-				ModRecipe recipe = new ModRecipe(mod);
+				Recipe recipe = CreateRecipe(5);
 				recipe.AddIngredient(ModContent.ItemType<RareXpPearl>(), 1);
 				recipe.AddIngredient(ItemID.SuperManaPotion, 3);
 				recipe.AddIngredient(ItemID.SnowBlock, 5);
-				recipe.SetResult(this, 5);
-				recipe.AddRecipe();
+				recipe.Register();
 			}
 			{
-				ModRecipe recipe = new ModRecipe(mod);
+				Recipe recipe = CreateRecipe(5);
 				recipe.AddIngredient(ModContent.ItemType<LivingSilverShard>(), 1);
 				recipe.AddIngredient(ItemID.SuperManaPotion, 3);
 				recipe.AddIngredient(ItemID.SnowBlock, 5);
-				recipe.SetResult(this, 5);
-				recipe.AddRecipe();
+				recipe.Register();
 			}
 		}
 	}
