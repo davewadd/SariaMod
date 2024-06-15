@@ -24,12 +24,12 @@ namespace SariaMod.Items.Emerald
 		public override void SetDefaults()
 		{
 
-			base.item.width = 26;
-			base.item.height = 22;
-			base.item.maxStack = 999;
-			item.value = Item.buyPrice(50, 0, 0, 0);
+			base.Item.width = 26;
+			base.Item.height = 22;
+			base.Item.maxStack = 999;
+			Item.value = Item.buyPrice(0, 100, 0, 0);
 
-			item.rare = ItemRarityID.Expert;
+			Item.rare = ItemRarityID.Expert;
 			
 
 		}
@@ -37,7 +37,7 @@ namespace SariaMod.Items.Emerald
 		public override void Update(ref float gravity, ref float maxFallSpeed)
 		{
 
-			Lighting.AddLight(item.Center, Color.Silver.ToVector3() * 3f);
+			Lighting.AddLight(Item.Center, Color.Silver.ToVector3() * 3f);
 		}
 	
 		
@@ -45,12 +45,11 @@ namespace SariaMod.Items.Emerald
 		public override void AddRecipes()
 		{
 			{
-				ModRecipe recipe = new ModRecipe(mod);
+				Recipe recipe = CreateRecipe();
 				recipe.AddIngredient(ModContent.ItemType<LivingPurpleShard>(), 3);
 				recipe.AddIngredient(ModContent.ItemType<LargeXpPearl>(), 1);
 				recipe.AddIngredient(ItemID.SilverBar, 1);
-				recipe.SetResult(this);
-				recipe.AddRecipe();
+				recipe.Register();
 			}
 		}
 	}

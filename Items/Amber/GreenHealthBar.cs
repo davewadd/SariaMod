@@ -7,7 +7,7 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Barrier;
 using SariaMod.Items.Strange;
@@ -27,20 +27,20 @@ namespace SariaMod.Items.Amber
 		{
 			
 			
-			base.projectile.width = 42;
-			base.projectile.height = 40;
-			base.projectile.hostile = false;
-			base.projectile.friendly = false;
-			base.projectile.ignoreWater = true;
+			base.Projectile.width = 42;
+			base.Projectile.height = 40;
+			base.Projectile.hostile = false;
+			base.Projectile.friendly = false;
+			base.Projectile.ignoreWater = true;
 			
-			base.projectile.timeLeft = 340;
-			base.projectile.penetrate = -1;
-			base.projectile.tileCollide = false;
-			base.projectile.minion = true;
-			base.projectile.localNPCHitCooldown = 5;
-			base.projectile.minionSlots = 0f;
-			base.projectile.netImportant = true;
-			base.projectile.usesLocalNPCImmunity = true;
+			base.Projectile.timeLeft = 340;
+			base.Projectile.penetrate = -1;
+			base.Projectile.tileCollide = false;
+			base.Projectile.minion = true;
+			base.Projectile.localNPCHitCooldown = 5;
+			base.Projectile.minionSlots = 0f;
+			base.Projectile.netImportant = true;
+			base.Projectile.usesLocalNPCImmunity = true;
 			
 
 
@@ -49,19 +49,19 @@ namespace SariaMod.Items.Amber
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Psychic Turret");
-			Main.projFrames[base.projectile.type] = 4;
-			Main.projPet[projectile.type] = true;
-			ProjectileID.Sets.MinionSacrificable[base.projectile.type] = false;
-			ProjectileID.Sets.MinionTargettingFeature[base.projectile.type] = true;
+			Main.projFrames[base.Projectile.type] = 4;
+			Main.projPet[Projectile.type] = true;
+			ProjectileID.Sets.MinionSacrificable[base.Projectile.type] = false;
+			ProjectileID.Sets.MinionTargettingFeature[base.Projectile.type] = true;
 		}
-        public override bool CanDamage()
+        public override bool? CanDamage()/* tModPorter Suggestion: Return null instead of true */
         {
 			return false;
         }
 
         public override void AI()
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
 			
 
@@ -69,33 +69,33 @@ namespace SariaMod.Items.Amber
 			if (player.dead || !player.active)
 			{
 				
-				projectile.Kill();
+				Projectile.Kill();
 			}
-			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
+			Projectile mother = Main.projectile[(int)base.Projectile.ai[1]];
 			if (!mother.active )
 			{
-				base.projectile.Kill();
+				base.Projectile.Kill();
 				return;
 			}
-			projectile.timeLeft = mother.timeLeft;
-			base.projectile.position.X = mother.Center.X - 20;
-			base.projectile.position.Y = mother.Center.Y + 30;
-			base.projectile.netUpdate = true;
-			if (projectile.timeLeft <= 1000)
+			Projectile.timeLeft = mother.timeLeft;
+			base.Projectile.position.X = mother.Center.X - 20;
+			base.Projectile.position.Y = mother.Center.Y + 30;
+			base.Projectile.netUpdate = true;
+			if (Projectile.timeLeft <= 1000)
             {
-				projectile.frame = 0;
+				Projectile.frame = 0;
             }
-			else if (projectile.timeLeft > 1000 && (projectile.timeLeft <= 2500))
+			else if (Projectile.timeLeft > 1000 && (Projectile.timeLeft <= 2500))
 			{
-				projectile.frame = 1;
+				Projectile.frame = 1;
 			}
-			else if (projectile.timeLeft > 2500 && (projectile.timeLeft <= 4500))
+			else if (Projectile.timeLeft > 2500 && (Projectile.timeLeft <= 4500))
 			{
-				projectile.frame = 2;
+				Projectile.frame = 2;
 			}
-			else if (projectile.timeLeft > 4500 && (projectile.timeLeft <= 6000))
+			else if (Projectile.timeLeft > 4500 && (Projectile.timeLeft <= 6000))
 			{
-				projectile.frame = 3;
+				Projectile.frame = 3;
 			}
 
 
@@ -106,7 +106,7 @@ namespace SariaMod.Items.Amber
 
 
 
-			Lighting.AddLight(projectile.Center, Color.Red.ToVector3() * 1f);
+			Lighting.AddLight(Projectile.Center, Color.Red.ToVector3() * 1f);
 			
 		}
 	}

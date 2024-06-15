@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using SariaMod.Buffs;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.GameInput;
@@ -23,21 +24,31 @@ namespace SariaMod
 	{
 		public bool BloodmoonBuff;
 		public bool SariaCurseD;
+		public bool Statlowered;
+		public bool Statrisen;
+		public bool Sickness;
 		public bool externalColdImmunity;
 		public bool Burning2;
+		public bool PassiveHealing;
 		public bool Frostburn2;
 		public bool Frostburn3;
 		public bool EclipseBuff;
 		public int Sarialevel;
 		public int FreezingTemp;
 		public int SariaXp;
+		public int Timer;
 		public int XPBarLevel;
 		public int FairyBreak;
 
 		public override void ResetEffects()
 		{
 			SariaCurseD = false;
+			Statrisen = false;
+			Statlowered = false;
+			Sickness = false;
+			externalColdImmunity = false;
 			BloodmoonBuff = false;
+			PassiveHealing = false;
 			Burning2 = false;
 			Frostburn2 = false;
 			Frostburn3 = false;
@@ -45,8 +56,13 @@ namespace SariaMod
 		}
 		public override void UpdateDead()
 		{
+			Statrisen = false;
+			Statlowered = false;
 			SariaCurseD = false;
+			Sickness = false;
 			Burning2 = false;
+			PassiveHealing = false;
+			externalColdImmunity = false;
 			BloodmoonBuff = false;
 			Frostburn2 = false;
 			Frostburn3 = false;
@@ -54,93 +70,157 @@ namespace SariaMod
 		}
 		public override void UpdateBadLifeRegen()
 		{
+			if (Timer < 30)
+            {
+				Timer++;
+            }
 			if (Frostburn3)
 			{
 				// These lines zero out any positive lifeRegen. This is expected for all bad life regeneration effects.
-				if (player.lifeRegen > 0)
+				if (Player.lifeRegen > 0)
 				{
-					player.lifeRegen = 0;
+					Player.lifeRegen = 0;
 				}
-				player.lifeRegenTime = 0;
+				Player.lifeRegenTime = 0;
 				// lifeRegen is measured in 1/2 life per second. Therefore, this effect causes 8 life lost per second.
-				player.lifeRegen -= 30;
+				Player.lifeRegen -= 30;
 
 			}
 			if (Frostburn2)
 			{
 				// These lines zero out any positive lifeRegen. This is expected for all bad life regeneration effects.
-				if (player.lifeRegen > 0)
+				if (Player.lifeRegen > 0)
 				{
-					player.lifeRegen = 0;
+					Player.lifeRegen = 0;
 				}
-				player.lifeRegenTime = 0;
+				Player.lifeRegenTime = 0;
 				// lifeRegen is measured in 1/2 life per second. Therefore, this effect causes 8 life lost per second.
-				player.lifeRegen -= 30;
+				Player.lifeRegen -= 30;
 
+			}
+			if (Sickness)
+			{
+
+				{
+					Player.statDefense = 1;
+					if (Player.statLife > ((Player.statLifeMax2) / 3))
+					{
+						if (Player.lifeRegen > 0)
+						{
+							Player.lifeRegen = 0;
+						}
+						Player.lifeRegenTime = 0;
+						// lifeRegen is measured in 1/2 life per second. Therefore, this effect causes 8 life lost per second.
+						Player.lifeRegen -= 16;
+					}
+				}
+			}
+			if (PassiveHealing)
+			{
+				// These lines zero out any positive lifeRegen. This is expected for all bad life regeneration effects.
+				if (Timer >= 30)
+				{
+					Player.Heal((1));
+					Timer = 0;
+				}
 			}
 			if (Burning2)
 			{
 				// These lines zero out any positive lifeRegen. This is expected for all bad life regeneration effects.
-				if (player.lifeRegen > 0)
+				if (Player.lifeRegen > 0)
 				{
-					player.lifeRegen = 0;
+					Player.lifeRegen = 0;
 				}
-				player.lifeRegenTime = 0;
+				Player.lifeRegenTime = 0;
 				// lifeRegen is measured in 1/2 life per second. Therefore, this effect causes 8 life lost per second.
-				player.lifeRegen -= 32;
+				Player.lifeRegen -= 32;
 
 			}
 			if (SariaCurseD)
 			{
 				// These lines zero out any positive lifeRegen. This is expected for all bad life regeneration effects.
-				if (player.lifeRegen > 0)
+				if (Player.lifeRegen > 0)
 				{
-					player.lifeRegen = 0;
+					Player.lifeRegen = 0;
 				}
-				player.lifeRegenTime = 0;
+				Player.lifeRegenTime = 0;
 				// lifeRegen is measured in 1/2 life per second. Therefore, this effect causes 8 life lost per second.
-				player.lifeRegen -= 16;
+				Player.lifeRegen -= 16;
+
+			}
+			if (Statlowered)
+			{
+				// These lines zero out any positive lifeRegen. This is expected for all bad life regeneration effects.
+				Player.statDefense -= (Player.statDefense / 4) * 3;
+				Player.statLifeMax2 -= 50;
+
+			}
+			if (Statrisen)
+			{
+				// These lines zero out any positive lifeRegen. This is expected for all bad life regeneration effects.
+				Player.statDefense += Player.statDefense / 4;
 
 			}
 			if (BloodmoonBuff)
-            {
-				if (player.statLife > ((player.statLifeMax2) / 3))
+			{
+				if (Player.statLife > ((Player.statLifeMax2) / 3))
 				{
-					if (player.lifeRegen > 0)
+					if (Player.lifeRegen > 0)
 					{
-						player.lifeRegen = 0;
+						Player.lifeRegen = 0;
 					}
-					player.lifeRegenTime = 0;
+					Player.lifeRegenTime = 0;
 					// lifeRegen is measured in 1/2 life per second. Therefore, this effect causes 8 life lost per second.
-					player.lifeRegen -= 16;
+					Player.lifeRegen -= 16;
 				}
 			}
 			if (EclipseBuff)
 			{
-				if (player.statLife > ((player.statLifeMax2) / 3))
+				if (Player.statLife > ((Player.statLifeMax2) / 3))
 				{
-					if (player.lifeRegen > 0)
+					if (Player.lifeRegen > 0)
 					{
-						player.lifeRegen = 0;
+						Player.lifeRegen = 0;
 					}
-					player.lifeRegenTime = 0;
+					Player.lifeRegenTime = 0;
 					// lifeRegen is measured in 1/2 life per second. Therefore, this effect causes 8 life lost per second.
-					player.lifeRegen -= 16;
+					Player.lifeRegen -= 16;
 				}
 			}
 		}
-		public override TagCompound Save()
+		internal void StandardSync()
 		{
-			return new TagCompound
-			{
-			{ "Sarialevel", Sarialevel },
-				{ "SariaXp", SariaXp },
-				{ "FeezingTemp", FreezingTemp },
-				{ "XPBarLevel", XPBarLevel },
-				{ "FairyBreak", FairyBreak },
-			};
+			SyncSarialevel(false);
+			SyncXpBarLevel(false);
 		}
-		public override void Load(TagCompound tag)
+		private void SyncSarialevel(bool server)
+		{
+			
+			ModPacket packet = Mod.GetPacket(256);
+			packet.Write((byte)FairyModMessageType.LevelSync);
+			packet.Write(Player.whoAmI);
+			packet.Write(Sarialevel);
+			Player.SendPacket(packet, server);
+		}
+	
+		private void SyncXpBarLevel(bool server)
+		{
+			Player player = Main.LocalPlayer;
+			ModPacket packet = Mod.GetPacket(256);
+			packet.Write((byte)FairyModMessageType.XpBarSync);
+			packet.Write(Player.whoAmI);
+			packet.Write(XPBarLevel);
+			Player.SendPacket(packet, server);
+		}
+		public override void SaveData(TagCompound tag)
+		{
+			tag["Sarialevel"] = Sarialevel;
+			tag["SariaXp"] = SariaXp;
+			tag["FreezingTemp"] = FreezingTemp;
+			tag["XPBarLevel"] = XPBarLevel;
+			tag["FairyBreak"] = FairyBreak;
+		}
+		public override void LoadData(TagCompound tag)
 		{
 			Sarialevel = tag.GetInt("Sarialevel");
 			FairyBreak = tag.GetInt("FairyBreak");
@@ -148,20 +228,29 @@ namespace SariaMod
 			FreezingTemp = tag.GetInt("FreezingTemp");
 			XPBarLevel = tag.GetInt("XPBarLevel");
 		}
-		public override void LoadLegacy(BinaryReader reader)
+
+		internal void HandleSariaLevel(BinaryReader reader)
 		{
-			int loadVersion = reader.ReadInt32();
 			Sarialevel = reader.ReadInt32();
-			FairyBreak = reader.ReadInt32();
-			FreezingTemp = reader.ReadInt32();
-			SariaXp = reader.ReadInt32();
-			XPBarLevel = reader.ReadInt32();
+			if (Main.netMode == NetmodeID.Server)
+			{
+				SyncSarialevel(true);
+			}
 		}
-		
+		internal void HandleXpBarLevel(BinaryReader reader)
+		{
+			XPBarLevel = reader.ReadInt32();
+			if (Main.netMode == NetmodeID.Server)
+			{
+				SyncXpBarLevel(true);
+			}
+		}
+
 		public override void PostUpdateMiscEffects()
 		{
-			FairyPlayerMiscEffects.FairyPostUpdateMiscEffects(base.player, base.mod);
+			FairyPlayerMiscEffects.FairyPostUpdateMiscEffects(base.Player, base.Mod);
 		}
 
 	}
+
 }

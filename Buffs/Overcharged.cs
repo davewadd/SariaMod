@@ -5,12 +5,13 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
 using SariaMod.Items;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -32,7 +33,7 @@ namespace SariaMod.Buffs
 
 	public class Overcharged : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Overcharged");
 			Description.SetDefault("Saria has now become overcharged!\nHer attacks now have added effects ");
@@ -40,7 +41,6 @@ namespace SariaMod.Buffs
 			Main.pvpBuff[base.Type] = false;
 			Main.buffNoSave[base.Type] = false;
 			Main.buffNoTimeDisplay[base.Type] = false;
-			longerExpertDebuff = false;
 
 		}
 		public override void Update(Player player, ref int buffIndex)
@@ -56,7 +56,7 @@ namespace SariaMod.Buffs
             }
 			if (player.buffTime[buffIndex] == 3750 || player.buffTime[buffIndex] == 3000 || player.buffTime[buffIndex] == 2000 || player.buffTime[buffIndex] == 1000 || player.buffTime[buffIndex] == 900 || player.buffTime[buffIndex] == 800 || player.buffTime[buffIndex] == 700 || player.buffTime[buffIndex] == 600 || player.buffTime[buffIndex] == 500 || player.buffTime[buffIndex] == 400 || player.buffTime[buffIndex] == 300 || player.buffTime[buffIndex] == 200 )
 			{
-				Main.PlaySound(SoundID.DD2_DarkMageCastHeal, player.Center);
+				SoundEngine.PlaySound(SoundID.DD2_DarkMageCastHeal, player.Center);
 			}
 		}
 

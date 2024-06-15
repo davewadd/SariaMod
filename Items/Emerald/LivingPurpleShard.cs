@@ -17,32 +17,32 @@ namespace SariaMod.Items.Emerald
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Living Purple Shard");
-			Tooltip.SetDefault("Can be sold for a High price\n Can be crafted into a Purple Gem Ball! \n glass, 3\nIron Bar, 3\n Living Purple Shard, 8\n LargeXpPearl, 1 \n at a Strange Bookcase!\nWhen used, the gem will heal the pink fairy's shield!");
+			Tooltip.SetDefault("Can be sold for a Decent price\n");
 		}
 
 
 		public override void SetDefaults()
 		{
 
-			base.item.width = 26;
-			base.item.height = 22;
-			base.item.maxStack = 999;
-			item.value = Item.buyPrice(20, 0, 0, 0);
+			base.Item.width = 26;
+			base.Item.height = 22;
+			base.Item.maxStack = 999;
+			Item.value = Item.buyPrice(0, 0, 500, 0);
 
-			item.rare = ItemRarityID.Red;
-			item.consumable = true;
-			item.useTime = 36;
-			item.useAnimation = 15;
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.UseSound = SoundID.Item45;
-			item.autoReuse = false;
+			Item.rare = ItemRarityID.Red;
+			Item.consumable = true;
+			Item.useTime = 36;
+			Item.useAnimation = 15;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.UseSound = SoundID.Item45;
+			Item.autoReuse = false;
 			// These below are needed for a minion weapon
-			item.noMelee = true;
+			Item.noMelee = true;
 
-			item.summon = true;
-			item.shootSpeed = 1;
+			Item.DamageType = DamageClass.Summon;
+			Item.shootSpeed = 1;
 			// No buffTime because otherwise the item tooltip would say something like "1 minute duration"
-			item.shoot = ModContent.ProjectileType<PurpleRupee>();
+			Item.shoot = ModContent.ProjectileType<PurpleRupee>();
 
 		}
 		public override bool AltFunctionUse(Player player)
@@ -55,12 +55,12 @@ namespace SariaMod.Items.Emerald
 		{
 			if (player.altFunctionUse == 2)
 			{
-				item.consumable = false;
+				Item.consumable = false;
 				return false;
 			}
 			if (player.altFunctionUse != 2)
 			{
-				item.consumable = true;
+				Item.consumable = true;
 				return true;
 			}
 
@@ -72,25 +72,23 @@ namespace SariaMod.Items.Emerald
 		public override void Update(ref float gravity, ref float maxFallSpeed)
 		{
 			
-			Lighting.AddLight(item.Center, Color.Purple.ToVector3() * 2f);
+			Lighting.AddLight(Item.Center, Color.Purple.ToVector3() * 2f);
 		}
 		
 		
 		public override void AddRecipes()
 		{
 			{
-				ModRecipe recipe = new ModRecipe(mod);
+				Recipe recipe = CreateRecipe();
 				recipe.AddIngredient(ModContent.ItemType<LivingGreenShard>(), 8);
 				recipe.AddIngredient(ModContent.ItemType<LargeXpPearl>(), 1);
-				recipe.SetResult(this);
-				recipe.AddRecipe();
+				recipe.Register();
 			}
 			{
-				ModRecipe recipe = new ModRecipe(mod);
+				Recipe recipe = CreateRecipe(2);
 				recipe.AddIngredient(ModContent.ItemType<LivingSilverShard>(), 1);
 				recipe.AddIngredient(ModContent.ItemType<XpPearl>(), 5);
-				recipe.SetResult(this, 2);
-				recipe.AddRecipe();
+				recipe.Register();
 			}
 		}
 	}

@@ -25,7 +25,7 @@ namespace SariaMod.Buffs
 
 	public class Drained : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Drained");
 			Description.SetDefault("Saria cannot go overcharged right now!\n Letting Saria rest will git rid of the debuff quicker");
@@ -33,7 +33,7 @@ namespace SariaMod.Buffs
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;
 			Main.buffNoTimeDisplay[base.Type] = false;
-			longerExpertDebuff = false;
+	
 
 		}
 		public override void Update(Player player, ref int buffIndex)

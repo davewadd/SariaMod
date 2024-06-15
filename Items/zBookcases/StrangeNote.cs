@@ -12,7 +12,7 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
 using Terraria;
@@ -34,21 +34,20 @@ namespace SariaMod.Items.zBookcases
 
 		public override void SetDefaults()
 		{
-			base.item.width = 26;
-			base.item.height = 22;
-			base.item.maxStack = 999;
-			item.rare = ItemRarityID.White;
-			base.item.value = 0;
+			base.Item.width = 26;
+			base.Item.height = 22;
+			base.Item.maxStack = 999;
+			Item.rare = ItemRarityID.White;
+			base.Item.value = 0;
 		}
 
 
 		public override void AddRecipes()
 		{
 			{
-				ModRecipe recipe = new ModRecipe(mod);
+				Recipe recipe = CreateRecipe(1);
 				recipe.AddTile(ModContent.TileType<Tiles.StrangeBookcase>());
-				recipe.SetResult(this, 1);
-				recipe.AddRecipe();
+				recipe.Register();
 			}
 			
 		}

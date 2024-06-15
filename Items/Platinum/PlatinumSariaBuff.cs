@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 
 using System;
 using SariaMod.Items.Platinum;
-using SariaMod.Items.Diamond;
+ 
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -33,7 +33,7 @@ namespace SariaMod.Items.Platinum
 
 	public class PlatinumSariaBuff : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault(" GuardianSpirit");
 			Description.SetDefault("Saria now has the Platinum upgrade\nHer Psychic powers surpass time and space!");
@@ -41,7 +41,6 @@ namespace SariaMod.Items.Platinum
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;
 			Main.buffNoTimeDisplay[base.Type] = true;
-			longerExpertDebuff = false;
 
 		}
 		public override void Update(Player player, ref int buffIndex)

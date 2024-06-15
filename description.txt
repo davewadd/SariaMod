@@ -1,13 +1,16 @@
-Saria comes from another world in order to help you on your adventure!
+Saria returns from another world in order to rejoin you on your adventure!
 She is a powerful summon that offers a plethera of abilities beyond just combat AND each of these abilities have strengths and weaknesses depending on what biome the player is in! 
+Craft a healball to summon her!
 
-New recipes for vanilla potions through the use of cooking pots and this mods XPpearls.
+Due to all the requests I have recieved I've decided to release what I've cooked so far! Its not finished yet of course but I will be steadily updating it so long as nothing else catostrophic happens...again.
 
-Changed pretty much everything! Xp pearls now drop rarely from enemies and you can use them to level up Saria.
-Saria will now level up as you battle with her and once a checkpoint is reached she will get much stronger as well as gaining a new attack!
+***Special thanks to everyone who has downloaded the mod and especially to those who reached out to me, whether with comments or critiques. This one's for you guys!
+
+Saria will level up as you battle with her and once a checkpoint is reached she will get much stronger as well as gaining two new attacks!
 Craft a HealBall to Summon her and an XpStaff to See how much Xp she has until the next level!
+She now has a new chargeable attack per form, hold left click with her healball to charge a unique attack! 
 
-Dying will Half your current experience with Saria in half! If Saria's exp is maxed out and nothing happens, you may need to progress in the game before she can learn a new move!
+Dying will Half the XP Saria has earned since her last level up but it will not lower her base level. If Saria's exp is maxed out and nothing happens, you may need to progress in the game before she can learn a new move!
 
 There is also only a single bookcase, The strange bookcase, where most of this mod's crafting will take place!
 
@@ -15,24 +18,53 @@ This mod also now adds elemental effects such as freezing in a blizzard or melti
 you will suffer whether or not you have the right equipment!
 Staying in a biome she is weak in will make Saria grow ill much faster so be sure not to linger for too long!
 
-This mod adds a few soundtracks from other games, some of which are from terraria otherworld, DarkCloud, and Ocarina of Time. This was also my first mod, but honestly I'm really happy with how it turned out so far!
+This mod adds a few soundtracks from other games, some of which are from terraria otherworld, DarkCloud, and Ocarina of Time. This was also my first and only mod but its really become something I'm happy to have shared!
+
 
 The Upgrade progression order for this mod is as follows:
 ~Strange : Uses the move Psyshock
-~Sapphire : Uses the move ColdSoul :must kill king slime to unlock
+~Sapphire : Uses the move AquaVeil :must kill king slime to unlock
 ~Ruby : Uses the move Eruption	   :must Kill Queen Bee to Unlock
 ~Topaz : Uses the move ThunderClash	  :must Kill the Wall of Flesh to Unlock
-~Emerald : Uses the move GemStorm	  :must Kill Any Mech Boss to Unlock
+~Emerald : Uses the move PowerGem	  :must Kill Any Mech Boss to Unlock
 ~Amber : Uses the move AttackOrder	  :must Kill Plantera to Unlock
 ~Amethyst : Uses the move ShadowSneak	  :must Kill The Duke Fishron to Unlock
         More on these attacks will be shown as you level up!
 
 		I also highly advise using the Recipe Browser created by jopojelly to see all the different crafting recipes and items, however, this mod does also include notes for most items at the StrangeBookcase. Start by just crafting a PaperNote.
 	Please do keep note that these level ups will get extremely expensive, however, the effort put into it will certainly pay off!
-					This mod will be updated to Terraria 1.4 once finished on 1.3
-		If you discover any bugs or issues please let me know as multiplayer functions differently than single player. My discord is ~David~ #5797
+
+		If you discover any bugs, issues, exploits or just have a suggestion let me know! My discord is david5797 (feel free to ask anything!)
 					
-**Patch notes(should've done this sooner to be honest)**
+**Patch notes**
+ver 8.0.1
+	-added lead as a crafting recipe
+ver 8.0.0
+	-fixed MOST of the multiplayer issues. Most actions should be accounted for, at least with the first three forms
+
+	-new animations, form biome effects, and many other quality of life changes to Saria's AI and her behavior with more to come! 
+
+	-added and changed a ton of stuff including Saria's new charge attacks. Look forward to new unlocks in the future!
+
+	!Warning!  forms beyond her fire form may be prone to break or crash. They have not been updated and some will be changed entirely as we go.
+ver 7.0.4
+	-fixed SOME of the multiplayer issues. this one is more of a test
+ver 7.0.3
+	-fixed multiplayer bug where Saria would not spawn. expect many more updates for multiplayer
+ver 7.0.2
+	-added the lead variant to the crafting recipe for heal balls
+
+	-fixed evil biome music playing correctly
+ver 7.0.1
+	-changed the baby harpy pet to behave as intended
+ver 7.0.0
+	-updated to Tmodloader ver 1.4.3
+
+	-changed soooo much about this mod, more animations, better attacks and so on!
+
+	-Saira will now only attack while the pokeball is held!
+ver 6.2.3
+	-edited the description page as well as my new discord.
 ver 6.2.2
 	-changed how purple gem ball functions
 

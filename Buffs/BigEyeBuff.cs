@@ -26,7 +26,7 @@ namespace SariaMod.Buffs
 
 	public class BigEyeBuff : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Big Eye");
 			Description.SetDefault("The eye watches you!");
@@ -34,12 +34,12 @@ namespace SariaMod.Buffs
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;
 			Main.buffNoTimeDisplay[base.Type] = true;
-			longerExpertDebuff = false;
 			Main.vanityPet[Type] = true;
 
 		}
 		public override void Update(Player player, ref int buffIndex)
 		{
+			
 			if ( ((player.ownedProjectileCounts[ModContent.ProjectileType<BigEye>()] > 0f)))
             {
 				player.buffTime[buffIndex] = 18000;
@@ -48,7 +48,7 @@ namespace SariaMod.Buffs
 			bool petProjectileNotSpawned = player.ownedProjectileCounts[ModContent.ProjectileType<BigEye>()] <= 0;
 			if (petProjectileNotSpawned && player.whoAmI == Main.myPlayer)
 			{
-				Projectile.NewProjectile(player.position.X + (float)(player.width / 2), player.position.Y + (float)(player.height / 2), 0f, 0f, ModContent.ProjectileType<BigEye>(), 0, 0f, player.whoAmI, 0f, 0f);
+				Projectile.NewProjectile(player.GetSource_FromThis(), player.position.X + 0, player.position.Y + 0, 0, 0, ModContent.ProjectileType<BigEye>(), (int)(0), 0f, player.whoAmI);
 			}
 		}
 

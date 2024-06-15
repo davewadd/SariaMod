@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 
 using System;
 using SariaMod.Items.Platinum;
-using SariaMod.Items.Diamond;
+ 
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -29,7 +29,7 @@ namespace SariaMod.Items.Platinum
 
 	public class PlatinumPurpleSariaBuff : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault(" GuardianSpirit");
 			Description.SetDefault("Saria has now broken her limits!\nNo enemy is safe from her powers!\n-She has Chosen the Purple variant");
@@ -37,7 +37,6 @@ namespace SariaMod.Items.Platinum
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;
 			Main.buffNoTimeDisplay[base.Type] = true;
-			longerExpertDebuff = false;
 
 		}
 		public override void Update(Player player, ref int buffIndex)

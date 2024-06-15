@@ -6,8 +6,9 @@ using System;
 using Terraria;
 using SariaMod.Buffs;
 using SariaMod.Dusts;
+using Terraria.Audio;
 
-
+using System.IO;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -17,130 +18,153 @@ namespace SariaMod.Items.Ruby
 	{
 		public override void SetStaticDefaults()
 		{
-			base.DisplayName.SetDefault("Blade");
-			ProjectileID.Sets.TrailCacheLength[base.projectile.type] = 6;
-			ProjectileID.Sets.TrailingMode[base.projectile.type] = 0;
-			Main.projFrames[base.projectile.type] = 5;
+						base.DisplayName.SetDefault("Saria");
+			ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 6;
+			ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
+			Main.projFrames[base.Projectile.type] = 5;
 		}
+		private int HitBomb;
 
+		public override void SendExtraAI(BinaryWriter writer)
+		{
+			writer.Write(HitBomb);
+		}
+		public override void ReceiveExtraAI(BinaryReader reader)
+		{
+			HitBomb = (int)reader.ReadSingle();
+		}
 		public override void SetDefaults()
 		{
-			base.projectile.width = 300;
-			base.projectile.height = 300;
-			base.projectile.aiStyle = 21;
-			base.projectile.alpha = 100;
-			base.projectile.friendly = true;
-			base.projectile.tileCollide = false;
+			base.Projectile.width = 400;
+			base.Projectile.height = 400;
+			base.Projectile.alpha = 300;
+			base.Projectile.friendly = true;
+			base.Projectile.tileCollide = false;
 			
-			base.projectile.penetrate = -1;
-			base.projectile.timeLeft = 200;
-			base.projectile.ignoreWater = true;
-			aiType = 274;
-			base.projectile.usesLocalNPCImmunity = true;
-			base.projectile.localNPCHitCooldown = 20;
+			base.Projectile.penetrate = -1;
+			base.Projectile.timeLeft = 200;
+			base.Projectile.ignoreWater = true;
+			base.Projectile.usesLocalNPCImmunity = true;
+			base.Projectile.localNPCHitCooldown = 20;
 		}
-		private const int sphereRadius = 100;
+		private const int sphereRadius = 60;
 		public override void AI()
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
 			
-			FairyGlobalProjectile.HomeInOnNPC(base.projectile, ignoreTiles: true, 600f, 25f, 20f);
+			FairyGlobalProjectile.HomeInOnNPC(base.Projectile, ignoreTiles: true, 600f, 25f, 20f);
+			
+			Vector2 centerthis = Projectile.Center;
+			centerthis.X -= 30;
+			centerthis.Y -= 35;
 			if (Main.rand.NextBool())//controls the speed of when the sparkles spawn
 			{
 				for (int d = 0; d < 8; d++)
 				{
 					float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
 					double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
-					Dust.NewDust(new Vector2(projectile.Center.X + radius * (float)Math.Cos(angle), (projectile.Center.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<FlameDust>(), 0f, 0f, 0, default(Color), 1.5f);
+					Dust.NewDust(new Vector2(centerthis.X + radius * (float)Math.Cos(angle), (centerthis.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<SmokeDust5Yellow>(), 0f, 0f, 0, default(Color), 1.5f);
 
 				}
 			}
-				if (Main.rand.NextBool())//controls the speed of when the sparkles spawn
+			if (Projectile.frame == 1)
+            {
+
+				for (int i = 0; i < 10; i++)
 				{
-					for (int d = 0; d < 3; d++)
+					Vector2 speed = Main.rand.NextVector2CircularEdge(.7f, .7f);
+					Dust d = Dust.NewDustPerfect(centerthis, ModContent.DustType<SmokeDust5Yellow>(), speed * -2, Scale: 1f);
+					d.noGravity = true;
+				}
+				for (int i = 0; i < 10; i++)
+				{
+					Vector2 speed = Main.rand.NextVector2CircularEdge(.7f, .7f);
+					Dust d = Dust.NewDustPerfect(centerthis, ModContent.DustType<SmokeDust5Yellorange>(), speed * -5, Scale: 1f);
+					d.noGravity = true;
+				}
+			}
+			
+			{
+				for (int i = 0; i < 3; i++)
+				{
+					Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
+					Dust d = Dust.NewDustPerfect(centerthis, ModContent.DustType<SmokeDust5Red>(), speed * -7, Scale: 4f);
+					d.noGravity = true;
+				}
+				for (int i = 0; i < 3; i++)
+				{
+					Vector2 speed = Main.rand.NextVector2CircularEdge(2f, 2f);
+					Dust d = Dust.NewDustPerfect(centerthis, ModContent.DustType<SmokeDust5>(), speed * -7, Scale: 1f);
+					d.noGravity = true;
+				}
+			}
+			
+			
+			for (int i = 0; i < 5; i++)
+			{
+				Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
+				Dust d = Dust.NewDustPerfect(centerthis, ModContent.DustType<SmokeDust6>(), speed * 13, Scale: 3.5f);
+				d.noGravity = true;
+			}
+			
+			
+			Lighting.AddLight(Projectile.Center, Color.OrangeRed.ToVector3() * 6f);
+			{
+
+				Projectile.knockBack = 50;
+				
+				base.Projectile.frameCounter++;
+				if (base.Projectile.frameCounter >= 5)
+				{
+					base.Projectile.frame++;
+					if (player.HasBuff(ModContent.BuffType<Overcharged>()))
 					{
-						Projectile.NewProjectile(base.projectile.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6) * 3f, ModContent.ProjectileType<Smokeball>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
+						double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
+						if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center.X + radius * (float)Math.Cos(angle), (Projectile.Center.Y - 10) + radius * (float)Math.Sin(angle), 0, 0, ModContent.ProjectileType<Explosion2>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
+					}
+					base.Projectile.frameCounter = 0;
+
+				}
+				if (base.Projectile.frame >= Main.projFrames[base.Projectile.type])
+				{
+					base.Projectile.frame = 0;
+					SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/FireEnd"));
+					base.Projectile.Kill();
+				}
+				if (base.Projectile.timeLeft == 199)
+				{
+					SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Bomb"));
+
+				}
+				if (base.Projectile.timeLeft == 195)
+				{
+
+					if (player.ownedProjectileCounts[ModContent.ProjectileType<Flame>()] < 60f)
+					{
+						for (int j = 0; j < 3; j++) //set to 2
+						{
+							Vector2 thisspot = Projectile.Center;
+							thisspot.X += 100;
+							thisspot.Y += 50;
+							if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), thisspot + Utils.RandomVector2(Main.rand, -204f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Flame>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
+						}
 
 					}
 				}
-			
-			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
-			{
-				projectile.width = 450;
-				projectile.height = 450;
-				projectile.scale = 1.5f;
-				projectile.localNPCHitCooldown = 25;
-				if (base.projectile.timeLeft == 195)
-				{
-					Projectile.NewProjectile(base.projectile.Center + new Vector2(-70f, -70f), Vector2.One.RotatedByRandom(6) * 3f, ModContent.ProjectileType<Explosion2>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-				}
-			}
-			Lighting.AddLight(projectile.Center, Color.OrangeRed.ToVector3() * 6f);
-			{
-				
-				projectile.knockBack = 50;
-				base.projectile.velocity.X = (1 * player.direction);
-				base.projectile.velocity.Y = 0;
-				base.projectile.frameCounter++;
-				if (base.projectile.frameCounter >= 5)
-				{
-					base.projectile.frame++;
-					base.projectile.frameCounter = 0;
 
-				}
-				if (base.projectile.frame >= Main.projFrames[base.projectile.type])
-				{
-					base.projectile.frame = 0;
-					base.projectile.Kill();
-				}
-				if (base.projectile.timeLeft == 195 && !player.HasBuff(ModContent.BuffType<StatLower>()))
-				{
-					
-						if (player.ownedProjectileCounts[ModContent.ProjectileType<Flame>()] < 60f)
-						{
-							for (int j = 0; j < 12; j++) //set to 2
-							{
-								Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -204f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<Flame>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
-							}
-						}
-					
-					
-				}
-			}
-			if (projectile.timeLeft >= 200)
-            {
-				Main.PlaySound(SoundID.Item116, base.projectile.Center);
-				Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Bomb"), base.projectile.Center);
-			}
-			if (projectile.timeLeft == 2)
-			{
-				Main.PlaySound(SoundID.DD2_SkyDragonsFuryShot, base.projectile.Center);
 			}
 		}
 
-		public override Color? GetAlpha(Color lightColor)
-		{
-			if (base.projectile.timeLeft < 85)
-			{
-				byte b2 = (byte)(base.projectile.timeLeft * 3);
-				byte a2 = (byte)(100f * ((float)(int)b2 / 255f));
-				return new Color(b2, b2, b2, a2);
-			}
-			return new Color(255, 255, 255, 100);
-		}
+		
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
-		{
-			FairyGlobalProjectile.DrawCenteredAndAfterimage(base.projectile, lightColor, ProjectileID.Sets.TrailingMode[base.projectile.type]);
-			return false;
-		}
+		
 
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
-			Vector2 direction = target.Center - player.Center;
 			target.buffImmune[BuffID.CursedInferno] = false;
 			target.buffImmune[BuffID.Confused] = false;
 			target.buffImmune[BuffID.Slow] = false;
@@ -154,10 +178,21 @@ namespace SariaMod.Items.Ruby
 			target.buffImmune[ModContent.BuffType<Burning2>()] = false;
 			target.AddBuff(ModContent.BuffType<Burning2>(), 200);
 			modPlayer.SariaXp++;
+			knockback = 20f;
 			if (target.type == NPCID.Mothron|| target.type == NPCID.MourningWood || target.type == NPCID.Everscream)
             {
 				damage *= 4;
             }
+			int myPlayer = Main.myPlayer;
+			if (Main.player[myPlayer].position.X + (float)(Main.player[myPlayer].width / 2) < Projectile.position.X + (float)(Projectile.width / 2))
+			{
+				hitDirection = 1;
+			}
+			else
+			{
+				hitDirection = -1;
+			}
+			
 			if (player.HasBuff(ModContent.BuffType<StatRaise>()))
 			{
 				damage += (damage) / 4;

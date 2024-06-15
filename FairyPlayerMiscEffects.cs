@@ -26,6 +26,7 @@ namespace SariaMod
 	{
         private const int sphereRadius3 = 1;
         private static int timer;
+        private static int LavaSoundTimer;
         public static void FairyPostUpdateMiscEffects(Player player, Mod mod)
 		{
 			FairyPlayer modPlayer = player.Fairy();
@@ -294,13 +295,10 @@ namespace SariaMod
                     dust.velocity = dust.velocity.RotatedBy((float)j / 36f * ((float)Math.PI * 2f)) * 8f;
                     dust.noGravity = true;
                     dust.scale = 1.9f;
-                    Main.PlaySound(SoundID.Item110, player.Center);
-                    Main.PlaySound(SoundID.Item14, player.Center);
+                    SoundEngine.PlaySound(SoundID.Item110, player.Center);
+                    SoundEngine.PlaySound(SoundID.Item14, player.Center);
                 }
-                for (int j = 0; j < 1; j++)
-                {
-                    Item.NewItem(player.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<SariaSeventhFormNote>());
-                }
+               
             }
             if (modPlayer.SariaXp >= 80000 && NPC.downedPlantBoss && modPlayer.Sarialevel == 4 && (player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] >= 1f))
             {
@@ -313,13 +311,10 @@ namespace SariaMod
                     dust.velocity = dust.velocity.RotatedBy((float)j / 36f * ((float)Math.PI * 2f)) * 8f;
                     dust.noGravity = true;
                     dust.scale = 1.9f;
-                    Main.PlaySound(SoundID.Item110, player.Center);
-                    Main.PlaySound(SoundID.Item14, player.Center);
+                    SoundEngine.PlaySound(SoundID.Item110, player.Center);
+                    SoundEngine.PlaySound(SoundID.Item14, player.Center);
                 }
-                for (int j = 0; j < 1; j++)
-                {
-                    Item.NewItem(player.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<SariaSixthFormNote>());
-                }
+               
             }
             if (modPlayer.SariaXp >= 40000 && NPC.downedMechBossAny && modPlayer.Sarialevel == 3 && (player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] >= 1f))
             {
@@ -332,13 +327,10 @@ namespace SariaMod
                     dust.velocity = dust.velocity.RotatedBy((float)j / 36f * ((float)Math.PI * 2f)) * 8f;
                     dust.noGravity = true;
                     dust.scale = 1.9f;
-                    Main.PlaySound(SoundID.Item110, player.Center);
-                    Main.PlaySound(SoundID.Item14, player.Center);
+                    SoundEngine.PlaySound(SoundID.Item110, player.Center);
+                    SoundEngine.PlaySound(SoundID.Item14, player.Center);
                 }
-                for (int j = 0; j < 1; j++)
-                {
-                    Item.NewItem(player.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<SariaFifthFormNote>());
-                }
+               
                 }
             if (modPlayer.SariaXp >= 20000 && Main.hardMode && modPlayer.Sarialevel == 2 && (player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] >= 1f))
             {
@@ -351,13 +343,10 @@ namespace SariaMod
                     dust.velocity = dust.velocity.RotatedBy((float)j / 36f * ((float)Math.PI * 2f)) * 8f;
                     dust.noGravity = true;
                     dust.scale = 1.9f;
-                    Main.PlaySound(SoundID.Item110, player.Center);
-                    Main.PlaySound(SoundID.Item14, player.Center);
+                    SoundEngine.PlaySound(SoundID.Item110, player.Center);
+                    SoundEngine.PlaySound(SoundID.Item14, player.Center);
                 }
-                for (int j = 0; j < 1; j++)
-                {
-                    Item.NewItem(player.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<SariaFourthFormNote>());
-                }
+               
             }
             if (modPlayer.SariaXp >= 9000 && NPC.downedQueenBee && modPlayer.Sarialevel == 1 && (player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] >= 1f))
             {
@@ -370,13 +359,10 @@ namespace SariaMod
                     dust.velocity = dust.velocity.RotatedBy((float)j / 36f * ((float)Math.PI * 2f)) * 8f;
                     dust.noGravity = true;
                     dust.scale = 1.9f;
-                    Main.PlaySound(SoundID.Item110, player.Center);
-                    Main.PlaySound(SoundID.Item14, player.Center);
+                    SoundEngine.PlaySound(SoundID.Item110, player.Center);
+                    SoundEngine.PlaySound(SoundID.Item14, player.Center);
                 }
-                for (int j = 0; j < 1; j++)
-                {
-                    Item.NewItem(player.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<SariaThirdFormNote>());
-                }
+               
             }
             if (modPlayer.SariaXp >= 3000 && NPC.downedSlimeKing && modPlayer.Sarialevel <= 0 && (player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] >= 1f))
             {
@@ -389,19 +375,31 @@ namespace SariaMod
                     dust.velocity = dust.velocity.RotatedBy((float)j / 36f * ((float)Math.PI * 2f)) * 8f;
                     dust.noGravity = true;
                     dust.scale = 1.9f;
-                    Main.PlaySound(SoundID.Item110, player.Center);
-                    Main.PlaySound(SoundID.Item14, player.Center);
+                    SoundEngine.PlaySound(SoundID.Item110, player.Center);
+                    SoundEngine.PlaySound(SoundID.Item14, player.Center);
                     
                 }
-                for (int j = 0; j < 1; j++)
+                
+            }
+            ///Main.maxTilesX / 2 is the center
+            LavaSoundTimer++;
+            if (player.ZoneUnderworldHeight)
+            {
+                if (LavaSoundTimer >= 650)
                 {
-                    Item.NewItem(player.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<SariaSecondFormNote>());
+                    SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/LavaSound"), player.Center);
+                    LavaSoundTimer = 0;
+                }
+                if (Main.rand.NextBool(1))//controls the speed of when the sparkles spawn
+                {
+                    float radius = (float)Math.Sqrt(Main.rand.Next(3000 * 3000));
+                    double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
+                    Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<SmokeDust>(), 0f, 0f, 0, default(Color), 1.5f);
                 }
             }
-           
             float sneezespot = 5;
             bool Warm = player.behindBackWall && player.HasBuff(BuffID.Campfire);
-            bool immunityToCold = player.HasBuff(BuffID.Warmth) || (player.HasBuff(BuffID.Campfire) && player.behindBackWall) || player.HasBuff(BuffID.OnFire) || player.arcticDivingGear;
+            bool immunityToCold = player.HasBuff(BuffID.Warmth) || player.HasBuff(BuffID.OnFire) || player.arcticDivingGear;
 			bool immunityToHeat = player.HasBuff(BuffID.ObsidianSkin) || player.lavaImmune || player.ZoneWaterCandle;
 			if (player.whoAmI == Main.myPlayer)
 			{
@@ -417,9 +415,20 @@ namespace SariaMod
                         player.AddBuff(ModContent.BuffType<Frostburn2>(),2);
                     }
 				}
+               
+                if (player.ZoneSnow && player.wet && !immunityToCold)
+                {
+                    modPlayer.FreezingTemp+= 3;
+                    
+                    {
+                        modPlayer.FreezingTemp++;
+                        player.AddBuff(ModContent.BuffType<Frostburn2>(), 2);
+                    }
+                }
                 if (modPlayer.FreezingTemp >= 3000)
                 {
                     player.AddBuff(ModContent.BuffType<Frozen2>(), 398);
+                    SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/HardIce"), player.Center);
                     modPlayer.FreezingTemp = 0;
                 }
                 
@@ -433,16 +442,16 @@ namespace SariaMod
 				if (!player.behindBackWall && (!immunityToHeat || player.HasBuff(ModContent.BuffType<StatLower>())) && player.ZoneUnderworldHeight)
 				{
 
-                    player.AddBuff(ModContent.BuffType<Burning2>(), 2);
+                    player.AddBuff(ModContent.BuffType<Burning2>(), 2, quiet: false);
                 }
 			}
 			if (!player.behindBackWall && (!immunityToCold || player.HasBuff(ModContent.BuffType<StatLower>())) && player.InSpace())
             {
-                player.AddBuff(ModContent.BuffType<Frostburn3>(), 2);
+                player.AddBuff(ModContent.BuffType<Frostburn3>(), 2, quiet: false);
             }
             if (!player.behindBackWall && (!immunityToHeat || player.HasBuff(ModContent.BuffType<StatLower>())) && player.InSpace())
             {
-                player.AddBuff(ModContent.BuffType<Burning2>(), 2);
+                player.AddBuff(ModContent.BuffType<Burning2>(), 2, quiet: false);
             }
             
             if (((Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneSnow) && !(Main.player[Main.myPlayer].behindBackWall && player.HasBuff((BuffID.Campfire)))) || (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneSkyHeight) && !(Main.player[Main.myPlayer].behindBackWall && player.HasBuff((BuffID.Campfire))) || (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneDesert && !Main.dayTime) && !(Main.player[Main.myPlayer].behindBackWall && player.HasBuff((BuffID.Campfire))) || (Main.player[Main.myPlayer].active && Main.player[Main.myPlayer].ZoneRain && !Main.player[Main.myPlayer].ZoneJungle && !(Main.player[Main.myPlayer].ZoneDesert && Main.dayTime)) && !(Main.player[Main.myPlayer].behindBackWall && player.HasBuff((BuffID.Campfire))))

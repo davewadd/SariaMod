@@ -15,7 +15,7 @@ namespace SariaMod.Buffs
 
 	public class XPBuff : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("XP Checker");
 			Description.SetDefault("While this buff is active you can see Saria's XP level");
@@ -23,7 +23,6 @@ namespace SariaMod.Buffs
 			Main.pvpBuff[base.Type] = false;
 			Main.buffNoSave[base.Type] = true;
 			Main.buffNoTimeDisplay[base.Type] = true;
-			longerExpertDebuff = false;
 
 		}
 		public override void Update(Player player, ref int buffIndex)

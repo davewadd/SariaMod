@@ -29,7 +29,7 @@ namespace SariaMod.Dusts
 				dust.velocity.Y *= -1;
 			}
 			float light = 0.35f * dust.scale;
-			Lighting.AddLight(dust.position, Color.DarkViolet.ToVector3() * 6f);
+			Lighting.AddLight(dust.position, Color.OrangeRed.ToVector3() * 3f);
 			if (dust.scale < 0.5f) {
 				dust.active = false;
 			}

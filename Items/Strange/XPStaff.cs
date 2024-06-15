@@ -8,7 +8,7 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.zPearls;
 
@@ -16,6 +16,7 @@ using SariaMod.Items.zBookcases;
 using SariaMod.Items.Strange;
 using Terraria;
 using SariaMod.Buffs;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -29,39 +30,39 @@ namespace SariaMod.Items.Strange
 		{
 			DisplayName.SetDefault("XPStaff");
 			Tooltip.SetDefault(SariaModUtilities.ColorMessage("Shows the Level of XP Saria has when used", new Color(0, 200, 250, 200)));
-			ItemID.Sets.GamepadWholeScreenUseRange[item.type] = true; // This lets the player target anywhere on the whole screen while using a controller.
-			ItemID.Sets.LockOnIgnoresCollision[item.type] = true;
+			ItemID.Sets.GamepadWholeScreenUseRange[Item.type] = true; // This lets the player target anywhere on the whole screen while using a controller.
+			ItemID.Sets.LockOnIgnoresCollision[Item.type] = true;
 		}
 
 		public override void SetDefaults()
 		{
 			
-			item.knockBack = 13f;
-			item.mana = 1;
-			item.width = 32;
-			item.height = 32;
-			base.item.useTime = (base.item.useAnimation = 10);
-			item.useStyle = 1;
-			item.value = Item.buyPrice(0, 30, 0, 0);
-			item.rare = ItemRarityID.Cyan;
-			item.UseSound = SoundID.Item46;
+			Item.knockBack = 13f;
+			Item.mana = 1;
+			Item.width = 32;
+			Item.height = 32;
+			base.Item.useTime = (base.Item.useAnimation = 10);
+			Item.useStyle = 1;
+			Item.value = Item.buyPrice(0, 30, 0, 0);
+			Item.rare = ItemRarityID.Cyan;
+			Item.UseSound = SoundID.Item46;
 
 			// These below are needed for a minion weapon
-			item.noMelee = true;
-			item.summon = true;
+			Item.noMelee = true;
+			Item.DamageType = DamageClass.Summon;
 			// No buffTime because otherwise the item tooltip would say something like "1 minute duration"
-			item.buffType = ModContent.BuffType<XPBuff>();
-			item.buffTime = 100000;
+			Item.buffType = ModContent.BuffType<XPBuff>();
+			Item.buffTime = 100000;
 		}
 		public override void Update(ref float gravity, ref float maxFallSpeed)
 		{
 
-			Lighting.AddLight(item.Center, Color.SeaShell.ToVector3() * 2f);
+			Lighting.AddLight(Item.Center, Color.SeaShell.ToVector3() * 2f);
 		}
 
 
 
-		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
 		{
 			// This is needed so the buff that keeps your minion alive and allows you to despawn it properly applies
 			
@@ -75,12 +76,11 @@ namespace SariaMod.Items.Strange
 
 		public override void AddRecipes()
 		{
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ItemID.LifeCrystal, 1);
 			recipe.AddIngredient(ItemID.Wood, 5);
 			recipe.AddTile(ModContent.TileType<Tiles.StrangeBookcase>());
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 	}
 

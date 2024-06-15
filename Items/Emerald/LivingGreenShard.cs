@@ -27,19 +27,19 @@ namespace SariaMod.Items.Emerald
 		public override void SetDefaults()
 		{
 			
-			base.item.width = 26;
-			base.item.height = 22;
-			base.item.maxStack = 999;
-			item.value = Item.buyPrice(2, 0, 0, 0);
+			base.Item.width = 26;
+			base.Item.height = 22;
+			base.Item.maxStack = 999;
+			Item.value = Item.buyPrice(0, 0, 100, 0);
 			
-			item.rare = ItemRarityID.Lime;
+			Item.rare = ItemRarityID.Lime;
 			
 			
 		}
 		public override void Update(ref float gravity, ref float maxFallSpeed)
 		{
 			
-			Lighting.AddLight(item.Center, Color.LimeGreen.ToVector3() * 2f);
+			Lighting.AddLight(Item.Center, Color.LimeGreen.ToVector3() * 2f);
 		}
 	}
 }

@@ -5,7 +5,7 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
 using SariaMod.Dusts;
@@ -32,7 +32,7 @@ namespace SariaMod.Buffs
 
 	public class Burning2 : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Burning");
 			Description.SetDefault("The Hot Air burns your body!");
@@ -40,7 +40,6 @@ namespace SariaMod.Buffs
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = true;
 			Main.buffNoTimeDisplay[base.Type] = false;
-			longerExpertDebuff = true;
 
 		}
 		private const int sphereRadius = 30;

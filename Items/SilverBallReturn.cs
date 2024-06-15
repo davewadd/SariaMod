@@ -27,10 +27,10 @@ namespace SariaMod.Items
         public override void SetStaticDefaults()
         {
             base.DisplayName.SetDefault("Mother");
-            Main.projFrames[base.projectile.type] = 1;
-            Main.projPet[projectile.type] = true;
-            ProjectileID.Sets.MinionSacrificable[base.projectile.type] = false;
-            ProjectileID.Sets.MinionTargettingFeature[base.projectile.type] = true;
+            Main.projFrames[base.Projectile.type] = 1;
+            Main.projPet[Projectile.type] = true;
+            ProjectileID.Sets.MinionSacrificable[base.Projectile.type] = false;
+            ProjectileID.Sets.MinionTargettingFeature[base.Projectile.type] = true;
         }
         public override bool? CanCutTiles()
         {
@@ -47,28 +47,28 @@ namespace SariaMod.Items
         public override void SetDefaults()
         {
 
-            base.projectile.width = 96;
-            base.projectile.height = 78;
+            base.Projectile.width = 96;
+            base.Projectile.height = 78;
 
-            base.projectile.netImportant = true;
-            base.projectile.friendly = true;
-
-            base.projectile.ignoreWater = false;
-            base.projectile.usesLocalNPCImmunity = true;
-             base.projectile.localNPCHitCooldown = 50;
+            base.Projectile.netImportant = true;
+            base.Projectile.friendly = true;
+            base.Projectile.netImportant = true;
+            base.Projectile.ignoreWater = false;
+            base.Projectile.usesLocalNPCImmunity = true;
+             base.Projectile.localNPCHitCooldown = 50;
           
-            base.projectile.timeLeft = 1800;
-            base.projectile.penetrate = -1;
-            base.projectile.tileCollide = false;
-            projectile.alpha = 300;
-            base.projectile.minion = true;
+            base.Projectile.timeLeft = 1800;
+            base.Projectile.penetrate = -1;
+            base.Projectile.tileCollide = false;
+            Projectile.alpha = 300;
+            base.Projectile.minion = true;
         }
        
         public override void AI()
         {
           
            
-            Player player = Main.player[base.projectile.owner];
+            Player player = Main.player[base.Projectile.owner];
             FairyPlayer modPlayer = player.Fairy();
            
             //////////////////////////////faces start

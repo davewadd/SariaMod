@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "VQqhmd6+cBJQuVeVIotwJDr+Dypk9N2HTA6ubjbFH+jlLSOgM1N1PnXvTP1rNeEBbn1G/cEPu6lma1Bx9+N97w==",
+  "dgSpecHash": "r5uwVY4wsngOc+HShlfJcEy2STvo1moXAwtnAD3o896JY11FRmGZt417zusBUA4ZgrPgNfRU24yHpRzp0Eeqgg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\david\\OneDrive\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\SariaMod\\SariaMod.csproj",
+  "projectFilePath": "C:\\Users\\david\\OneDrive\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\SariaMod\\SariaMod.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\david\\.nuget\\packages\\tmodloader.codeassist\\0.1.5\\tmodloader.codeassist.0.1.5.nupkg.sha512"
   ],

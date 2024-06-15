@@ -7,7 +7,7 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Barrier;
 using SariaMod.Items.Strange;
@@ -27,20 +27,20 @@ namespace SariaMod.Items.Amber
 		{
 			
 			
-			base.projectile.width = 62;
-			base.projectile.height = 50;
+			base.Projectile.width = 62;
+			base.Projectile.height = 50;
 			
 			
-			base.projectile.ignoreWater = true;
-			base.projectile.friendly = true;
-			base.projectile.timeLeft = 800;
-			base.projectile.penetrate = -1;
-			base.projectile.tileCollide = false;
-			base.projectile.minion = false;
-			base.projectile.localNPCHitCooldown = 15;
-			base.projectile.minionSlots = 0f;
-			base.projectile.netImportant = true;
-			base.projectile.usesLocalNPCImmunity = true;
+			base.Projectile.ignoreWater = true;
+			base.Projectile.friendly = true;
+			base.Projectile.timeLeft = 800;
+			base.Projectile.penetrate = -1;
+			base.Projectile.tileCollide = false;
+			base.Projectile.minion = false;
+			base.Projectile.localNPCHitCooldown = 15;
+			base.Projectile.minionSlots = 0f;
+			base.Projectile.netImportant = true;
+			base.Projectile.usesLocalNPCImmunity = true;
 			
 
 
@@ -49,9 +49,9 @@ namespace SariaMod.Items.Amber
 		{
 
 
-			if (projectile.velocity.X <= (float)((.2)) && projectile.velocity.X >= (float)(-.2) && projectile.velocity.Y <= (float)((.2)) && projectile.velocity.Y >= (float)((-.2)))
+			if (Projectile.velocity.X <= (float)((.2)) && Projectile.velocity.X >= (float)(-.2) && Projectile.velocity.Y <= (float)((.2)) && Projectile.velocity.Y >= (float)((-.2)))
 			{
-				projectile.frame = 1;
+				Projectile.frame = 1;
 			}
 
 			return false;
@@ -60,10 +60,10 @@ namespace SariaMod.Items.Amber
 		public override void SetStaticDefaults()
 		{
 			base.DisplayName.SetDefault("Psychic Turret");
-			Main.projFrames[base.projectile.type] = 3;
-			Main.projPet[projectile.type] = true;
-			ProjectileID.Sets.MinionSacrificable[base.projectile.type] = false;
-			ProjectileID.Sets.MinionTargettingFeature[base.projectile.type] = true;
+			Main.projFrames[base.Projectile.type] = 3;
+			Main.projPet[Projectile.type] = true;
+			ProjectileID.Sets.MinionSacrificable[base.Projectile.type] = false;
+			ProjectileID.Sets.MinionTargettingFeature[base.Projectile.type] = true;
 		}
 
 		public override bool MinionContactDamage()
@@ -72,20 +72,48 @@ namespace SariaMod.Items.Amber
 		}
 		public override void AI()
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
-			
-			
-			
+			if (modPlayer.Sarialevel == 6)
+			{
+				Projectile.damage = 900 + (modPlayer.SariaXp / 40);
+			}
+			else if (modPlayer.Sarialevel == 5)
+			{
+				Projectile.damage = 200 + (modPlayer.SariaXp / 342);
+			}
+			else if (modPlayer.Sarialevel == 4)
+			{
+				Projectile.damage = 75 + (modPlayer.SariaXp / 640);
+			}
+			else if (modPlayer.Sarialevel == 3)
+			{
+				Projectile.damage = 50 + (modPlayer.SariaXp / 1600);
+			}
+			else if (modPlayer.Sarialevel == 2)
+			{
+				Projectile.damage = 26 + (modPlayer.SariaXp / 833);
+			}
+
+			else if (modPlayer.Sarialevel == 1)
+			{
+				Projectile.damage = 15 + (modPlayer.SariaXp / 818);
+			}
+			else
+			{
+				Projectile.damage = 10 + (modPlayer.SariaXp / 600);
+			}
+
+
 			float distanceFromTarget = 10f;
-			Vector2 targetCenter = projectile.position;
+			Vector2 targetCenter = Projectile.position;
 			bool foundTarget = false;
 			
 			// This code is required if your minion weapon has the targeting feature
 			if (player.HasMinionAttackTargetNPC)
 			{
 				NPC npc = Main.npc[player.MinionAttackTargetNPC];
-				float between = Vector2.Distance(npc.Center, projectile.Center);
+				float between = Vector2.Distance(npc.Center, Projectile.Center);
 				// Reasonable distance away so it doesn't target across multiple screens
 				if (between < 2000f)
 				{
@@ -106,10 +134,10 @@ namespace SariaMod.Items.Amber
 					if (npc.CanBeChasedBy())
 					{
 						float between2 = Vector2.Distance(npc.Center, player.Center);
-						float between = Vector2.Distance(npc.Center, projectile.Center);
-						bool closest = Vector2.Distance(projectile.Center, targetCenter) > between;
+						float between = Vector2.Distance(npc.Center, Projectile.Center);
+						bool closest = Vector2.Distance(Projectile.Center, targetCenter) > between;
 						bool inRange = between < distanceFromTarget;
-						bool lineOfSight = Collision.CanHitLine(projectile.position, projectile.width, projectile.height, npc.position, npc.width, npc.height);
+						bool lineOfSight = Collision.CanHitLine(Projectile.position, Projectile.width, Projectile.height, npc.position, npc.width, npc.height);
 						// Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
 						// The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
 						bool closeThroughWall = between2 < 400f;
@@ -124,19 +152,19 @@ namespace SariaMod.Items.Amber
 					}
 				}
 			}
-			if (projectile.velocity.X <= (float)((.2)) && projectile.velocity.X >= (float)(-.2))
+			if (Projectile.velocity.X <= (float)((.2)) && Projectile.velocity.X >= (float)(-.2))
 			{
-				projectile.tileCollide = true;
+				Projectile.tileCollide = true;
             }
-			if (projectile.velocity.X > (float)((.2)) || projectile.velocity.X < (float)(-.2))
+			if (Projectile.velocity.X > (float)((.2)) || Projectile.velocity.X < (float)(-.2))
 			{
-				projectile.tileCollide = false;
+				Projectile.tileCollide = false;
             }
-			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
+			Projectile mother = Main.projectile[(int)base.Projectile.ai[1]];
 			if (!mother.active)
 			{
 
-				projectile.Kill();
+				Projectile.Kill();
 			}
 
 
@@ -150,22 +178,22 @@ namespace SariaMod.Items.Amber
 
 			// If your minion doesn't aimlessly move around when it's idle, you need to "put" it into the line of other summoned minions
 			// The index is projectile.minionPos
-			float minionPositionOffsetX = (10 + projectile.minionPos * 40) * -player.direction;
+			float minionPositionOffsetX = (10 + Projectile.minionPos * 40) * -player.direction;
 			idlePosition.X += minionPositionOffsetX; // Go behind the player
 
 			// All of this code below this line is adapted from Spazmamini code (ID 388, aiStyle 66)
 			
 			// Teleport to player if distance is too big
-			Vector2 vectorToIdlePosition = idlePosition - projectile.Center;
+			Vector2 vectorToIdlePosition = idlePosition - Projectile.Center;
 			float distanceToIdlePosition = vectorToIdlePosition.Length();
 			
 			if (Main.myPlayer == player.whoAmI && distanceToIdlePosition > 2000f)
 			{
 				// Whenever you deal with non-regular events that change the behavior or position drastically, make sure to only run the code on the owner of the projectile,
 				// and then set netUpdate to true
-				projectile.position = idlePosition;
-				projectile.velocity *= 0.1f;
-				projectile.netUpdate = true;
+				Projectile.position = idlePosition;
+				Projectile.velocity *= 0.1f;
+				Projectile.netUpdate = true;
 			}
 
 			// If your minion is flying, you want to do this independently of any conditions
@@ -174,13 +202,13 @@ namespace SariaMod.Items.Amber
 			{
 				// Fix overlap with other minions
 				Projectile other = Main.projectile[i];
-				if (i != projectile.whoAmI && other.active && other.owner == projectile.owner && Math.Abs(projectile.position.X - other.position.X) + Math.Abs(projectile.position.Y - other.position.Y) < projectile.width)
+				if (i != Projectile.whoAmI && other.active && other.owner == Projectile.owner && Math.Abs(Projectile.position.X - other.position.X) + Math.Abs(Projectile.position.Y - other.position.Y) < Projectile.width)
 				{
-					if (projectile.position.X < other.position.X) projectile.velocity.X -= overlapVelocity;
-					else projectile.velocity.X += overlapVelocity;
+					if (Projectile.position.X < other.position.X) Projectile.velocity.X -= overlapVelocity;
+					else Projectile.velocity.X += overlapVelocity;
 
-					if (projectile.position.Y < other.position.Y) projectile.velocity.Y -= overlapVelocity;
-					else projectile.velocity.Y += overlapVelocity;
+					if (Projectile.position.Y < other.position.Y) Projectile.velocity.Y -= overlapVelocity;
+					else Projectile.velocity.Y += overlapVelocity;
 				}
 			}
 
@@ -191,21 +219,21 @@ namespace SariaMod.Items.Amber
 			idlePosition2.Y = 0f;
 			idlePosition2.X += minionPositionOffsetX;
 			// Default movement parameters (here for attacking)
-			projectile.rotation = projectile.velocity.X * 0.05f;
+			Projectile.rotation = Projectile.velocity.X * 0.05f;
 			
 			
 			
 			if (foundTarget)
 			{
-				base.projectile.tileCollide = false;
+				base.Projectile.tileCollide = false;
 				speed = 80f;
 				inertia = 60f;
 				{
 					// The immediate range around the target (so it doesn't latch onto it when close)
-					Vector2 direction = targetCenter - projectile.Center;
+					Vector2 direction = targetCenter - Projectile.Center;
 					direction.Normalize();
 					direction *= speed;
-					projectile.velocity = (projectile.velocity * (inertia - 8) + direction) / inertia;
+					Projectile.velocity = (Projectile.velocity * (inertia - 8) + direction) / inertia;
 				}
 			}
 			if (!foundTarget)
@@ -217,7 +245,7 @@ namespace SariaMod.Items.Amber
 					
 					speed = 30f;
 					inertia = 60f;
-					base.projectile.tileCollide = false;
+					base.Projectile.tileCollide = false;
 				}
 				 if (distanceToIdlePosition > 400f)
 				{
@@ -225,7 +253,7 @@ namespace SariaMod.Items.Amber
 					
 					speed = 25f;
 					inertia = 60f;
-					base.projectile.tileCollide = false;
+					base.Projectile.tileCollide = false;
 				}
 				 if (distanceToIdlePosition > 100)
 				{
@@ -233,7 +261,7 @@ namespace SariaMod.Items.Amber
 					
 					speed = 20f;
 					inertia = 80f;
-					base.projectile.tileCollide = false;
+					base.Projectile.tileCollide = false;
 				}
 				
 				if (distanceToIdlePosition > 10f)
@@ -243,10 +271,10 @@ namespace SariaMod.Items.Amber
 
 					// This is a simple movement formula using the two parameters and its desired direction to create a "homing" movement
 					inertia = 60f;
-					projectile.velocity = (projectile.velocity * (inertia - 8) + vectorToIdlePosition) / inertia;
-					if (projectile.velocity.X <= (float)((.5)) && projectile.velocity.X >=  (float)(-.5)) 
+					Projectile.velocity = (Projectile.velocity * (inertia - 8) + vectorToIdlePosition) / inertia;
+					if (Projectile.velocity.X <= (float)((.5)) && Projectile.velocity.X >=  (float)(-.5)) 
                     {
-						base.projectile.velocity.Y = (float)((.5));
+						base.Projectile.velocity.Y = (float)((.5));
                       
                         
                     }
@@ -255,40 +283,40 @@ namespace SariaMod.Items.Amber
 			
 			}
 			
-			if (projectile.velocity.X >= 0)
+			if (Projectile.velocity.X >= 0)
 			{
-				projectile.spriteDirection = -1;
+				Projectile.spriteDirection = -1;
 			}
-			if (projectile.velocity.X < 0)
+			if (Projectile.velocity.X < 0)
 			{
-				projectile.spriteDirection = 1;
+				Projectile.spriteDirection = 1;
 			}
 		
 			
 
 				
 
-				Lighting.AddLight(projectile.Center, Color.MediumPurple.ToVector3() * 1f);
+				Lighting.AddLight(Projectile.Center, Color.MediumPurple.ToVector3() * 1f);
 				int frameSpeed = 10; //reduced by half due to framecounter speedup
-				projectile.frameCounter += 2;
-				if (projectile.frameCounter >= frameSpeed)
+				Projectile.frameCounter += 2;
+				if (Projectile.frameCounter >= frameSpeed)
 				{
-					projectile.frameCounter = 0;
+					Projectile.frameCounter = 0;
 
 
 
 					{
 
-						base.projectile.frame++;
-						if (base.projectile.frameCounter >= 3)
+						base.Projectile.frame++;
+						if (base.Projectile.frameCounter >= 3)
 						{
 
-							base.projectile.frameCounter = 0;
+							base.Projectile.frameCounter = 0;
 
 						}
-						if (base.projectile.frame >= 3)
+						if (base.Projectile.frame >= 3)
 						{
-							base.projectile.frame = 0;
+							base.Projectile.frame = 0;
 
 						}
 						
@@ -298,9 +326,9 @@ namespace SariaMod.Items.Amber
 		}
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
-			Player player = Main.player[base.projectile.owner];
+			Player player = Main.player[base.Projectile.owner];
 			FairyPlayer modPlayer = player.Fairy();
-			Projectile mother = Main.projectile[(int)base.projectile.ai[0]];
+			Projectile mother = Main.projectile[(int)base.Projectile.ai[1]];
 
 			target.buffImmune[BuffID.CursedInferno] = false;
 			target.buffImmune[BuffID.Confused] = false;
@@ -315,9 +343,9 @@ namespace SariaMod.Items.Amber
 			target.AddBuff(BuffID.Venom, 300);
 			target.AddBuff(BuffID.Poisoned, 300);
 			target.AddBuff(BuffID.Slow, 300);
-			projectile.timeLeft += 50;
+			Projectile.timeLeft += 50;
 			{
-				Projectile.NewProjectile(base.projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Mothdust3>(), base.projectile.damage, base.projectile.knockBack, player.whoAmI, base.projectile.whoAmI);
+				Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.position.X + 0, Projectile.position.Y + 0, 0, 0, ModContent.ProjectileType<Mothdust3>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
 			}
 			if (!player.HasBuff(ModContent.BuffType<Overcharged>()))
 			{
@@ -325,8 +353,7 @@ namespace SariaMod.Items.Amber
 
 				{
 					{
-
-						Item.NewItem(player.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<MothFood>());
+						Item.NewItem(player.GetSource_FromThis(), (int)(player.position.X + 0), (int)(player.position.Y + 0), 0, 0, ModContent.ItemType<MothFood>());
 					}
 				}
 			}
@@ -335,7 +362,7 @@ namespace SariaMod.Items.Amber
 				if (Main.rand.NextBool(30))
 
 				{
-					Item.NewItem(player.Center + new Vector2(0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ItemType<MothFood>());
+					Item.NewItem(player.GetSource_FromThis(), (int)(player.position.X + 0), (int)(player.position.Y + 0), 0, 0, ModContent.ItemType<MothFood>());
 				}
 			}
 			if (player.HasBuff(ModContent.BuffType<StatRaise>()))

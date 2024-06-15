@@ -25,25 +25,25 @@ namespace SariaMod.Items.Amber
 		public override void SetDefaults()
 		{
 			
-			base.item.width = 26;
-			base.item.height = 22;
-			base.item.maxStack = 999;
-			item.value = Item.buyPrice(20, 0, 0, 0);
+			base.Item.width = 26;
+			base.Item.height = 22;
+			base.Item.maxStack = 999;
+			Item.value = Item.buyPrice(0, 0, 100, 0);
 
-			item.rare = ItemRarityID.Red;
-			item.consumable = true;
-			item.useTime = 36;
-			item.useAnimation = 15;
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.UseSound = SoundID.Item45;
-			item.autoReuse = false;
+			Item.rare = ItemRarityID.Red;
+			Item.consumable = true;
+			Item.useTime = 36;
+			Item.useAnimation = 15;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.UseSound = SoundID.Item45;
+			Item.autoReuse = false;
 			// These below are needed for a minion weapon
-			item.noMelee = true;
+			Item.noMelee = true;
 			
-			item.summon = true;
-			item.shootSpeed = 1;
+			Item.DamageType = DamageClass.Summon;
+			Item.shootSpeed = 1;
 			// No buffTime because otherwise the item tooltip would say something like "1 minute duration"
-			item.shoot = ModContent.ProjectileType<Mothdust>();
+			Item.shoot = ModContent.ProjectileType<Mothdust>();
 
 		}
 		public override bool AltFunctionUse(Player player)
@@ -53,19 +53,19 @@ namespace SariaMod.Items.Amber
 		public override void Update(ref float gravity, ref float maxFallSpeed)
 		{
 			
-			Lighting.AddLight(item.Center, Color.OrangeRed.ToVector3() * 2f);
+			Lighting.AddLight(Item.Center, Color.OrangeRed.ToVector3() * 2f);
 		}
 		
 		public override bool CanUseItem(Player player)
 		{ 
 			if (player.altFunctionUse ==2)
             {
-				item.consumable = false;
+				Item.consumable = false;
 				return false;
             }
 			if (player.altFunctionUse !=2)
             {
-				item.consumable = true;
+				Item.consumable = true;
 				return true;
             }
 			
@@ -77,18 +77,16 @@ namespace SariaMod.Items.Amber
 		public override void AddRecipes()
 		{
 			{
-				ModRecipe recipe = new ModRecipe(mod);
+				Recipe recipe = CreateRecipe(1);
 				recipe.AddIngredient(ModContent.ItemType<LargeXpPearl>(), 2);
 				recipe.AddIngredient(ItemID.TissueSample, 1);
-				recipe.SetResult(this, 1);
-				recipe.AddRecipe();
+				recipe.Register();
 			}
 			{
-				ModRecipe recipe = new ModRecipe(mod);
+				Recipe recipe = CreateRecipe(1);
 				recipe.AddIngredient(ModContent.ItemType<LargeXpPearl>(), 2);
 				recipe.AddIngredient(ItemID.ShadowScale, 1);
-				recipe.SetResult(this, 1);
-				recipe.AddRecipe();
+				recipe.Register();
 			}
 		}
 	}

@@ -25,21 +25,20 @@ namespace SariaMod.Buffs
 
 	public class StatRaise : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("RaisedStats");
-			Description.SetDefault("Saria feels stronger in this current environment!");
+			Description.SetDefault("Saria feels stronger in this current environment!\n Your defense is Stronger as a rusult!");
 			Main.debuff[base.Type] = true;
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = true;
 			Main.buffNoTimeDisplay[base.Type] = true;
-			longerExpertDebuff = false;
+		
 
 		}
 		public override void Update(Player player, ref int buffIndex)
 		{
-			
-
+			player.GetModPlayer<FairyPlayer>().Statrisen = true;
 		}
 			
 		

@@ -27,7 +27,7 @@ namespace SariaMod.Items.Emerald
 
 	public class EmeraldFairySilverBuff : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Silver Rupee Fairy");
 			Description.SetDefault("Will slowly heal the player\nThis fairy will also automatically heal its user below half health\n\nUnselsect this buff to put fairy back in its Shard");
@@ -35,7 +35,6 @@ namespace SariaMod.Items.Emerald
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;
 			Main.buffNoTimeDisplay[base.Type] = true;
-			longerExpertDebuff = false;
 
 		}
 		public override void Update(Player player, ref int buffIndex)

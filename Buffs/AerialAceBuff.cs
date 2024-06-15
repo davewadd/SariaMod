@@ -25,7 +25,7 @@ namespace SariaMod.Buffs
 
 	public class AerialAceBuff : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Aerial Ace");
 			Description.SetDefault("Flight time greatly inhanced!");
@@ -33,7 +33,6 @@ namespace SariaMod.Buffs
 			Main.pvpBuff[base.Type] = true;
 			Main.buffNoSave[base.Type] = false;
 			Main.buffNoTimeDisplay[base.Type] = false;
-			longerExpertDebuff = false;
 
 		}
 		public override void Update(Player player, ref int buffIndex)

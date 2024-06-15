@@ -9,10 +9,11 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
 using SariaMod.Items.zBookcases;
+using Terraria.Audio;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -32,14 +33,14 @@ namespace SariaMod.Items.zPearls
 
 		public override void SetDefaults()
 		{
-			base.item.width = 26;
-			base.item.height = 22;
-			base.item.maxStack = 1;
-			item.useTime = 36;
-			item.useStyle = ItemUseStyleID.HoldingOut;
-			base.item.consumable = true;
-			item.shoot = ModContent.ProjectileType<EmptyNote>();
-			item.UseSound = base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/SongCorrect");
+			base.Item.width = 26;
+			base.Item.height = 22;
+			base.Item.maxStack = 1;
+			Item.useTime = 36;
+			Item.useStyle = ItemUseStyleID.Shoot;
+			base.Item.consumable = true;
+			Item.shoot = ModContent.ProjectileType<EmptyNote>();
+			Item.UseSound = new SoundStyle($"{nameof(SariaMod)}/Sounds/SongCorrect");
 		}
 
 		public override bool CanUseItem(Player player)
@@ -57,11 +58,10 @@ namespace SariaMod.Items.zPearls
 		public override void AddRecipes()
 		{
 			{
-				ModRecipe recipe = new ModRecipe(mod);
+				Recipe recipe = CreateRecipe(1);
 				recipe.AddIngredient(ItemID.Wood, 12);
 				recipe.AddIngredient(ItemID.ManaCrystal, 1);
-				recipe.SetResult(this, 1);
-				recipe.AddRecipe();
+				recipe.Register();
 			}
 		}
 	}

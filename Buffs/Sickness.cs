@@ -5,12 +5,13 @@ using SariaMod.Items.Topaz;
 using SariaMod.Items.Emerald;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
-using SariaMod.Items.Diamond;
+ 
 using SariaMod.Items.Platinum;
 using SariaMod.Items.Strange;
 using SariaMod.Dusts;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -32,15 +33,14 @@ namespace SariaMod.Buffs
 
 	public class Sickness : ModBuff
 	{
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Old Wounds");
-			Description.SetDefault("Saria's old wounds begin to cause agony\nShe desperately needs a break!\nCrafting Frozen Yogurt or Increasing her mood may help!\nThe pain is Synchronized!");
+			Description.SetDefault("Saria's old wounds begin to cause agony\nShe desperately needs a break!\nCrafting Frozen Yogurt or Increasing her mood may help!\nDefense is 1!\nThe Pain is Synchronized!");
 			Main.debuff[base.Type] = true;
 			Main.pvpBuff[base.Type] = false;
 			Main.buffNoSave[base.Type] = false;
 			Main.buffNoTimeDisplay[base.Type] = false;
-			longerExpertDebuff = false;
 
 		}
 		private const int sphereRadius = 10;
@@ -51,12 +51,9 @@ namespace SariaMod.Buffs
 
 				if ((player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] > 0))
 				{
+					player.GetModPlayer<FairyPlayer>().Sickness = true;
 					player.buffTime[buffIndex] = 5000;
-					player.accRunSpeed = .5f;
-					player.moveSpeed = .5f;
-					player.maxRunSpeed = .005f;
-					player.runAcceleration = .2f;
-					player.statLifeMax2 /= 2;
+					
 					if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
 					{
 						float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
@@ -65,16 +62,12 @@ namespace SariaMod.Buffs
 					}
 					if (Main.rand.NextBool(600))
 					{
-						Main.PlaySound(base.mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Poe"), player.Center);
+						SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Poe"), player.Center);
 					}
 				}
 				
 			}
-			else if (player.HasBuff(ModContent.BuffType<Soothing>()))
-			{
-				player.DelBuff(buffIndex);
-				buffIndex--;
-			}
+			
 
 		}
 
