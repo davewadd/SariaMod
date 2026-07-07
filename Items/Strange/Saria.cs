@@ -3854,11 +3854,36 @@ namespace SariaMod.Items.Strange
                 _transformGlobs.Clear();
                 return;
             }
+            DrawGlowSphere(Projectile.Center, _transformSphereScale, Color.White,
+                           ref _transformPulsePhase, ref _transformWavePhase,
+                           _transformGlobs, _transformPillars);
+        }
 
-            Vector2 screenPos = Projectile.Center - Main.screenPosition - new Vector2(0f, 8f);
+        /// <summary>
+        /// Shared glow-sphere drawing routine used by both transform and teleport spheres.
+        /// Draws concentric soft circles, absorption globs, and light pillars in additive blend.
+        /// Phase state evolves independently per sphere type via ref parameters.
+        /// Must be called while the SpriteBatch is in AlphaBlend state;
+        /// this method switches to Additive internally and restores AlphaBlend before returning.
+        /// </summary>
+        private void DrawGlowSphere(Vector2 center, float scale, Color color,
+                                    ref float pulsePhase, ref float wavePhase,
+                                    List<TransformGlob> globs, List<TransformPillar> pillars)
+        {
+            if (scale <= 0f)
+            {
+                globs.Clear();
+                return;
+            }
+
+            Vector2 screenPos = center - Main.screenPosition - new Vector2(0f, 8f);
             Texture2D pixel = TextureAssets.MagicPixel.Value;
             const float baseRadius = 90f;
-            float s = _transformSphereScale;
+            float s = scale;
+
+            // ref parameters cannot be captured by local functions — copy to locals
+            float localWavePhase  = wavePhase;
+            float localPulsePhase = pulsePhase;
 
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.Transform);
@@ -3884,7 +3909,7 @@ namespace SariaMod.Items.Strange
                     float normY  = y < 0f ? y / radiusTop : y / radiusBottom;
                     float sinArg = (float)Math.Atan2(y, radius);
                     float ripple = waveAmp > 0f
-                        ? waveAmp * (float)Math.Sin(waveFreq * sinArg + _transformWavePhase + phaseOffset)
+                        ? waveAmp * (float)Math.Sin(waveFreq * sinArg + localWavePhase + phaseOffset)
                         : 0f;
                     float radiusX = (radius + ripple) * aspectX;
                     float halfW   = radiusX * (float)Math.Sqrt(Math.Max(0f, 1f - normY * normY));
@@ -3894,7 +3919,7 @@ namespace SariaMod.Items.Strange
                     if (rowAlpha < 0.005f) continue;
                     Main.spriteBatch.Draw(pixel,
                         new Rectangle((int)(centre.X - halfW), (int)(centre.Y + y), (int)(halfW * 2f), step),
-                        null, Color.White * rowAlpha);
+                        null, color * rowAlpha);
                 }
             }
 
@@ -3912,10 +3937,10 @@ namespace SariaMod.Items.Strange
             // Outer ring — wider, less tall
             DrawSoftCircle(screenPos, baseRadius * s * 1.08f, s * 0.40f, waveFreq: freq, waveAmp: 4f,  phaseOffset: offsetStep * 2f,  edgeFalloff: 3.5f, aspectX: 1.35f, aspectTop: 1.0f, aspectBot: 1.1f);
             // Halo — wider, less tall, breathing edge
-            float haloFalloff = 3.5f + (float)(Math.Sin(_transformPulsePhase) * 0.5 + 0.5) * 2.5f;
+            float haloFalloff = 3.5f + (float)(Math.Sin(localPulsePhase) * 0.5 + 0.5) * 2.5f;
             DrawSoftCircle(screenPos, baseRadius * s * 1.32f, s * 0.32f, waveFreq: freq, waveAmp: 2.5f, phaseOffset: offsetStep * 3f, edgeFalloff: haloFalloff, aspectX: 1.45f, aspectTop: 0.9f, aspectBot: 1.0f);
             // Spike fringe — almost no wave energy left; high falloff so only faint spikes survive
-            float spikeFalloff = 7.0f + (float)(Math.Sin(_transformPulsePhase * 0.6f) * 0.5 + 0.5) * 3.0f;
+            float spikeFalloff = 7.0f + (float)(Math.Sin(localPulsePhase * 0.6f) * 0.5 + 0.5) * 3.0f;
             DrawSoftCircle(screenPos, baseRadius * s * 1.52f, s * 0.18f, waveFreq: freq, waveAmp: 1.5f, phaseOffset: offsetStep * 4f, edgeFalloff: spikeFalloff);
 
             // --- Absorption globs: spawn at edge, drift inward, grow then vanish ---
@@ -3932,19 +3957,19 @@ namespace SariaMod.Items.Strange
                     if (rowAlpha < 0.005f) continue;
                     Main.spriteBatch.Draw(pixel,
                         new Rectangle((int)(pos.X - halfW), (int)(pos.Y + dy), Math.Max(1, (int)(halfW * 2f)), 1),
-                        null, Color.White * rowAlpha);
+                        null, color * rowAlpha);
                 }
             }
 
             // Spawn new globs at the outer edge each frame
-            if (Main.netMode != NetmodeID.Server && _transformGlobs.Count < 60)
+            if (Main.netMode != NetmodeID.Server && globs.Count < 60)
             {
                 int spawnCount = Main.rand.Next(1, 3);
                 for (int i = 0; i < spawnCount; i++)
                 {
                     float angle     = Main.rand.NextFloat(MathHelper.TwoPi);
                     float spawnDist = baseRadius * s * Main.rand.NextFloat(1.35f, 1.75f);
-                    _transformGlobs.Add(new TransformGlob
+                    globs.Add(new TransformGlob
                     {
                         Angle         = angle,
                         Distance      = spawnDist,
@@ -3956,15 +3981,15 @@ namespace SariaMod.Items.Strange
             }
 
             // Move globs inward; bell-curve size grows then shrinks to zero (absorbed)
-            for (int i = _transformGlobs.Count - 1; i >= 0; i--)
+            for (int i = globs.Count - 1; i >= 0; i--)
             {
-                TransformGlob g = _transformGlobs[i];
+                TransformGlob g = globs[i];
                 g.Distance     -= g.Speed;
-                _transformGlobs[i] = g;
+                globs[i] = g;
 
                 if (g.Distance <= 3f)
                 {
-                    _transformGlobs.RemoveAt(i);
+                    globs.RemoveAt(i);
                     continue;
                 }
 
@@ -3983,7 +4008,7 @@ namespace SariaMod.Items.Strange
             // --- End absorption globs ---
 
             // --- Light pillars ---
-            foreach (TransformPillar p in _transformPillars)
+            foreach (TransformPillar p in pillars)
             {
                 float lifeT    = p.Life / p.MaxLife;                          // 1→0 over lifetime
                 // Length: grows to full in first 25% of life, then holds at max
@@ -4034,7 +4059,7 @@ namespace SariaMod.Items.Strange
                     if (rw == 0) rw = 1;
                     if (rh == 0) rh = 1;
 
-                    Main.spriteBatch.Draw(pixel, new Rectangle(rx, ry, rw, rh), null, Color.White * rowAlpha);
+                    Main.spriteBatch.Draw(pixel, new Rectangle(rx, ry, rw, rh), null, color * rowAlpha);
                 }
             }
             // --- End light pillars ---
@@ -4082,144 +4107,9 @@ namespace SariaMod.Items.Strange
                 globs.Clear();
                 return;
             }
-
-            Color pink = new Color(255, 80, 200);
-            Vector2 screenPos = worldCenter - Main.screenPosition - new Vector2(0f, 8f);
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
-            const float baseRadius = 90f;
-
-            Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.Transform);
-
-            void DrawSoftCircle(Vector2 centre, float radius, float alphaScale,
-                                float waveFreq = 0f, float waveAmp = 0f, float phaseOffset = 0f,
-                                float edgeFalloff = 2f,
-                                float aspectX = 1f, float aspectTop = 1.4f, float aspectBot = 1.6f)
-            {
-                const int step = 3;
-                float radiusTop    = radius * aspectTop;
-                float radiusBottom = radius * aspectBot;
-                for (float y = -radiusTop; y <= radiusBottom; y += step)
-                {
-                    float normY  = y < 0f ? y / radiusTop : y / radiusBottom;
-                    float sinArg = (float)Math.Atan2(y, radius);
-                    float ripple = waveAmp > 0f
-                        ? waveAmp * (float)Math.Sin(waveFreq * sinArg + _tpWavePhase + phaseOffset)
-                        : 0f;
-                    float radiusX = (radius + ripple) * aspectX;
-                    float halfW   = radiusX * (float)Math.Sqrt(Math.Max(0f, 1f - normY * normY));
-                    if (halfW < 1f) continue;
-                    float t        = Math.Abs(normY);
-                    float rowAlpha = (1f - (float)Math.Pow(t, edgeFalloff)) * alphaScale;
-                    if (rowAlpha < 0.005f) continue;
-                    Main.spriteBatch.Draw(pixel,
-                        new Rectangle((int)(centre.X - halfW), (int)(centre.Y + y), (int)(halfW * 2f), step),
-                        null, pink * rowAlpha);
-                }
-            }
-
-            const float freq       = 6f;
-            const float offsetStep = 1.2f;
-
-            DrawSoftCircle(screenPos, baseRadius * s * 0.40f, s * 1.2f,  waveFreq: freq, waveAmp: 7f,  phaseOffset: 0f,              edgeFalloff: 2f);
-            DrawSoftCircle(screenPos, baseRadius * s * 0.70f, s * 0.70f, waveFreq: freq, waveAmp: 5.5f, phaseOffset: offsetStep,      edgeFalloff: 2.5f, aspectX: 1.25f, aspectTop: 1.1f, aspectBot: 1.2f);
-            DrawSoftCircle(screenPos, baseRadius * s * 1.08f, s * 0.40f, waveFreq: freq, waveAmp: 4f,  phaseOffset: offsetStep * 2f,  edgeFalloff: 3.5f, aspectX: 1.35f, aspectTop: 1.0f, aspectBot: 1.1f);
-            float haloFalloff  = 3.5f + (float)(Math.Sin(_tpPulsePhase) * 0.5 + 0.5) * 2.5f;
-            DrawSoftCircle(screenPos, baseRadius * s * 1.32f, s * 0.32f, waveFreq: freq, waveAmp: 2.5f, phaseOffset: offsetStep * 3f, edgeFalloff: haloFalloff, aspectX: 1.45f, aspectTop: 0.9f, aspectBot: 1.0f);
-            float spikeFalloff = 7.0f + (float)(Math.Sin(_tpPulsePhase * 0.6f) * 0.5 + 0.5) * 3.0f;
-            DrawSoftCircle(screenPos, baseRadius * s * 1.52f, s * 0.18f, waveFreq: freq, waveAmp: 1.5f, phaseOffset: offsetStep * 4f, edgeFalloff: spikeFalloff);
-
-            // Globs
-            void DrawGlobSpot(Vector2 pos, float radius, float alpha)
-            {
-                if (radius < 0.5f || alpha < 0.005f) return;
-                int r = Math.Max(1, (int)radius);
-                for (int dy = -r; dy <= r; dy++)
-                {
-                    float normY = r > 0 ? dy / (float)r : 0f;
-                    float halfW = (float)Math.Sqrt(Math.Max(0f, 1f - normY * normY)) * r;
-                    if (halfW < 0.5f) continue;
-                    float rowAlpha = (1f - normY * normY) * alpha;
-                    if (rowAlpha < 0.005f) continue;
-                    Main.spriteBatch.Draw(pixel,
-                        new Rectangle((int)(pos.X - halfW), (int)(pos.Y + dy), Math.Max(1, (int)(halfW * 2f)), 1),
-                        null, pink * rowAlpha);
-                }
-            }
-
-            if (Main.netMode != NetmodeID.Server && globs.Count < 60)
-            {
-                int spawnCount = Main.rand.Next(1, 3);
-                for (int i = 0; i < spawnCount; i++)
-                {
-                    float angle     = Main.rand.NextFloat(MathHelper.TwoPi);
-                    float spawnDist = baseRadius * s * Main.rand.NextFloat(1.35f, 1.75f);
-                    globs.Add(new TransformGlob
-                    {
-                        Angle         = angle,
-                        Distance      = spawnDist,
-                        SpawnDistance = spawnDist,
-                        Speed         = Main.rand.NextFloat(0.4f, 1.2f),
-                        MaxSize       = Main.rand.NextFloat(3f, 9f) * s,
-                    });
-                }
-            }
-            for (int i = globs.Count - 1; i >= 0; i--)
-            {
-                TransformGlob g = globs[i];
-                g.Distance    -= g.Speed;
-                globs[i]       = g;
-                if (g.Distance <= 3f) { globs.RemoveAt(i); continue; }
-                float progress  = Math.Clamp(1f - g.Distance / g.SpawnDistance, 0f, 1f);
-                float sizeScale = 4f * progress * (1f - progress);
-                float drawSize  = g.MaxSize * sizeScale;
-                float alpha     = sizeScale * 0.85f * s;
-                Vector2 globPos = screenPos + new Vector2(
-                    (float)Math.Cos(g.Angle) * g.Distance,
-                    (float)Math.Sin(g.Angle) * g.Distance * 0.75f);
-                DrawGlobSpot(globPos, drawSize, alpha);
-            }
-
-            // Pillars
-            foreach (TransformPillar p in pillars)
-            {
-                float lifeT    = p.Life / p.MaxLife;
-                float growT    = Math.Clamp((1f - lifeT) / 0.25f, 0f, 1f);
-                float length   = p.MaxLength * growT;
-                float envelope = lifeT < 0.3f ? lifeT / 0.3f : 1f;
-                if (length < 2f) continue;
-                float widthFactor  = Math.Clamp(1f - (p.Width    - 7f)   / 20f,  0.30f, 0.85f);
-                float lengthFactor = Math.Clamp(1f - (p.MaxLength - 150f) / 500f, 0.45f, 0.90f);
-                float alpha = envelope * s * 0.75f * widthFactor * lengthFactor;
-                if (alpha < 0.005f) continue;
-                float cos = (float)Math.Cos(p.Angle);
-                float sin = (float)Math.Sin(p.Angle);
-                const int sliceStep = 2;
-                for (float d = 0f; d < length; d += sliceStep)
-                {
-                    float t        = d / length;
-                    float halfW    = p.Width * 0.5f + p.Width * 2.5f * t;
-                    float fadeFactor = t < 0.5f ? 1f : (float)Math.Pow(1f - ((t - 0.5f) / 0.5f), 2.5f);
-                    float rowAlpha = alpha * fadeFactor;
-                    if (rowAlpha < 0.005f) continue;
-                    float cx = screenPos.X + cos * d;
-                    float cy = screenPos.Y + sin * d * 0.75f;
-                    float px = -sin;
-                    float py =  cos * 0.75f;
-                    int rx = (int)(cx - px * halfW);
-                    int ry = (int)(cy - py * halfW);
-                    int rw = Math.Max(1, (int)(px * halfW * 2f));
-                    int rh = Math.Max(1, (int)(py * halfW * 2f));
-                    if (rw < 0) { rx += rw; rw = -rw; }
-                    if (rh < 0) { ry += rh; rh = -rh; }
-                    if (rw == 0) rw = 1;
-                    if (rh == 0) rh = 1;
-                    Main.spriteBatch.Draw(pixel, new Rectangle(rx, ry, rw, rh), null, pink * rowAlpha);
-                }
-            }
-
-            Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.Transform);
+            DrawGlowSphere(worldCenter, s, new Color(255, 80, 200),
+                           ref _tpPulsePhase, ref _tpWavePhase,
+                           globs, pillars);
         }
 
         public override void PostDraw(Color lightColor)
