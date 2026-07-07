@@ -7,6 +7,7 @@ using SariaMod.Items.Amber; // Potentially needed
 using SariaMod.Items.zBookcases; // For notes
 using SariaMod.Items.zDinner; // For KingsDinner
 using SariaMod.Items.Emerald; // For Shards
+using SariaMod.Items.Strange;
 
 namespace SariaMod
 {
@@ -81,6 +82,12 @@ namespace SariaMod
                 Recipe recipe = Recipe.Create(ModContent.ItemType<TMForget>(), 5);
                 recipe.Register();
             }
+
+            // TMEmpower
+            {
+                Recipe recipe = Recipe.Create(ModContent.ItemType<TMEmpower>());
+                recipe.Register();
+            }
             {
                 Recipe recipe = Recipe.Create(ModContent.ItemType<OcarinaOfTime>());
                 recipe.Register();
@@ -130,6 +137,14 @@ namespace SariaMod
             }
             {
                 Recipe recipe = Recipe.Create(ItemID.DrillContainmentUnit, 1);
+                recipe.Register();
+            }
+            {
+                Recipe recipe = Recipe.Create(ModContent.ItemType<HealBall>(), 1);
+                recipe.Register();
+            }
+            {
+                Recipe recipe = Recipe.Create(ModContent.ItemType<CharmOfSummoning>(), 1);
                 recipe.Register();
             }
         }
