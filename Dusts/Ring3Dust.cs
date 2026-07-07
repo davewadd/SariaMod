@@ -4,6 +4,7 @@ namespace SariaMod.Dusts
 {
     public class Ring3Dust : BaseTemplateDust
     {
+        protected override YBounceMode BounceMode => YBounceMode.None;
         protected override bool NoLight => true;
         public override Color? GetAlpha(Dust dust, Color lightColor) => null;
     }
