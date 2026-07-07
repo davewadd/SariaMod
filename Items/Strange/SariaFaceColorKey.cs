@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using Terraria;
 using Terraria.ModLoader;
 
 namespace SariaMod.Items.Strange
@@ -40,6 +41,9 @@ namespace SariaMod.Items.Strange
 
         public override void PostSetupContent()
         {
+            if (Main.dedServ)
+                return;
+
             _forms124Map = TextureColorSwap.LoadSwapMap("SariaMod/ColorsForSaria1-2-4Faces");
             _form3Map = TextureColorSwap.LoadSwapMap("SariaMod/ColorsForSaria3Faces");
             _form5GlowMap = TextureColorSwap.LoadSwapMap("SariaMod/ColorsForSaria5Faces");

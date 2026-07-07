@@ -14,16 +14,24 @@ namespace SariaMod.Diagnostics
     /// Owner follow  -> debugsaria_owner.txt   (path-follow state when this client owns Saria)
     /// Client follow -> debugsaria_client.txt  (path-follow state on non-owner clients)
     ///
-    /// All files are cleared on each mod Load().  Written to ModSources/SariaMod/.
+    /// All files are cleared on each mod Load(). Written to the active tModLoader save folder.
     /// </summary>
     public static class SariaDebug
     {
-        private static readonly string BaseDir =
-            "C:\\Users\\david\\OneDrive\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\SariaMod";
+        private static string BaseDir
+        {
+            get
+            {
+                string root = !string.IsNullOrWhiteSpace(Main.SavePath)
+                    ? Main.SavePath
+                    : AppContext.BaseDirectory;
+                return Path.Combine(root, "SariaModLogs");
+            }
+        }
 
-        private static readonly string LogPath       = Path.Combine(BaseDir, "debugsaria.txt");
-        private static readonly string OwnerLogPath  = Path.Combine(BaseDir, "debugsaria_owner.txt");
-        private static readonly string ClientLogPath = Path.Combine(BaseDir, "debugsaria_client.txt");
+        private static string LogPath       => Path.Combine(BaseDir, "debugsaria.txt");
+        private static string OwnerLogPath  => Path.Combine(BaseDir, "debugsaria_owner.txt");
+        private static string ClientLogPath => Path.Combine(BaseDir, "debugsaria_client.txt");
 
         private static bool _initialized = false;
 
@@ -37,6 +45,7 @@ namespace SariaMod.Diagnostics
                 // clients on one PC) share these exact paths. Only clear the files when we
                 // can take an exclusive lock instantly — a second process skips the wipe
                 // instead of truncating the first one's live log mid-session.
+                Directory.CreateDirectory(BaseDir);
                 TryInitFile(LogPath,       $"=== SariaMod general log -- {ts} ==={System.Environment.NewLine}");
                 TryInitFile(OwnerLogPath,  $"=== SariaMod follow log [OWNER] -- {ts} ==={System.Environment.NewLine}");
                 TryInitFile(ClientLogPath, $"=== SariaMod follow log [CLIENT] -- {ts} ==={System.Environment.NewLine}");

@@ -77,6 +77,9 @@ namespace SariaMod.Items.Strange
 
         public override void PostSetupContent()
         {
+            if (Main.dedServ)
+                return;
+
             _form7EyeMap = TextureColorSwap.LoadSwapMap("SariaMod/PsychicEyesForm7");
         }
 

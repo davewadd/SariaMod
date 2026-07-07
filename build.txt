@@ -1,3 +1,4 @@
 displayName = Saria Summon Mod!
 author = ~David~
 version = 8.0.3
+buildVersion = 1.4.3
