@@ -863,38 +863,42 @@ namespace SariaMod
             }
             return ownerIndex >= 0;
         }
+        private void RemoveFrozenBuff(NPC npc)
+        {
+            // Handle the buff removal, ensuring it's synced in multiplayer.
+            if (Main.netMode == NetmodeID.Server)
+            {
+                // The server removes the buff directly and syncs.
+                int buffIndex = npc.FindBuffIndex(ModContent.BuffType<EnemyFrozen>());
+                if (buffIndex != -1)
+                {
+                    npc.DelBuff(buffIndex);
+                    npc.netUpdate = true;
+                }
+            }
+            else if (Main.netMode == NetmodeID.MultiplayerClient)
+            {
+                // A client sends a packet to the server to remove the buff.
+                ModPacket packet = Mod.GetPacket();
+                packet.Write((byte)SariaMod.SoundMessageType.RemoveBuff);
+                packet.Write(npc.whoAmI);
+                packet.Send();
+            }
+            else if (Main.netMode == NetmodeID.SinglePlayer)
+            {
+                // In single-player, remove the buff directly.
+                int buffIndex = npc.FindBuffIndex(ModContent.BuffType<EnemyFrozen>());
+                if (buffIndex != -1)
+                {
+                    npc.DelBuff(buffIndex);
+                }
+            }
+        }
         public override void OnHitByItem(NPC npc, Player player, Item item, int damage, float knockback, bool crit)
         {
             if (npc.HasBuff(ModContent.BuffType<EnemyFrozen>()))
             {
-                // Handle the buff removal, ensuring it's synced in multiplayer.
-                if (Main.netMode == NetmodeID.Server)
-                {
-                    // The server removes the buff directly and syncs.
-                    int buffIndex = npc.FindBuffIndex(ModContent.BuffType<EnemyFrozen>());
-                    if (buffIndex != -1)
-                    {
-                        npc.DelBuff(buffIndex);
-                        npc.netUpdate = true;
-                    }
-                }
-                else if (Main.netMode == NetmodeID.MultiplayerClient)
-                {
-                    // A client sends a packet to the server to remove the buff.
-                    ModPacket packet = Mod.GetPacket();
-                    packet.Write((byte)SariaMod.SoundMessageType.RemoveBuff);
-                    packet.Write(npc.whoAmI);
-                    packet.Send();
-                }
-                else if (Main.netMode == NetmodeID.SinglePlayer)
-                {
-                    // In single-player, remove the buff directly.
-                    int buffIndex = npc.FindBuffIndex(ModContent.BuffType<EnemyFrozen>());
-                    if (buffIndex != -1)
-                    {
-                        npc.DelBuff(buffIndex);
-                    }
-                }
+                RemoveFrozenBuff(npc);
             }
         }
         public override void OnHitByProjectile(NPC npc, Projectile projectile, int damage, float knockback, bool crit)
@@ -902,34 +906,7 @@ namespace SariaMod
             Player player = Main.player[projectile.owner];
             if (npc.HasBuff(ModContent.BuffType<EnemyFrozen>()) && projectile.type != ModContent.ProjectileType<ColdWaveHitBox>() && projectile.type != ModContent.ProjectileType<HealBubble>() && projectile.type != ModContent.ProjectileType<ColdWaveCenter>())
             {
-                // Handle the buff removal, ensuring it's synced in multiplayer.
-                if (Main.netMode == NetmodeID.Server)
-                {
-                    // The server removes the buff directly and syncs.
-                    int buffIndex = npc.FindBuffIndex(ModContent.BuffType<EnemyFrozen>());
-                    if (buffIndex != -1)
-                    {
-                        npc.DelBuff(buffIndex);
-                        npc.netUpdate = true;
-                    }
-                }
-                else if (Main.netMode == NetmodeID.MultiplayerClient)
-                {
-                    // A client sends a packet to the server to remove the buff.
-                    ModPacket packet = Mod.GetPacket();
-                    packet.Write((byte)SariaMod.SoundMessageType.RemoveBuff);
-                    packet.Write(npc.whoAmI);
-                    packet.Send();
-                }
-                else if (Main.netMode == NetmodeID.SinglePlayer)
-                {
-                    // In single-player, remove the buff directly.
-                    int buffIndex = npc.FindBuffIndex(ModContent.BuffType<EnemyFrozen>());
-                    if (buffIndex != -1)
-                    {
-                        npc.DelBuff(buffIndex);
-                    }
-                }
+                RemoveFrozenBuff(npc);
             }
             if (projectile.type == ModContent.ProjectileType<LaunchHitBox>())
             {

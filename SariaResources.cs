@@ -26,28 +26,28 @@ namespace SariaMod
 {
     public static class SariaResources
     {
+        // Lookup table: Transform value (0-5) -> Ztarget projectile type
+        private static readonly int?[] ZtargetTypes = new int?[6]
+        {
+            ModContent.ProjectileType<Ztarget2>(), // Transform 0
+            ModContent.ProjectileType<Ztarget3>(), // Transform 1
+            ModContent.ProjectileType<Ztarget4>(), // Transform 2
+            ModContent.ProjectileType<Ztarget5>(), // Transform 3
+            ModContent.ProjectileType<Ztarget6>(), // Transform 4
+            null                                     // Transform 5 (unused)
+        };
+
         public static void Ztargets(this Projectile projectile, int ChannelState, int Transform)
         {
             Player player = Main.player[projectile.owner];
-            if (ChannelState > 40 && player.ownedProjectileCounts[ModContent.ProjectileType<Ztarget2>()] <= 0f && Transform == 0 && Main.myPlayer == projectile.owner)
+            if (Transform >= 0 && Transform < ZtargetTypes.Length && ZtargetTypes[Transform].HasValue && ChannelState > 40 && Main.myPlayer == projectile.owner)
             {
-                if (Main.myPlayer == projectile.owner) Projectile.NewProjectile(projectile.GetSource_FromThis(), Main.MouseWorld.X, Main.MouseWorld.Y, 0, 0, ModContent.ProjectileType<Ztarget2>(), (int)(projectile.damage), 0f, projectile.owner, player.whoAmI, projectile.whoAmI);
-            }
-            if (ChannelState > 40 && player.ownedProjectileCounts[ModContent.ProjectileType<Ztarget3>()] <= 0f && Transform == 1 && Main.myPlayer == projectile.owner)
-            {
-                if (Main.myPlayer == projectile.owner) Projectile.NewProjectile(projectile.GetSource_FromThis(), Main.MouseWorld.X, Main.MouseWorld.Y, 0, 0, ModContent.ProjectileType<Ztarget3>(), (int)(projectile.damage), 0f, projectile.owner, player.whoAmI, projectile.whoAmI);
-            }
-            if (ChannelState > 40 && player.ownedProjectileCounts[ModContent.ProjectileType<Ztarget4>()] <= 0f && Transform == 2 && Main.myPlayer == projectile.owner)
-            {
-                if (Main.myPlayer == projectile.owner) Projectile.NewProjectile(projectile.GetSource_FromThis(), player.Center.X, player.Center.Y, 0, 0, ModContent.ProjectileType<Ztarget4>(), (int)(projectile.damage), 0f, projectile.owner, player.whoAmI, projectile.whoAmI);
-            }
-            if (ChannelState > 40 && player.ownedProjectileCounts[ModContent.ProjectileType<Ztarget5>()] <= 0f && Transform == 3 && Main.myPlayer == projectile.owner)
-            {
-                if (Main.myPlayer == projectile.owner) Projectile.NewProjectile(projectile.GetSource_FromThis(), Main.MouseWorld.X, Main.MouseWorld.Y, 0, 0, ModContent.ProjectileType<Ztarget5>(), (int)(projectile.damage), 0f, projectile.owner, player.whoAmI, projectile.whoAmI);
-            }
-            if (ChannelState > 40 && player.ownedProjectileCounts[ModContent.ProjectileType<Ztarget6>()] <= 0f && Transform == 4 && Main.myPlayer == projectile.owner)
-            {
-                if (Main.myPlayer == projectile.owner) Projectile.NewProjectile(projectile.GetSource_FromThis(), Main.MouseWorld.X, Main.MouseWorld.Y, 0, 0, ModContent.ProjectileType<Ztarget6>(), (int)(projectile.damage), 0f, projectile.owner, player.whoAmI, projectile.whoAmI);
+                int ztargetType = ZtargetTypes[Transform].Value;
+                if (player.ownedProjectileCounts[ztargetType] <= 0f)
+                {
+                    Vector2 spawnPos = (Transform == 2) ? player.Center : Main.MouseWorld;
+                    Projectile.NewProjectile(projectile.GetSource_FromThis(), spawnPos.X, spawnPos.Y, 0, 0, ztargetType, (int)(projectile.damage), 0f, projectile.owner, player.whoAmI, projectile.whoAmI);
+                }
             }
         }
         public static void SariaAttacks(this Projectile projectile, int Transform, int CantAttackTimer, int ChannelAttack, bool foundTarget, Vector2 targetCenter)
@@ -126,65 +126,7 @@ namespace SariaMod
                                 }
                                 if (ChannelAttack == 0)
                                 {
-                                    if (projectile.frame == 47)
-                                    {
-                                        SoundEngine.PlaySound(SoundID.Item77, projectile.Center);
-
-                                        bool hasZtargetReal = false;
-                                        int ztargetRealType = ModContent.ProjectileType<ZtargetReal>();
-                                        for (int i = 0; i < Main.maxProjectiles; i++)
-                                        {
-                                            if (Main.projectile[i].active && Main.projectile[i].owner == projectile.owner && Main.projectile[i].type == ztargetRealType)
-                                            {
-                                                hasZtargetReal = true;
-                                                break;
-                                            }
-                                        }
-
-                                        int locatorType = (hasZtargetReal || modProjectile.LinkCableFollowActive) ? ModContent.ProjectileType<Locator2>() : ModContent.ProjectileType<Locator>();
-
-                                        for (int j = 0; j < 1; j++) //set to 2
-                                        {
-                                            if (projectile.spriteDirection == -1 && Main.myPlayer == projectile.owner)
-                                            {
-                                                if (Main.myPlayer == projectile.owner) Projectile.NewProjectile(projectile.GetSource_FromThis(), projectile.position.X + 40, projectile.position.Y + 20, 0, 0, locatorType, (int)(projectile.damage), 0f, projectile.owner, projectile.whoAmI, 0);
-                                            }
-                                            if (projectile.spriteDirection == 1 && Main.myPlayer == projectile.owner)
-                                            {
-                                                if (Main.myPlayer == projectile.owner) Projectile.NewProjectile(projectile.GetSource_FromThis(), projectile.position.X + 70, projectile.position.Y + 20, 0, 0, locatorType, (int)(projectile.damage), 0f, projectile.owner, projectile.whoAmI, 0);
-                                            }
-                                        }
-                                    }
-                                    if (projectile.frame == 49)
-                                    {
-                                        SoundEngine.PlaySound(SoundID.Item77, projectile.Center);
-
-                                        bool hasZtargetReal = false;
-                                        int ztargetRealType = ModContent.ProjectileType<ZtargetReal>();
-                                        for (int i = 0; i < Main.maxProjectiles; i++)
-                                        {
-                                            if (Main.projectile[i].active && Main.projectile[i].owner == projectile.owner && Main.projectile[i].type == ztargetRealType)
-                                            {
-                                                hasZtargetReal = true;
-                                                break;
-                                            }
-                                        }
-
-                                        int locatorType = (hasZtargetReal || modProjectile.LinkCableFollowActive) ? ModContent.ProjectileType<Locator2>() : ModContent.ProjectileType<Locator>();
-
-                                        for (int j = 0; j < 1; j++) //set to 2
-                                        {
-                                            if (projectile.spriteDirection == -1 && Main.myPlayer == projectile.owner)
-                                            {
-                                                if (Main.myPlayer == projectile.owner) Projectile.NewProjectile(projectile.GetSource_FromThis(), projectile.position.X + 40, projectile.position.Y + 20, 0, 0, locatorType, (int)(projectile.damage), 0f, projectile.owner, projectile.whoAmI, 0);
-                                            }
-                                            if (projectile.spriteDirection == 1 && Main.myPlayer == projectile.owner)
-                                            {
-                                               if (Main.myPlayer == projectile.owner) Projectile.NewProjectile(projectile.GetSource_FromThis(), projectile.position.X + 70, projectile.position.Y + 20, 0, 0, locatorType, (int)(projectile.damage), 0f, projectile.owner, projectile.whoAmI, 0);
-                                            }
-                                        }
-                                    }
-                                    if (projectile.frame == 52)
+                                    if (projectile.frame == 47 || projectile.frame == 49 || projectile.frame == 52)
                                     {
                                         SoundEngine.PlaySound(SoundID.Item77, projectile.Center);
 
