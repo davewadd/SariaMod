@@ -1,319 +1,297 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using Terraria;
-using SariaMod.Buffs;
-using System.IO;
-using Terraria.GameContent;
-using Terraria.ID;
-using SariaMod.Items.Strange;
-using SariaMod.Items.Sapphire;
-using SariaMod.Items.Ruby;
-using SariaMod.Items.Topaz;
-using SariaMod.Items.Emerald;
 using System.Collections.Generic;
+using SariaMod.Buffs;
+using SariaMod.Dusts;
 using SariaMod.Items.Amber;
 using SariaMod.Items.Amethyst;
+using SariaMod.Items.Bands;
+using SariaMod.Items.Emerald;
+using SariaMod.Items.Ruby;
+using SariaMod.Items.Sapphire;
+using SariaMod.Items.Topaz;
+using SariaMod.Items.zPearls;
+using SariaMod.Items.zTalking;
+using Terraria.Localization;
+using System;
+using Terraria.Map;
+using System.IO;
+using Terraria;
 using Terraria.Audio;
-using SariaMod.Dusts;
+using Terraria.GameContent;
+using Terraria.ID;
 using Terraria.ModLoader;
-
 namespace SariaMod.Items.Ruby
 {
-	public class WillOWisp : ModProjectile
-	{
-		public override void SetStaticDefaults()
-		{
-						base.DisplayName.SetDefault("Saria");
-			ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 7;
-			ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
-			Main.projFrames[base.Projectile.type] = 4;
-
-		}
-
-		public override void SetDefaults()
-		{
-			base.Projectile.width = 30;
-			base.Projectile.height = 30;
-			
-			base.Projectile.alpha = 200;
-			base.Projectile.friendly = true;
-			base.Projectile.tileCollide = false;
-			base.Projectile.netImportant = true;
-			base.Projectile.penetrate = -1;
-			base.Projectile.timeLeft = 3500;
-			base.Projectile.ignoreWater = true;
-			Projectile.scale *= 1.6f;
-			base.Projectile.usesLocalNPCImmunity = true;
-			base.Projectile.localNPCHitCooldown = 4;
-		}
-		private const int sphereRadius = 20;
-		public ref float WispIndex => ref Projectile.ai[1];
-		public Player player => Main.player[Projectile.owner];
-		public ref float Timer => ref Projectile.ai[0];
-
-		public int WispFluxCounter;
-		public int WispFlux;
-		private int WispProjCount;
-		public int WispHitCooldown;
-		public override void ReceiveExtraAI(BinaryReader reader)
-		{
-			WispFluxCounter = (int)reader.ReadInt32();
-			WispFlux = (int)reader.ReadInt32();
-			WispHitCooldown = (int)reader.ReadInt32();
-			WispProjCount = (int)reader.ReadInt32();
-		}
-		public override void SendExtraAI(BinaryWriter writer)
-		{
-			writer.Write(WispFluxCounter);
-			writer.Write(WispFlux);
-			writer.Write(WispHitCooldown);
-			writer.Write(WispProjCount);
-		}
-
-		public float WispPositionAngle 
-		{
-			get
-			{
-				float WispCount = (player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp>()]);
-				Vector2 destination = player.Center + (Vector2.UnitX ) * player.width * 5.6f * player.direction;
-				
-				if (WispCount <= 1f)
-					WispCount = 1f;
-				return MathHelper.TwoPi * WispIndex / WispCount + Timer * 0.025f;
-			}
-		}
-		public override bool? CanCutTiles()
-		{
-			return false;
-		}
-		public override bool? CanHitNPC(NPC target)
-		{
-			if (WispHitCooldown <= 0)
-			{
-				return target.CanBeChasedBy(base.Projectile);
-			}
-			return false;
-		}
-		
-		public override void AI()
-		{
-			Player player = Main.player[base.Projectile.owner];
-			if (Main.rand.NextBool(20))//controls the speed of when the sparkles spawn
-			{
-				float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
-				double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
-				Dust.NewDust(new Vector2(Projectile.Center.X + radius * (float)Math.Cos(angle), Projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<ShadowFlameDust>(), 0f, 0f, 200, default(Color), 1.5f);
-			}
-			if (WispHitCooldown > 0)
+    public class WillOWisp : ModProjectile
+    {
+        public int WispHits;
+        public int WispLevel;
+        public bool isActive;
+        public bool isShooting;
+        public override void SetStaticDefaults()
+        {
+            base.DisplayName.SetDefault("Saria");
+            ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 7;
+            ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
+            Main.projFrames[base.Projectile.type] = 4;
+            Main.projPet[Projectile.type] = true;
+            ProjectileID.Sets.MinionSacrificable[Projectile.type] = false;
+            ProjectileID.Sets.MinionShot[Projectile.type] = false;
+        }
+        public override bool? CanCutTiles()
+        {
+            return false;
+        }
+        public override bool? CanHitNPC(NPC target)
+        {
+            Player player = Main.player[base.Projectile.owner];
+            bool CanSee = Collision.CanHitLine(target.position, target.width, target.height, player.Center, 1, 1);
+            if (player.immune == false && CanSee)
             {
-				WispHitCooldown--;
+                return target.CanBeChasedBy(Projectile);
             }
-			Timer++;
-			Projectile.alpha = WispFlux;
-			int Index = 0;
-			float WispCount = (player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp>()]);
-			float Mark = WispCount * 10;
-			Vector2 idleDestination = player.Center + (WispPositionAngle.ToRotationVector2() * Mark);
-			Projectile.Center = Vector2.Lerp(Projectile.Center, idleDestination, 0.85f);
-			for (int p = 0; p < 1000; p++)
-				if (Main.projectile[p].active && p != base.Projectile.whoAmI && Main.projectile[p].Hitbox.Intersects(base.Projectile.Hitbox) && Main.projectile[p].active && ((!Main.projectile[p].friendly && Main.projectile[p].hostile) || (Main.projectile[p].trap)))
-				{
-					
-					for (int i = 0; i < 50; i++)
-					{
-						float radius = (float)Math.Sqrt(Main.rand.Next(34 * 34));
-						double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
-						Dust.NewDust(new Vector2(Projectile.Center.X + radius * (float)Math.Cos(angle), Projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<ShadowFlameDust>(), 0f, 0f, 0, default(Color), 1.5f);
-					}
-					SoundEngine.PlaySound(SoundID.Item20, base.Projectile.Center);
-					if (Main.rand.NextBool(11))
-					{
-						SoundEngine.PlaySound(SoundID.NPCDeath52, base.Projectile.Center);
-					}
-					else
-					{
-						SoundEngine.PlaySound(SoundID.NPCDeath6, base.Projectile.Center);
-					}
-					Main.projectile[p].Kill();
-					WispProjCount++;
-				}
-			
-			for (int g = 0; g < Main.maxProjectiles; g++)
-			{
-				if (Main.projectile[g].active && WispProjCount >=3 && Main.projectile[g].ModProjectile is WillOWisp modProjectile && Main.projectile[g].owner == player.whoAmI)
-				{
-					modProjectile.WispIndex = Index--;
-					Projectile.Kill();
-					Main.projectile[g].netUpdate = true;
-				}
-
-			}
-			
-			if (WispFluxCounter == 1)
+            else
             {
-				WispFlux--;
+                return false;
             }
-			if (WispFlux <= 0)
+        }
+        public override bool MinionContactDamage()
+        {
+                return true;
+        }
+        public override void SendExtraAI(BinaryWriter writer)
+        {
+            writer.Write(WispHits);
+            writer.Write(WispLevel);
+            writer.Write(isActive);
+        }
+        public override void ReceiveExtraAI(BinaryReader reader)
+        {
+            WispHits = (int)reader.ReadInt32();
+            WispLevel = (int)reader.ReadInt32();
+            isActive = (bool)reader.ReadBoolean();
+        }
+        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
+        {
+            Player player = Main.player[base.Projectile.owner];
+            FairyPlayer modPlayer = player.Fairy();
+            target.buffImmune[BuffID.CursedInferno] = false;
+            target.buffImmune[BuffID.Confused] = false;
+            target.buffImmune[BuffID.Slow] = false;
+            target.buffImmune[BuffID.ShadowFlame] = false;
+            target.buffImmune[BuffID.Ichor] = false;
+            target.buffImmune[BuffID.OnFire] = false;
+            target.buffImmune[BuffID.Frostburn] = false;
+            target.buffImmune[BuffID.Poisoned] = false;
+            target.buffImmune[BuffID.Venom] = false;
+            target.buffImmune[BuffID.Electrified] = false;
+            target.AddBuff(ModContent.BuffType<GhostBurning>(), 6400);
+            target.AddBuff(BuffID.Confused, 300);
+            modPlayer.SariaXp++;
+            damage = 1;
+            knockback = 30;
+            if (target.position.X + (float)(target.width / 2) > Projectile.position.X + (float)(Projectile.width / 2))
             {
-				WispFluxCounter = 0;
+                hitDirection = 1;
             }
-			if (WispFluxCounter == 0)
-			{
-				WispFlux++;
-			}
-			if (WispFlux >= 200)
+            else
             {
-				WispFluxCounter = 1;
+                hitDirection = -1;
             }
-			
-			if (base.Projectile.localAI[0] == 0f)
-			{
-				if (WispCount >= 8)
-				{
-					for (int i = 0; i < 50; i++)
-					{
-						Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
-						Dust d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<Shadow2>(), speed * 6, Scale: 3.5f);
-						d.noGravity = true;
-					}
-				}
-				for (int d = 0; d < 50; d++)
-				{
-					float radius = (float)Math.Sqrt(Main.rand.Next(34 * 34));
-					double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
-					Dust.NewDust(new Vector2(Projectile.Center.X + radius * (float)Math.Cos(angle), Projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<ShadowFlameDust>(), 0f, 0f, 0, default(Color), 1.5f);
-				}
-				for (int i = 0; i < Main.maxProjectiles; i++)
-				{
-					if (Main.projectile[i].active && Main.projectile[i].ModProjectile is WillOWisp modProjectile && Main.projectile[i].owner == player.whoAmI)
-					{
-						WispFluxCounter = modProjectile.WispFluxCounter;
-						WispFlux = modProjectile.WispFlux;
-						modProjectile.WispIndex = Index++;
-						modProjectile.Timer = 0;
-						Main.projectile[i].netUpdate = true;
-					}
-
-				}
-				Projectile.localAI[0] = 1f;
-			}
-			
-			if (player.HasBuff(ModContent.BuffType<WillOWispBuff>()))
-			{
-				Projectile.timeLeft = 2;
-			}
-			Lighting.AddLight(Projectile.Center, Color.DarkViolet.ToVector3() * 2f);
-			int frameSpeed = 15;
-			{
-				base.Projectile.frameCounter++;
-				if (Projectile.frameCounter >= frameSpeed)
-
-
-					if (base.Projectile.frameCounter > 4)
-					{
-						base.Projectile.frame++;
-						base.Projectile.frameCounter = 0;
-					}
-				if (base.Projectile.frame >= 4)
-				{
-
-					base.Projectile.frame = 0;
-				}
-
-			}
-		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
-		{
-			target.buffImmune[BuffID.CursedInferno] = false;
-			target.buffImmune[BuffID.Confused] = false;
-			target.buffImmune[BuffID.Slow] = false;
-			target.buffImmune[BuffID.ShadowFlame] = false;
-			target.buffImmune[BuffID.Ichor] = false;
-			target.buffImmune[BuffID.OnFire] = false;
-			target.buffImmune[BuffID.Frostburn] = false;
-			target.buffImmune[BuffID.Poisoned] = false;
-			target.buffImmune[BuffID.Venom] = false;
-			target.buffImmune[BuffID.Electrified] = false;
-			target.AddBuff(ModContent.BuffType<Burning2>(), 1400);
-			target.AddBuff(BuffID.Confused, 300);
-			int myPlayer = Main.myPlayer;
-			knockback = 10;
-			if (Main.player[myPlayer].position.X + (float)(Main.player[myPlayer].width / 2) < Projectile.position.X + (float)(Projectile.width / 2))
-			{
-				hitDirection = 1;
-			}
-			else
-			{
-				hitDirection = -1;
-			}
-			damage /= 4;
-			int Index = 0;
-			for (int i = 0; i < 50; i++)
-			{
-				float radius = (float)Math.Sqrt(Main.rand.Next(34 * 34));
-				double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
-				Dust.NewDust(new Vector2(Projectile.Center.X + radius * (float)Math.Cos(angle), Projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<ShadowFlameDust>(), 0f, 0f, 0, default(Color), 1.5f);
-			}
-			{
-				for (int i = 0; i < Main.maxProjectiles; i++)
-				{
-					if (Main.projectile[i].active && Main.projectile[i].ModProjectile is WillOWisp modProjectile && Main.projectile[i].owner == player.whoAmI)
-					{
-						modProjectile.WispIndex = Index--;
-						modProjectile.WispHitCooldown = 20;
-						Main.projectile[i].netUpdate = true;
-						SoundEngine.PlaySound(SoundID.Item20, base.Projectile.Center);
-						if (Main.rand.NextBool(11))
-						{
-							SoundEngine.PlaySound(SoundID.NPCDeath52, base.Projectile.Center);
-						}
-						else 
-						{
-							SoundEngine.PlaySound(SoundID.NPCDeath6, base.Projectile.Center);
-						}
-						Projectile.Kill();
-					}
-				}
-				Projectile.localAI[0] = 1f;
-			}
-		}
-		
-		
-		public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI)
-		{
-			overPlayers.Add(index);
-			overWiresUI.Add(index);
-		}
-		public override bool PreDraw(ref Color lightColor)
-		{
-			{
-				Texture2D starTexture2 = TextureAssets.Projectile[ModContent.ProjectileType<WillOWisp>()].Value;
-				Vector2 drawPosition;
-
-				{
-					Texture2D texture = (Texture2D)ModContent.Request<Texture2D>("SariaMod/Items/Ruby/WillOWispTexture");
-					Vector2 startPos = base.Projectile.Center - Main.screenPosition + new Vector2(0f, base.Projectile.gfxOffY);
-					int frameHeight = texture.Height / Main.projFrames[ModContent.ProjectileType<WillOWisp>()];
-					Color drawColor = Color.Lerp(lightColor, Color.MediumPurple, 20f);
-					Lighting.AddLight(Projectile.Center, Color.DarkViolet.ToVector3() * 0.78f);
-					drawColor = Color.Lerp(drawColor, Color.DarkViolet, 0);
-					Rectangle rectangle = texture.Frame(verticalFrames: 4, frameY: (int)Main.GameUpdateCount / 6 % 4);
-					Vector2 origin = rectangle.Size() / 2f;
-					float rotation = 0;
-					float scale = base.Projectile.scale;
-					SpriteEffects spriteEffects = SpriteEffects.None;
-					Main.spriteBatch.Draw(texture, startPos, rectangle, base.Projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, 0f);
-				}
-				return false;
-
-			}
-
-
-
-		}
-
-
-
-	}
+            if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), player.position.X + 0, player.position.Y + 0, 0, 0, ModContent.ProjectileType<ProjectileBurn2>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, Projectile.whoAmI);
+        }
+        public override void SetDefaults()
+        {
+            Projectile.width = 80;
+            Projectile.height = 70;
+            Projectile.alpha = 300;
+            Projectile.netImportant = true;
+            Projectile.friendly = true;
+            Projectile.netUpdate = true;
+            Projectile.ignoreWater = false;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 50;
+            Projectile.minionSlots = 0f;
+            Projectile.timeLeft = 300;
+            Projectile.penetrate = -1;
+            Projectile.tileCollide = false;
+            Projectile.minion = false;
+        }
+        public override void AI()
+        {
+            Player player = Main.player[base.Projectile.owner];
+            Player player2 = Main.LocalPlayer;
+            float between = Vector2.Distance(player2.Center, Projectile.Center);
+            if (base.Projectile.localAI[0] == 0f)
+            {
+                base.Projectile.localAI[0] = 1f;
+            }
+            if (WispHits > 24)
+            {
+                WispHits = 24;
+            }
+            //////
+            if (isActive == false)
+            {
+                WispHits = 3;
+                isActive = true;
+            }
+            if (WispHits < 0 && player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp2>()] <= 0 && Main.myPlayer == Projectile.owner)
+            {
+                Projectile.Kill();
+            }
+            if (WispHits < 0)
+            {
+                WispLevel = -1;
+            }
+            if (WispHits > 0 && WispHits < 4)
+            {
+                WispLevel = 0;
+            }
+            if (WispHits > 3 && WispHits < 7)
+            {
+                WispLevel = 1;
+            }
+            if (WispHits > 6 && WispHits < 10)
+            {
+                WispLevel = 2;
+            }
+            if (WispHits > 9 && WispHits < 13)
+            {
+                WispLevel = 3;
+            }
+            if (WispHits > 12 && WispHits < 16)
+            {
+                WispLevel = 4;
+            }
+            if (WispHits > 15 && WispHits < 19)
+            {
+                WispLevel = 5;
+            }
+            if (WispHits > 18 && WispHits < 22)
+            {
+                WispLevel = 6;
+            }
+            if (WispHits > 21 && WispHits < 25)
+            {
+                WispLevel = 7;
+            }
+            ///////
+            if (between < 500f)
+            {
+                player2.resistCold = true;
+                player2.AddBuff(BuffID.Warmth, 20);
+            }
+            Projectile.Center = player.Center;
+            int WispMax = 7;
+            if (WispLevel == 7)
+            {
+                WispMax = 7;
+            }
+            if (WispLevel == 6)
+            {
+                WispMax = 6;
+            }
+            if (WispLevel == 5)
+            {
+                WispMax = 5;
+            }
+            if (WispLevel == 4)
+            {
+                WispMax = 4;
+            }
+            if (WispLevel == 3)
+            {
+                WispMax = 3;
+            }
+            if (WispLevel == 2)
+            {
+                WispMax = 2;
+            }
+            if (WispLevel == 1)
+            {
+                WispMax = 1;
+            }
+            if (WispLevel == 0)
+            {
+                WispMax = 0;
+            }
+            if (WispLevel == -1)
+            {
+                WispMax = -1;
+            }
+            int owner = player.whoAmI;
+            for (int i = 0; i < 1000; i++)
+            {
+                if (Main.projectile[i].active && i != base.Projectile.whoAmI && player.immune == false && Main.projectile[i].Hitbox.Intersects(base.Projectile.Hitbox) && Main.projectile[i].active && ((!Main.projectile[i].friendly && Main.projectile[i].hostile) || (Main.projectile[i].trap)))
+                {
+                    bool CanSee = Collision.CanHitLine(Main.projectile[i].position, Main.projectile[i].width, Main.projectile[i].height, player.Center, 1, 1);
+                    if (CanSee)
+                    {
+                        Main.projectile[i].Kill();
+                        if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), player.position.X + 0, player.position.Y + 0, 0, 0, ModContent.ProjectileType<ProjectileBurn>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, Projectile.whoAmI);
+                    }
+                }
+            }
+            if (player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp2>()] > WispMax + 1)
+            {
+                for (int v = 0; v < 1000; v++)
+                {
+                    if (Main.projectile[v].active && Main.projectile[v].ModProjectile is WillOWisp2 modProjectile && v != base.Projectile.whoAmI && (Main.projectile[v].owner == owner) && (Main.myPlayer == Projectile.owner))
+                    {
+                        Main.projectile[v].Kill();
+                    }
+                }
+            }
+            if (player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp2>()] <= WispMax && WispLevel >= 0)
+            {
+                if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), player.position.X + 0, player.position.Y + 0, 0, 0, ModContent.ProjectileType<WillOWisp2>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, Projectile.whoAmI);
+            }
+            if (player.HasBuff(ModContent.BuffType<WillOWispBuff>()))
+            {
+                Projectile.timeLeft = 18;
+            }
+        }
+        public override void PostDraw(Color lightColor)
+        {
+            {
+                Texture2D starTexture2 = TextureAssets.Projectile[ModContent.ProjectileType<WillOWisp>()].Value;
+                Vector2 drawPosition;
+                {
+                    Texture2D texture = (Texture2D)ModContent.Request<Texture2D>("SariaMod/Items/Ruby/WillOWispTexture");
+                    Vector2 startPos = base.Projectile.Center - Main.screenPosition + new Vector2(0f, base.Projectile.gfxOffY);
+                    int frameHeight = texture.Height / Main.projFrames[ModContent.ProjectileType<WillOWisp>()];
+                    Color drawColor = Color.Lerp(lightColor, Color.MediumPurple, 20f);
+                    drawColor = Color.Lerp(drawColor, Color.DarkViolet, 0);
+                    Rectangle rectangle = texture.Frame(verticalFrames: 4, frameY: (int)Main.GameUpdateCount / 6 % 4);
+                    Vector2 origin = rectangle.Size() / 2f;
+                    float rotation = 0;
+                    float scale = base.Projectile.scale;
+                    SpriteEffects spriteEffects = SpriteEffects.None;
+                    Main.spriteBatch.Draw(texture, startPos, rectangle, base.Projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, 0f);
+                }
+            }
+        }
+        public override void Kill(int timeLeft)
+        {
+            for (int i = 0; i < 50; i++)
+            {
+                Vector2 dustspeed5 = Main.rand.NextVector2CircularEdge(1f, 1f);
+                Vector2 newmiddle = Projectile.Center;
+                newmiddle.Y += 30;
+                Dust d = Dust.NewDustPerfect(newmiddle, ModContent.DustType<ShadowFlameDustCharge>(), dustspeed5 * 10, Scale: 6.5f);
+                d.noGravity = true;
+            }
+            SoundEngine.PlaySound(SoundID.Item20, base.Projectile.Center);
+            if (Main.rand.NextBool(11))
+            {
+                SoundEngine.PlaySound(SoundID.NPCDeath52, base.Projectile.Center);
+            }
+            else
+            {
+                SoundEngine.PlaySound(SoundID.NPCDeath6, base.Projectile.Center);
+            }
+        }
+    }
 }

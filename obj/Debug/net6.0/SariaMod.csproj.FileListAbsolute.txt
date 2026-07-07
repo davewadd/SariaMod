@@ -1,6 +1,5 @@
 C:\Users\david\OneDrive\Documents\My Games\Terraria\tModLoader\ModSources\SariaMod\bin\Debug\net6.0\SariaMod.deps.json
 C:\Users\david\OneDrive\Documents\My Games\Terraria\tModLoader\ModSources\SariaMod\bin\Debug\net6.0\SariaMod.dll
-C:\Users\david\OneDrive\Documents\My Games\Terraria\tModLoader\ModSources\SariaMod\bin\Debug\net6.0\ref\SariaMod.dll
 C:\Users\david\OneDrive\Documents\My Games\Terraria\tModLoader\ModSources\SariaMod\bin\Debug\net6.0\SariaMod.pdb
 C:\Users\david\OneDrive\Documents\My Games\Terraria\tModLoader\ModSources\SariaMod\bin\Debug\net6.0\Basic.Reference.Assemblies.Net60.dll
 C:\Users\david\OneDrive\Documents\My Games\Terraria\tModLoader\ModSources\SariaMod\bin\Debug\net6.0\CsvHelper.dll
@@ -161,7 +160,8 @@ C:\Users\david\OneDrive\Documents\My Games\Terraria\tModLoader\ModSources\SariaM
 C:\Users\david\OneDrive\Documents\My Games\Terraria\tModLoader\ModSources\SariaMod\obj\Debug\net6.0\SariaMod.AssemblyInfoInputs.cache
 C:\Users\david\OneDrive\Documents\My Games\Terraria\tModLoader\ModSources\SariaMod\obj\Debug\net6.0\SariaMod.AssemblyInfo.cs
 C:\Users\david\OneDrive\Documents\My Games\Terraria\tModLoader\ModSources\SariaMod\obj\Debug\net6.0\SariaMod.csproj.CoreCompileInputs.cache
-C:\Users\david\OneDrive\Documents\My Games\Terraria\tModLoader\ModSources\SariaMod\obj\Debug\net6.0\SariaMod.csproj.CopyComplete
+C:\Users\david\OneDrive\Documents\My Games\Terraria\tModLoader\ModSources\SariaMod\obj\Debug\net6.0\SariaMod.csproj.Up2Date
 C:\Users\david\OneDrive\Documents\My Games\Terraria\tModLoader\ModSources\SariaMod\obj\Debug\net6.0\SariaMod.dll
-C:\Users\david\OneDrive\Documents\My Games\Terraria\tModLoader\ModSources\SariaMod\obj\Debug\net6.0\ref\SariaMod.dll
+C:\Users\david\OneDrive\Documents\My Games\Terraria\tModLoader\ModSources\SariaMod\obj\Debug\net6.0\refint\SariaMod.dll
 C:\Users\david\OneDrive\Documents\My Games\Terraria\tModLoader\ModSources\SariaMod\obj\Debug\net6.0\SariaMod.pdb
+C:\Users\david\OneDrive\Documents\My Games\Terraria\tModLoader\ModSources\SariaMod\obj\Debug\net6.0\ref\SariaMod.dll

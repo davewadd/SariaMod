@@ -8,7 +8,6 @@
     ".NETCoreApp,Version=v6.0": {
       "SariaMod/1.0.0": {
         "dependencies": {
-          "tModLoader.CodeAssist": "0.1.5",
           "Basic.Reference.Assemblies.Net60": "1.0.0.0",
           "CsvHelper": "2.0.0.0",
           "FNA": "22.9.1.0",
@@ -61,7 +60,6 @@
           "SariaMod.dll": {}
         }
       },
-      "tModLoader.CodeAssist/0.1.5": {},
       "Basic.Reference.Assemblies.Net60/1.0.0.0": {
         "runtime": {
           "Basic.Reference.Assemblies.Net60.dll": {
@@ -650,13 +648,6 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
-    },
-    "tModLoader.CodeAssist/0.1.5": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-Sg/jKEg/z5eN+Cdi3/9CU4JfJwvXHVH+UDJf4Lipo26uTa+guLLJXH1XDJNPShTFwKK8jMUYbthINP4QhsgHSA==",
-      "path": "tmodloader.codeassist/0.1.5",
-      "hashPath": "tmodloader.codeassist.0.1.5.nupkg.sha512"
     },
     "Basic.Reference.Assemblies.Net60/1.0.0.0": {
       "type": "reference",

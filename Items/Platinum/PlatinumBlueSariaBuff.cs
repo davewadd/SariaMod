@@ -1,20 +1,10 @@
-using Microsoft.Xna.Framework; 
-
-
-
-
-using System;
-using SariaMod.Items.Platinum;
- 
+using SariaMod.Items.Strange;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using SariaMod.Items.Strange;
-
 namespace SariaMod.Items.Platinum
-
 {
-	/*
+    /*
 	 * This file contains all the code necessary for a minion
 	 * - ModItem
 	 *     the weapon which you use to summon the minion with
@@ -27,56 +17,51 @@ namespace SariaMod.Items.Platinum
 	 * To get a better understanding of how everything works together, and how to code minion AI, read the guide: https://github.com/tModLoader/tModLoader/wiki/Basic-Minion-Guide
 	 * This is NOT an in-depth guide to advanced minion AI
 	 */
-
-	public class PlatinumBlueSariaBuff : ModBuff
-	{
-		public override void SetStaticDefaults()
-		{
-			DisplayName.SetDefault(" GuardianSpirit");
-			Description.SetDefault("Saria has now broken her limits!\nNo enemy is safe from her powers!\n-She has Chosen the Blue variant");
-			Main.debuff[base.Type] = false;
-			Main.pvpBuff[base.Type] = true;
-			Main.buffNoSave[base.Type] = false;
-			Main.buffNoTimeDisplay[base.Type] = true;
-
-		}
-		public override void Update(Player player, ref int buffIndex)
-		{
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] > 0)
-			{
-				player.buffTime[buffIndex] = 18000;
-				player.statLifeMax2 += 300;
-				player.statDefense += 70;
-				player.honey = true;
-				player.crimsonRegen = true;
-				player.endurance += 5f;
-				player.accOreFinder = true;
-				player.findTreasure = true;
-				player.moveSpeed += 2;
-				player.pickSpeed += -6000;
-				player.thorns += 20;
-				player.detectCreature = true;
-				player.noFallDmg = true;
-				player.resistCold = true;
-				player.lavaImmune = true;
-				player.fireWalk = true;
-				player.dangerSense = true;
-				player.wellFed = true;
-				player.waterWalk = true;
-				player.gills = true;
-				player.accFlipper = true;
-				player.AddBuff(BuffID.ObsidianSkin, 20);
-				player.AddBuff(BuffID.Warmth, 20);
-				player.lavaTime = 180000;
-
-			}
-			else
-			{
-				player.DelBuff(buffIndex);
-				buffIndex--;
-				
-			}
-		}
-
-	}
+    public class PlatinumBlueSariaBuff : ModBuff
+    {
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault(" GuardianSpirit");
+            Description.SetDefault("Saria has now broken her limits!\nNo enemy is safe from her powers!\n-She has Chosen the Blue variant");
+            Main.debuff[base.Type] = false;
+            Main.pvpBuff[base.Type] = true;
+            Main.buffNoSave[base.Type] = false;
+            Main.buffNoTimeDisplay[base.Type] = true;
+        }
+        public override void Update(Player player, ref int buffIndex)
+        {
+            if (player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] > 0)
+            {
+                player.buffTime[buffIndex] = 18000;
+                player.statLifeMax2 += 300;
+                player.statDefense += 70;
+                player.honey = true;
+                player.crimsonRegen = true;
+                player.endurance += 5f;
+                player.accOreFinder = true;
+                player.findTreasure = true;
+                player.moveSpeed += 2;
+                player.pickSpeed += -6000;
+                player.thorns += 20;
+                player.detectCreature = true;
+                player.noFallDmg = true;
+                player.resistCold = true;
+                player.lavaImmune = true;
+                player.fireWalk = true;
+                player.dangerSense = true;
+                player.wellFed = true;
+                player.waterWalk = true;
+                player.gills = true;
+                player.accFlipper = true;
+                player.AddBuff(BuffID.ObsidianSkin, 20);
+                player.AddBuff(BuffID.Warmth, 20);
+                player.lavaTime = 180000;
+            }
+            else
+            {
+                player.DelBuff(buffIndex);
+                buffIndex--;
+            }
+        }
+    }
 }

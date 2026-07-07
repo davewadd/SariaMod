@@ -1,0 +1,158 @@
+================================================================================
+ SARIAMOD - MUSIC TRACK REFERENCE
+ Generated from the MusicChanges scene effects, music boxes, and menu theme.
+================================================================================
+
+HOW SELECTION WORKS (tModLoader)
+--------------------------------
+- Every theme below is a ModSceneEffect. Each frame the game collects all
+  effects whose IsSceneEffectActive() is true and picks ONE winner by Priority
+  (then by weight/load order on ties). The winner's music plays.
+- Priority order (low -> high):
+	None < BiomeLow < BiomeMedium < BiomeHigh < Environment < Event
+	< BossLow < BossMedium < BossHigh
+- ANY active modded scene effect outranks vanilla biome music. Vanilla tracks
+  only play when NO modded theme is active. This is why a missing condition on
+  a modded theme can silence a vanilla track that "should" play (see the
+  Lanayru note below - that was the underground desert bug).
+- While camera-on-Saria (Heal Ball + Link Cable) is active, all conditions are
+  evaluated at SARIA's location instead of the player's (SariaPerceptionSystem).
+- Calming Candle / CalmMind (A_Lonely_Figure) works off buffs, not location,
+  and is intentionally independent of the Saria perception system.
+
+================================================================================
+ TRACKS AND EVERY INSTANCE THEY PLAY
+================================================================================
+
+1) A_Lonely_Figure.ogg
+   Theme: PeaceTheme                          Priority: Event (very high)
+   Plays when: the local player has CalmMind active (Calming Candle held or
+			   CalmMindBuff from the candle tile).
+   Notes: Event priority outranks every other theme in this mod, by design.
+		  Buff-driven; ignores biome and Saria perception entirely.
+
+2) Blizzard.ogg
+   Theme: BlizzardTheme                       Priority: Environment
+   Plays when: raining + snow biome + surface (overworld height).
+
+3) Corruption.ogg
+   Theme: CorruptionTheme                     Priority: Environment
+   Plays when: corruption + surface + not in dungeon.
+
+4) Crimson.ogg
+   Theme: CrimsonTheme                        Priority: Environment
+   Plays when: crimson + surface + not in dungeon.
+
+5) JungleNight.ogg
+   Theme: JungleUndergroundTheme              Priority: BiomeMedium
+   Plays when: jungle + DIRT layer (upper underground) + not dungeon
+			   + not glowing mushroom.
+   Notes: File is named "JungleNight" but it is the UPPER-UNDERGROUND jungle
+		  track (any time of day). Surface jungle at night actually falls
+		  through to NightimeTheme (MechonisField) - see track 8.
+
+6) Lanayru.ogg
+   Theme: DessertTheme                        Priority: BiomeMedium
+   Plays when: desert + SURFACE (overworld height) + daytime + not beach
+			   + not dungeon.
+   *** FIXED ***: previously had NO height requirement. The underground desert
+   also sets ZoneDesert (it is a tile-count zone), so this theme fired
+   underground too and - being a modded effect - outranked vanilla's
+   underground desert track. That is why your surface desert song played in
+   the underground desert (hallowed or not). It is now surface-only, so the
+   vanilla underground desert theme plays below ground again.
+   Notes: Desert at NIGHT has no modded theme -> vanilla desert night music.
+		  Raining daytime desert: DessertTheme and RainTheme are both active
+		  at BiomeMedium; DessertTheme wins the tie (load order).
+
+7) MarshNight.ogg
+   Theme: HallowTheme                         Priority: Environment
+   Plays when: hallow + surface + not blood moon + not eclipse + not beach
+			   + not desert.
+   Notes: Underground hallow has no modded theme -> vanilla underground hallow.
+
+8) MechonisField.ogg
+   Theme: NightimeTheme                       Priority: BiomeLow (fallback)
+   Plays when: surface + night + not eclipse + not blood moon + not beach
+			   + not desert + not hallow + not corruption + not crimson
+			   + not (snow + raining).
+   Notes: Lowest priority - any other active theme beats it. Does NOT exclude
+		  jungle: surface jungle at night plays this track (JungleTheme is
+		  day-only). Also does not exclude snow when dry, or glowing mushroom;
+		  night surface mushroom/snow (no rain) currently lands here too.
+
+9) Mushroom.ogg
+   Theme: (NONE)
+   *** NOT REFERENCED BY ANY CODE. This track never plays anywhere. ***
+   If you want it in-game it needs a ModSceneEffect (e.g. ZoneGlowshroom) or
+   a music box.
+
+10) Rain.ogg
+	Theme: RainTheme                          Priority: BiomeMedium
+	Plays when: raining + daytime + surface + not snow + not corruption
+				+ not crimson + no peace candle.
+	Notes: Does not exclude desert/jungle/hallow; in a daytime rainy desert it
+		   ties with DessertTheme and loses only by load order (see track 6).
+
+11) Shipwreck.ogg  (two themes + music box)
+	Theme A: OceanTheme                       Priority: BiomeMedium
+	Plays when: beach + night + not blood moon.
+	Theme B: NightRainTheme                   Priority: BiomeMedium
+	Plays when: raining + night + surface + not snow + not blood moon
+				+ no peace candle + not glowing mushroom + not desert.
+	Music box: ShipwreckMusicBox (plays this track when placed/active).
+
+12) Space.ogg
+	Theme: SpaceTheme                         Priority: Environment
+	Plays when: sky height + not crimson + not corruption.
+	Music box: OtherworldSpacMusicBox.
+
+13) Title.ogg
+	Used by: SariaModMenu (mod menu screen theme). Not a scene effect.
+
+14) UndergroundCorruption.ogg  (two themes)
+	Theme A: UndergroundCorruptionTheme       Priority: BiomeHigh
+	Plays when: corruption + ROCK layer (caverns) + not dungeon.
+	Theme B: UndergroundCorruptionTheme2      Priority: BiomeHigh
+	Plays when: corruption + DIRT layer (upper underground) + not dungeon.
+
+15) UndergroundCrimson.ogg  (two themes)
+	Theme A: UndergroundCrimsonTheme          Priority: BiomeHigh
+	Plays when: crimson + ROCK layer (caverns) + not dungeon.
+	Theme B: UndergroundCrimsonTheme2         Priority: BiomeHigh
+	Plays when: crimson + DIRT layer (upper underground) + not dungeon.
+
+16) UndergroundJungle.ogg
+	Theme: DeepJungleTheme                    Priority: BiomeMedium
+	Plays when: jungle + ROCK layer (caverns) + not dungeon
+				+ not glowing mushroom.
+
+17) WiseOwlForest.ogg
+	Theme: JungleTheme                        Priority: BiomeMedium
+	Plays when: jungle + surface + daytime + not dungeon
+				+ not glowing mushroom.
+	Music box: ForestMusicBox.
+
+18) WorldMap.ogg
+	Used by: WorldMapMusicBox ONLY. No scene effect - never plays naturally.
+
+================================================================================
+ QUICK CONFLICT / GAP NOTES
+================================================================================
+- Underground desert: now vanilla again (fix in track 6). If you want a custom
+  underground desert theme, add a new ModSceneEffect with ZoneDesert + (dirt or
+  rock layer) and BiomeHigh priority, mirroring the underground corruption pair.
+- Glowing mushroom: no modded theme (surface or underground) -> vanilla music;
+  Mushroom.ogg (track 9) is sitting unused if you want to wire it up.
+- Underworld/hell: no modded theme -> vanilla hell music.
+- Snow (dry): no modded theme day or night-with-no-rain besides the
+  NightimeTheme fallback catching dry snow nights.
+- Dungeon: all themes exclude it -> vanilla dungeon music everywhere.
+- Priority cheat sheet for this mod:
+	Event:        PeaceTheme (CalmMind)
+	Environment:  Blizzard, Corruption, Crimson, Hallow, Space
+	BiomeHigh:    UndergroundCorruption x2, UndergroundCrimson x2
+	BiomeMedium:  DeepJungle, Dessert, Jungle, JungleUnderground, NightRain,
+				  Ocean, Rain
+	BiomeLow:     Nightime (fallback)
+================================================================================

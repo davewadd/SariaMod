@@ -1,29 +1,11 @@
-using Microsoft.Xna.Framework;
-
-
-
-using SariaMod.Items;
-using SariaMod.Items.zPearls;
-using System;
-using SariaMod.Buffs;
 using Terraria;
 using Terraria.ID;
-using SariaMod.Items.Strange;
-using SariaMod.Items.Sapphire;
-using SariaMod.Items.Ruby;
-using SariaMod.Dusts;
 using Terraria.ModLoader;
-
 namespace SariaMod.Items
 {
-
-
     public class DuskBallReturn : ModProjectile
     {
-
-
         public const float DistanceToCheck = 1100f;
-
         public override void SetStaticDefaults()
         {
             base.DisplayName.SetDefault("Mother");
@@ -38,49 +20,29 @@ namespace SariaMod.Items
         }
         public override bool MinionContactDamage()
         {
-          
-                return false;
-            
+            return false;
         }
-       
-     
         public override void SetDefaults()
         {
-
             base.Projectile.width = 96;
             base.Projectile.height = 78;
-
             base.Projectile.netImportant = true;
             base.Projectile.friendly = true;
             base.Projectile.netImportant = true;
             base.Projectile.ignoreWater = false;
             base.Projectile.usesLocalNPCImmunity = true;
-             base.Projectile.localNPCHitCooldown = 50;
-          
+            base.Projectile.localNPCHitCooldown = 50;
             base.Projectile.timeLeft = 1800;
             base.Projectile.penetrate = -1;
             base.Projectile.tileCollide = false;
             Projectile.alpha = 300;
             base.Projectile.minion = true;
         }
-       
         public override void AI()
         {
-          
-           
             Player player = Main.player[base.Projectile.owner];
             FairyPlayer modPlayer = player.Fairy();
-           
             //////////////////////////////faces start
-          
-
-
-
-
-            
         }
     }
-
-
-
 }

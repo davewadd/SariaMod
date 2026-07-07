@@ -1,0 +1,667 @@
+================================================================================
+         TERRARIA NPC TEXTURE COLOR TINTING GUIDE
+         How to Change Enemy Colors Like the Hunter Potion Does
+================================================================================
+
+                          FOR BEGINNERS
+                     Step-by-Step Tutorial
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+
+1. INTRODUCTION - What This Guide Covers
+2. HOW THE HUNTER POTION WORKS - Understanding the System
+3. KEY FILES AND METHODS - Where the Magic Happens
+4. STEP-BY-STEP: Adding Your Own Color Tint
+5. EXAMPLE: Light Blue Enemy Highlight
+6. UNDERSTANDING RGB COLORS
+7. COMMON MODIFICATIONS
+8. TROUBLESHOOTING
+
+================================================================================
+1. INTRODUCTION - What This Guide Covers
+================================================================================
+
+This guide explains how Terraria changes the visual appearance of NPC sprites
+at runtime (while the game is running) WITHOUT replacing texture files.
+
+The Hunter Potion is a perfect example: when you drink it, enemies glow RED
+and friendly creatures glow GREEN. The game doesn't load different textures -
+it TINTS the existing textures with color.
+
+This technique allows you to:
+- Highlight specific enemies with custom colors
+- Create visual effects based on conditions (buffs, debuffs, time, biome, etc.)
+- Make creatures glow or stand out
+- Create custom potion effects
+
+================================================================================
+2. HOW THE HUNTER POTION WORKS - Understanding the System
+================================================================================
+
+THE BASIC FLOW:
+---------------
+
+1. Player drinks Hunter Potion
+2. Player gets BuffID.Hunter (buff #17)
+3. This sets player.detectCreature = true
+4. When drawing NPCs, the game checks this flag
+5. If true, it modifies the NPC's color before drawing
+
+THE COLOR MODIFICATION:
+-----------------------
+
+The game uses RGB (Red, Green, Blue) values from 0-255:
+- Each color channel can be 0 (none) to 255 (maximum)
+- Combining channels creates different colors
+
+Hunter Potion colors:
+- HOSTILE enemies:  R=255, G=50,  B=50  (BRIGHT RED)
+- FRIENDLY NPCs:    R=50,  G=255, B=50  (BRIGHT GREEN)
+
+The technique sets MINIMUM values for each channel, ensuring the NPC
+is always visible even in complete darkness.
+
+================================================================================
+3. KEY FILES AND METHODS - Where the Magic Happens
+================================================================================
+
+There are TWO main files involved:
+
+FILE 1: Terraria\Player.cs
+--------------------------
+This file contains the player properties that track buff effects.
+
+Location of key property (around line 2174):
+```csharp
+public bool detectCreature;
+```
+
+This boolean is set to TRUE when the Hunter buff is active.
+
+The buff is applied around line 8794-8796:
+```csharp
+else if (buffType[j] == 17)  // BuffID.Hunter = 17
+{
+    detectCreature = true;
+}
+```
+
+It's reset to false each frame around line 16644:
+```csharp
+detectCreature = false;
+```
+
+FILE 2: Terraria\NPC.cs
+-----------------------
+This file contains the actual color modification logic.
+
+The key method is: GetNPCColorTintedByBuffs()
+Located around line 86894.
+
+Here's the COMPLETE Hunter Potion code (lines 86953-86982):
+
+```csharp
+if (Main.player[Main.myPlayer].detectCreature && lifeMax > 1)
+{
+    byte b;   // Red channel value
+    byte b2;  // Green channel value
+    byte b3;  // Blue channel value
+    
+    // Check if this NPC is friendly
+    if (friendly || catchItem > 0 || (damage == 0 && lifeMax == 5))
+    {
+        // FRIENDLY = GREEN highlight
+        b = 50;             // R = 50 (low red)
+        b2 = byte.MaxValue; // G = 255 (maximum green)
+        b3 = 50;            // B = 50 (low blue)
+    }
+    else
+    {
+        // HOSTILE = RED highlight
+        b = byte.MaxValue;  // R = 255 (maximum red)
+        b2 = 50;            // G = 50 (low green)
+        b3 = 50;            // B = 50 (low blue)
+    }
+    
+    // Apply the color - only INCREASE values, never decrease
+    if (npcColor.R < b)
+    {
+        npcColor.R = b;
+    }
+    if (npcColor.G < b2)
+    {
+        npcColor.G = b2;
+    }
+    if (npcColor.B < b3)
+    {
+        npcColor.B = b3;
+    }
+}
+```
+
+FILE 3: Terraria\Main.cs
+------------------------
+This file calls the color method when drawing NPCs.
+
+Around line 20095, after calculating the base NPC color:
+```csharp
+npcColor = rCurrentNPC.GetNPCColorTintedByBuffs(npcColor);
+```
+
+This takes the NPC's normal color and applies all buff-based tints to it.
+
+================================================================================
+4. STEP-BY-STEP: Adding Your Own Color Tint
+================================================================================
+
+Let's say you want to add a custom effect that highlights all enemies in
+LIGHT BLUE when a certain condition is met.
+
+STEP 1: Create a condition trigger
+-----------------------------------
+
+First, you need something that activates your effect. Options include:
+
+Option A: A new player property (like detectCreature)
+Option B: Check for a specific buff
+Option C: Check a game condition (time, biome, boss alive, etc.)
+Option D: Check an item being held
+
+For this example, let's use a new player property.
+
+In Player.cs, add a new property near line 2174:
+
+```csharp
+public bool detectCreature;
+
+public bool myCustomHighlight;  // ADD THIS LINE
+
+public bool nightVision;
+```
+
+
+STEP 2: Add the color modification logic
+----------------------------------------
+
+In NPC.cs, find the GetNPCColorTintedByBuffs() method (around line 86894).
+
+Add your code AFTER the Hunter Potion code (after line 86982):
+
+```csharp
+            // Existing Hunter Potion code ends here (line 86982)
+            }
+            
+            // ===========================================
+            // MY CUSTOM LIGHT BLUE HIGHLIGHT
+            // ===========================================
+            if (Main.player[Main.myPlayer].myCustomHighlight && lifeMax > 1)
+            {
+                // Light Blue color values
+                byte redValue = 100;       // R = 100 (some red)
+                byte greenValue = 200;     // G = 200 (good amount of green)
+                byte blueValue = 255;      // B = 255 (maximum blue)
+                
+                // Apply minimum color values
+                if (npcColor.R < redValue)
+                {
+                    npcColor.R = redValue;
+                }
+                if (npcColor.G < greenValue)
+                {
+                    npcColor.G = greenValue;
+                }
+                if (npcColor.B < blueValue)
+                {
+                    npcColor.B = blueValue;
+                }
+            }
+            
+            return npcColor;  // This line already exists
+        }
+```
+
+
+STEP 3: Activate your effect
+----------------------------
+
+You need something to set myCustomHighlight = true.
+
+Option A: Tie it to an existing buff
+In Player.cs, find where buffs are processed (around line 8794).
+Add a check for your chosen buff:
+
+```csharp
+else if (buffType[j] == 17)
+{
+    detectCreature = true;
+}
+// ADD YOUR CODE HERE:
+else if (buffType[j] == YOUR_BUFF_ID)
+{
+    myCustomHighlight = true;
+}
+```
+
+Option B: Tie it to a game condition
+In Player.cs, somewhere in the Update methods, add:
+
+```csharp
+// Example: Highlight enemies during Blood Moon
+myCustomHighlight = Main.bloodMoon;
+```
+
+
+STEP 4: Reset the flag each frame
+---------------------------------
+
+In Player.cs, find where detectCreature is reset (around line 16644).
+Add your reset nearby:
+
+```csharp
+detectCreature = false;
+myCustomHighlight = false;  // ADD THIS LINE
+```
+
+================================================================================
+5. EXAMPLE: Light Blue Enemy Highlight (Complete Code)
+================================================================================
+
+Here's a complete, copy-paste ready example that highlights ALL hostile
+enemies in Light Blue whenever it's nighttime in the game.
+
+CHANGE 1 - Player.cs (around line 2174)
+---------------------------------------
+Find this section:
+
+```csharp
+public bool invis;
+
+public bool detectCreature;
+
+public bool nightVision;
+```
+
+Change it to:
+
+```csharp
+public bool invis;
+
+public bool detectCreature;
+
+public bool nighttimeEnemyGlow;  // NEW: Light blue glow at night
+
+public bool nightVision;
+```
+
+
+CHANGE 2 - Player.cs (around line 16644)
+----------------------------------------
+Find this section:
+
+```csharp
+waterWalk = false;
+waterWalk2 = false;
+detectCreature = false;
+gravControl = false;
+```
+
+Change it to:
+
+```csharp
+waterWalk = false;
+waterWalk2 = false;
+detectCreature = false;
+nighttimeEnemyGlow = !Main.dayTime;  // NEW: Active at night
+gravControl = false;
+```
+
+
+CHANGE 3 - NPC.cs (around line 86982)
+-------------------------------------
+Find the end of the Hunter Potion code:
+
+```csharp
+            if (npcColor.B < b3)
+            {
+                npcColor.B = b3;
+            }
+        }
+        return npcColor;
+    }
+```
+
+Change it to:
+
+```csharp
+            if (npcColor.B < b3)
+            {
+                npcColor.B = b3;
+            }
+        }
+        
+        // =====================================================
+        // NIGHTTIME LIGHT BLUE ENEMY HIGHLIGHT
+        // Makes all hostile enemies glow light blue at night
+        // =====================================================
+        if (Main.player[Main.myPlayer].nighttimeEnemyGlow && lifeMax > 1)
+        {
+            // Only highlight hostile enemies (not friendly NPCs)
+            if (!friendly && catchItem <= 0)
+            {
+                // Light Blue = high blue, medium green, some red
+                // This creates a cyan/light blue color
+                byte lightBlueR = 100;   // Red:   100 (adds warmth)
+                byte lightBlueG = 200;   // Green: 200 (important for cyan)
+                byte lightBlueB = 255;   // Blue:  255 (maximum blue)
+                
+                // Apply the color tint
+                // We only INCREASE values, never decrease
+                // This makes enemies visible even in darkness
+                if (npcColor.R < lightBlueR)
+                {
+                    npcColor.R = lightBlueR;
+                }
+                if (npcColor.G < lightBlueG)
+                {
+                    npcColor.G = lightBlueG;
+                }
+                if (npcColor.B < lightBlueB)
+                {
+                    npcColor.B = lightBlueB;
+                }
+            }
+        }
+        
+        return npcColor;
+    }
+```
+
+
+WHAT THIS DOES:
+---------------
+- During daytime: Enemies appear normal
+- During nighttime: All hostile enemies glow LIGHT BLUE
+- Friendly NPCs (town NPCs, critters) are NOT affected
+- The effect makes enemies visible even in complete darkness
+
+================================================================================
+6. UNDERSTANDING RGB COLORS
+================================================================================
+
+RGB stands for Red, Green, Blue. Each value ranges from 0 to 255.
+
+COMMON COLORS:
+--------------
+Color           R       G       B
+---------------------------------------
+Pure Red        255     0       0
+Pure Green      0       255     0
+Pure Blue       0       0       255
+Yellow          255     255     0
+Cyan            0       255     255
+Magenta         255     0       255
+White           255     255     255
+Black           0       0       0
+Orange          255     165     0
+Pink            255     192     203
+Light Blue      100     200     255
+Purple          128     0       128
+Lime            50      255     50
+
+HOW THE TINTING WORKS:
+----------------------
+
+The key insight is that the code uses MINIMUM values:
+
+```csharp
+if (npcColor.R < targetRed)
+{
+    npcColor.R = targetRed;
+}
+```
+
+This means:
+- If the NPC's red is already 200, and your target is 100, it stays 200
+- If the NPC's red is 50, and your target is 100, it becomes 100
+- The color is never REDUCED, only INCREASED
+
+This ensures the NPC is always visible, even in dark areas!
+
+
+CREATING YOUR OWN COLORS:
+-------------------------
+
+Want a specific color? Here's how to think about it:
+
+1. Start with your desired color in mind
+2. Set the dominant color channel to 255 (maximum)
+3. Set secondary colors to lower values (50-200)
+4. Keep at least one channel at 50+ so it's not too dark
+
+Examples:
+- Bright Red (angry):     R=255, G=50,  B=50
+- Bright Green (safe):    R=50,  G=255, B=50
+- Bright Blue (frozen):   R=50,  G=50,  B=255
+- Light Blue (icy):       R=100, G=200, B=255
+- Orange (fire):          R=255, G=150, B=50
+- Purple (magical):       R=180, G=50,  B=255
+- Yellow (electric):      R=255, G=255, B=50
+- Pink (charmed):         R=255, G=100, B=200
+
+================================================================================
+7. COMMON MODIFICATIONS
+================================================================================
+
+EXAMPLE A: Highlight enemies based on health
+--------------------------------------------
+Make low-health enemies glow red:
+
+```csharp
+// In NPC.cs, in GetNPCColorTintedByBuffs()
+// Add this after the existing code:
+
+// Low health warning - enemies below 25% health glow red
+if (!friendly && lifeMax > 1)
+{
+    float healthPercent = (float)life / (float)lifeMax;
+    if (healthPercent < 0.25f)
+    {
+        if (npcColor.R < 255)
+            npcColor.R = 255;
+        if (npcColor.G < 50)
+            npcColor.G = 50;
+        if (npcColor.B < 50)
+            npcColor.B = 50;
+    }
+}
+```
+
+
+EXAMPLE B: Highlight bosses in a special color
+----------------------------------------------
+Make all bosses glow purple:
+
+```csharp
+// In NPC.cs, in GetNPCColorTintedByBuffs()
+
+// Boss purple glow
+if (boss)
+{
+    if (npcColor.R < 180)
+        npcColor.R = 180;
+    if (npcColor.G < 50)
+        npcColor.G = 50;
+    if (npcColor.B < 255)
+        npcColor.B = 255;
+}
+```
+
+
+EXAMPLE C: Highlight based on player buff
+-----------------------------------------
+First, add a property to Player.cs:
+
+```csharp
+public bool myPotionEffect;
+```
+
+Then tie it to a buff (in Player.cs buff processing):
+
+```csharp
+// Example: Using the Shine buff (BuffID 11) as a trigger
+else if (buffType[j] == 11)
+{
+    shine = true;
+    myPotionEffect = true;  // Also activate our effect
+}
+```
+
+Then add the color code to NPC.cs:
+
+```csharp
+if (Main.player[Main.myPlayer].myPotionEffect && !friendly && lifeMax > 1)
+{
+    // Gold/yellow glow
+    if (npcColor.R < 255)
+        npcColor.R = 255;
+    if (npcColor.G < 215)
+        npcColor.G = 215;
+    if (npcColor.B < 50)
+        npcColor.B = 50;
+}
+```
+
+
+EXAMPLE D: Only highlight specific enemy types
+----------------------------------------------
+
+```csharp
+// Highlight only zombies in green
+if (type == 3 || type == 132 || type == 186 || type == 187 || 
+    type == 188 || type == 189 || type == 200)  // Various zombie IDs
+{
+    if (npcColor.R < 50)
+        npcColor.R = 50;
+    if (npcColor.G < 255)
+        npcColor.G = 255;
+    if (npcColor.B < 50)
+        npcColor.B = 50;
+}
+```
+
+
+EXAMPLE E: Pulsing/animated color effect
+----------------------------------------
+Use Main.GameUpdateCount for animation:
+
+```csharp
+// Pulsing red effect (fades in and out)
+if (!friendly && lifeMax > 1)
+{
+    // Creates a value that goes from 0 to 1 and back, smoothly
+    float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.5f + 0.5f;
+    byte pulseRed = (byte)(150 + (int)(105 * pulse));  // 150-255
+    
+    if (npcColor.R < pulseRed)
+        npcColor.R = pulseRed;
+    if (npcColor.G < 50)
+        npcColor.G = 50;
+    if (npcColor.B < 50)
+        npcColor.B = 50;
+}
+```
+
+================================================================================
+8. TROUBLESHOOTING
+================================================================================
+
+PROBLEM: My color change isn't showing up
+-----------------------------------------
+Possible causes:
+1. The condition isn't being met (check your if statement)
+2. The property isn't being set to true (add debug output)
+3. The code isn't in the right location (must be in GetNPCColorTintedByBuffs)
+4. You're only checking Main.myPlayer but testing in multiplayer
+
+Fix: Add this debug line to test:
+```csharp
+if (lifeMax > 1 && !friendly)
+{
+    npcColor.R = 255;  // Force red - if this works, your condition is wrong
+}
+```
+
+
+PROBLEM: The color looks different than expected
+------------------------------------------------
+Remember:
+- The NPC's original color affects the result
+- Lighting affects the base color
+- You're setting MINIMUMS, not exact values
+
+If you want a more exact color, you can override instead:
+```csharp
+// Force exact color (more drastic)
+npcColor = new Color(100, 200, 255, npcColor.A);  // Light blue, keep alpha
+```
+
+
+PROBLEM: Friendly NPCs are also being highlighted
+-------------------------------------------------
+Add a check for friendly status:
+```csharp
+if (!friendly && catchItem <= 0)
+{
+    // Your color code here
+}
+```
+
+
+PROBLEM: The effect is always on
+--------------------------------
+Make sure you're resetting the flag:
+1. Find where you set your property to true
+2. Make sure it's being set to false somewhere (usually in ResetEffects)
+3. The reset should happen BEFORE the buff processing each frame
+
+
+PROBLEM: Compile errors
+-----------------------
+Common issues:
+1. Missing semicolon at end of line
+2. Wrong variable type (use byte for color values 0-255)
+3. Misspelled property name
+4. Code placed outside of a method
+
+================================================================================
+QUICK REFERENCE: Adding a Light Blue Highlight
+================================================================================
+
+MINIMAL CHANGES NEEDED:
+-----------------------
+
+1. In NPC.cs, GetNPCColorTintedByBuffs() method, before "return npcColor;":
+
+```csharp
+// Light Blue highlight for all hostile enemies
+if (!friendly && lifeMax > 1 && !Main.dayTime)  // Only at night
+{
+    if (npcColor.R < 100) npcColor.R = 100;
+    if (npcColor.G < 200) npcColor.G = 200;
+    if (npcColor.B < 255) npcColor.B = 255;
+}
+```
+
+That's it! This single addition will make all enemies glow light blue at night.
+
+================================================================================
+END OF GUIDE
+================================================================================
+
+Created for Terraria modding
+This guide explains the vanilla game's color tinting system
+Use this knowledge to create your own visual effects!
+
+================================================================================

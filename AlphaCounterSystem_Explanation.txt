@@ -1,0 +1,279 @@
+================================================================================
+SARIA5 ALPHA COUNTER / MASK TIMING SYSTEM — DETAILED EXPLANATION
+================================================================================
+Source file: SariaModUtilities.cs (older working version)
+
+================================================================================
+1. THE THREE GLOBAL COUNTERS
+================================================================================
+
+All three counters are static fields on the SariaModUtilities class:
+
+  alpha1       (float)  — ranges 0.0 to 1.0
+  alpha1Counter (bool)  — true = currently fading OUT (decreasing), false = fading IN (increasing)
+
+  alpha2       (float)  — ranges 0.0 to 1.0
+  alpha2Counter (bool)  — true = currently fading OUT (decreasing), false = fading IN (increasing)
+
+  alpha3       (float)  — ranges 0.0 to 1.0
+  alpha3Counter (bool)  — true = currently fading OUT (decreasing), false = fading IN (increasing)
+
+These are NOT updated in a central Update() hook. Instead, they are updated
+INSIDE the draw methods that use them. This is critical to understand — they
+only tick when the draw method that owns them is actually being called.
+
+================================================================================
+2. WHERE EACH COUNTER IS UPDATED (the "tick" logic)
+================================================================================
+
+--- alpha1 and alpha2 ---
+Updated ONLY inside: Saria5GlowMaskdraw()
+
+  alpha1:
+    if (alpha1Counter)   alpha1 -= 0.001f;    // fade out: VERY slow
+    if (alpha1 <= 0)     alpha1Counter = false;
+    if (!alpha1Counter)  alpha1 += 0.001f;    // fade in:  VERY slow (same speed)
+    if (alpha1 >= 1)     alpha1Counter = true;
+
+    FULL CYCLE TIME:  0→1 takes 1000 ticks (0.001 per tick), 1→0 takes 1000 ticks.
+                      Total cycle = 2000 game ticks = ~33.3 seconds at 60fps.
+    SPEED: 0.001 per tick in BOTH directions — perfectly symmetric sawtooth.
+
+  alpha2:
+    if (alpha2Counter)   alpha2 -= 0.002f;    // fade out: slow
+    if (alpha2 <= 0)     alpha2Counter = false;
+    if (!alpha2Counter)  alpha2 += 0.002f;    // fade in:  slow (same speed)
+    if (alpha2 >= 1)     alpha2Counter = true;
+
+    FULL CYCLE TIME:  0→1 takes 500 ticks, 1→0 takes 500 ticks.
+                      Total cycle = 1000 game ticks = ~16.7 seconds at 60fps.
+    SPEED: 0.002 per tick in BOTH directions — perfectly symmetric, 2x faster than alpha1.
+
+--- alpha3 ---
+Updated ONLY inside: SariaEyesGlowandFadedraw()
+
+  alpha3:
+    if (alpha3Counter)   alpha3 -= 0.04f;     // fade out: FAST
+    if (alpha3 <= 0)     alpha3Counter = false;
+    if (!alpha3Counter)  alpha3 += 0.004f;    // fade in:  10x SLOWER than fade out
+    if (alpha3 >= 1)     alpha3Counter = true;
+
+    FADE OUT (1→0): 0.04 per tick = 25 ticks = ~0.42 seconds. FAST flash-off.
+    FADE IN  (0→1): 0.004 per tick = 250 ticks = ~4.17 seconds. SLOW build-up.
+    Total cycle = 275 ticks = ~4.58 seconds.
+    SPEED: ASYMMETRIC — slow build, fast vanish. This creates a "glow builds up
+    slowly then snaps away" effect, like eyes lighting up then blinking off.
+
+================================================================================
+3. WHICH DRAW METHODS USE WHICH COUNTERS (and what they draw)
+================================================================================
+
+─────────────────────────────────────────────────────────────────────────────────
+METHOD: Saria5GlowMaskdraw()
+COUNTERS UPDATED HERE: alpha1, alpha2
+COUNTERS USED FOR DRAWING: Depends on the bool parameters passed in.
+─────────────────────────────────────────────────────────────────────────────────
+
+Signature:
+  Saria5GlowMaskdraw(Projectile, Texture2D texture, Color lightColor,
+                      bool counter1, bool counter2)
+
+  - If counter1 == true:
+      drawColor is lerped toward Transparent using alpha1.
+      Also spawns RockSparkle dust via RockDust().
+      Lighting uses: Color.DeepPink * (1f - alpha1)
+
+  - If counter2 == true:
+      drawColor is lerped toward Transparent using alpha2.
+      No dust spawned.
+      Lighting uses: Color.Green * (1f - alpha2)
+
+  BASE COLOR: Color.FloralWhite (lerped from lightColor at weight 30f — 
+  effectively pure FloralWhite).
+
+  WHAT IT DRAWS: A glow mask overlay on the Saria projectile, using the
+  projectile's own frame data. The texture fades in and out based on which
+  counter bool is passed. Both lighting sources are ALWAYS added regardless
+  of which bool is true.
+
+  KEY DETAIL: When the caller passes counter1=true, counter2=false, the mask
+  pulses on alpha1's ~33 second cycle. When counter1=false, counter2=true,
+  it pulses on alpha2's ~17 second cycle. This lets you have TWO different
+  glow mask layers on the same projectile pulsing at different rates,
+  creating a complex layered shimmer effect.
+
+─────────────────────────────────────────────────────────────────────────────────
+METHOD: SariaEyesGlowandFadedraw()
+COUNTER UPDATED HERE: alpha3
+COUNTER USED FOR DRAWING: alpha3
+─────────────────────────────────────────────────────────────────────────────────
+
+Signature:
+  SariaEyesGlowandFadedraw(Projectile, Texture2D texture, Color lightColor,
+                            Color WhatColor)
+
+  - alpha3 controls: drawColor lerped toward Transparent.
+  - Lighting: Color.DeepPink * (1f - alpha3)
+  - BASE COLOR: WhatColor (lerped from lightColor at weight 300f — 
+    effectively pure WhatColor).
+  - Flips horizontally when spriteDirection == -1.
+
+  WHAT IT DRAWS: The eye glow overlay on Saria. The asymmetric timing
+  (slow 4-second build, fast 0.4-second vanish) means the eyes slowly
+  light up with WhatColor, then quickly flash off — like a blink or
+  a magical pulse. The DeepPink light follows the same pattern.
+
+  NOTE: This method also reads alpha1 for a variable called "light" 
+  (float light = 80.15f * alpha1) but that variable is never actually
+  used for anything. It's dead code, but it exists.
+
+─────────────────────────────────────────────────────────────────────────────────
+METHOD: DialogueUIMaskdraw()
+COUNTER: Uses alpha2 (does NOT update it)
+─────────────────────────────────────────────────────────────────────────────────
+
+  Texture: "SariaMod/Items/zTalking/Greetings2EmeraldMask"
+  drawColor lerped toward Transparent using alpha2.
+  Drawn at screen center + offset.
+
+  WHAT IT DRAWS: A dialogue UI mask overlay. Fades based on alpha2's cycle.
+  Since alpha2 is only ticked by Saria5GlowMaskdraw, this mask's fading is
+  TIED TO whether Saria5GlowMaskdraw is actively being called. If that
+  method isn't running, alpha2 freezes and this mask stays at whatever
+  transparency alpha2 was at.
+
+─────────────────────────────────────────────────────────────────────────────────
+METHOD: DialogueUIMask2draw()
+COUNTER: Uses alpha1 (does NOT update it)
+─────────────────────────────────────────────────────────────────────────────────
+
+  Texture: "SariaMod/Items/zTalking/Greetings2EmeraldMask2"
+  drawColor lerped toward Transparent using alpha1.
+  Drawn at screen center + offset.
+
+  WHAT IT DRAWS: A second dialogue UI mask overlay. Fades on alpha1's cycle.
+  Same dependency issue — only ticks when Saria5GlowMaskdraw is running.
+
+─────────────────────────────────────────────────────────────────────────────────
+METHOD: DialogueUIMask3draw()
+COUNTER: Uses alpha3 (does NOT update it)
+─────────────────────────────────────────────────────────────────────────────────
+
+  Texture: "SariaMod/Items/zTalking/Greetings2EmeraldMask3"
+  drawColor lerped toward Transparent using alpha3.
+  Drawn at screen center + offset.
+
+  WHAT IT DRAWS: A third dialogue UI mask overlay. Fades on alpha3's cycle.
+  Only ticks when SariaEyesGlowandFadedraw is running.
+
+─────────────────────────────────────────────────────────────────────────────────
+METHOD: DialogueUEyeMaskdraw()
+COUNTER: Uses alpha3 (does NOT update it)
+─────────────────────────────────────────────────────────────────────────────────
+
+  Signature includes a Vector2 startPos2 (custom position), NumFrames, WhichFrame.
+  drawColor lerped toward Transparent using alpha3.
+  BASE COLOR: AntiqueWhite.
+
+  WHAT IT DRAWS: An eye mask overlay for the dialogue UI, positioned
+  wherever the caller specifies. Fades with alpha3.
+
+================================================================================
+4. WHY THEY ARE ALL ON THE SAME PACE / TIMING DEPENDENCY
+================================================================================
+
+The critical design of this system:
+
+  alpha1 and alpha2 are ONLY incremented/decremented inside Saria5GlowMaskdraw().
+  alpha3 is ONLY incremented/decremented inside SariaEyesGlowandFadedraw().
+
+This means:
+
+  A) All methods that READ a counter are synchronized to the draw method that
+     WRITES that counter, because they share the same static float. There is
+     exactly ONE alpha1, ONE alpha2, ONE alpha3 for the entire mod.
+
+  B) The counters tick at DRAW RATE (once per frame that the draw method runs),
+     not at game update rate. If the draw method is called once per rendered
+     frame (~60fps), the timings above are correct. If the game skips frames
+     or the draw isn't called, the counter pauses.
+
+  C) The Dialogue UI masks (DialogueUIMaskdraw, DialogueUIMask2draw, 
+     DialogueUIMask3draw, DialogueUEyeMaskdraw) do NOT drive their own
+     counters. They are CONSUMERS only. This means:
+
+     - Greetings2EmeraldMask  uses alpha2 → synced to Saria5's alpha2 glow layer
+     - Greetings2EmeraldMask2 uses alpha1 → synced to Saria5's alpha1 glow layer  
+     - Greetings2EmeraldMask3 uses alpha3 → synced to Saria's eye glow
+     - DialogueUEyeMask       uses alpha3 → synced to Saria's eye glow
+
+     This creates a visual link: the dialogue portrait masks pulse in exact
+     sync with the in-world Saria projectile's glow effects. The mask on the
+     dialogue box fades at the same moment the fairy's glow fades in-game.
+
+  D) Because they're static, if MULTIPLE projectiles call these methods,
+     the counter advances FASTER (ticked once per projectile per frame).
+     This is likely intended for single-instance use only.
+
+================================================================================
+5. SUMMARY TABLE
+================================================================================
+
+Counter  | Speed (per tick)      | Full Cycle    | Updated In                | Used By (for transparency)
+---------|-----------------------|---------------|---------------------------|----------------------------------
+alpha1   | ±0.001 (symmetric)    | ~33.3 sec     | Saria5GlowMaskdraw       | Saria5GlowMaskdraw (counter1=true)
+         |                       |               |                           | DialogueUIMask2draw (EmeraldMask2)
+---------|-----------------------|---------------|---------------------------|----------------------------------
+alpha2   | ±0.002 (symmetric)    | ~16.7 sec     | Saria5GlowMaskdraw       | Saria5GlowMaskdraw (counter2=true)
+         |                       |               |                           | DialogueUIMaskdraw (EmeraldMask)
+---------|-----------------------|---------------|---------------------------|----------------------------------
+alpha3   | +0.004 / -0.04       | ~4.58 sec     | SariaEyesGlowandFadedraw | SariaEyesGlowandFadedraw (eyes)
+         | (asymmetric:          | (slow rise,   |                           | DialogueUIMask3draw (EmeraldMask3)
+         |  slow in, fast out)   |  fast fall)   |                           | DialogueUEyeMaskdraw (eye mask)
+
+================================================================================
+6. LIGHTING SUMMARY
+================================================================================
+
+- Saria5GlowMaskdraw ALWAYS adds both lights every frame it runs:
+    DeepPink  at intensity (1 - alpha1)  → brightest when alpha1=0 (mask invisible)
+    Green     at intensity (1 - alpha2)  → brightest when alpha2=0 (mask invisible)
+  This means lighting is INVERSE to mask visibility — as the mask fades in 
+  (alpha rises), the colored light dims. As the mask fades out, the light 
+  brightens. The glow "transfers" between the texture overlay and the world light.
+
+- SariaEyesGlowandFadedraw adds:
+    DeepPink  at intensity (1 - alpha3)  → same inverse relationship.
+
+================================================================================
+7. WHAT TO WATCH OUT FOR WHEN REBUILDING
+================================================================================
+
+1. The counters MUST be static and shared. That's how the dialogue masks
+   stay in sync with the world projectile glow.
+
+2. The counters are ticked in DRAW methods, not Update methods. If you move
+   the tick logic to Update, the pacing will change (Update runs at fixed
+   60fps, Draw can vary). Keep them in Draw if you want identical behavior.
+
+3. alpha3 is INTENTIONALLY asymmetric. Don't "fix" it to be symmetric —
+   the slow-build fast-vanish is the eye glow effect.
+
+4. If Saria5GlowMaskdraw is not being called (e.g., projectile doesn't exist),
+   alpha1 and alpha2 FREEZE. The dialogue masks will be stuck at whatever
+   transparency they were at. This might look like a bug but it's how the
+   original worked.
+
+5. The bool parameters counter1/counter2 in Saria5GlowMaskdraw let you call
+   it TWICE with different textures — once for an alpha1-driven layer and
+   once for an alpha2-driven layer — to get two overlapping glow masks at
+   different speeds on the same projectile.
+
+6. The RockSparkle dust in the counter1 branch of Saria5GlowMaskdraw is
+   tied to the alpha1 cycle. Dust appears at all alpha1 values (the call
+   has no alpha1 condition), so sparkles are constant but the glow mask
+   they accompany fades in and out.
+
+================================================================================
+END OF DOCUMENT
+================================================================================

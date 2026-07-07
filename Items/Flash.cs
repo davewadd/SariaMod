@@ -1,36 +1,22 @@
 using Microsoft.Xna.Framework;
-
-
-
-using SariaMod.Items;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using SariaMod.Buffs;
-using SariaMod.Dusts;
 using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.ID;
-using SariaMod.Items.Strange;
-using SariaMod.Items.Sapphire;
 using Terraria.ModLoader;
-
 namespace SariaMod.Items
 {
-
-
     public class Flash : ModProjectile
     {
-       
-
         public const float DistanceToCheck = 1100f;
-
         public override void SetStaticDefaults()
         {
             base.DisplayName.SetDefault("Mother");
             Main.projFrames[base.Projectile.type] = 11;
             Main.projPet[Projectile.type] = true;
-             ProjectileID.Sets.MinionSacrificable[base.Projectile.type] = false;
+            ProjectileID.Sets.MinionSacrificable[base.Projectile.type] = false;
             ProjectileID.Sets.MinionTargettingFeature[base.Projectile.type] = true;
         }
         public override bool? CanCutTiles()
@@ -39,66 +25,41 @@ namespace SariaMod.Items
         }
         public override bool MinionContactDamage()
         {
-           
             {
                 return false;
             }
         }
-       
-
         public override void SetDefaults()
         {
-           
             base.Projectile.width = 96;
             base.Projectile.height = 78;
-            
             base.Projectile.netImportant = true;
             base.Projectile.friendly = true;
             Projectile.alpha = 300;
             base.Projectile.ignoreWater = false;
             base.Projectile.usesLocalNPCImmunity = true;
-             base.Projectile.localNPCHitCooldown = 50;
-                base.Projectile.minionSlots = 0f;
+            base.Projectile.localNPCHitCooldown = 50;
+            base.Projectile.minionSlots = 0f;
             base.Projectile.timeLeft = 200;
             base.Projectile.penetrate = -1;
             base.Projectile.tileCollide = false;
             base.Projectile.timeLeft *= 5;
             base.Projectile.minion = true;
         }
-       
         public override void AI()
         {
-
             Player player = Main.player[base.Projectile.owner];
             FairyPlayer modPlayer = player.Fairy();
-
-
             if (player.ownedProjectileCounts[ModContent.ProjectileType<FlashCooldown>()] <= 0f && !player.HasBuff(ModContent.BuffType<Overcharged>()))
             {
-        if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.position.X + 0, Projectile.position.Y + 0, 0, 0, ModContent.ProjectileType<FlashCooldown>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
+                if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.position.X + 0, Projectile.position.Y + 0, 0, 0, ModContent.ProjectileType<FlashCooldown>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
             }
-
-
-
-
-
-                
-            
-            
-           if (Projectile.frame == 1)
+            if (Projectile.frame == 1)
             {
-        if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.position.X + 0, Projectile.position.Y + 0, 0, 0, ModContent.ProjectileType<FlashBarrier>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
+                if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), player.Center.X + 0, player.Center.Y + 0, 0, 0, ModContent.ProjectileType<FlashBarrier>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
                 SoundEngine.PlaySound(SoundID.Item74, base.Projectile.Center);
                 SoundEngine.PlaySound(SoundID.DD2_DarkMageHealImpact, base.Projectile.Center);
             }
-           if (Projectile.frame >= 3)
-            {
-                Lighting.AddLight(Projectile.Center, Color.LightPink.ToVector3() * 0.78f);
-            }
-          
-
-
-
             int frameSpeed = 5; //reduced by half due to framecounter speedup
             Projectile.frameCounter += 2;
             if (Projectile.frameCounter >= frameSpeed)
@@ -114,17 +75,7 @@ namespace SariaMod.Items
                     base.Projectile.frame = 11;
                 }
             }
-
-
-
-
-
-
-
-
-
-
-            }
+        }
         public override bool PreDraw(ref Color lightColor)
         {
             Player player = Main.player[base.Projectile.owner];
@@ -150,11 +101,7 @@ namespace SariaMod.Items
                 }
                 Main.spriteBatch.Draw(texture, startPos, rectangle, base.Projectile.GetAlpha(drawColor), rotation, origin, scale, spriteEffects, 0f);
             }
-
             return false;
         }
     }
-
-
-
 }

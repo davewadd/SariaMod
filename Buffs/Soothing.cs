@@ -1,44 +1,24 @@
-using Microsoft.Xna.Framework;
-using SariaMod.Items.Ruby;
-using SariaMod.Items.Sapphire;
-using SariaMod.Items.Topaz;
-using SariaMod.Items.Emerald;
-using SariaMod.Items.Amber;
-using SariaMod.Items.Amethyst;
- 
-using SariaMod.Items.Platinum;
-using SariaMod.Items.Strange;
-using System;
-using SariaMod.Buffs;
 using Terraria;
-using Terraria.ID;
 using Terraria.ModLoader;
-
 namespace SariaMod.Buffs
 {
-	
-
-	public class Soothing : ModBuff
-	{
-		public override void SetStaticDefaults()
-		{
-			DisplayName.SetDefault("Soothing");
-			Description.SetDefault("Saria's old Wounds are at ease for now.");
-			Main.debuff[base.Type] = true;
-			Main.pvpBuff[base.Type] = false;
-			Main.buffNoSave[base.Type] = false;
-			Main.buffNoTimeDisplay[base.Type] = false;
-
-		}
-		public override void Update(Player player, ref int buffIndex)
-		{
-			if (player.HasBuff(ModContent.BuffType<StatLower>()))
+    public class Soothing : ModBuff
+    {
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Soothing");
+            Description.SetDefault("Saria's old Wounds are at ease for now.");
+            Main.debuff[base.Type] = true;
+            Main.pvpBuff[base.Type] = false;
+            Main.buffNoSave[base.Type] = false;
+            Main.buffNoTimeDisplay[base.Type] = false;
+        }
+        public override void Update(Player player, ref int buffIndex)
+        {
+            if (player.HasBuff(ModContent.BuffType<StatLower>()))
             {
-				player.buffTime[buffIndex] -=2;
-			}
-			
-
-		}
-
-	}
+                player.buffTime[buffIndex] -= 2;
+            }
+        }
+    }
 }

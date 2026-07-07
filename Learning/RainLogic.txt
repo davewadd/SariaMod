@@ -1,0 +1,128 @@
+# Torrential Tear - Code Logic & Networking Explanation
+
+This document explains how the "Torrential Tear" item in the Calamity Mod causes rain. It breaks down the code into simple steps, explains how the game knows to start raining, and how that information is sent to other players in multiplayer.
+
+## 1. The Item Code (The Trigger)
+
+The item itself acts as a switch. When you use it, it checks if it's already raining.
+
+**File:** `Items/Tools/ClimateChange/TorrentialTear.cs`
+
+```csharp
+public override bool? UseItem(Player player)
+{
+    // Check if it is currently NOT raining
+    if (!Main.raining)
+    {
+        // If not raining, start the rain!
+        // The 'true' argument tells it this update came from the Torrential Tear specifically.
+        CalamityUtils.StartRain(true);
+    }
+    else
+    {
+        // If it IS raining, stop the rain immediately.
+        Main.raining = false;
+    }
+
+    // After making changes, tell the server/other players to update their world.
+    CalamityNetcode.SyncWorld();
+    return true;
+}
+```
+
+### Key Concepts for Beginners:
+*   `Main.raining`: A global "true/false" variable in Terraria that controls whether rain allows falling.
+*   `UseItem`: A special function that runs exactly once when you click to use the item.
+
+---
+
+## 2. The Weather Engine (The Logic)
+
+When `CalamityUtils.StartRain(true)` is called above, it goes to a utility file where the "heavy lifting" happens. It doesn't just turn rain on; it decides how long the rain will last.
+
+**File:** `Utilities/MiscUtils.cs`
+
+```csharp
+public static void StartRain(bool torrentialTear = false, bool maxSeverity = false)
+{
+    // 1. Calculate how long the rain lasts (in frames).
+    // Terraria runs at 60 frames per second. 86400 frames = 1 in-game day (24 minutes).
+    int framesInDay = 86400;
+    int framesInHour = framesInDay / 24;
+
+    // Pick a random duration between ~8 in-game hours and a full day.
+    Main.rainTime = Main.rand.Next(framesInHour * 8, framesInDay);
+
+    // ... (There is code here that adds random bonus time to the rain) ...
+
+    // 2. Set the official game flags
+    Main.raining = true; // Turn the rain visual on
+
+    // 3. If this was called by Torrential Tear, make the storm intense
+    if (torrentialTear)
+        TorrentialTear.AdjustRainSeverity(maxSeverity);
+
+    // 4. Sync the changes (Redundant check usually, but good for safety)
+    CalamityNetcode.SyncWorld();
+}
+```
+
+### Key Concepts for Beginners:
+*   `Main.rainTime`: A countdown timer. Every frame (1/60th of a second), this number goes down by 1. When it hits 0, the rain stops automatically.
+*   `Main.rand.Next(...)`: This is a random number generator. It ensures every storm feels a little different in length.
+
+---
+
+## 3. The Networking (The Sync)
+
+In multiplayer, if YOU change `Main.raining` on your computer, no one else will see it unless you tell the server. That is what `CalamityNetcode.SyncWorld()` does.
+
+**File:** `CalamityNetcode.cs`
+
+```csharp
+public static void SyncWorld()
+{
+    // If this code is running on a Server (or you are the Host)
+    if (Main.netMode == NetmodeID.Server)
+        // Send a "WorldData" packet to everyone.
+        NetMessage.SendData(MessageID.WorldData);
+}
+```
+
+### Why is this code so short?
+Terraria has built-in networking for standard things like Time, Weather, and Events. `MessageID.WorldData` is a vanilla (standard Terraria) packet that packages up:
+*   Is it day or night?
+*   Is it raining?
+*   How long is the rain time?
+*   Wind speed.
+
+Because Calamity uses the standard `Main.rainTime` and `Main.raining` variables, it doesn't need to write complex custom networking code. It just asks Terraria to "Update the World Info" for everyone.
+
+---
+
+## 4. End-to-End Example Scenario
+
+Here is exactly what happens, step-by-step, when a player named "David" clicks the Torrential Tear in a multiplayer server.
+
+1.  **David Clicks:**
+    David's game runs `UseItem()`. It sees `Main.raining` is `false`.
+
+2.  **Logic Runs:**
+    The code calls `StartRain(true)`.
+    *   It calculates a random number, say **54,000 frames** (about 15 real-world minutes).
+    *   It sets `Main.rainTime = 54000`.
+    *   It sets `Main.raining = true`.
+
+3.  **Visuals Update:**
+    Since `torrentialTear` was true, it adjusts the `Main.cloudBGActive` and `Main.numClouds` to make the sky look dark and stormy immediately on David's screen.
+
+4.  **Sync Initiated:**
+    The code runs `CalamityNetcode.SyncWorld()`.
+
+5.  **Packet Sent:**
+    David's computer sends `MessageID.WorldData` to the Server.
+    The Server receives it, updates its own `Main.rainTime` to 54,000 and `Main.raining` to true.
+    The Server then forwards this packet to all other connected players (e.g., Player 2).
+
+6.  **Result:**
+    Player 2 receives the packet. Terraria automatically unpacks it, setting `Main.raining` to true on their screen. It starts raining for everyone instantly.

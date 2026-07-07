@@ -1,21 +1,8 @@
-using Microsoft.Xna.Framework;
-using SariaMod.Items.Ruby;
-using SariaMod.Items.Sapphire;
-using SariaMod.Items.Topaz;
-using SariaMod.Items.Emerald;
-using SariaMod.Items.Amber;
-using SariaMod.Items.Amethyst;
- 
-using SariaMod.Items.Platinum;
-using SariaMod.Items.Strange;
-using System;
 using Terraria;
-using Terraria.ID;
 using Terraria.ModLoader;
-
 namespace SariaMod.Buffs
 {
-	/*
+    /*
 	 * This file contains all the code necessary for a minion
 	 * - ModItem
 	 *     the weapon which you use to summon the minion with
@@ -28,36 +15,29 @@ namespace SariaMod.Buffs
 	 * To get a better understanding of how everything works together, and how to code minion AI, read the guide: https://github.com/tModLoader/tModLoader/wiki/Basic-Minion-Guide
 	 * This is NOT an in-depth guide to advanced minion AI
 	 */
-
-	public class SariaCurse2 : ModBuff
-	{
-		public override void SetStaticDefaults()
-		{
-			DisplayName.SetDefault("SariaCurse");
-			Description.SetDefault("Saria Curses your enemies!");
-			Main.debuff[base.Type] = true;
-			Main.pvpBuff[base.Type] = true;
-			Main.buffNoSave[base.Type] = true;
-			Main.buffNoTimeDisplay[base.Type] = true;
-
-		}
-		public override void Update(Player player, ref int buffIndex)
-		{
-			
-			{
-				
-				player.statLifeMax2 /= 2;
-			}
-			
-			
-		}
-		public override void Update(NPC npc, ref int buffIndex)
-		{
-			
-			if (!npc.boss)
-			{
-				npc.velocity.Y = -0.2f;
-			}
-		}
-		}
+    public class SariaCurse2 : ModBuff
+    {
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("SariaCurse");
+            Description.SetDefault("Saria Curses your enemies!");
+            Main.debuff[base.Type] = true;
+            Main.pvpBuff[base.Type] = true;
+            Main.buffNoSave[base.Type] = true;
+            Main.buffNoTimeDisplay[base.Type] = true;
+        }
+        public override void Update(Player player, ref int buffIndex)
+        {
+            {
+                player.statLifeMax2 /= 2;
+            }
+        }
+        public override void Update(NPC npc, ref int buffIndex)
+        {
+            if (!npc.boss)
+            {
+                npc.velocity.Y = -0.2f;
+            }
+        }
+    }
 }

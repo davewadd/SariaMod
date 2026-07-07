@@ -1,51 +1,47 @@
 Saria returns from another world in order to rejoin you on your adventure!
 She is a powerful summon that offers a plethera of abilities beyond just combat AND each of these abilities have strengths and weaknesses depending on what biome the player is in! 
 Craft a healball to summon her!
-
 Due to all the requests I have recieved I've decided to release what I've cooked so far! Its not finished yet of course but I will be steadily updating it so long as nothing else catostrophic happens...again.
-
 ***Special thanks to everyone who has downloaded the mod and especially to those who reached out to me, whether with comments or critiques. This one's for you guys!
-
 Saria will level up as you battle with her and once a checkpoint is reached she will get much stronger as well as gaining two new attacks!
 Craft a HealBall to Summon her and an XpStaff to See how much Xp she has until the next level!
 She now has a new chargeable attack per form, hold left click with her healball to charge a unique attack! 
-
 Dying will Half the XP Saria has earned since her last level up but it will not lower her base level. If Saria's exp is maxed out and nothing happens, you may need to progress in the game before she can learn a new move!
-
 There is also only a single bookcase, The strange bookcase, where most of this mod's crafting will take place!
-
 This mod also now adds elemental effects such as freezing in a blizzard or melting in the underworld without decent equipment. Saria will help you fight off these elements but if she is in a biome she is weak in
 you will suffer whether or not you have the right equipment!
 Staying in a biome she is weak in will make Saria grow ill much faster so be sure not to linger for too long!
-
 This mod adds a few soundtracks from other games, some of which are from terraria otherworld, DarkCloud, and Ocarina of Time. This was also my first and only mod but its really become something I'm happy to have shared!
-
-
 The Upgrade progression order for this mod is as follows:
 ~Strange : Uses the move Psyshock
 ~Sapphire : Uses the move AquaVeil :must kill king slime to unlock
 ~Ruby : Uses the move Eruption	   :must Kill Queen Bee to Unlock
-~Topaz : Uses the move ThunderClash	  :must Kill the Wall of Flesh to Unlock
+~Topaz : Uses the move ThunderBolt	  :must Kill the Wall of Flesh to Unlock
 ~Emerald : Uses the move PowerGem	  :must Kill Any Mech Boss to Unlock
 ~Amber : Uses the move AttackOrder	  :must Kill Plantera to Unlock
 ~Amethyst : Uses the move ShadowSneak	  :must Kill The Duke Fishron to Unlock
         More on these attacks will be shown as you level up!
-
 		I also highly advise using the Recipe Browser created by jopojelly to see all the different crafting recipes and items, however, this mod does also include notes for most items at the StrangeBookcase. Start by just crafting a PaperNote.
 	Please do keep note that these level ups will get extremely expensive, however, the effort put into it will certainly pay off!
-
 		If you discover any bugs, issues, exploits or just have a suggestion let me know! My discord is david5797 (feel free to ask anything!)
-					
 **Patch notes**
+ver 8.0.3
+	-Changed some mana percentages for attacks and added one for the Will-O-Wisp Attack
+	-fixed a bug when Saria would fall Asleep. Should work as inteded
+	-increased the duration of the FrozenYogurt item to 5 minutes
+	-fixed a bug with Flame and water Saria burning or healing when no rain was present.
+	-Saria will now fall asleep if the player falls asleep
+ver 8.0.2
+	-Finished the Electric charged attack Thunderbolt. (sorry it took so long, I work alone)
+	-changed the way Saria Changes forms
+	-updated some of the other attacks such as the first on how they function
+	-some attacks now require mana in order to use them. Pay attention to what attacks use your mana!
 ver 8.0.1
 	-added lead as a crafting recipe
 ver 8.0.0
 	-fixed MOST of the multiplayer issues. Most actions should be accounted for, at least with the first three forms
-
 	-new animations, form biome effects, and many other quality of life changes to Saria's AI and her behavior with more to come! 
-
 	-added and changed a ton of stuff including Saria's new charge attacks. Look forward to new unlocks in the future!
-
 	!Warning!  forms beyond her fire form may be prone to break or crash. They have not been updated and some will be changed entirely as we go.
 ver 7.0.4
 	-fixed SOME of the multiplayer issues. this one is more of a test
@@ -53,109 +49,15 @@ ver 7.0.3
 	-fixed multiplayer bug where Saria would not spawn. expect many more updates for multiplayer
 ver 7.0.2
 	-added the lead variant to the crafting recipe for heal balls
-
 	-fixed evil biome music playing correctly
 ver 7.0.1
 	-changed the baby harpy pet to behave as intended
 ver 7.0.0
 	-updated to Tmodloader ver 1.4.3
-
 	-changed soooo much about this mod, more animations, better attacks and so on!
-
 	-Saira will now only attack while the pokeball is held!
 ver 6.2.3
 	-edited the description page as well as my new discord.
 ver 6.2.2
 	-changed how purple gem ball functions
-
 	-made living purple shards craftable using silver shards
-ver 6.2.1
-	-trying to fix a multiplayer issue with animations
-ver 6.2.0
-	-changed some biome weaknesses 
-
-	-Biome weaknesses now effect moves much more than before
-
-	-some graphical updates
-
-	-lots of other smaller changes, mainly concerning attacks
-ver 6.1.3
-	-scraped the newely added chance for enemies to get stronger due to issues
-
-	-romoved some items that were meant to be cut before
-ver 6.1.2
-	-fixed saria increasing damage infinintly when maxing Xp
-ver 6.1.1
-	-very small update. Changed the item meant for my brother in this mod
-ver 6.1.0
-	-Changed the way healballs are used, also added other pokeballs!
-
-	-GreenMothGoliath now requires a DuskBall to be thrown at it before it can be caught.
-
-	-Changed the way the GemStorm attacks
-
-	-Gem Fairies are now obtained from Gem pokeballs made from their gems
-
-	-added a rare chance for all enemies to grow huge with a massive health, defense and attack increase so be careful!
-
-	-changed a few other small mechanics within the mod.
-ver 6.0.1
-	-Changed amount of MediumXpPearls for XpPearls from 5 to 1
-
-ver 6.0.0
-	-Updated animations
-
-	-removed the diamond upgrade(for now)
-
-	-added eye of cthulu pet that drops from the eye(summons the boss to fight for you)
-
-	-Completely overhauled how Saria worked
-
-	-Changed summon item from tomes to the HealBall
-ver 5.4.4
-	-Changed how the Moonblast attack worked and fixed the issue with it softlocking itself, also made it alot easier for the game to handle
-
-	-Increased the curse time of Shadowsneak when overcharged
-
-	-Small tweeks to certain debuffs and items
-
-	-The Moonblast attack now also scales depending on certain enemies.
-ver 5.4.3
-	-Buffed Explosion while in Overcharged state
-
-	-Made it so the player can unsummon Green Moth Goliath to save for later. Unless you die with it active
-
-	-The player can also put both the emerald and silver fairy back into their shards to save for later. Again, unless you die with them active
-ver 5.4.2
-	-Nerfed ThunderClash when player has Overcharged buff
-
-	-Buffed SilverFairy and made it work separately from PurpleFairy
-
-	-Made Living Shards more rare but also made them craftable
-ver 5.4.1
-	-Forgot to change the mothfood item back to what it was before. My bad on that one.
-ver 5.4.0
-	-changed how rare items like ancient moth food and living shards are dropped from attacks.
-
-	-added more faces to help know when Buffs and Debuffs are about to wear off. Saria now gets the sickness debuff faster if in a biome that she is weak in.
-
-	-two new upgrades to the charm of summoning
-
-	-a new, ultra rare silver cluster has a chance of spawning from Saria's emerald attack.
-
-	-Saria now has a chance to destroy projectiles.
-
-	-added the blood ocarina, use a blank ocarina durring a blood moon to get it
-
-	-lastly, changed the AI for some of the attacks
-ver 5.3.0
-	-Balanced all the buffs so that they all have what they are supposed to give
-
-ver 5.2.0
-	-Fixed a bug where the "soothing buff" crashed the game in multiplayer, no more crashes :D
-
-	-Added a new item, Saria's Confect. This item gives the player Overcharged for just a few minutes with a hefty cooldown.
-	all attacks will have something unique that changes them such as, double the projectiles, heartdrops, increased hits per second and more
-
-	-Fixed a bug with the amber blood moths. Not sure why they didn't attack enemies before but now they got over it!
-

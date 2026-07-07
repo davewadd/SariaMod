@@ -1,28 +1,19 @@
 using Microsoft.Xna.Framework;
-using System.IO;
-using Terraria.GameContent;
-using Terraria.ID;
-using Terraria;
 using SariaMod.Buffs;
-using SariaMod.Items.Strange;
-using SariaMod.Items.Sapphire;
-using SariaMod.Items.Ruby;
-using SariaMod.Items.Topaz;
-using SariaMod.Items.Emerald;
-using SariaMod.Items.Amber;
-using SariaMod.Items.Amethyst;
-using Terraria.Audio;
 using SariaMod.Dusts;
-using System;
+using SariaMod.Items.Ruby;
+using System.IO;
+using Terraria;
+using Terraria.Audio;
+using Terraria.ID;
 using Terraria.ModLoader;
-
 namespace SariaMod.Items.Strange
 {
     public class Ztarget4 : ModProjectile
     {
         public override void SetStaticDefaults()
         {
-            			base.DisplayName.SetDefault("Saria");
+            base.DisplayName.SetDefault("Saria");
             ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 7;
             ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
             Main.projFrames[base.Projectile.type] = 1;
@@ -33,7 +24,6 @@ namespace SariaMod.Items.Strange
         private int HitMax;
         public override void SendExtraAI(BinaryWriter writer)
         {
-
             writer.Write(ChannelTimer);
             writer.Write(SoundTimer);
             writer.Write(SoundTimer2);
@@ -55,11 +45,9 @@ namespace SariaMod.Items.Strange
             base.Projectile.alpha = 0;
             base.Projectile.friendly = true;
             base.Projectile.tileCollide = false;
-
-            base.Projectile.penetrate = 1;
+            base.Projectile.penetrate = -1;
             base.Projectile.timeLeft = 401;
             base.Projectile.ignoreWater = true;
-
             base.Projectile.usesLocalNPCImmunity = true;
             base.Projectile.localNPCHitCooldown = 4;
         }
@@ -71,16 +59,20 @@ namespace SariaMod.Items.Strange
         {
             return false;
         }
+        public override bool MinionContactDamage()
+        {
+            return false;
+        }
         public override void AI()
         {
             Player player = Main.player[base.Projectile.owner];
             Projectile mother = Main.projectile[(int)base.Projectile.ai[1]];
             base.Projectile.rotation += (float)0.07;
-            if (HitMax >= 1 && (player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp>()] < 8))
+            if (HitMax >= 1 && (player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp2>()] < 8))
             {
                 HitMax = 0;
             }
-                if (HitMax <= 0 && (player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp>()] >= 8))
+            if (HitMax <= 0 && (player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp2>()] >= 8))
             {
                 for (int i = 0; i < 50; i++)
                 {
@@ -92,7 +84,7 @@ namespace SariaMod.Items.Strange
                 Lighting.AddLight(Projectile.Center, Color.Red.ToVector3() * 4f);
                 HitMax = 1;
             }
-            if (Projectile.timeLeft == 1)
+            if (Projectile.timeLeft == 2)
             {
                 SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/ZtargetCancel"), Projectile.Center);
             }
@@ -100,90 +92,58 @@ namespace SariaMod.Items.Strange
             {
                 SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/ZtargetDeep"), Projectile.Center);
             }
-
             Projectile.Center = player.Center;
-
             int owner = player.whoAmI;
             for (int i = 0; i < 1000; i++)
             {
-
                 if (Main.projectile[i].active && Main.projectile[i].ModProjectile is Saria modProjectile && modProjectile.IsCharging >= 1 && modProjectile.Transform == 2 && i != base.Projectile.whoAmI && ((Main.projectile[i].owner == owner)))
                 {
-
                     {
-                        Projectile.timeLeft = 300;
+                        Projectile.timeLeft = 20;
                         if (ChannelTimer <= 900)
                         {
                             ChannelTimer++;
                         }
                     }
                 }
-
             }
-           
-          if ((player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp>()] >= 8))
+            if ((player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp2>()] >= 8))
             {
                 ChannelTimer = 0;
             }
-            if (ChannelTimer >= 151)
+            if ((player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp>()] <= 0))
             {
-                SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Ignite"), Projectile.Center);
-                if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.position.X + 0, Projectile.position.Y + -24, 0, 0, ModContent.ProjectileType<WillOWisp>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
-                player.AddBuff(ModContent.BuffType<WillOWispBuff>(), 2);
-                ChannelTimer = 0;
-            }
-
-
-
-
-
-
-
-
-
-            FairyGlobalProjectile.HomeInOnNPC(base.Projectile, ignoreTiles: true, 600f, 25f, 20f);
-            {
-                float distanceFromTarget = 10f;
-                Vector2 targetCenter = Projectile.position;
-                bool foundTarget = false;
-
-                
-
-
-
-
-
-
-
-
-
-
-                Projectile.friendly = foundTarget;
-                if (Projectile.alpha == 0)
+                if (ChannelTimer >= 90)
                 {
-                    Lighting.AddLight(Projectile.Center, Color.LightBlue.ToVector3() * 1f);
+                    SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Ignite"), Projectile.Center);
+                    if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.position.X + 0, Projectile.position.Y + -24, 0, 0, ModContent.ProjectileType<WillOWisp>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
+                    player.AddBuff(ModContent.BuffType<WillOWispBuff>(), 2);
+                    ChannelTimer = 0;
                 }
-                
-                float inertia = 13f;
-                Vector2 idlePosition = player.Center;
-                float minionPositionOffsetX = ((60 + Projectile.minionPos / 80) * player.direction) - 15;
-                idlePosition.Y -= 70f;
-                idlePosition.X += minionPositionOffsetX;
-                Vector2 vectorToIdlePosition = idlePosition - Projectile.Center;
-
-                float distanceToIdlePosition = vectorToIdlePosition.Length();
-
             }
-
-
-
-
+            if ((player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp>()] >= 1))
+            {
+                if (ChannelTimer >= 50)
+                {
+                    SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Ignite"), Projectile.Center);
+                    ChannelTimer = 0;
+                    for (int i = 0; i < 1000; i++)
+                    {
+                        if (Main.projectile[i].active && Main.projectile[i].ModProjectile is WillOWisp modProjectile && modProjectile.WispHits >= 1 && i != base.Projectile.whoAmI && ((Main.projectile[i].owner == owner)))
+                        {
+                            {
+                                Projectile.timeLeft = 20;
+                                if (ChannelTimer <= 900)
+                                {
+                                    modProjectile.WispHits += 3;
+                                    ChannelTimer++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
-
-
-
-
-
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
         {
             Player player = Main.player[base.Projectile.owner];
@@ -198,13 +158,7 @@ namespace SariaMod.Items.Strange
             target.buffImmune[BuffID.Poisoned] = false;
             target.buffImmune[BuffID.Venom] = false;
             target.buffImmune[BuffID.Electrified] = false;
-
-
             damage /= damage / 4;
-
         }
-
-
-
     }
 }

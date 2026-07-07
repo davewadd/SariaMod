@@ -1,0 +1,184 @@
+================================================================================
+  SARIA SELF-SUFFICIENCY REFACTOR PLAN
+  Last updated: start of refactor arc
+================================================================================
+
+GOAL
+----
+Remove Saria's dependency on short-lived child projectiles for visual feedback
+and game logic. All effects should be handled internally inside Saria.cs and
+SariaIdleAnimator.cs. Child projectiles that exist purely as "timers" or
+"floating bubbles" should be replaced with internal fields and draw calls.
+
+This makes Saria cheaper (fewer projectile slots), more predictable in
+multiplayer, and easier to maintain.
+
+================================================================================
+  CHILD PROJECTILE INVENTORY
+================================================================================
+
+Each entry lists: Name | Current purpose | Refactor action
+
+────────────────────────────────────────────────────────────────────────────────
+BUBBLE / FACE PROJECTILES  (top priority — easiest to internalize)
+────────────────────────────────────────────────────────────────────────────────
+
+  Sad           Visual sad-face bubble above Saria's head.
+                Spawned by:
+                  - Low health heal pulse
+                  - Period timer (bad biome reaction)
+                  - Frame 18 heal tick
+                  - Heal pulse event
+                Action: REMOVE. Replace with a timed draw call in
+                SariaIdleAnimator (e.g. _sadBubbleTimer field, counts down,
+                draws the sad face sheet frame at the correct offset).
+
+  Happiness     Visual happy-face bubble above Saria's head.
+                Spawned by:
+                  - FrozenYogurt / Competitivetime eat events
+                  - Long sleep reward
+                  - Period timer (good biome reaction)
+                Action: REMOVE. Same as Sad — use _happyBubbleTimer + draw
+                call in SariaIdleAnimator.
+
+  Notice        Exclamation/notice bubble.
+                Spawned by:
+                  - Food held detection
+                  - Player sleeping detection
+                  - Sleep frame 26
+                Action: REMOVE. Use _noticeBubbleTimer + draw call.
+
+  PowerUp       Power-up sparkle/aura effect.
+                Spawned by:
+                  - On-spawn init (localAI[0] == 0)
+                  - Competitivetime eat
+                  - Long sleep reward
+                Action: EVALUATE. If purely visual, replace with internal
+                particle draw. If it has gameplay hitbox/buff logic, keep but
+                document clearly.
+
+────────────────────────────────────────────────────────────────────────────────
+CURSOR / TARGETING PROJECTILES
+────────────────────────────────────────────────────────────────────────────────
+
+  HealCursor    Orbiting cursor that marks the heal target.
+                Spawned on-spawn and replenished if missing.
+                Action: KEEP for now. Has positional logic tied to targeting.
+                Future: could become a Draw call with a stored target position.
+
+  Ztarget       Targeting reticle on spawn.
+                Action: KEEP / LOW PRIORITY. Evaluate once HealCursor is done.
+
+  ZtargetReal   Spawned elsewhere (not in Saria.cs). Checked here.
+                Action: NO CHANGE needed in Saria.cs.
+
+────────────────────────────────────────────────────────────────────────────────
+HEAL / COMBAT PROJECTILES
+────────────────────────────────────────────────────────────────────────────────
+
+  Heal          Heal projectile fired during low-health events and frame 18.
+                Action: KEEP. Has gameplay effect (restores HP). Not a bubble.
+
+  FlashBarrier  Barrier spawned when hostile projectile is nearby + cooldown.
+                Action: KEEP. Has gameplay hitbox / shield logic.
+
+  HealBallProjectile2
+                Spawned in Kill() — death drop / cleanup effect.
+                Action: KEEP. Spawned once on death, not a recurring overhead.
+
+────────────────────────────────────────────────────────────────────────────────
+TRANSFORM / FORM PROJECTILES
+────────────────────────────────────────────────────────────────────────────────
+
+  FormChangeOverlay
+                Overlay effect when ChangeForm >= 1.
+                Action: EVALUATE. If purely visual, internalize into Draw.
+
+  LocatorHitVisual
+                Transform 0 on-hit visual.
+                Action: EVALUATE. Short-lived visual — candidate for removal.
+
+  ShadowClaw    Transform 6 on-hit attack (no StatLower guard).
+                Action: KEEP. Has attack/combat gameplay function.
+
+  Transform (UI)
+                Channeling UI display.
+                Action: KEEP. Tied to player input / UI state.
+
+────────────────────────────────────────────────────────────────────────────────
+MISC / SIGNAL PROJECTILES
+────────────────────────────────────────────────────────────────────────────────
+
+  EmptyCup      Spawned at frame 37 of eating animation.
+                Action: EVALUATE. Likely visual only — candidate for removal.
+
+  FrozenYogurtSignal
+                Signal projectile checked (spawned elsewhere).
+                Action: NO CHANGE in Saria.cs.
+
+  Competitivetime
+                Eat-event projectile checked (spawned elsewhere).
+                Action: NO CHANGE in Saria.cs.
+
+  Emeraldspike / Emeraldspike2 / Emeraldspike3
+                Referenced in close-wall checks only (spawned elsewhere).
+                Action: NO CHANGE in Saria.cs.
+
+────────────────────────────────────────────────────────────────────────────────
+LEGACY TIMER PROJECTILES (already removed)
+────────────────────────────────────────────────────────────────────────────────
+
+  period        Was an invisible 1500-tick timer projectile.
+                STATUS: REMOVED. Replaced by _periodTimer field in Saria.cs.
+
+  Smile2        Was the old positive-biome face projectile.
+                STATUS: REMOVED from period-timer path. Period timer now spawns
+                Happiness directly (will also be removed per above).
+
+================================================================================
+  REFACTOR PHASES
+================================================================================
+
+PHASE 1 — Bubble Face Removal  ← START HERE (next conversation)
+  Target: Sad, Happiness, Notice
+  Plan:
+    1. Add timer fields to SariaIdleAnimator:
+         _sadBubbleTimer, _happyBubbleTimer, _noticeBubbleTimer (int, count-down)
+    2. Add public Set methods: SetSadBubble(int ticks), SetHappyBubble, SetNoticeBubble
+    3. Add draw calls in SariaIdleAnimator for each bubble (load texture once,
+       draw at head offset with alpha fade in last ~60 ticks)
+    4. Include fields in Write/Read for net sync
+    5. In Saria.cs, replace every NewProjectile call for Sad/Happiness/Notice
+       with calls to IdleAnimator.SetSadBubble() etc.
+    6. Verify build. Test in-game.
+
+PHASE 2 — PowerUp / LocatorHitVisual / EmptyCup evaluation
+  Examine each for gameplay vs visual-only role.
+  Internalize the visual-only ones.
+
+PHASE 3 — FormChangeOverlay
+  Move overlay draw into Saria's own PreDraw/PostDraw if it has no hitbox.
+
+PHASE 4 — HealCursor / Ztarget
+  Low priority. Revisit after phases 1-3.
+
+================================================================================
+  KNOWN LATENT BUG
+================================================================================
+
+  _periodTimer is NOT included in SendExtraAI / ReceiveExtraAI.
+  This means in multiplayer the period timer state is not synced to other clients.
+  Fix: add `writer.Write(_periodTimer);` / `_periodTimer = reader.ReadInt32();`
+  to the SendExtraAI / ReceiveExtraAI blocks in Saria.cs.
+  Priority: fix this early in Phase 1 alongside the bubble timer additions.
+
+================================================================================
+  CONTEXT FILES FOR NEW CONVERSATION
+================================================================================
+
+  Items\Strange\Saria.cs              — main projectile, all spawn calls
+  Items\Strange\SariaIdleAnimator.cs  — mood/idle/sneeze system (complete)
+  Items\zTalking\SariaUISystem.cs     — UI layer reference
+  Extras\SariaRefactorPlan.txt        — this file
+
+================================================================================

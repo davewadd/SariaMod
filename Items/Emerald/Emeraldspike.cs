@@ -1,258 +1,366 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-
-using System;
-
+using SariaMod.Buffs;
 using System.Collections.Generic;
 using Terraria;
-using SariaMod.Buffs;
 using Terraria.Audio;
-
-
-
+using SariaMod.Items.Emerald;
+using SariaMod.Dusts;
 using Terraria.ID;
 using Terraria.ModLoader;
-
+using Terraria.DataStructures;
+using ReLogic.Content;
+using Terraria.Graphics;
+using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.IO;
+using Terraria.ObjectData;
 namespace SariaMod.Items.Emerald
 {
-	public class Emeraldspike : ModProjectile
-	{
-		public override void SetStaticDefaults()
-		{
-						base.DisplayName.SetDefault("Saria");
-			ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 6;
-			ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
-			Main.projFrames[base.Projectile.type] = 3;
-		}
-
-		public override void SetDefaults()
-		{
-			base.Projectile.width = 150;
-			base.Projectile.height = 150;
-			base.Projectile.aiStyle = 21;
-			base.Projectile.alpha = 100;
-			base.Projectile.friendly = true;
-			base.Projectile.tileCollide = false;
-			base.Projectile.penetrate = -1;
-			base.Projectile.timeLeft = 2000;
-			base.Projectile.ignoreWater = true;
-			AIType = 274;
-			base.Projectile.usesLocalNPCImmunity = true;
-			base.Projectile.localNPCHitCooldown = 20;
-		}
-		public override bool OnTileCollide(Vector2 oldVelocity)
-		{
-			Projectile.velocity.Y = 0;
-			
-				return false;
-
-		}
-		public override void AI()
-		{
-			Player player = Main.player[base.Projectile.owner];
-			Player player2 = Main.LocalPlayer;
-			FairyPlayer modPlayer = player.Fairy();
-			if (player.HasBuff(ModContent.BuffType<StatRaise>()))
-			{
-				Projectile.localNPCHitCooldown = 16;
-			}
-			if (player.HasBuff(ModContent.BuffType<StatLower>()))
-			{
-				Projectile.localNPCHitCooldown = 160;
-
-			}
-			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
-			{
-				Projectile.localNPCHitCooldown = 14;
-			}
-			FairyGlobalProjectile.HomeInOnNPC(base.Projectile, ignoreTiles: true, 600f, 25f, 20f);
-			Lighting.AddLight(Projectile.Center, Color.LimeGreen.ToVector3() * 0.78f);
-			float distanceFromTarget = 10f;
-			Vector2 targetCenter = Projectile.position;
-			bool foundTarget = false;
-			float speed = 20;
-			Vector2 direction = targetCenter - Projectile.Center;
-
-
-			if (Projectile.timeLeft >= 1990)
-			{
-				base.Projectile.velocity.X = (float)((.001) * player.direction);
-			}
-
-			
-			
-			if (Projectile.velocity.X > 0)
-			{
-				Projectile.spriteDirection = 1;
-			}
-			if (Projectile.velocity.X < 0)
-			{
-				Projectile.spriteDirection = -1;
-			}
-			
-
-			{
-				float between = Vector2.Distance(player2.Center, Projectile.Center);
-				// Reasonable distance away so it doesn't target across multiple screens
-				if (between < 1000f)
-				{
-					player2.AddBuff(BuffID.Endurance, 3);
-
-				}
-			}
-
-
-			int frameSpeed = 15;
-			{
-				base.Projectile.frameCounter++;
-				if (Projectile.frameCounter >= frameSpeed)
-
-
-					if (base.Projectile.frameCounter > 3)
-					{
-						base.Projectile.frame++;
-						base.Projectile.frameCounter = 0;
-					}
-				if (base.Projectile.frame >= 3)
-				{
-
-					base.Projectile.frame = 2;
-				}
-
-			}
-			
-			if (!foundTarget)
-			{
-				// This code is required either way, used for finding a target
-				for (int i = 0; i < Main.maxNPCs; i++)
-				{
-					NPC npc = Main.npc[i];
-					if (npc.CanBeChasedBy())
-					{
-						float between = Vector2.Distance(npc.Center, player.Center);
-						bool closest = Vector2.Distance(Projectile.Center, targetCenter) > between;
-						bool inRange = between < distanceFromTarget;
-
-						// Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
-						// The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
-						bool closeThroughWall = between < 1000f;
-						if (((closest && inRange) || !foundTarget) && (closeThroughWall))
-						{
-							distanceFromTarget = between;
-							targetCenter = npc.Center;
-							targetCenter.Y -= 0f;
-							targetCenter.X += 0f;
-							foundTarget = true;
-						}
-					}
-				}
-			}
-			if ((player.ownedProjectileCounts[ModContent.ProjectileType<Emeraldspike>()] >= 4f) && (!player.HasBuff(ModContent.BuffType<Overcharged>())))
+    public class Emeraldspike : ModProjectile
+    {
+        public bool MustBreak;
+        public bool groundsound;
+        public int soundcheck;
+        public static float alpha2;
+        public static bool alpha2Counter;
+        public override void SetStaticDefaults()
+        {
+            base.DisplayName.SetDefault("Saria");
+            ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 6;
+            ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
+            Main.projFrames[base.Projectile.type] = 3;
+        }
+        public override void SendExtraAI(BinaryWriter writer)
+        {
+            writer.Write(MustBreak);
+            writer.Write(groundsound);
+            writer.Write(soundcheck);
+        }
+        public override void ReceiveExtraAI(BinaryReader reader)
+        {
+            MustBreak = (bool)reader.ReadBoolean();
+            groundsound = (bool)reader.ReadBoolean();
+            soundcheck = (int)reader.ReadInt32();
+        }
+        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
+        {
+            Player player = Main.player[base.Projectile.owner];
+            Player player2 = Main.LocalPlayer;
+            FairyPlayer modPlayer = player.Fairy();
+            target.buffImmune[BuffID.CursedInferno] = false;
+            target.buffImmune[BuffID.Confused] = false;
+            target.buffImmune[BuffID.Slow] = false;
+            target.buffImmune[BuffID.ShadowFlame] = false;
+            target.buffImmune[BuffID.Ichor] = false;
+            target.buffImmune[BuffID.OnFire] = false;
+            target.buffImmune[BuffID.Frostburn] = false;
+            target.buffImmune[BuffID.Poisoned] = false;
+            target.buffImmune[BuffID.Venom] = false;
+            target.buffImmune[BuffID.Electrified] = false;
+            target.AddBuff(BuffID.Electrified, 300);
+            target.AddBuff(BuffID.Slow, 300);
+            modPlayer.SariaXp++;
+            knockback = 10;
+            if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), player.Center.X, player.Center.Y + 50, 0, 0, ModContent.ProjectileType<HitCheck>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
+            if (target.position.X + (float)(target.width / 2) > Projectile.position.X + (float)(Projectile.width / 2))
             {
-				Projectile.timeLeft -= 2;
+                hitDirection = 1;
             }
-			if (Projectile.frame == 0)
-			{
-				SoundEngine.PlaySound(SoundID.DD2_WitherBeastCrystalImpact, base.Projectile.Center);
-			}
-			if (Projectile.frame == 1)
-			{
-				SoundEngine.PlaySound(SoundID.DD2_WitherBeastDeath, base.Projectile.Center);
-			}
-			if (Projectile.frame == 1)
-			{
-				SoundEngine.PlaySound(SoundID.DD2_DarkMageHealImpact, base.Projectile.Center);
-			}
-			if (Projectile.timeLeft <= 50)
-			{
-				for (int j = 0; j < 5; j++) //set to 2
-				{
-					Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 1f, ModContent.ProjectileType<Crystalshard>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
-				}
-				SoundEngine.PlaySound(SoundID.DD2_WitherBeastCrystalImpact, base.Projectile.Center);
-				Projectile.Kill();
-			}
-		}
-
-		public override Color? GetAlpha(Color lightColor)
-		{
-			if (base.Projectile.timeLeft < 85)
-			{
-				byte b2 = (byte)(base.Projectile.timeLeft * 3);
-				byte a2 = (byte)(100f * ((float)(int)b2 / 255f));
-				return new Color(b2, b2, b2, a2);
-			}
-			return new Color(255, 255, 255, 100);
-		}
-
-		public override bool PreDraw(ref Color lightColor)
-		{
-			FairyGlobalProjectile.DrawCenteredAndAfterimage(base.Projectile, lightColor, ProjectileID.Sets.TrailingMode[base.Projectile.type]);
-		
-			return false;
-		}
-		public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI)
-		{
-			overPlayers.Add(index);
-			overWiresUI.Add(index);
-		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
-		{
-			
-			Player player = Main.player[base.Projectile.owner];
-			Player player2 = Main.LocalPlayer;
-			FairyPlayer modPlayer = player.Fairy();
-			Vector2 direction = target.Center - player.Center;
-			target.buffImmune[BuffID.CursedInferno] = false;
-			target.buffImmune[BuffID.Confused] = false;
-			target.buffImmune[BuffID.Slow] = false;
-			target.buffImmune[BuffID.ShadowFlame] = false;
-			target.buffImmune[BuffID.Ichor] = false;
-			target.buffImmune[BuffID.OnFire] = false;
-			target.buffImmune[BuffID.Frostburn] = false;
-			target.buffImmune[BuffID.Poisoned] = false;
-			target.buffImmune[BuffID.Venom] = false;
-			target.buffImmune[BuffID.Electrified] = false;
-			target.AddBuff(BuffID.Electrified, 300);
-			target.AddBuff(BuffID.Slow, 300);
-			Projectile.timeLeft -= 15;
-			modPlayer.SariaXp++;
-			if (!player.HasBuff(ModContent.BuffType<Overcharged>()))
-			{
-				if (Main.rand.NextBool(100))
-
-				{
-					{
-						Item.NewItem(Projectile.GetSource_FromThis(), Projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), ModContent.ItemType<LivingGreenShard>());
-					}
-				}
-			}
-			if (player.HasBuff(ModContent.BuffType<Overcharged>()))
-			{
-				if (Main.rand.NextBool(20))
-
-				{
-					Item.NewItem(Projectile.GetSource_FromThis(), Projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), ModContent.ItemType<LivingGreenShard>());
-				}
-				float between = Vector2.Distance(player2.Center, Projectile.Center);
-				// Reasonable distance away so it doesn't target across multiple screens
-				if (between < 120f)
+            else
+            {
+                hitDirection = -1;
+            }
+            if (player.HasBuff(ModContent.BuffType<StatRaise>()))
+            {
+                damage /= 1;
+            }
+            if (player.HasBuff(ModContent.BuffType<StatLower>()))
+            {
+                damage /= 3;
+            }
+            else
+            {
+                damage /= 2;
+            }
+        }
+        public override void SetDefaults()
+        {
+            base.Projectile.width = 130;
+            base.Projectile.height = 180;
+            base.Projectile.alpha = 300;
+            base.Projectile.friendly = true;
+            base.Projectile.tileCollide = false;
+            base.Projectile.penetrate = -1;
+            base.Projectile.timeLeft = 200;
+            base.Projectile.ignoreWater = true;
+            base.Projectile.usesLocalNPCImmunity = true;
+            base.Projectile.localNPCHitCooldown = 20;
+        }
+        public override bool? CanHitNPC(NPC target)
+        {
+            Player player = Main.player[base.Projectile.owner];
+            if (Projectile.frame >= 1 && !target.HasBuff(ModContent.BuffType<MeteorSpikeDebuff>()) && !target.HasBuff(ModContent.BuffType<MeteorLaunchDebuff>()))
+            {
+                return target.CanBeChasedBy(Projectile);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public override void AI()
+        {
+            Player player = Main.player[base.Projectile.owner];
+            Player player2 = Main.LocalPlayer;
+            FairyPlayer modPlayer = player.Fairy();
+            Lighting.AddLight(Projectile.Center, Color.LimeGreen.ToVector3() * 0.78f);
+            float distanceFromTarget = 10f;
+            Vector2 targetCenter = Projectile.position;
+            bool foundTarget = false;
+            float speed = 20;
+            Vector2 direction = targetCenter - Projectile.Center;
+            if (alpha2Counter)
+            {
+                alpha2 -= 0.04f;
+            }
+            if (alpha2 <= 0)
+            {
+                alpha2Counter = false;
+            }
+            if (!alpha2Counter)
+            {
+                alpha2 += 0.004f;
+            }
+            if (alpha2 >= 1)
+            {
+                alpha2Counter = true;
+            }
+            if (player.velocity.Y > 0)
+            {
+                groundsound = true;
+            }
+            if (groundsound && player.velocity.Y == 0)
+            {
+                SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Rock"), Projectile.Center);
+                SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/RockCrumble"), Projectile.Center);
+                for (int i = 0; i < 50; i++)
                 {
-					player.statLife += 10;
-				}
-		}
-				if (player.HasBuff(ModContent.BuffType<StatRaise>()))
-			{
-				damage += (damage) / 4;
-			}
-			if (player.HasBuff(ModContent.BuffType<StatLower>()))
-			{
-				damage /= 2;
-
-			}
-		}
-
-
-
-	}
+                    Vector2 speed2 = Main.rand.NextVector2CircularEdge(3f, .5f);
+                    Dust d = Dust.NewDustPerfect(Projectile.Bottom, ModContent.DustType<RockDustRing>(), speed2 * -6, Scale: 2.7f);
+                    d.noGravity = true;
+                }
+                groundsound = false;
+            }
+            if (Projectile.spriteDirection == -1)
+            {
+                Projectile.position.X = player.Center.X - 80;
+            }
+            if (Projectile.spriteDirection == 1)
+            {
+                Projectile.position.X = player.Center.X - 70;
+            }
+            Projectile.position.X = player.position.X - 50;
+            Projectile.position.Y = player.Center.Y - 150;
+            if (Projectile.timeLeft >= 196)
+            {
+                Projectile.spriteDirection = player.direction;
+            }
+            if (Projectile.timeLeft < 196 && Projectile.timeLeft > 10)
+            {
+                Projectile.timeLeft = 180;
+            }
+            {
+                float between = Vector2.Distance(player2.Center, Projectile.Center);
+                // Reasonable distance away so it doesn't target across multiple screens
+                if (between < 1000f)
+                {
+                    player2.AddBuff(BuffID.Endurance, 3);
+                }
+            }
+            int frameSpeed = 15;
+            {
+                base.Projectile.frameCounter++;
+                if (Projectile.frameCounter >= frameSpeed)
+                    if (base.Projectile.frameCounter > 3)
+                    {
+                        base.Projectile.frame++;
+                        base.Projectile.frameCounter = 0;
+                    }
+                if (base.Projectile.frame >= 3)
+                {
+                    base.Projectile.frame = 2;
+                }
+            }
+            if (player.velocity.Y > 0)
+            {
+                player.velocity.Y *= 4f;
+            }
+            if (!foundTarget)
+            {
+                // This code is required either way, used for finding a target
+                for (int i = 0; i < Main.maxNPCs; i++)
+                {
+                    NPC npc = Main.npc[i];
+                    if (npc.CanBeChasedBy())
+                    {
+                        float between = Vector2.Distance(npc.Center, player.Center);
+                        bool closest = Vector2.Distance(Projectile.Center, targetCenter) > between;
+                        bool inRange = between < distanceFromTarget;
+                        // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
+                        // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
+                        bool closeThroughWall = between < 1000f;
+                        if (((closest && inRange) || !foundTarget) && (closeThroughWall))
+                        {
+                            distanceFromTarget = between;
+                            targetCenter = npc.Center;
+                            targetCenter.Y -= 0f;
+                            targetCenter.X += 0f;
+                            foundTarget = true;
+                        }
+                    }
+                }
+            }
+            if (player.velocity.Y == 0)
+            {
+                player.wingTime = player.wingTimeMax;
+            }
+            if (player.velocity.Y > 0 && (player.ownedProjectileCounts[ModContent.ProjectileType<Sweetspot>()] <= 0f))
+            {
+                if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), player.Center.X, player.Center.Y + 50, 0, 0, ModContent.ProjectileType<Sweetspot>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
+            }
+            if (Projectile.frame == 0)
+            {
+                SoundEngine.PlaySound(SoundID.DD2_WitherBeastCrystalImpact, base.Projectile.Center);
+            }
+            if (Projectile.frame == 1)
+            {
+                SoundEngine.PlaySound(SoundID.DD2_WitherBeastDeath, base.Projectile.Center);
+            }
+            if (Projectile.frame == 1)
+            {
+                SoundEngine.PlaySound(SoundID.DD2_DarkMageHealImpact, base.Projectile.Center);
+            }
+            Projectile.RockDust(ModContent.DustType<RockSparkle>(), (5), 120, 120, 0, 0, 0);
+            if (Main.myPlayer == Projectile.owner) Main.blockMouse = true;
+            
+            // Break if player has active hookshot/longshot (conflicts with crystal freeze)
+            if ((player.ownedProjectileCounts[ModContent.ProjectileType<Items.Bands.HookshotProjectile>()] > 0 ||
+                 player.ownedProjectileCounts[ModContent.ProjectileType<Items.Bands.LongshotProjectile>()] > 0) &&
+                Projectile.timeLeft > 20 && Projectile.frame >= 1 && (Main.myPlayer == Projectile.owner))
+            {
+                Projectile.Kill();
+            }
+            
+            if (((player.controlLeft && modPlayer.holdingleft) || (player.controlRight && modPlayer.holdingright) || (player.controlDown && modPlayer.holdingdown) || Math.Abs(player.velocity.X) >= 0.3f || !player.releaseJump || player.controlMount || MustBreak) && Projectile.timeLeft > 20 && (Main.myPlayer == Projectile.owner))
+            {
+                if (player.controlLeft || player.controlRight)
+                {
+                    player.velocity.X = (15 * player.direction);
+                }
+                if (!player.releaseJump)
+                {
+                    player.velocity.Y = -15f;
+                }
+                Projectile.Kill();
+            }
+            // Break if player tries to use an item (no velocity boost)
+            if (player.controlUseItem && Projectile.timeLeft > 20 && Projectile.frame >= 1 && (Main.myPlayer == Projectile.owner))
+            {
+                Projectile.Kill();
+            }
+        }
+        public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI)
+        {
+            overPlayers.Add(index);
+            overWiresUI.Add(index);
+        }
+        public override void PostDraw(Color lightColor)
+        {
+            Projectile.Emeraldspikedraw(((Texture2D)ModContent.Request<Texture2D>("SariaMod/Items/Emerald/Emeraldspike").Value), lightColor, Color.GhostWhite, true, 0, 0, 3);
+            Player player = Main.player[base.Projectile.owner];
+            int owner = player.whoAmI;
+            if (player.ownedProjectileCounts[ModContent.ProjectileType<RupeeXPassive>()] >= 1f)
+            {
+                for (int U = 0; U < 1000; U++)
+                {
+                    if (Main.projectile[U].active && Main.projectile[U].ModProjectile is RupeeXPassive modRupee && U != Projectile.whoAmI && ((Main.projectile[U].owner == owner)))
+                    {
+                        if (modRupee.Damage <= 10f && Projectile.frame >= 2)
+                        {
+                            Projectile.Emeraldspikedraw(((Texture2D)ModContent.Request<Texture2D>("SariaMod/Items/Emerald/EmeraldspikeFrame1").Value), lightColor, Color.GhostWhite, false, 0, 0, 1);
+                            Projectile.EmeraldspikeGlowandFadedraw(((Texture2D)ModContent.Request<Texture2D>("SariaMod/Items/Emerald/EmeraldspikeFrame1Mask").Value), lightColor, Color.GhostWhite, alpha2,1);
+                            soundcheck = 0;
+                        }
+                        if (modRupee.Damage > 10f && modRupee.Damage <= 20f)
+                        {
+                            if (Projectile.frame >= 2)
+                            {
+                                Projectile.Emeraldspikedraw(((Texture2D)ModContent.Request<Texture2D>("SariaMod/Items/Emerald/EmeraldspikeFrame1").Value), lightColor, Color.GhostWhite, false, 0, 0, 1);
+                                Projectile.EmeraldspikeGlowandFadedraw(((Texture2D)ModContent.Request<Texture2D>("SariaMod/Items/Emerald/EmeraldspikeFrame1Mask").Value), lightColor, Color.GhostWhite, alpha2, 1);
+                                Projectile.Emeraldspikedraw(((Texture2D)ModContent.Request<Texture2D>("SariaMod/Items/Emerald/EmeraldspikeFrame1Crack").Value), lightColor, Color.GhostWhite, false, 0, 0, 1);
+                            }
+                            if (soundcheck < 1 && Projectile.timeLeft > 180)
+                            {
+                                soundcheck = 1;
+                            }
+                            else if (soundcheck < 1 && Projectile.timeLeft <= 180 && Projectile.timeLeft > 20)
+                            {
+                                for (int j = 0; j < 5; j++) //set to 2
+                                {
+                                    if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 2.5f, ModContent.ProjectileType<GreenRupeeShard>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
+                                }
+                                SoundEngine.PlaySound(SoundID.DD2_WitherBeastCrystalImpact, base.Projectile.Center);
+                                soundcheck = 1;
+                            }
+                        }
+                        if (modRupee.Damage > 20f)
+                        {
+                            if (Projectile.frame >= 2)
+                            {
+                                Projectile.Emeraldspikedraw(((Texture2D)ModContent.Request<Texture2D>("SariaMod/Items/Emerald/EmeraldspikeFrame1").Value), lightColor, Color.GhostWhite, false, 0, 0, 1);
+                                Projectile.EmeraldspikeGlowandFadedraw(((Texture2D)ModContent.Request<Texture2D>("SariaMod/Items/Emerald/EmeraldspikeFrame1Mask").Value), lightColor, Color.GhostWhite, alpha2, 1);
+                                Projectile.Emeraldspikedraw(((Texture2D)ModContent.Request<Texture2D>("SariaMod/Items/Emerald/EmeraldspikeFrame2Crack").Value), lightColor, Color.GhostWhite, false, 0, 0, 1);
+                            }
+                            if (soundcheck < 2 && Projectile.timeLeft > 180)
+                            {
+                                soundcheck = 2;
+                            }
+                            else if (soundcheck < 2 && Projectile.timeLeft <= 180 && Projectile.timeLeft > 20)
+                            {
+                                for (int j = 0; j < 5; j++) //set to 2
+                                {
+                                    Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 2.5f, ModContent.ProjectileType<GreenRupeeShard>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
+                                }
+                                SoundEngine.PlaySound(SoundID.DD2_WitherBeastCrystalImpact, base.Projectile.Center);
+                                soundcheck = 2;
+                            }
+                        }
+                        if (modRupee.Damage > 30f)
+                        {
+                            modRupee.Mustbreak = true;
+                            MustBreak = true;
+                        }
+                    }
+                }
+            }
+        }
+        public override void Kill(int timeLeft)
+        {
+            Player player = Main.player[base.Projectile.owner];
+            int owner = player.whoAmI;
+            for (int j = 0; j < 5; j++) //set to 2
+            {
+                if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 2.5f, ModContent.ProjectileType<ShardDust1>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
+            }
+            for (int i = 0; i < 50; i++)
+            {
+                Vector2 dustspeed5 = Main.rand.NextVector2CircularEdge(1.6f, 1.6f);
+                Vector2 newmiddle = Projectile.Center;
+                newmiddle.Y += 30;
+                Dust d = Dust.NewDustPerfect(newmiddle, ModContent.DustType<RockDust2>(), dustspeed5 * -5, Scale: 4.5f);
+                d.noGravity = true;
+            }
+            SoundEngine.PlaySound(SoundID.DD2_WitherBeastCrystalImpact, base.Projectile.Center);
+        }
+    }
 }

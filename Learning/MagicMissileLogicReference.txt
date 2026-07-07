@@ -1,0 +1,103 @@
+// REFERENCE ONLY - DO NOT COMPILE
+// This file contains the "Magic Missile" logic extracted from Terraria's source code.
+// Use this as a guide for implementing smooth mouse-following projectiles in your mod.
+
+/*
+   Key Features:
+   1. Network Synchronization: Owner sends mouse coordinates (ai[0], ai[1]) to server/clients.
+   2. Smooth Movement: Uses velocity interpolation (Lerp) instead of setting position directly.
+   3. Jitter Prevention: Switches to a "braking" mode when close to the target.
+*/
+
+using System;
+using Microsoft.Xna.Framework;
+using Terraria;
+
+namespace Terraria.ModReference
+{
+    public class MagicMissileLogic
+    {
+        // Standard Projectile fields
+        public int type;
+        public float[] ai = new float[2]; // ai[0]=X, ai[1]=Y
+        public int owner;
+        public Vector2 center;
+        public Vector2 velocity;
+        public int timeLeft;
+        public float rotation;
+        public bool netUpdate;
+        
+        public void AI()
+        {
+            Player player = Main.player[owner];
+            
+            // ---------------------------------------------------------
+            // PART 1: OWNER INPUT (Runs only on the client that owns the projectile)
+            // ---------------------------------------------------------
+            if (owner == Main.myPlayer)
+            {
+                if (player.channel) // Mouse button held down
+                {
+                    Vector2 mouseWorld = Main.MouseWorld;
+                    
+                    // Logic to limit range if needed:
+                    // player.LimitPointToPlayerReachableArea(ref mouseWorld); 
+
+                    // Networking: Only sync if target changes
+                    if (ai[0] != mouseWorld.X || ai[1] != mouseWorld.Y)
+                    {
+                        ai[0] = mouseWorld.X;
+                        ai[1] = mouseWorld.Y;
+                        netUpdate = true; // Sync to server
+                    }
+                }
+                else
+                {
+                    // Stop tracking flag
+                    ai[0] = -1f;
+                    ai[1] = -1f;
+                    netUpdate = true;
+                }
+            }
+
+            // ---------------------------------------------------------
+            // PART 2: CONTROLLED MOVEMENT (Runs on ALL clients)
+            // ---------------------------------------------------------
+            
+            bool hasTarget = (ai[0] != -1f && ai[1] != -1f);
+            
+            if (hasTarget)
+            {
+                Vector2 targetPos = new Vector2(ai[0], ai[1]);
+                float speed = 32f; 
+                
+                Vector2 directionToTarget = targetPos - center;
+                float distance = directionToTarget.Length();
+
+                if (distance >= 64f)
+                {
+                    // FLYING MODE (Smooth Turn)
+                    directionToTarget.Normalize();
+                    float turnSpeed = 0.2f; 
+                    velocity = Vector2.Lerp(velocity, directionToTarget * speed, turnSpeed);
+                }
+                else
+                {
+                    // HOVER MODE (Brake & Nudge) - Prevents Jitter
+                    velocity *= 0.3f;
+                    velocity += (targetPos - center) * 0.3f;
+                }
+
+                if (timeLeft < 60) timeLeft = 60;
+            }
+            
+            // ---------------------------------------------------------
+            // PART 3: VISUALS
+            // ---------------------------------------------------------
+            if (velocity != Vector2.Zero)
+            {
+                rotation = velocity.ToRotation() + MathHelper.PiOver4;
+            }
+        }
+    }
+}

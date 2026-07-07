@@ -1,15 +1,8 @@
-using Microsoft.Xna.Framework; 
-
-
-using System;
-using SariaMod.Items.Strange;
 using Terraria;
-using Terraria.ID;
 using Terraria.ModLoader;
-
 namespace SariaMod.Buffs
 {
-	/*
+    /*
 	 * This file contains all the code necessary for a minion
 	 * - ModItem
 	 *     the weapon which you use to summon the minion with
@@ -22,28 +15,19 @@ namespace SariaMod.Buffs
 	 * To get a better understanding of how everything works together, and how to code minion AI, read the guide: https://github.com/tModLoader/tModLoader/wiki/Basic-Minion-Guide
 	 * This is NOT an in-depth guide to advanced minion AI
 	 */
-
-	public class Drained : ModBuff
-	{
-		public override void SetStaticDefaults()
-		{
-			DisplayName.SetDefault("Drained");
-			Description.SetDefault("Saria cannot go overcharged right now!\n Letting Saria rest will git rid of the debuff quicker");
-			Main.debuff[base.Type] = true;
-			Main.pvpBuff[base.Type] = true;
-			Main.buffNoSave[base.Type] = false;
-			Main.buffNoTimeDisplay[base.Type] = false;
-	
-
-		}
-		public override void Update(Player player, ref int buffIndex)
-		{
-			
-
-
-		}
-			
-		
-
-	}
+    public class Drained : ModBuff
+    {
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Drained");
+            Description.SetDefault("Saria cannot go overcharged right now!\n Letting Saria rest will git rid of the debuff quicker");
+            Main.debuff[base.Type] = true;
+            Main.pvpBuff[base.Type] = true;
+            Main.buffNoSave[base.Type] = false;
+            Main.buffNoTimeDisplay[base.Type] = false;
+        }
+        public override void Update(Player player, ref int buffIndex)
+        {
+        }
+    }
 }
