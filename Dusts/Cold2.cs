@@ -1,17 +1,14 @@
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
 namespace SariaMod.Dusts
 {
-    public class Cold2 : ModDust
+    public class Cold2 : BaseTemplateDust
     {
-        public override void OnSpawn(Dust dust)
-        {
-            dust.velocity *= 0.2f;
-            dust.noGravity = true;
-            dust.noLight = true;
-            dust.scale *= 1f;
-            dust.alpha = 0;
-        }
+        protected override float VelocityMultiplier => 0.2f;
+        protected override bool NoLight => true;
+        protected override float ScaleMultiplier => 1f;
+        protected override int InitialAlpha => 0;
         public override bool Update(Dust dust)
         {
             dust.position += dust.velocity;
@@ -30,5 +27,6 @@ namespace SariaMod.Dusts
             }
             return false;
         }
+        public override Color? GetAlpha(Dust dust, Color lightColor) => null;
     }
 }

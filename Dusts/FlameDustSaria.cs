@@ -3,20 +3,14 @@ using Terraria;
 using Terraria.ModLoader;
 namespace SariaMod.Dusts
 {
-    public class FlameDustSaria : ModDust
+    public class FlameDustSaria : BaseFlameDust
     {
-        public override void OnSpawn(Dust dust)
-        {
-            dust.velocity *= 0.4f;
-            dust.noGravity = true;
-            dust.scale = 1.5f;
-        }
         public override bool Update(Dust dust)
         {
             dust.position += dust.velocity;
             dust.rotation += dust.velocity.X * 0.15f;
             dust.scale -= 0.1f;
-            float light = 0.35f * dust.scale;
+            float light = GetUpdateLight(dust);
             Lighting.AddLight(dust.position, Color.OrangeRed.ToVector3() * 1.5f);
             if (dust.scale < 0.01f)
             {
@@ -41,7 +35,5 @@ namespace SariaMod.Dusts
             }
             return false;
         }
-        public override Color? GetAlpha(Dust dust, Color lightColor)
-            => new Color(lightColor.R, lightColor.G, lightColor.B, 25);
     }
 }
