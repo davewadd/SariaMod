@@ -1282,27 +1282,8 @@ namespace SariaMod.Items.Strange
                                     }
 
                                     // Lock destination and start 5-second wind-up.
-                                    _inWallEscapeTarget  = _pathTeleportTarget;
-                                    _pathTeleportTimer   = PathTeleportDuration;
-                                    _inWallTeleportTimer = PathTeleportDuration;
-                                    _tpActiveDuration    = PathTeleportDuration;
-                                    Projectile.netUpdate = true;
-
-                                    if (Main.netMode != NetmodeID.Server)
-                                    {
-                                        SoundEngine.PlaySound(SoundID.Item4, Projectile.Center);
-                                        if (SoundEngine.TryGetActiveSound(_tpLoopSlot, out ActiveSound tpOld))
-                                            tpOld.Stop();
-                                        _tpLoopSlot = SoundEngine.PlaySound(
-                                            new SoundStyle("SariaMod/Sounds/TransformLoop") { MaxInstances = 1, Volume = 0.7f },
-                                            Projectile.Center);
-                                        for (int _i = 0; _i < 20; _i++)
-                                        {
-                                            Vector2 _vel = Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(1.5f, 4f);
-                                            Dust _d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), _vel, Scale: 1.4f);
-                                            _d.noGravity = true;
-                                        }
-                                    }
+                                    _pathTeleportTimer = PathTeleportDuration;
+                                    StartTeleportWindUp(_pathTeleportTarget, PathTeleportDuration);
                                 }
                             }
                         }
@@ -1378,26 +1359,8 @@ namespace SariaMod.Items.Strange
                                             ? reversePath[0]
                                             : _followMarkedPosition;
                                     }
-                                    _inWallEscapeTarget  = _pathTeleportTarget;
-                                    _pathTeleportTimer   = PathTeleportDuration;
-                                    _inWallTeleportTimer = PathTeleportDuration;
-                                    _tpActiveDuration    = PathTeleportDuration;
-                                    Projectile.netUpdate = true;
-                                    if (Main.netMode != NetmodeID.Server)
-                                    {
-                                        SoundEngine.PlaySound(SoundID.Item4, Projectile.Center);
-                                        if (SoundEngine.TryGetActiveSound(_tpLoopSlot, out ActiveSound tpOld))
-                                            tpOld.Stop();
-                                        _tpLoopSlot = SoundEngine.PlaySound(
-                                            new SoundStyle("SariaMod/Sounds/TransformLoop") { MaxInstances = 1, Volume = 0.7f },
-                                            Projectile.Center);
-                                        for (int _i = 0; _i < 20; _i++)
-                                        {
-                                            Vector2 _vel = Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(1.5f, 4f);
-                                            Dust _d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), _vel, Scale: 1.4f);
-                                            _d.noGravity = true;
-                                        }
-                                    }
+                                    _pathTeleportTimer = PathTeleportDuration;
+                                    StartTeleportWindUp(_pathTeleportTarget, PathTeleportDuration);
                                 }
                             }
                         }
@@ -1985,28 +1948,9 @@ namespace SariaMod.Items.Strange
                         && CanMove > 0)
                     {
                         // Lock the target and start the 2-second wind-up.
-                        _idleTeleportTarget  = idlePosition;
-                        _idleTeleportTimer   = IdleTeleportDuration;
-                        _inWallEscapeTarget  = idlePosition;
-                        _inWallTeleportTimer = IdleTeleportDuration;
-                        _tpActiveDuration    = IdleTeleportDuration;
-                        Projectile.netUpdate = true;
-
-                        if (Main.netMode != NetmodeID.Server)
-                        {
-                            SoundEngine.PlaySound(SoundID.Item4, Projectile.Center);
-                            if (SoundEngine.TryGetActiveSound(_tpLoopSlot, out ActiveSound tpOld))
-                                tpOld.Stop();
-                            _tpLoopSlot = SoundEngine.PlaySound(
-                                new SoundStyle("SariaMod/Sounds/TransformLoop") { MaxInstances = 1, Volume = 0.7f },
-                                Projectile.Center);
-                            for (int _i = 0; _i < 20; _i++)
-                            {
-                                Vector2 _vel = Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(1.5f, 4f);
-                                Dust _d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), _vel, Scale: 1.4f);
-                                _d.noGravity = true;
-                            }
-                        }
+                        _idleTeleportTarget = idlePosition;
+                        _idleTeleportTimer  = IdleTeleportDuration;
+                        StartTeleportWindUp(idlePosition, IdleTeleportDuration);
                     }
 
                     // Suppress normal flying movement while the idle teleport wind-up is active.
@@ -2307,18 +2251,7 @@ namespace SariaMod.Items.Strange
                                                 tpDone.Stop();
                                             if (SoundEngine.TryGetActiveSound(_tpDestLoopSlot, out ActiveSound tpDestDone))
                                                 tpDestDone.Stop();
-                                        for (int _i = 0; _i < 70; _i++)
-                                        {
-                                            Vector2 _vel = Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(4f, 12f);
-                                            Dust _d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), _vel, Scale: 1.8f);
-                                            _d.noGravity = true;
-                                        }
-                                        for (int _i = 0; _i < 25; _i++)
-                                        {
-                                            Vector2 _vel = Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(0.5f, 3f);
-                                            Dust _d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), _vel, Scale: 1.2f);
-                                            _d.noGravity = true;
-                                        }
+                                        SpawnTeleportBurst(Projectile.Center);
                                         SoundEngine.PlaySound(SoundID.Item4, Projectile.Center);
                                     }
 
@@ -2334,19 +2267,7 @@ namespace SariaMod.Items.Strange
                                     // Burst: destination position (where she landed).
                                     if (Main.netMode != NetmodeID.Server)
                                     {
-                                        Vector2 _destCenter = Projectile.Center;
-                                        for (int _i = 0; _i < 70; _i++)
-                                        {
-                                            Vector2 _vel = Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(4f, 12f);
-                                            Dust _d = Dust.NewDustPerfect(_destCenter, ModContent.DustType<AbsorbPsychic>(), _vel, Scale: 1.8f);
-                                            _d.noGravity = true;
-                                        }
-                                        for (int _i = 0; _i < 25; _i++)
-                                        {
-                                            Vector2 _vel = Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(0.5f, 3f);
-                                            Dust _d = Dust.NewDustPerfect(_destCenter, ModContent.DustType<AbsorbPsychic>(), _vel, Scale: 1.2f);
-                                            _d.noGravity = true;
-                                        }
+                                        SpawnTeleportBurst(Projectile.Center);
                                         // Play without position so it's always audible even when
                                         // the destination is far off-screen.
                                         SoundEngine.PlaySound(SoundID.Item4);
@@ -2411,32 +2332,8 @@ namespace SariaMod.Items.Strange
                             // Threshold reached → lock target and enter teleport phase.
                             if (_inWallStuckTimer >= InWallStuckThreshold && _inWallEscapeTarget != Vector2.Zero)
                             {
-                                _inWallTeleportTimer = InWallTeleportDuration;
-                                _tpActiveDuration    = InWallTeleportDuration;
-                                Projectile.netUpdate = true;
                                 // Target is now frozen for the entire teleport wind-up.
-
-                                // Sound: start of wind-up (mirrors transform start: sting + loop).
-                                if (Main.netMode != NetmodeID.Server)
-                                {
-                                    SoundEngine.PlaySound(SoundID.Item4, Projectile.Center);
-                                    if (SoundEngine.TryGetActiveSound(_tpLoopSlot, out ActiveSound tpOld))
-                                        tpOld.Stop();
-                                    _tpLoopSlot = SoundEngine.PlaySound(
-                                        new SoundStyle("SariaMod/Sounds/TransformLoop") { MaxInstances = 1, Volume = 0.7f },
-                                        Projectile.Center);
-                                }
-
-                                // Initial dust burst at source position.
-                                if (Main.netMode != NetmodeID.Server)
-                                {
-                                    for (int _i = 0; _i < 20; _i++)
-                                    {
-                                        Vector2 _vel = Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(1.5f, 4f);
-                                        Dust _d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), _vel, Scale: 1.4f);
-                                        _d.noGravity = true;
-                                    }
-                                }
+                                StartTeleportWindUp(_inWallEscapeTarget, InWallTeleportDuration);
                             }
                         }
                         else
@@ -2884,34 +2781,11 @@ namespace SariaMod.Items.Strange
                         SoundEngine.PlaySound(SoundID.Item4, _tpCachedSrc != Vector2.Zero ? _tpCachedSrc : Projectile.Center);
                         SoundEngine.PlaySound(SoundID.Item4);
                         // Source burst — at Saria's position before the teleport.
-                        Vector2 burstSrc = _tpCachedSrc != Vector2.Zero ? _tpCachedSrc : Projectile.Center;
-                        for (int _i = 0; _i < 70; _i++)
-                        {
-                            Vector2 _vel = Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(4f, 12f);
-                            Dust _d = Dust.NewDustPerfect(burstSrc, ModContent.DustType<AbsorbPsychic>(), _vel, Scale: 1.8f);
-                            _d.noGravity = true;
-                        }
-                        for (int _i = 0; _i < 25; _i++)
-                        {
-                            Vector2 _vel = Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(0.5f, 3f);
-                            Dust _d = Dust.NewDustPerfect(burstSrc, ModContent.DustType<AbsorbPsychic>(), _vel, Scale: 1.2f);
-                            _d.noGravity = true;
-                        }
+                        SpawnTeleportBurst(_tpCachedSrc != Vector2.Zero ? _tpCachedSrc : Projectile.Center);
                         // Destination burst — at the locked teleport target.
                         if (_tpCachedDest != Vector2.Zero)
                         {
-                            for (int _i = 0; _i < 70; _i++)
-                            {
-                                Vector2 _vel = Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(4f, 12f);
-                                Dust _d = Dust.NewDustPerfect(_tpCachedDest, ModContent.DustType<AbsorbPsychic>(), _vel, Scale: 1.8f);
-                                _d.noGravity = true;
-                            }
-                            for (int _i = 0; _i < 25; _i++)
-                            {
-                                Vector2 _vel = Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(0.5f, 3f);
-                                Dust _d = Dust.NewDustPerfect(_tpCachedDest, ModContent.DustType<AbsorbPsychic>(), _vel, Scale: 1.2f);
-                                _d.noGravity = true;
-                            }
+                            SpawnTeleportBurst(_tpCachedDest);
                         }
                         _tpCachedSrc  = Vector2.Zero;
                         _tpCachedDest = Vector2.Zero;
@@ -3728,11 +3602,22 @@ namespace SariaMod.Items.Strange
             if (_inWallTeleportTimer > 0 || _pathTeleportTimer > 0 || _idleTeleportTimer > 0)
                 return; // already in a teleport wind-up
 
-            _inWallEscapeTarget  = worldTarget;
             _idleTeleportTarget  = worldTarget;
             _idleTeleportTimer   = IdleTeleportDuration;
-            _inWallTeleportTimer = IdleTeleportDuration;
-            _tpActiveDuration    = IdleTeleportDuration;
+            StartTeleportWindUp(worldTarget, IdleTeleportDuration);
+        }
+
+        /// <summary>
+        /// Initiates the teleport wind-up: locks the escape target, starts the countdown timer,
+        /// plays the sting + loop sound, and spawns the initial dust burst.
+        /// Callers must set any scenario-specific fields (_pathTeleportTimer, _idleTeleportTimer, etc.)
+        /// BEFORE calling this method.
+        /// </summary>
+        private void StartTeleportWindUp(Vector2 position, int duration)
+        {
+            _inWallEscapeTarget  = position;
+            _inWallTeleportTimer = duration;
+            _tpActiveDuration    = duration;
             Projectile.netUpdate = true;
 
             if (Main.netMode != NetmodeID.Server)
@@ -3743,11 +3628,72 @@ namespace SariaMod.Items.Strange
                 _tpLoopSlot = SoundEngine.PlaySound(
                     new SoundStyle("SariaMod/Sounds/TransformLoop") { MaxInstances = 1, Volume = 0.7f },
                     Projectile.Center);
-                for (int i = 0; i < 20; i++)
+                for (int _i = 0; _i < 20; _i++)
                 {
-                    Vector2 vel = Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(1.5f, 4f);
-                    Dust d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), vel, Scale: 1.4f);
-                    d.noGravity = true;
+                    Vector2 _vel = Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(1.5f, 4f);
+                    Dust _d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), _vel, Scale: 1.4f);
+                    _d.noGravity = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Spawns the teleport burst visual effect (large + small dust rings) at the given world position.
+        /// </summary>
+        private void SpawnTeleportBurst(Vector2 position)
+        {
+            if (Main.netMode == NetmodeID.Server) return;
+            for (int _i = 0; _i < 70; _i++)
+            {
+                Vector2 _vel = Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(4f, 12f);
+                Dust _d = Dust.NewDustPerfect(position, ModContent.DustType<AbsorbPsychic>(), _vel, Scale: 1.8f);
+                _d.noGravity = true;
+            }
+            for (int _i = 0; _i < 25; _i++)
+            {
+                Vector2 _vel = Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(0.5f, 3f);
+                Dust _d = Dust.NewDustPerfect(position, ModContent.DustType<AbsorbPsychic>(), _vel, Scale: 1.2f);
+                _d.noGravity = true;
+            }
+        }
+
+        /// <summary>
+        /// Ages, rotates, and despawns expired pillars in the given list.
+        /// Spawns new pillars to keep the count at 3 (non-server only).
+        /// Shared by TickTransformPhase and TickTeleportPhase.
+        /// </summary>
+        private void TickPillarList(List<TransformPillar> list)
+        {
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                TransformPillar p = list[i];
+                p.Life  -= 1f;
+                p.Angle += p.RotSpeed;
+                list[i]  = p;
+                if (p.Life <= 0f) list.RemoveAt(i);
+            }
+            if (Main.netMode != NetmodeID.Server)
+            {
+                while (list.Count < 3)
+                {
+                    float sizeRoll = Main.rand.NextFloat(1f);
+                    float maxLen   = sizeRoll < 0.60f
+                        ? Main.rand.NextFloat(280f, 400f)
+                        : Main.rand.NextFloat(150f, 250f);
+                    float baseWidth = sizeRoll < 0.60f
+                        ? Main.rand.NextFloat(10f, 18f)
+                        : Main.rand.NextFloat(7f, 11f);
+                    float life = Main.rand.NextFloat(90f, 160f);
+                    list.Add(new TransformPillar
+                    {
+                        Angle     = Main.rand.NextFloat(MathHelper.TwoPi),
+                        RotSpeed  = Main.rand.NextFloat(0.003f, 0.009f) * (Main.rand.NextBool() ? 1f : -1f),
+                        Length    = 0f,
+                        MaxLength = maxLen,
+                        Width     = baseWidth,
+                        Life      = life,
+                        MaxLife   = life,
+                    });
                 }
             }
         }
@@ -3836,39 +3782,6 @@ namespace SariaMod.Items.Strange
             TickPillarList(_tpSourcePillars);
             // Tick and spawn pillars for destination.
             TickPillarList(_tpDestPillars);
-
-            void TickPillarList(List<TransformPillar> list)
-            {
-                for (int i = list.Count - 1; i >= 0; i--)
-                {
-                    TransformPillar p = list[i];
-                    p.Life  -= 1f;
-                    p.Angle += p.RotSpeed;
-                    list[i]  = p;
-                    if (p.Life <= 0f) list.RemoveAt(i);
-                }
-                while (list.Count < 3)
-                {
-                    float sizeRoll = Main.rand.NextFloat(1f);
-                    float maxLen   = sizeRoll < 0.60f
-                        ? Main.rand.NextFloat(280f, 400f)
-                        : Main.rand.NextFloat(150f, 250f);
-                    float baseWidth = sizeRoll < 0.60f
-                        ? Main.rand.NextFloat(10f, 18f)
-                        : Main.rand.NextFloat(7f, 11f);
-                    float life = Main.rand.NextFloat(90f, 160f);
-                    list.Add(new TransformPillar
-                    {
-                        Angle     = Main.rand.NextFloat(MathHelper.TwoPi),
-                        RotSpeed  = Main.rand.NextFloat(0.003f, 0.009f) * (Main.rand.NextBool() ? 1f : -1f),
-                        Length    = 0f,
-                        MaxLength = maxLen,
-                        Width     = baseWidth,
-                        Life      = life,
-                        MaxLife   = life,
-                    });
-                }
-            }
         }
 
         /// <summary>
@@ -3900,40 +3813,7 @@ namespace SariaMod.Items.Strange
                 _transformPulsePhase += 0.08f;
                 _transformWavePhase  += 0.12f;  // inner ripple advances fastest
 
-                // Tick existing pillars
-                for (int i = _transformPillars.Count - 1; i >= 0; i--)
-                {
-                    TransformPillar p = _transformPillars[i];
-                    p.Life  -= 1f;
-                    p.Angle += p.RotSpeed;
-                    _transformPillars[i] = p;
-                    if (p.Life <= 0f) _transformPillars.RemoveAt(i);
-                }
-                // Always keep 3 pillars active — spawn immediately whenever there's a free slot
-                if (Main.netMode != NetmodeID.Server)
-                {
-                    while (_transformPillars.Count < 3)
-                    {
-                        float sizeRoll = Main.rand.NextFloat(1f);
-                        float maxLen   = sizeRoll < 0.60f
-                            ? Main.rand.NextFloat(280f, 400f)   // big (60%)
-                            : Main.rand.NextFloat(150f, 250f);  // normal (40%)
-                        float baseWidth = sizeRoll < 0.60f
-                            ? Main.rand.NextFloat(10f, 18f)     // big
-                            : Main.rand.NextFloat(7f, 11f);     // normal — floor raised so none are invisible
-                        float life = Main.rand.NextFloat(90f, 160f);
-                        _transformPillars.Add(new TransformPillar
-                        {
-                            Angle     = Main.rand.NextFloat(MathHelper.TwoPi),
-                            RotSpeed  = Main.rand.NextFloat(0.003f, 0.009f) * (Main.rand.NextBool() ? 1f : -1f),
-                            Length    = 0f,
-                            MaxLength = maxLen,
-                            Width     = baseWidth,
-                            Life      = life,
-                            MaxLife   = life,
-                        });
-                    }
-                }
+                TickPillarList(_transformPillars);
             }
             else if (_transformPopCountdown > 0)
             {
