@@ -4246,9 +4246,20 @@ namespace SariaMod.Items.Strange
                                 else if (InteractionManager.CanTriggerInteractive(modPlayer))
                                 {
                                     string interactiveID = InteractionManager.GetRandomInteractiveDialogue();
-                                    InteractionManager.RegisterInteractiveDialogue(interactiveID);
-                                    InteractionManager.IsInteractiveSession = true;
-                                    SariaUISystem.DisplayDialogue(interactiveID, Projectile);
+                                    if (!string.IsNullOrEmpty(interactiveID))
+                                    {
+                                        InteractionManager.RegisterInteractiveDialogue(interactiveID);
+                                        InteractionManager.IsInteractiveSession = true;
+                                        SariaUISystem.DisplayDialogue(interactiveID, Projectile);
+                                    }
+                                    else
+                                    {
+                                        // No interactive dialogue configured — fall back to normal dialogue
+                                        string startNode = SariaDebugUISystem.DebugEnabled
+                                            ? SariaDebugUISystem.DebugStartNodeOverride
+                                            : "start";
+                                        SariaUISystem.DisplayDialogue(startNode, Projectile);
+                                    }
                                 }
                                 else
                                 {
