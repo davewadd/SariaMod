@@ -7,6 +7,8 @@ namespace SariaMod.Buffs
 {
     public class PsychicFieldDebuff : ModBuff
     {
+        public override string Texture => "SariaMod/Buffs/SariaCurse2";
+
         public override void SetStaticDefaults()
         {
             DisplayName.SetDefault("Psychic Field");

@@ -193,6 +193,7 @@ namespace SariaMod.Items.Strange
     {
         private const int RingSegments = 72;
         private readonly List<Projectile> linkedFields = new List<Projectile>();
+        public override string Texture => "SariaMod/Items/Strange/Ztarget2";
 
         public override void SetStaticDefaults()
         {
@@ -370,6 +371,8 @@ namespace SariaMod.Items.Strange
 
     public class PsychicPellet : ModProjectile
     {
+        public override string Texture => "SariaMod/Items/Strange/LocatorSmall";
+
         public override void SetStaticDefaults()
         {
             DisplayName.SetDefault("Psychic Pellet");
