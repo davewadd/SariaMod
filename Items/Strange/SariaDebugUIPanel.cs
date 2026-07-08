@@ -18,6 +18,19 @@ namespace SariaMod.Items.Strange
     /// </summary>
     public class SariaDebugUIPanel : UIState
     {
+
+        // ── Upgrade toggle labels (indices 1–24, fixed mapping) ──────────────────
+        private static readonly (int Index, string Label)[] UpgradeLabels =
+        {
+            (1,  "Base Upg 1"),   (2,  "Base Upg 2"),   (3,  "Base Upg 3"),
+            (4,  "Psychic Upg 1"), (5,  "Psychic Upg 2"), (6,  "Psychic Upg 3"),
+            (7,  "Water Upg 1"),   (8,  "Water Upg 2"),   (9,  "Water Upg 3"),
+            (10, "Fire Upg 1"),    (11, "Fire Upg 2"),    (12, "Fire Upg 3"),
+            (13, "Elec Upg 1"),    (14, "Elec Upg 2"),    (15, "Elec Upg 3"),
+            (16, "Rock Upg 1"),    (17, "Rock Upg 2"),    (18, "Rock Upg 3"),
+            (19, "Bug Upg 1"),     (20, "Bug Upg 2"),     (21, "Bug Upg 3"),
+            (22, "Ghost Upg 1"),   (23, "Ghost Upg 2"),   (24, "Ghost Upg 3"),
+        };
         // ── Toggle / eye button constants ─────────────────────────────────────────
         private const int ButtonWidth        = 80;
         private const int ButtonHeight       = 26;
@@ -41,7 +54,7 @@ namespace SariaMod.Items.Strange
         //   Round up so MaxScroll = ContentTotalH - VisibleH is always enough.
         //   +52 for the two region trackers (Near Player / Near Saria).
         //   +52 for the two deep spawn-cap diagnostic rows (Global NPCs / Fed(P/S)).
-        private const int ContentTotalH = 2048;
+        private const int ContentTotalH = 3072;
 
         // ── Row layout ────────────────────────────────────────────────────────────
         private const int RowHeight = 26;
@@ -482,6 +495,31 @@ namespace SariaMod.Items.Strange
                 }
             }
 
+            // Upgrades testing toggle
+            DrawSep(spriteBatch, x, rowY); rowY += 9;
+            Utils.DrawBorderString(spriteBatch, "Upgrades (Testing Toggle)",
+                new Vector2(x + LabelX, rowY), new Color(255, 200, 80), 0.75f);             rowY += RowHeight;
+
+            Utils.DrawBorderString(spriteBatch, "── Base (All Forms) ──",
+                new Vector2(x + LabelX + 4, rowY), new Color(180, 180, 200), 0.7f);        rowY += RowHeight;
+            for (int i = 0; i < 3; i++)
+                rowY = DrawUpgradeToggle(spriteBatch, x, rowY, UpgradeLabels[i].Index, UpgradeLabels[i].Label, fp);
+
+            string[] formHeaders = { "── Psychic ──", "── Water ──", "── Fire ──",
+                "── Electric ──", "── Rock ──", "── Bug ──", "── Ghost ──" };
+            int startIdx = 3;
+            foreach (string header in formHeaders)
+            {
+                Utils.DrawBorderString(spriteBatch, header,
+                    new Vector2(x + LabelX + 4, rowY), new Color(180, 180, 200), 0.7f);   rowY += RowHeight;
+                for (int j = 0; j < 3; j++)
+                {
+                    rowY = DrawUpgradeToggle(spriteBatch, x, rowY,
+                        UpgradeLabels[startIdx].Index, UpgradeLabels[startIdx].Label, fp);
+                    startIdx++;
+                }
+            }
+
             // ── Restore scissor
             spriteBatch.End();
             spriteBatch.GraphicsDevice.ScissorRectangle = prevScissor;
@@ -560,6 +598,77 @@ namespace SariaMod.Items.Strange
             Utils.DrawBorderString(spriteBatch, val1,  new Vector2(panelX + ValueX, rowY), val1Color, 0.8f);
             Vector2 v1Size = FontAssets.MouseText.Value.MeasureString(val1) * 0.8f;
             Utils.DrawBorderString(spriteBatch, $"/ {val2}", new Vector2(panelX + ValueX + v1Size.X + 4, rowY), val2Color, 0.8f);
+        }
+
+        private int DrawUpgradeToggle(SpriteBatch spriteBatch, int panelX, int rowY, int upgradeIndex, string label, FairyPlayer fp)
+        {
+            bool val = GetUpgradeBool(fp, upgradeIndex);
+            Rectangle btn = new Rectangle(panelX + ValueX - 10, rowY, 50, RowHeight);
+            bool hover = btn.Contains(Main.mouseX, Main.mouseY);
+            if (hover && Main.mouseLeft && Main.mouseLeftRelease)
+            {
+                SetUpgradeBool(fp, upgradeIndex, !val);
+                Main.mouseLeftRelease = false;
+            }
+            Utils.DrawBorderString(spriteBatch, label,
+                new Vector2(panelX + LabelX, rowY),
+                val ? new Color(100, 255, 120) : new Color(140, 140, 140), 0.8f);
+            string status = val ? "ON" : "OFF";
+            Color statusColor = val ? new Color(80, 220, 80) : new Color(120, 120, 120);
+            DrawRect(spriteBatch, btn, hover ? ButtonBgHover : ButtonBg, statusColor);
+            Vector2 sz = FontAssets.MouseText.Value.MeasureString(status) * 0.75f;
+            Utils.DrawBorderString(spriteBatch, status,
+                new Vector2(btn.X + (btn.Width - sz.X) / 2f, btn.Y + (btn.Height - sz.Y) / 2f),
+                statusColor, 0.75f);
+            if (hover) Main.LocalPlayer.mouseInterface = true;
+            return rowY + RowHeight;
+        }
+
+        private static bool GetUpgradeBool(FairyPlayer fp, int index)
+        {
+            return index switch
+            {
+                1  => fp.SariaUpgrade1,  2  => fp.SariaUpgrade2,  3  => fp.SariaUpgrade3,
+                4  => fp.SariaUpgrade4,  5  => fp.SariaUpgrade5,  6  => fp.SariaUpgrade6,
+                7  => fp.SariaUpgrade7,  8  => fp.SariaUpgrade8,  9  => fp.SariaUpgrade9,
+                10 => fp.SariaUpgrade10, 11 => fp.SariaUpgrade11, 12 => fp.SariaUpgrade12,
+                13 => fp.SariaUpgrade13, 14 => fp.SariaUpgrade14, 15 => fp.SariaUpgrade15,
+                16 => fp.SariaUpgrade16, 17 => fp.SariaUpgrade17, 18 => fp.SariaUpgrade18,
+                19 => fp.SariaUpgrade19, 20 => fp.SariaUpgrade20, 21 => fp.SariaUpgrade21,
+                22 => fp.SariaUpgrade22, 23 => fp.SariaUpgrade23, 24 => fp.SariaUpgrade24,
+                _ => false,
+            };
+        }
+
+        private static void SetUpgradeBool(FairyPlayer fp, int index, bool value)
+        {
+            switch (index)
+            {
+                case 1:  fp.SariaUpgrade1 = value; break;
+                case 2:  fp.SariaUpgrade2 = value; break;
+                case 3:  fp.SariaUpgrade3 = value; break;
+                case 4:  fp.SariaUpgrade4 = value; break;
+                case 5:  fp.SariaUpgrade5 = value; break;
+                case 6:  fp.SariaUpgrade6 = value; break;
+                case 7:  fp.SariaUpgrade7 = value; break;
+                case 8:  fp.SariaUpgrade8 = value; break;
+                case 9:  fp.SariaUpgrade9 = value; break;
+                case 10: fp.SariaUpgrade10 = value; break;
+                case 11: fp.SariaUpgrade11 = value; break;
+                case 12: fp.SariaUpgrade12 = value; break;
+                case 13: fp.SariaUpgrade13 = value; break;
+                case 14: fp.SariaUpgrade14 = value; break;
+                case 15: fp.SariaUpgrade15 = value; break;
+                case 16: fp.SariaUpgrade16 = value; break;
+                case 17: fp.SariaUpgrade17 = value; break;
+                case 18: fp.SariaUpgrade18 = value; break;
+                case 19: fp.SariaUpgrade19 = value; break;
+                case 20: fp.SariaUpgrade20 = value; break;
+                case 21: fp.SariaUpgrade21 = value; break;
+                case 22: fp.SariaUpgrade22 = value; break;
+                case 23: fp.SariaUpgrade23 = value; break;
+                case 24: fp.SariaUpgrade24 = value; break;
+            }
         }
 
         private void DrawSep(SpriteBatch spriteBatch, int panelX, int rowY)

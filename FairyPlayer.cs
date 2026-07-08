@@ -106,6 +106,9 @@ namespace SariaMod
         public bool SariaUpgrade19;
         public bool SariaUpgrade20;
         public bool SariaUpgrade21;
+        public bool SariaUpgrade22;
+        public bool SariaUpgrade23;
+        public bool SariaUpgrade24;
         public bool CalmMind;
         public bool CorruptMind;
         public bool SoftStepShimmerImmune;
@@ -390,6 +393,9 @@ namespace SariaMod
             tag["SariaUpgrade19"] = SariaUpgrade19;
             tag["SariaUpgrade20"] = SariaUpgrade20;
             tag["SariaUpgrade21"] = SariaUpgrade21;
+            tag["SariaUpgrade22"] = SariaUpgrade22;
+            tag["SariaUpgrade23"] = SariaUpgrade23;
+            tag["SariaUpgrade24"] = SariaUpgrade24;
             tag["DebugPanelOpen"] = DebugPanelOpen;
             tag["NetworkProfilerOpen"] = NetworkProfilerOpen;
             tag["MeterBarPosX"] = MeterBarPosX;
@@ -447,6 +453,9 @@ namespace SariaMod
             SariaUpgrade19 = tag.GetBool("SariaUpgrade19");
             SariaUpgrade20 = tag.GetBool("SariaUpgrade20");
             SariaUpgrade21 = tag.GetBool("SariaUpgrade21");
+            SariaUpgrade22 = tag.GetBool("SariaUpgrade22");
+            SariaUpgrade23 = tag.GetBool("SariaUpgrade23");
+            SariaUpgrade24 = tag.GetBool("SariaUpgrade24");
             DebugPanelOpen = tag.GetBool("DebugPanelOpen");
             NetworkProfilerOpen = tag.GetBool("NetworkProfilerOpen");
             MeterBarPosX = tag.ContainsKey("MeterBarPosX") ? tag.GetFloat("MeterBarPosX") : 0f;
