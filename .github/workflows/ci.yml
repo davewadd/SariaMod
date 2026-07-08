@@ -12,7 +12,7 @@ jobs:
         shell: pwsh
         run: |
           $ProgressPreference = 'SilentlyContinue'
-          $url = "https://github.com/tModLoader/tModLoader/releases/download/v2026.05.3.0/tModLoader.zip"
+          $url = "https://github.com/tModLoader/tModLoader/releases/download/v2022.09.47.89/tModLoader.zip"
           $zip = "$env:RUNNER_TEMP\tml.zip"
           Invoke-WebRequest -Uri $url -OutFile $zip
           Expand-Archive -Path $zip -DestinationPath "$env:RUNNER_TEMP\tModLoader"
