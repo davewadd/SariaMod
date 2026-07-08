@@ -1,0 +1,36 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  compile-check:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download and extract tModLoader
+        shell: pwsh
+        run: |
+          $ProgressPreference = 'SilentlyContinue'
+          $url = "https://github.com/tModLoader/tModLoader/releases/download/v2026.05.3.0/tModLoader.zip"
+          $zip = "$env:RUNNER_TEMP\tml.zip"
+          Invoke-WebRequest -Uri $url -OutFile $zip
+          Expand-Archive -Path $zip -DestinationPath "$env:RUNNER_TEMP\tModLoader"
+
+      - name: Create tModLoader.targets (parent dir redirect)
+        shell: pwsh
+        run: |
+          $targetsDir = Resolve-Path "$env:GITHUB_WORKSPACE\.."
+          $tmlPath = "$env:RUNNER_TEMP\tModLoader\tMLMod.targets"
+          $content = @"
+          <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+            <Import Project="$tmlPath" />
+          </Project>
+          "@
+          Set-Content -Path "$targetsDir\tModLoader.targets" -Value $content
+
+      - name: Restore NuGet packages
+        run: dotnet restore SariaMod.csproj
+
+      - name: Build (compile check)
+        run: dotnet build SariaMod.csproj --no-restore
