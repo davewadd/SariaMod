@@ -17,14 +17,23 @@ jobs:
           Invoke-WebRequest -Uri $url -OutFile $zip
           Expand-Archive -Path $zip -DestinationPath "$env:RUNNER_TEMP\tModLoader"
 
-      - name: Create tModLoader.targets (parent dir redirect)
+      - name: Create tModLoader.targets (DLL references only, no server build)
         shell: pwsh
         run: |
           $targetsDir = Resolve-Path "$env:GITHUB_WORKSPACE\.."
-          $tmlPath = "$env:RUNNER_TEMP\tModLoader\tMLMod.targets"
+          $tmlPath = "$env:RUNNER_TEMP\tModLoader"
           $content = @"
           <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-            <Import Project="$tmlPath" />
+            <PropertyGroup>
+              <DefineConstants>$(DefineConstants);TML_2022_09</DefineConstants>
+            </PropertyGroup>
+            <ItemGroup>
+              <Reference Include="$tmlPath\tModLoader.dll" />
+              <Reference Include="$tmlPath\Libraries\**\*.dll" />
+              <Reference Remove="$tmlPath\Libraries\Native\**" />
+              <Reference Remove="$tmlPath\Libraries\**\runtime*\**" />
+              <Reference Remove="$tmlPath\Libraries\**\*.resources.dll" />
+            </ItemGroup>
           </Project>
           "@
           Set-Content -Path "$targetsDir\tModLoader.targets" -Value $content
