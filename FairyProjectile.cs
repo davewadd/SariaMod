@@ -166,6 +166,11 @@ namespace SariaMod
                 }
             }
         }
+        public override void OnHitNPC(Projectile projectile, NPC target, int damage, float knockback, bool crit)
+        {
+            PsychicFieldSystem.SpawnPelletsForProjectileHit(projectile, target, damage);
+        }
+
         public static void DrawCenteredAndAfterimage(Projectile projectile, Color lightColor, int trailingMode, int typeOneDistanceMultiplier = 1, Texture2D texture = null, bool drawCentered = true)
         {
             if (texture == null)

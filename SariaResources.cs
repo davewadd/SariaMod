@@ -121,6 +121,17 @@ namespace SariaMod
                                 {
                                     if (CantAttackTimer <= 0)
                                     {
+                                        for (int i = 0; i < Main.maxProjectiles; i++)
+                                        {
+                                            if (Main.projectile[i].active
+                                                && Main.projectile[i].owner == projectile.owner
+                                                && Main.projectile[i].ModProjectile is Ztarget2 psychicCharge
+                                                && psychicCharge.ChannelTimer > 900)
+                                            {
+                                                PsychicFieldSystem.TrySummonFieldFromCharge(projectile, Main.projectile[i]);
+                                                break;
+                                            }
+                                        }
                                         modProjectile.CantAttackTimer = 200;
                                     }
                                 }
