@@ -21,8 +21,8 @@ namespace SariaMod.Items.Strange
         public const float FieldRadius = 640f;
         public const float LinkRadius = 760f;
         public const float PelletDamageMultiplier = 0.2f;
-        public const float PortalFallMaxSpeed = 50f;
-        public const float PortalFallAcceleration = 0.65f;
+        public const float PortalFallSpeedMultiplier = 3.5f;
+        public const float PortalFallMaxSpeed = 10f * PortalFallSpeedMultiplier;
         public const int EnemyBuffRefreshTime = 12;
 
         private static readonly List<Projectile> LinkedFields = new List<Projectile>();
@@ -126,6 +126,48 @@ namespace SariaMod.Items.Strange
         public static bool IsActiveField(Projectile projectile)
         {
             return projectile.active && projectile.type == ModContent.ProjectileType<PsychicFieldProjectile>();
+        }
+
+        public static bool TryApplyPortalFallPhysics(Player player)
+        {
+            if (!PlayerIsInsideField(player))
+            {
+                return false;
+            }
+
+            player.noFallDmg = true;
+            player.fallStart = (int)(player.position.Y / 16f);
+            player.fallStart2 = player.fallStart;
+            player.maxFallSpeed = Math.Max(player.maxFallSpeed, PortalFallMaxSpeed);
+            return true;
+        }
+
+        public static void ApplyPortalAirInertia(Player player)
+        {
+            if (player.velocity.Y != 0f)
+            {
+                player.runSlowdown = 0f;
+            }
+        }
+
+        private static bool PlayerIsInsideField(Player player)
+        {
+            if (!player.active)
+            {
+                return false;
+            }
+
+            float radiusSquared = FieldRadius * FieldRadius;
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile field = Main.projectile[i];
+                if (IsActiveField(field) && Vector2.DistanceSquared(player.Center, field.Center) <= radiusSquared)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool CanSourceSpawnPellets(Projectile sourceProjectile, int damage)
@@ -232,7 +274,6 @@ namespace SariaMod.Items.Strange
             Projectile.rotation += 0.015f;
 
             Lighting.AddLight(Projectile.Center, Color.DeepPink.ToVector3() * 0.65f);
-            ApplyPortalFallPhysics();
             RefreshEnemyBuffs();
             SpawnIdleDust();
         }
@@ -250,26 +291,6 @@ namespace SariaMod.Items.Strange
             DrawLinks(pixel);
 
             return false;
-        }
-
-        private void ApplyPortalFallPhysics()
-        {
-            for (int i = 0; i < Main.maxPlayers; i++)
-            {
-                Player player = Main.player[i];
-                if (!player.active || Vector2.DistanceSquared(player.Center, Projectile.Center) > PsychicFieldSystem.FieldRadius * PsychicFieldSystem.FieldRadius)
-                {
-                    continue;
-                }
-
-                player.noFallDmg = true;
-                player.fallStart = (int)(player.position.Y / 16f);
-                player.maxFallSpeed = Math.Max(player.maxFallSpeed, PsychicFieldSystem.PortalFallMaxSpeed);
-                if (player.velocity.Y > 0f && player.velocity.Y < PsychicFieldSystem.PortalFallMaxSpeed)
-                {
-                    player.velocity.Y = Math.Min(PsychicFieldSystem.PortalFallMaxSpeed, player.velocity.Y + PsychicFieldSystem.PortalFallAcceleration);
-                }
-            }
         }
 
         private void RefreshEnemyBuffs()
