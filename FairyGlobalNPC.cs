@@ -419,11 +419,11 @@ namespace SariaMod
             bool eclipseIsActive = Main.eclipse;
             bool majorEventIsActive = Main.invasionType > 0 || player.ZoneDungeon; // Add other events here as needed
             // Check high-priority override buffs first.
-            if (SariaModUtilities.Fairy(player).CalmMind)
+            if (MiscUtilities.Fairy(player).CalmMind)
             {
                 ApplyCalmMind(player, ref spawnRate, ref maxSpawns, majorEventIsActive, bloodMoonIsActive, eclipseIsActive);
             }
-            else if (SariaModUtilities.Fairy(player).CorruptMind)
+            else if (MiscUtilities.Fairy(player).CorruptMind)
             {
                 ApplyCorruptMind(ref spawnRate, ref maxSpawns);
             }

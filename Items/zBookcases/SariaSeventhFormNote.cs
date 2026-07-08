@@ -9,7 +9,7 @@ namespace SariaMod.Items.zBookcases
         public override void SetStaticDefaults()
         {
             DisplayName.SetDefault("Saria's Amethyst Form");
-            Tooltip.SetDefault("~ShadowSneak will send a high damage shadow slithering to your enemies!\n~Saria will now Curse enemies that get near\nstealing their ability to go through walls!\n " + "\n " + SariaModUtilities.ColorMessage("Super effective in:", new Color(0, 200, 250, 200)) + "\n" + SariaModUtilities.ColorMessage("Night, Dungeon, and all evil biomes", new Color(0, 200, 250, 200)) + "\n " + "\n " + SariaModUtilities.ColorMessage("Not very effective in:", new Color(135, 206, 180)) + "\n" + SariaModUtilities.ColorMessage("~Overworld during the day", new Color(135, 206, 180)));
+            Tooltip.SetDefault("~ShadowSneak will send a high damage shadow slithering to your enemies!\n~Saria will now Curse enemies that get near\nstealing their ability to go through walls!\n " + "\n " + MiscUtilities.ColorMessage("Super effective in:", new Color(0, 200, 250, 200)) + "\n" + MiscUtilities.ColorMessage("Night, Dungeon, and all evil biomes", new Color(0, 200, 250, 200)) + "\n " + "\n " + MiscUtilities.ColorMessage("Not very effective in:", new Color(135, 206, 180)) + "\n" + MiscUtilities.ColorMessage("~Overworld during the day", new Color(135, 206, 180)));
         }
         public override void SetDefaults()
         {

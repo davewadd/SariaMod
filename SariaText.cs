@@ -53,22 +53,22 @@ namespace SariaMod
 
         // ── Per-form shorthand ───────────────────────────────────────
 
-        public static string Kokiri(string text)    => SariaModUtilities.ColorMessage(text, KokiriGreen);
-        public static string Zora(string text)      => SariaModUtilities.ColorMessage(text, ZoraBlue);
-        public static string Gerudo(string text)    => SariaModUtilities.ColorMessage(text, GerudoOrange);
-        public static string Thunder(string text)   => SariaModUtilities.ColorMessage(text, ThunderGold);
-        public static string Rupee(string text)     => SariaModUtilities.ColorMessage(text, RupeeViolet);
-        public static string Lurantis(string text)  => SariaModUtilities.ColorMessage(text, LurantisPink);
-        public static string Poe(string text)       => SariaModUtilities.ColorMessage(text, PoeLavender);
+        public static string Kokiri(string text)    => MiscUtilities.ColorMessage(text, KokiriGreen);
+        public static string Zora(string text)      => MiscUtilities.ColorMessage(text, ZoraBlue);
+        public static string Gerudo(string text)    => MiscUtilities.ColorMessage(text, GerudoOrange);
+        public static string Thunder(string text)   => MiscUtilities.ColorMessage(text, ThunderGold);
+        public static string Rupee(string text)     => MiscUtilities.ColorMessage(text, RupeeViolet);
+        public static string Lurantis(string text)  => MiscUtilities.ColorMessage(text, LurantisPink);
+        public static string Poe(string text)       => MiscUtilities.ColorMessage(text, PoeLavender);
 
         // ── Utility shorthand ────────────────────────────────────────
 
-        public static string Foresight(string text) => SariaModUtilities.ColorMessage(text, ForesightMint);
-        public static string Info(string text)      => SariaModUtilities.ColorMessage(text, InfoCyan);
+        public static string Foresight(string text) => MiscUtilities.ColorMessage(text, ForesightMint);
+        public static string Info(string text)      => MiscUtilities.ColorMessage(text, InfoCyan);
 
         // ── Generic ──────────────────────────────────────────────────
 
         /// <summary>Color any text with an arbitrary Color value.</summary>
-        public static string Dye(string text, Color color) => SariaModUtilities.ColorMessage(text, color);
+        public static string Dye(string text, Color color) => MiscUtilities.ColorMessage(text, color);
     }
 }

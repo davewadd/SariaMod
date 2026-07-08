@@ -1293,7 +1293,7 @@ namespace SariaMod.Items.Strange
         private static void DrawOverlayElectric(Projectile projectile, Texture2D texture, int frameIndex,
                                                 bool shouldFlip, Color lightColor, float yOffset)
         {
-            SariaModUtilities.UpdateAlphaCounters();
+            SariaDrawingExtensions.UpdateAlphaCounters();
 
             float intensity = SariaExtensions1.electricIntensity;
             if (intensity <= 0f) return; // off phase — skip everything
@@ -1371,18 +1371,18 @@ namespace SariaMod.Items.Strange
             if (shouldFlip && projectile.spriteDirection == -1)
                 effects = SpriteEffects.FlipHorizontally;
 
-            Lighting.AddLight(projectile.Center, Color.DeepPink.ToVector3() * (1f - SariaModUtilities.alpha1));
-            Lighting.AddLight(projectile.Center, Color.Green.ToVector3() * (1f - SariaModUtilities.alpha2));
+            Lighting.AddLight(projectile.Center, Color.DeepPink.ToVector3() * (1f - SariaDrawingExtensions.alpha1));
+            Lighting.AddLight(projectile.Center, Color.Green.ToVector3() * (1f - SariaDrawingExtensions.alpha2));
 
             Color drawColor = Color.Lerp(lightColor, Color.FloralWhite, 30f);
             if (counter1)
             {
-                drawColor = Color.Lerp(drawColor, Color.Transparent, SariaModUtilities.alpha1);
+                drawColor = Color.Lerp(drawColor, Color.Transparent, SariaDrawingExtensions.alpha1);
                 projectile.RockDustOnVisiblePixels(texture, ModContent.DustType<Dusts.RockSparkle>(), 20,
                     OverlayTotalFrames, Math.Clamp(frameIndex, 0, OverlayTotalFrames - 1), shouldFlip);
             }
             if (counter2)
-                drawColor = Color.Lerp(drawColor, Color.Transparent, SariaModUtilities.alpha2);
+                drawColor = Color.Lerp(drawColor, Color.Transparent, SariaDrawingExtensions.alpha2);
 
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
@@ -1532,7 +1532,7 @@ namespace SariaMod.Items.Strange
                 Texture2D glowTex = SariaFaceColorKey.GetForm5GlowFace(originalTex);
                 if (glowTex != null && glowTex != originalTex)
                 {
-                    float a3 = SariaModUtilities.alpha3;
+                    float a3 = SariaDrawingExtensions.alpha3;
                     Lighting.AddLight(projectile.Center, Color.DeepPink.ToVector3() * (1f - a3));
                     Color glowColor = Color.Lerp(Color.White, Color.Transparent, a3);
 
@@ -1628,7 +1628,7 @@ namespace SariaMod.Items.Strange
                 Texture2D glowTex = SariaFaceColorKey.GetForm5GlowFace(originalTex);
                 if (glowTex != null && glowTex != originalTex)
                 {
-                    float a3 = SariaModUtilities.alpha3;
+                    float a3 = SariaDrawingExtensions.alpha3;
                     Lighting.AddLight(projectile.Center, Color.DeepPink.ToVector3() * (1f - a3));
                     Color glowColor = Color.Lerp(Color.White, Color.Transparent, a3);
 
@@ -1726,7 +1726,7 @@ namespace SariaMod.Items.Strange
                 Texture2D glowTex = SariaFaceColorKey.GetForm5GlowFace(originalTex);
                 if (glowTex != null && glowTex != originalTex)
                 {
-                    float a3 = SariaModUtilities.alpha3;
+                    float a3 = SariaDrawingExtensions.alpha3;
                     Lighting.AddLight(projectile.Center, Color.DeepPink.ToVector3() * (1f - a3));
                     Color glowColor = Color.Lerp(Color.White, Color.Transparent, a3);
 
@@ -1866,7 +1866,7 @@ namespace SariaMod.Items.Strange
                             Texture2D glowTex = SariaFaceColorKey.GetForm5GlowFace(pupilOriginal);
                             if (glowTex != null && glowTex != pupilOriginal)
                             {
-                                float a3 = SariaModUtilities.alpha3;
+                                float a3 = SariaDrawingExtensions.alpha3;
                                 Lighting.AddLight(projectile.Center, Color.DeepPink.ToVector3() * (1f - a3));
                                 Color glowColor = Color.Lerp(Color.White, Color.Transparent, a3);
 

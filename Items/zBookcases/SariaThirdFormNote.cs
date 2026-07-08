@@ -9,7 +9,7 @@ namespace SariaMod.Items.zBookcases
         public override void SetStaticDefaults()
         {
             DisplayName.SetDefault("Saria's Ruby Form");
-            Tooltip.SetDefault("~Eruption will Bomb your enemies!\n~Smaller flames will be generated after the explosion\n " + "\n " + SariaModUtilities.ColorMessage("Saria can protect you from immense heat!", new Color(0, 200, 250, 200)) + "\n" + SariaModUtilities.ColorMessage("~Snow, Glowshroom, Jungle, Dungeon, and Holy", new Color(0, 200, 250, 200)) + "\n " + "\n " + SariaModUtilities.ColorMessage("Not very effective in:", new Color(135, 206, 180)) + "\n" + SariaModUtilities.ColorMessage(" ~Ocean, Rain, and Sandstorm", new Color(135, 206, 180)));
+            Tooltip.SetDefault("~Eruption will Bomb your enemies!\n~Smaller flames will be generated after the explosion\n " + "\n " + MiscUtilities.ColorMessage("Saria can protect you from immense heat!", new Color(0, 200, 250, 200)) + "\n" + MiscUtilities.ColorMessage("~Snow, Glowshroom, Jungle, Dungeon, and Holy", new Color(0, 200, 250, 200)) + "\n " + "\n " + MiscUtilities.ColorMessage("Not very effective in:", new Color(135, 206, 180)) + "\n" + MiscUtilities.ColorMessage(" ~Ocean, Rain, and Sandstorm", new Color(135, 206, 180)));
         }
         public override void SetDefaults()
         {

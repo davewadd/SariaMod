@@ -11,7 +11,7 @@ namespace SariaMod.Items.Strange
         public override void SetStaticDefaults()
         {
             DisplayName.SetDefault("DerpyRod");
-            Tooltip.SetDefault(SariaModUtilities.ColorMessage("Left-click: spawn a chilled Derpling (broken-out state)\nRight-click: spawn a frozen Hoplite", new Color(0, 200, 250, 200)));
+            Tooltip.SetDefault(MiscUtilities.ColorMessage("Left-click: spawn a chilled Derpling (broken-out state)\nRight-click: spawn a frozen Hoplite", new Color(0, 200, 250, 200)));
             ItemID.Sets.GamepadWholeScreenUseRange[Item.type] = true;
             ItemID.Sets.LockOnIgnoresCollision[Item.type] = true;
         }

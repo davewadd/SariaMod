@@ -21,7 +21,7 @@ namespace SariaMod.Buffs
         public override void Update(Player player, ref int buffIndex)
         {
             FairyPlayer modPlayer = player.Fairy();
-            SariaModUtilities.Fairy(player).CorruptMind = true;
+            MiscUtilities.Fairy(player).CorruptMind = true;
             if (Main.rand.NextBool(4))
             {
                 float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));

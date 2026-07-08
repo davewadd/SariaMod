@@ -148,14 +148,14 @@ namespace SariaMod.Items.zDinner
                         player.noThrow = 2;
                         player.cursorItemIconEnabled = true;
                         player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                        player.cursorItemIconText = (SariaModUtilities.ColorMessage("Defense and Size", new Color(135, 206, 180)));
+                        player.cursorItemIconText = (MiscUtilities.ColorMessage("Defense and Size", new Color(135, 206, 180)));
                     }
                     else if (modPlayer.Serving <= 99)
                     {
                         player.noThrow = 2;
                         player.cursorItemIconEnabled = true;
                         player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                        player.cursorItemIconText = (SariaModUtilities.ColorMessage("Come back when you have more Dinner!", new Color(135, 206, 180)));
+                        player.cursorItemIconText = (MiscUtilities.ColorMessage("Come back when you have more Dinner!", new Color(135, 206, 180)));
                     }
                 }
                 if (between2 < yup)
@@ -166,14 +166,14 @@ namespace SariaMod.Items.zDinner
                         player.noThrow = 2;
                         player.cursorItemIconEnabled = true;
                         player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                        player.cursorItemIconText = (SariaModUtilities.ColorMessage("Attack and Speed", new Color(135, 206, 180)));
+                        player.cursorItemIconText = (MiscUtilities.ColorMessage("Attack and Speed", new Color(135, 206, 180)));
                     }
                     else if (modPlayer.Serving <= 99)
                     {
                         player.noThrow = 2;
                         player.cursorItemIconEnabled = true;
                         player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                        player.cursorItemIconText = (SariaModUtilities.ColorMessage("Come back when you have more Dinner!", new Color(135, 206, 180)));
+                        player.cursorItemIconText = (MiscUtilities.ColorMessage("Come back when you have more Dinner!", new Color(135, 206, 180)));
                     }
                 }
                 if (modPlayer.Serving >= 100)

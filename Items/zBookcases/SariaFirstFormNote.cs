@@ -9,7 +9,7 @@ namespace SariaMod.Items.zBookcases
         public override void SetStaticDefaults()
         {
             DisplayName.SetDefault("Saria's First Form");
-            Tooltip.SetDefault("~Psyshock will pelt your enemies!\n~Enemies hit will slowely rise!\n " + "\n " + SariaModUtilities.ColorMessage("Psychic powers keep you from taking fall damage!", new Color(0, 200, 250, 200)) + "\n" + SariaModUtilities.ColorMessage("~Space, Jungle, Glowshroom", new Color(0, 200, 250, 200)) + "\n " + "\n " + SariaModUtilities.ColorMessage("Not very effective in:", new Color(135, 206, 180)) + "\n" + SariaModUtilities.ColorMessage("~all evil biomes", new Color(135, 206, 180)));
+            Tooltip.SetDefault("~Psyshock will pelt your enemies!\n~Enemies hit will slowely rise!\n " + "\n " + MiscUtilities.ColorMessage("Psychic powers keep you from taking fall damage!", new Color(0, 200, 250, 200)) + "\n" + MiscUtilities.ColorMessage("~Space, Jungle, Glowshroom", new Color(0, 200, 250, 200)) + "\n " + "\n " + MiscUtilities.ColorMessage("Not very effective in:", new Color(135, 206, 180)) + "\n" + MiscUtilities.ColorMessage("~all evil biomes", new Color(135, 206, 180)));
         }
         public override void SetDefaults()
         {

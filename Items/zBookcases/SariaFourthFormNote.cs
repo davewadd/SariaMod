@@ -9,7 +9,7 @@ namespace SariaMod.Items.zBookcases
         public override void SetStaticDefaults()
         {
             DisplayName.SetDefault("Saria's Topaz Form");
-            Tooltip.SetDefault("~ThunderClash will fry your enemies!\n~Small bolts can hit the ground, causing a shocktrap\n " + "\n " + SariaModUtilities.ColorMessage("Super effective in:", new Color(0, 200, 250, 200)) + "\n" + SariaModUtilities.ColorMessage("~Rain, and Ocean", new Color(0, 200, 250, 200)) + "\n " + "\n " + SariaModUtilities.ColorMessage("Not very effective in:", new Color(135, 206, 180)) + "\n" + SariaModUtilities.ColorMessage("~Underground", new Color(135, 206, 180)));
+            Tooltip.SetDefault("~ThunderClash will fry your enemies!\n~Small bolts can hit the ground, causing a shocktrap\n " + "\n " + MiscUtilities.ColorMessage("Super effective in:", new Color(0, 200, 250, 200)) + "\n" + MiscUtilities.ColorMessage("~Rain, and Ocean", new Color(0, 200, 250, 200)) + "\n " + "\n " + MiscUtilities.ColorMessage("Not very effective in:", new Color(135, 206, 180)) + "\n" + MiscUtilities.ColorMessage("~Underground", new Color(135, 206, 180)));
         }
         public override void SetDefaults()
         {

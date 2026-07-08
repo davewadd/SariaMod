@@ -32,11 +32,6 @@ using SariaMod.Items.zDinner;
 using SariaMod.Gores;
 namespace SariaMod
 {
-    public class SariaLevelUpTier
-    {
-        public int RequiredXP { get; set; }
-        public Func<bool> Condition { get; set; }
-    }
     public class FairyPlayer : ModPlayer
     {
         private static Dictionary<int, SariaLevelUpTier> levelUpTiers;

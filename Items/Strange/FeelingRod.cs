@@ -10,9 +10,8 @@ namespace SariaMod.Items.Strange
         public override void SetStaticDefaults()
         {
             DisplayName.SetDefault("FeelingRod");
-            Tooltip.SetDefault(SariaModUtilities.ColorMessage(
-                "Left-click: open mood tester\nRight-click: apply settings to Saria\nMiddle-click: teleport Saria to cursor",
-                new Color(255, 180, 220)));
+            Tooltip.SetDefault(MiscUtilities.ColorMessage("Left-click: open mood tester\nRight-click: apply settings to Saria\nMiddle-click: teleport Saria to cursor",
+            new Color(255, 180, 220)));
             ItemID.Sets.GamepadWholeScreenUseRange[Item.type] = true;
             ItemID.Sets.LockOnIgnoresCollision[Item.type] = true;
         }

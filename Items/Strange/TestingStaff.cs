@@ -14,7 +14,7 @@ namespace SariaMod.Items.Strange
         public override void SetStaticDefaults()
         {
             DisplayName.SetDefault("XPStaff");
-            Tooltip.SetDefault(SariaModUtilities.ColorMessage("Shows the Level of XP Saria has when used\nRight-click to spawn a frozen leaf gore for testing", new Color(0, 200, 250, 200)));
+            Tooltip.SetDefault(MiscUtilities.ColorMessage("Shows the Level of XP Saria has when used\nRight-click to spawn a frozen leaf gore for testing", new Color(0, 200, 250, 200)));
             ItemID.Sets.GamepadWholeScreenUseRange[Item.type] = true; // This lets the player target anywhere on the whole screen while using a controller.
             ItemID.Sets.LockOnIgnoresCollision[Item.type] = true;
         }

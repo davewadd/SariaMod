@@ -12,7 +12,7 @@ namespace SariaMod.Items.Bands
         public override void SetStaticDefaults()
         {
             DisplayName.SetDefault("Connor's Reajing Workout Supplements");
-            base.Tooltip.SetDefault("Greatly increases defense and slight boost to melee attacks\n Range, Summon, and magic damage\n become much weaker.\n " + "\n " + SariaModUtilities.ColorMessage("Smells like regular flour...", new Color(0, 200, 250, 200)));
+            base.Tooltip.SetDefault("Greatly increases defense and slight boost to melee attacks\n Range, Summon, and magic damage\n become much weaker.\n " + "\n " + MiscUtilities.ColorMessage("Smells like regular flour...", new Color(0, 200, 250, 200)));
         }
         public override void SetDefaults()
         {

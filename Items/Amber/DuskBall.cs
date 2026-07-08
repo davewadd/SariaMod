@@ -10,7 +10,7 @@ namespace SariaMod.Items.Amber
         public override void SetStaticDefaults()
         {
             DisplayName.SetDefault("DuskBall");
-            Tooltip.SetDefault(SariaModUtilities.ColorMessage("Use to catch Saria's GreenMothGoliath", new Color(135, 206, 180)));
+            Tooltip.SetDefault(MiscUtilities.ColorMessage("Use to catch Saria's GreenMothGoliath", new Color(135, 206, 180)));
             ItemID.Sets.GamepadWholeScreenUseRange[Item.type] = true; // This lets the player target anywhere on the whole screen while using a controller.
             ItemID.Sets.LockOnIgnoresCollision[Item.type] = true;
         }

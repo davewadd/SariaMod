@@ -275,7 +275,7 @@ namespace SariaMod.Items
                         player.noThrow = 2;
                         player.cursorItemIconEnabled = true;
                         player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                        player.cursorItemIconText = (SariaModUtilities.ColorMessage("Psyshock", new Color(135, 206, 180)));
+                        player.cursorItemIconText = (MiscUtilities.ColorMessage("Psyshock", new Color(135, 206, 180)));
                     }
                     if (between2 < yup)
                     {
@@ -285,14 +285,14 @@ namespace SariaMod.Items
                             player.noThrow = 2;
                             player.cursorItemIconEnabled = true;
                             player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                            player.cursorItemIconText = (SariaModUtilities.ColorMessage("AquaRing", new Color(135, 206, 180)));
+                            player.cursorItemIconText = (MiscUtilities.ColorMessage("AquaRing", new Color(135, 206, 180)));
                         }
                         else if (!modPlayer.SariaUnlockWater)
                         {
                             player.noThrow = 2;
                             player.cursorItemIconEnabled = true;
                             player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                            player.cursorItemIconText = (SariaModUtilities.ColorMessage("???", new Color(135, 206, 180)));
+                            player.cursorItemIconText = (MiscUtilities.ColorMessage("???", new Color(135, 206, 180)));
                         }
                     }
                     if (between3 < yup)
@@ -303,14 +303,14 @@ namespace SariaMod.Items
                             player.noThrow = 2;
                             player.cursorItemIconEnabled = true;
                             player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                            player.cursorItemIconText = (SariaModUtilities.ColorMessage("Eruption", new Color(135, 206, 180)));
+                            player.cursorItemIconText = (MiscUtilities.ColorMessage("Eruption", new Color(135, 206, 180)));
                         }
                         else if (!modPlayer.SariaUnlockFire)
                         {
                             player.noThrow = 2;
                             player.cursorItemIconEnabled = true;
                             player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                            player.cursorItemIconText = (SariaModUtilities.ColorMessage("???", new Color(135, 206, 180)));
+                            player.cursorItemIconText = (MiscUtilities.ColorMessage("???", new Color(135, 206, 180)));
                         }
                     }
                     if (between4 < yup)
@@ -321,14 +321,14 @@ namespace SariaMod.Items
                             player.noThrow = 2;
                             player.cursorItemIconEnabled = true;
                             player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                            player.cursorItemIconText = (SariaModUtilities.ColorMessage("ThunderBolt", new Color(135, 206, 180)));
+                            player.cursorItemIconText = (MiscUtilities.ColorMessage("ThunderBolt", new Color(135, 206, 180)));
                         }
                         else if (!modPlayer.SariaUnlockElectric)
                         {
                             player.noThrow = 2;
                             player.cursorItemIconEnabled = true;
                             player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                            player.cursorItemIconText = (SariaModUtilities.ColorMessage("???", new Color(135, 206, 180)));
+                            player.cursorItemIconText = (MiscUtilities.ColorMessage("???", new Color(135, 206, 180)));
                         }
                     }
                     if (between5 < yup)
@@ -339,14 +339,14 @@ namespace SariaMod.Items
                             player.noThrow = 2;
                             player.cursorItemIconEnabled = true;
                             player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                            player.cursorItemIconText = (SariaModUtilities.ColorMessage("PowerGem", new Color(135, 206, 180)));
+                            player.cursorItemIconText = (MiscUtilities.ColorMessage("PowerGem", new Color(135, 206, 180)));
                         }
                         else if (!modPlayer.SariaUnlockRock)
                         {
                             player.noThrow = 2;
                             player.cursorItemIconEnabled = true;
                             player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                            player.cursorItemIconText = (SariaModUtilities.ColorMessage("???", new Color(135, 206, 180)));
+                            player.cursorItemIconText = (MiscUtilities.ColorMessage("???", new Color(135, 206, 180)));
                         }
                     }
                     if (between6 < yup)
@@ -357,14 +357,14 @@ namespace SariaMod.Items
                             player.noThrow = 2;
                             player.cursorItemIconEnabled = true;
                             player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                            player.cursorItemIconText = (SariaModUtilities.ColorMessage("AttackOrder", new Color(135, 206, 180)));
+                            player.cursorItemIconText = (MiscUtilities.ColorMessage("AttackOrder", new Color(135, 206, 180)));
                         }
                         else if (!modPlayer.SariaUnlockBug)
                         {
                             player.noThrow = 2;
                             player.cursorItemIconEnabled = true;
                             player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                            player.cursorItemIconText = (SariaModUtilities.ColorMessage("???", new Color(135, 206, 180)));
+                            player.cursorItemIconText = (MiscUtilities.ColorMessage("???", new Color(135, 206, 180)));
                         }
                     }
                     if (between7 < yup)
@@ -375,14 +375,14 @@ namespace SariaMod.Items
                             player.noThrow = 2;
                             player.cursorItemIconEnabled = true;
                             player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                            player.cursorItemIconText = (SariaModUtilities.ColorMessage("ShadowBall", new Color(135, 206, 180)));
+                            player.cursorItemIconText = (MiscUtilities.ColorMessage("ShadowBall", new Color(135, 206, 180)));
                         }
                         else if (!modPlayer.SariaUnlockGhost)
                         {
                             player.noThrow = 2;
                             player.cursorItemIconEnabled = true;
                             player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                            player.cursorItemIconText = (SariaModUtilities.ColorMessage("???", new Color(135, 206, 180)));
+                            player.cursorItemIconText = (MiscUtilities.ColorMessage("???", new Color(135, 206, 180)));
                         }
                     }
                     if (between8 < yup)
@@ -393,14 +393,14 @@ namespace SariaMod.Items
                             player.noThrow = 2;
                             player.cursorItemIconEnabled = true;
                             player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                            player.cursorItemIconText = (SariaModUtilities.ColorMessage("MoonBlast", new Color(135, 206, 180)));
+                            player.cursorItemIconText = (MiscUtilities.ColorMessage("MoonBlast", new Color(135, 206, 180)));
                         }
                         else if (!modPlayer.SariaUnlockFairy)
                         {
                             player.noThrow = 2;
                             player.cursorItemIconEnabled = true;
                             player.cursorItemIconID = ModContent.ItemType<Items.Bands.Blank>();
-                            player.cursorItemIconText = (SariaModUtilities.ColorMessage("???", new Color(135, 206, 180)));
+                            player.cursorItemIconText = (MiscUtilities.ColorMessage("???", new Color(135, 206, 180)));
                         }
                     }
                     Projectile.FrameChargedraw((TextureAssets.Projectile[ModContent.ProjectileType<PinkCharge>()].Value), lightColor, false, false, 0, -175);

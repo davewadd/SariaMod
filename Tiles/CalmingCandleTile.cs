@@ -16,7 +16,7 @@ namespace SariaMod.Tiles
 	{
 		public override void SetStaticDefaults()
 		{
-			SariaModUtilities.SetUpCandle(this);
+			MiscUtilities.SetUpCandle(this);
 			ModTranslation name = CreateMapEntryName();
 			name.SetDefault("Tranquility Candle");
 			AddMapEntry(new Color(238, 145, 105), name);
@@ -67,15 +67,15 @@ namespace SariaMod.Tiles
 		public override void DrawEffects(int i, int j, SpriteBatch spriteBatch, ref TileDrawInfo drawData)
 		{
 			if (Main.tile[i, j].TileFrameX < 18)
-				SariaModUtilities.DrawFlameSparks(62, 5, i, j);
+				SariaDrawingExtensions.DrawFlameSparks(62, 5, i, j);
 		}
 		public override void PostDraw(int i, int j, SpriteBatch spriteBatch)
 		{
-			SariaModUtilities.DrawFlameEffect(ModContent.Request<Texture2D>("SariaMod/Tiles/CalmingCandleTileFlame").Value, i, j);
+			SariaDrawingExtensions.DrawFlameEffect(ModContent.Request<Texture2D>("SariaMod/Tiles/CalmingCandleTileFlame").Value, i, j);
 		}
 		public override bool RightClick(int i, int j)
 		{
-			SariaModUtilities.LightHitWire(Type, i, j, 1, 1);
+			MiscUtilities.LightHitWire(Type, i, j, 1, 1);
 			return true;
 		}
 	}

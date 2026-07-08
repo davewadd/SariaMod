@@ -16,7 +16,7 @@ namespace SariaMod.Buffs
         public override void Update(Player player, ref int buffIndex)
         {
             FairyPlayer modPlayer = player.Fairy();
-            SariaModUtilities.Fairy(player).CalmMind = true;
+            MiscUtilities.Fairy(player).CalmMind = true;
         }
     }
 }
