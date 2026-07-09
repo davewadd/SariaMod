@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SariaMod.Buffs;
 using SariaMod.Dusts;
 using SariaMod.Gores;
+using SariaMod;
 using SariaMod.Items.Strange;
 using SariaMod.TileGlow;
 using System;
@@ -66,8 +67,8 @@ namespace SariaMod.Items.Ruby
 
         public override void SetDefaults()
         {
-            Projectile.width = 16;
-            Projectile.height = 16;
+            Projectile.width = (int)MaxBeamLength; // 2000 — large hitbox so tML calls Colliding() for any NPC on screen
+            Projectile.height = (int)MaxBeamLength;
             Projectile.netImportant = true;
             Projectile.alpha = 0;
             Projectile.friendly = true;
@@ -110,8 +111,8 @@ namespace SariaMod.Items.Ruby
         {
             Player player = Main.player[Projectile.owner];
 
-            // Heavy knockback in beam direction
-            knockback = 25f;
+            // Heavy knockback in beam direction (8 is vanilla max; 25 was excessive)
+            knockback = target.type == NPCID.TargetDummy ? 0f : 8f;
             Vector2 beamDir = CurrentAngle.ToRotationVector2();
             hitDirection = beamDir.X > 0 ? 1 : -1;
 
@@ -145,7 +146,8 @@ namespace SariaMod.Items.Ruby
         public override void OnHitNPC(NPC target, int damage, float knockback, bool crit)
         {
             Vector2 beamDir = CurrentAngle.ToRotationVector2();
-            target.velocity += beamDir * 12f;
+            if (target.type != NPCID.TargetDummy)
+                target.velocity += beamDir * 12f;
             target.netUpdate = true;
 
             if (Main.netMode == NetmodeID.Server)
@@ -176,6 +178,11 @@ namespace SariaMod.Items.Ruby
                 CurrentAngle = initialDirection.ToRotation();
                 BeamLength = MaxBeamLength;
                 Projectile.localAI[0] = 1f;
+                
+                // Set damage from Saria's level/XP (every other projectile uses this)
+                Projectile.SariaBaseDamage();
+                if (Projectile.damage <= 0)
+                    Projectile.damage = 1;
             }
 
             bool angleChanged = false;
@@ -196,9 +203,18 @@ namespace SariaMod.Items.Ruby
                 Projectile.netUpdate = true;
             }
 
+            // Extend beam lifetime while player is actively charging or right-click targeting.
+            // Uses player input directly (not Ztarget4 scan) because Ztarget4 can briefly
+            // expire if Saria's IsCharging flag flickers (CantAttackTimer, HealpulseBuff, ChannelState reset).
+            bool isManualOverride = player.channel && player.HeldItem.type == ModContent.ItemType<HealBall>() && !Main.mouseRight;
+            bool isRightClickTargeting = player.HasMinionAttackTargetNPC;
+            if (isManualOverride || isRightClickTargeting)
+            {
+                Projectile.timeLeft = Math.Max(Projectile.timeLeft, 60);
+            }
             Vector2 direction = CurrentAngle.ToRotationVector2();
             float hitDist = ScanForTiles(Projectile.Center, direction, MaxBeamLength);
-            BeamLength = Math.Max(20f, hitDist);
+            BeamLength = Math.Max(40f, hitDist);
 
             ApplyBeamHeat();
             ApplyPlayerContactDamage();
@@ -305,7 +321,7 @@ namespace SariaMod.Items.Ruby
         private static float ScanForTiles(Vector2 origin, Vector2 direction, float maxDist)
         {
             float step = 16f;
-            for (int i = 0; i < (int)(maxDist / step); i++)
+            for (int i = 1; i < (int)(maxDist / step); i++)
             {
                 Vector2 pos = origin + direction * (i * step);
 

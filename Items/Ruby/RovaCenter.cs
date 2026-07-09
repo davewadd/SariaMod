@@ -34,8 +34,11 @@ namespace SariaMod.Items.Ruby
         private bool BeamFired;
         private bool InitialAimSet;
         private bool NextBeamAutoRotates;
+        private int _idleTimer;
+        private bool _isFlickering;
 
         private const float BeamRange = 2000f;
+        private const float TrackTurnSpeed = 0.04f;
 
         public override void SetStaticDefaults()
         {
@@ -53,6 +56,7 @@ namespace SariaMod.Items.Ruby
             writer.Write(BeamFired);
             writer.Write(InitialAimSet);
             writer.Write(NextBeamAutoRotates);
+            writer.Write(_idleTimer);
         }
 
         public override void ReceiveExtraAI(BinaryReader reader)
@@ -65,6 +69,7 @@ namespace SariaMod.Items.Ruby
             BeamFired = reader.ReadBoolean();
             InitialAimSet = reader.ReadBoolean();
             NextBeamAutoRotates = reader.ReadBoolean();
+            _idleTimer = reader.ReadInt32();
         }
 
         public override void SetDefaults()
@@ -114,6 +119,29 @@ namespace SariaMod.Items.Ruby
                     d.noGravity = true;
                 }
                 Lighting.AddLight(Projectile.Center, new Color(255, 100, 20).ToVector3() * 4f);
+            }
+
+            // Kill immediately if owner is dead or Saria minion is gone
+            if (player.dead || !player.active)
+            {
+                KillAllBeams();
+                Projectile.Kill();
+                return;
+            }
+            bool sariaAlive = false;
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                if (Main.projectile[i].active && Main.projectile[i].owner == Projectile.owner && Main.projectile[i].ModProjectile is Saria)
+                {
+                    sariaAlive = true;
+                    break;
+                }
+            }
+            if (!sariaAlive)
+            {
+                KillAllBeams();
+                Projectile.Kill();
+                return;
             }
 
             if (TryHandleOwnerUnsummon(player))
@@ -179,7 +207,7 @@ namespace SariaMod.Items.Ruby
             }
 
             // STATE: COOLDOWN (State 1) - beam has expired, wait for next fire
-            if (BeamFired && !hasActiveBeam && StateTimer > 60)
+            if (BeamFired && !hasActiveBeam && StateTimer > 60 && _idleTimer < 300)
             {
                 BeamCooldownTimer++;
 
@@ -249,10 +277,16 @@ namespace SariaMod.Items.Ruby
                 Vector2 toTarget = ztarget.Center - Projectile.Center;
                 TargetAngle = toTarget.ToRotation();
 
+                // Continuously rotate toward target so next beam starts at correct angle
+                float diff = MathHelper.WrapAngle(TargetAngle - CurrentAngle);
+                if (Math.Abs(diff) > TrackTurnSpeed)
+                    CurrentAngle += Math.Sign(diff) * TrackTurnSpeed;
+                else
+                    CurrentAngle = TargetAngle;
+
                 // If beam isn't active, fire it aimed at ztarget4
                 if (!hasActiveBeam && StateTimer > 60)
                 {
-                    CurrentAngle = TargetAngle;
                     NextBeamAutoRotates = false;
                     FireBeam();
                     BeamFired = true;
@@ -269,9 +303,15 @@ namespace SariaMod.Items.Ruby
                     Vector2 toTarget = targetNpc.Center - Projectile.Center;
                     TargetAngle = toTarget.ToRotation();
 
+                    // Continuously rotate toward target so next beam starts at correct angle
+                    float diff = MathHelper.WrapAngle(TargetAngle - CurrentAngle);
+                    if (Math.Abs(diff) > TrackTurnSpeed)
+                        CurrentAngle += Math.Sign(diff) * TrackTurnSpeed;
+                    else
+                        CurrentAngle = TargetAngle;
+
                     if (!hasActiveBeam && StateTimer > 60)
                     {
-                        CurrentAngle = TargetAngle;
                         NextBeamAutoRotates = false;
                         FireBeam();
                         BeamFired = true;
@@ -281,7 +321,26 @@ namespace SariaMod.Items.Ruby
                 }
             }
 
-            // Tile heat: mark nearby tiles as heated while RovaCenter exists
+
+            // STATE: IDLE DESPAWN - no player input for 5s triggers flicker, 7s triggers despawn
+            if (!hasActiveBeam && !playerCharging && foundZtarget4 < 0 && !hasRightClickTarget)
+            {
+                _idleTimer++;
+
+                if (_idleTimer >= 420)
+                {
+                    KillAllBeams();
+                    Projectile.Kill();
+                    return;
+                }
+
+                _isFlickering = _idleTimer >= 300;
+            }
+            else
+            {
+                _idleTimer = 0;
+                _isFlickering = false;
+            }
             if (StateTimer % 15 == 0)
             {
                 TileHeatManager.ApplyHeatInRadius(Projectile.Center, 100f, TileHeatManager.DefaultHeatDuration, Projectile.owner, Projectile.damage);
@@ -295,15 +354,12 @@ namespace SariaMod.Items.Ruby
                 d.noGravity = true;
             }
 
-            // Red light at center
             Lighting.AddLight(Projectile.Center, new Color(255, 60, 10).ToVector3() * 2f);
         }
 
         private void FireBeam()
         {
-            Player player = Main.player[Projectile.owner];
-
-            // Calculate beam direction from current angle
+            int beamDamage = Math.Max(1, (int)(Projectile.damage));
             Vector2 beamVelocity = CurrentAngle.ToRotationVector2();
 
             if (Main.myPlayer == Projectile.owner)
@@ -313,7 +369,7 @@ namespace SariaMod.Items.Ruby
                     Projectile.Center,
                     beamVelocity * 2f,
                     ModContent.ProjectileType<RovaBeam>(),
-                    (int)(Projectile.damage),
+                    beamDamage,
                     Projectile.knockBack,
                     Projectile.owner,
                     Projectile.whoAmI, // ai[0] = RovaCenter whoAmI
@@ -350,6 +406,9 @@ namespace SariaMod.Items.Ruby
         {
             if (Main.dedServ)
                 return false;
+            // Flicker: skip every other pair of frames when idle-time despawn is imminent
+            if (_isFlickering && Main.GameUpdateCount % 4 < 2)
+                return false;
 
             Texture2D pixel = TextureAssets.MagicPixel.Value;
             Vector2 center = Projectile.Center - Main.screenPosition;
@@ -375,9 +434,8 @@ namespace SariaMod.Items.Ruby
             Main.spriteBatch.Draw(pixel, position, sourceRect, color, 0f, new Vector2(0.5f, 0.5f), size, SpriteEffects.None, 0f);
         }
 
-        public override void Kill(int timeLeft)
+        private void KillAllBeams()
         {
-            // Clean up any active beams
             for (int i = 0; i < 1000; i++)
             {
                 if (Main.projectile[i].active && Main.projectile[i].ModProjectile is RovaBeam && Main.projectile[i].owner == Projectile.owner)
@@ -385,7 +443,11 @@ namespace SariaMod.Items.Ruby
                     Main.projectile[i].Kill();
                 }
             }
+        }
 
+        public override void Kill(int timeLeft)
+        {
+            KillAllBeams();
             // Heated tiles fade naturally so other players' heat fields are not cleared.
         }
     }
