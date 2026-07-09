@@ -45,7 +45,7 @@ namespace SariaMod
                 int ztargetType = ZtargetTypes[Transform].Value;
                 if (player.ownedProjectileCounts[ztargetType] <= 0f)
                 {
-                    Vector2 spawnPos = (Transform == 2) ? player.Center : Main.MouseWorld;
+                    Vector2 spawnPos = Main.MouseWorld;
                     Projectile.NewProjectile(projectile.GetSource_FromThis(), spawnPos.X, spawnPos.Y, 0, 0, ztargetType, (int)(projectile.damage), 0f, projectile.owner, player.whoAmI, projectile.whoAmI);
                 }
             }

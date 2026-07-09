@@ -22,12 +22,17 @@ namespace SariaMod.Items.Strange
         private int SoundTimer;
         private int SoundTimer2;
         private int HitMax;
+        private bool ChargeFire1Played;
+        private bool ChargeFire2Played;
+        private int NetSyncTimer;
         public override void SendExtraAI(BinaryWriter writer)
         {
             writer.Write(ChannelTimer);
             writer.Write(SoundTimer);
             writer.Write(SoundTimer2);
             writer.Write(HitMax);
+            writer.Write(ChargeFire1Played);
+            writer.Write(ChargeFire2Played);
         }
         public override void ReceiveExtraAI(BinaryReader reader)
         {
@@ -35,6 +40,8 @@ namespace SariaMod.Items.Strange
             SoundTimer = (int)reader.ReadInt32();
             SoundTimer2 = (int)reader.ReadInt32();
             HitMax = (int)reader.ReadInt32();
+            ChargeFire1Played = (bool)reader.ReadBoolean();
+            ChargeFire2Played = (bool)reader.ReadBoolean();
         }
         private const int sphereRadius = 100;
         public override void SetDefaults()
@@ -68,22 +75,30 @@ namespace SariaMod.Items.Strange
             Player player = Main.player[base.Projectile.owner];
             Projectile mother = Main.projectile[(int)base.Projectile.ai[1]];
             base.Projectile.rotation += (float)0.07;
-            if (HitMax >= 1 && (player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp2>()] < 8))
+
+            if (Main.myPlayer == Projectile.owner)
             {
-                HitMax = 0;
-            }
-            if (HitMax <= 0 && (player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp2>()] >= 8))
-            {
-                for (int i = 0; i < 50; i++)
+                Projectile.Center = Main.MouseWorld;
+                Projectile.velocity = Vector2.Zero;
+                NetSyncTimer++;
+                if (NetSyncTimer >= 4)
                 {
-                    Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
-                    Dust d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<ShadowFlameDustCharge>(), speed * 6, Scale: 8.5f);
-                    d.noGravity = true;
+                    NetSyncTimer = 0;
+                    Projectile.netUpdate = true;
                 }
-                SoundEngine.PlaySound(SoundID.DD2_PhantomPhoenixShot, base.Projectile.Center);
-                Lighting.AddLight(Projectile.Center, Color.Red.ToVector3() * 4f);
-                HitMax = 1;
             }
+
+            // Check if a RovaCenter already exists for this player
+            bool rovaCenterExists = false;
+            for (int i = 0; i < 1000; i++)
+            {
+                if (Main.projectile[i].active && Main.projectile[i].ModProjectile is RovaCenter && Main.projectile[i].owner == Projectile.owner)
+                {
+                    rovaCenterExists = true;
+                    break;
+                }
+            }
+
             if (Projectile.timeLeft == 2)
             {
                 SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/ZtargetCancel"), Projectile.Center);
@@ -92,55 +107,102 @@ namespace SariaMod.Items.Strange
             {
                 SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/ZtargetDeep"), Projectile.Center);
             }
-            Projectile.Center = player.Center;
+
+            bool fireChargeActive = false;
             int owner = player.whoAmI;
             for (int i = 0; i < 1000; i++)
             {
                 if (Main.projectile[i].active && Main.projectile[i].ModProjectile is Saria modProjectile && modProjectile.IsCharging >= 1 && modProjectile.Transform == 2 && i != base.Projectile.whoAmI && ((Main.projectile[i].owner == owner)))
                 {
+                    fireChargeActive = true;
+                    Projectile.timeLeft = 20;
+                    if (ChannelTimer <= 900)
                     {
-                        Projectile.timeLeft = 20;
-                        if (ChannelTimer <= 900)
-                        {
-                            ChannelTimer++;
-                        }
+                        ChannelTimer++;
                     }
                 }
             }
-            if ((player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp2>()] >= 8))
+
+            // --- NEW ROVA CHARGE SYSTEM (replaces old WillOWisp path) ---
+
+            if (!fireChargeActive)
             {
+                return;
+            }
+
+            if (rovaCenterExists)
+            {
+                // RovaCenter already exists - no charge countdown
+                // Ztarget4 just follows cursor as a visual guide
+                // The beam will aim at ztarget4 position via RovaCenter's manual override logic
                 ChannelTimer = 0;
+                ChargeFire1Played = false;
+                ChargeFire2Played = false;
             }
-            if ((player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp>()] <= 0))
+            else
             {
-                if (ChannelTimer >= 90)
+                // Normal charge sequence
+                if (ChannelTimer >= 60 && !ChargeFire1Played)
                 {
-                    SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Ignite"), Projectile.Center);
-                    if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.position.X + 0, Projectile.position.Y + -24, 0, 0, ModContent.ProjectileType<WillOWisp>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
-                    player.AddBuff(ModContent.BuffType<WillOWispBuff>(), 2);
-                    ChannelTimer = 0;
-                }
-            }
-            if ((player.ownedProjectileCounts[ModContent.ProjectileType<WillOWisp>()] >= 1))
-            {
-                if (ChannelTimer >= 50)
-                {
-                    SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Ignite"), Projectile.Center);
-                    ChannelTimer = 0;
-                    for (int i = 0; i < 1000; i++)
+                    SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/ChargeFire1"), Projectile.Center);
+                    ChargeFire1Played = true;
+
+                    // Spawn the RovaRing visual
+                    if (Main.myPlayer == Projectile.owner)
                     {
-                        if (Main.projectile[i].active && Main.projectile[i].ModProjectile is WillOWisp modProjectile && modProjectile.WispHits >= 1 && i != base.Projectile.whoAmI && ((Main.projectile[i].owner == owner)))
+                        Projectile.NewProjectile(
+                            Projectile.GetSource_FromThis(),
+                            Projectile.Center.X,
+                            Projectile.Center.Y,
+                            0f, 0f,
+                            ModContent.ProjectileType<RovaRing>(),
+                            0, 0f, Projectile.owner,
+                            player.whoAmI,
+                            base.Projectile.whoAmI
+                        );
+                    }
+                }
+
+                if (ChannelTimer >= 110 && ChargeFire1Played && !ChargeFire2Played)
+                {
+                    SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/ChargeFire2"), Projectile.Center);
+                    ChargeFire2Played = true;
+
+                    // Spawn RovaCenter at ztarget4 position
+                    if (Main.myPlayer == Projectile.owner)
+                    {
+                        // Check no RovaCenter already exists before spawning
+                        bool alreadyExists = false;
+                        for (int i = 0; i < 1000; i++)
                         {
+                            if (Main.projectile[i].active && Main.projectile[i].ModProjectile is RovaCenter && Main.projectile[i].owner == Projectile.owner)
                             {
-                                Projectile.timeLeft = 20;
-                                if (ChannelTimer <= 900)
-                                {
-                                    modProjectile.WispHits += 3;
-                                    ChannelTimer++;
-                                }
+                                alreadyExists = true;
+                                break;
                             }
                         }
+
+                        if (!alreadyExists)
+                        {
+                            Projectile.NewProjectile(
+                            Projectile.GetSource_FromThis(),
+                            Projectile.Center.X,
+                            Projectile.Center.Y,
+                            0f, 0f,
+                            ModContent.ProjectileType<RovaCenter>(),
+                            Projectile.damage,
+                                0f, Projectile.owner,
+                                player.whoAmI,
+                                base.Projectile.whoAmI
+                            );
+                        }
                     }
+                }
+
+                // Old behavior for when ChargeFire2 plays but we're already done
+                if (ChargeFire2Played)
+                {
+                    ChannelTimer = 0;
                 }
             }
         }

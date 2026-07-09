@@ -134,7 +134,7 @@ namespace SariaMod
         //      FrozenGoreMarkingNetworking    (SariaMod\Netcode\FrozenGoreMarkingNetworking.cs)
         // 253  <-- free
         // 254  HookshotSyncMessage            (Netcode\HookshotNetworking\HookshotSyncMessage.cs)
-        // 255  <-- free
+        // 255  TileHeatNetworking             (SariaMod\TileGlow\TileHeatNetworking.cs)
         // ============================================================
         public enum SoundMessageType : byte
         {
@@ -231,6 +231,12 @@ namespace SariaMod
             if (firstByte == TileGlowNetworking.PacketId)
             {
                 TileGlowNetworking.HandlePacket(reader, whoAmI);
+                return;
+            }
+
+            if (firstByte == TileHeatNetworking.PacketId)
+            {
+                TileHeatNetworking.HandlePacket(reader, whoAmI);
                 return;
             }
 
@@ -851,6 +857,7 @@ namespace SariaMod
                         if (id == Netcode.IceDomeNetworking.PacketId)           return "IceDome";
                         if (id == Netcode.FrozenNPCNetworking.PacketId)         return "FrozenNPC";
                         if (id == TileGlowNetworking.PacketId)                  return "TileGlow";
+                        if (id == TileHeatNetworking.PacketId)                  return "TileHeat";
                         if (id == HookshotSyncMessage.PacketId)                 return "HookshotSync";
                         if (id == FireSoundSyncMessage.PacketId)                return "FireSoundSync";
 

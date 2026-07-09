@@ -104,6 +104,7 @@ namespace SariaMod.Diagnostics
             { 252, "FrozenGore / TileGlow" },
             { 253, "FrozenNPCTimer" },
             { 254, "HookshotSync" },
+            { 255, "TileHeat" },
         };
 
         private static Stats GetOrCreate(byte packetId)

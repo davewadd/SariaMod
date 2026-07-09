@@ -345,6 +345,35 @@ namespace SariaMod.Diagnostics
             // TileGlow (same PacketId as FrozenNPC = 252) — handled above via FrozenNPC id
             // If TileGlow has its own ID, add it here.
             // ----------------------------------------------------------------
+            _schemas[TileHeatNetworking.PacketId] = (r) =>
+            {
+                try
+                {
+                    byte sub = r.ReadByte();
+                    LastSentPacketRecord.AddField("subType", sub.ToString(), 1);
+
+                    if (sub == 0)
+                    {
+                        RecordFields(r,
+                            ("centerX", 4, r => RF(r)),
+                            ("centerY", 4, r => RF(r)),
+                            ("radius", 4, r => RF(r)),
+                            ("duration", 4, r => RI(r)));
+                    }
+                    else if (sub == 1)
+                    {
+                        RecordFields(r,
+                            ("x", 4, r => RI(r)),
+                            ("y", 4, r => RI(r)),
+                            ("distFromCenter", 4, r => RF(r)),
+                            ("maxRadius", 4, r => RF(r)),
+                            ("duration", 4, r => RI(r)));
+                    }
+
+                    return true;
+                }
+                catch { return false; }
+            };
         }
 
         // Helper used inside the hookshot schema lambda
