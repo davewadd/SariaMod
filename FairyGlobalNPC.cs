@@ -43,6 +43,7 @@ namespace SariaMod
         public bool GhostBurning;
         public bool Stronger;
         public bool Frostburn2;
+        public int psychicFieldMultiplier;
 
         // Ice Dome Animation Fields
         public int IceDomeTimer;
@@ -100,7 +101,6 @@ namespace SariaMod
         {
             freezeInitiatorPlayer = playerIndex;
         }
-
         public override void ResetEffects(NPC npc)
         {
             SariaCurseD = false;
@@ -108,6 +108,12 @@ namespace SariaMod
             GhostBurning = false;
             Frostburn2 = false;
             Stronger = false;
+            // Don't reset psychicFieldMultiplier here — it lingers while the debuff is active.
+            // Cleared below when the NPC no longer has the PsychicFieldDebuff.
+            if (!npc.HasBuff(ModContent.BuffType<PsychicFieldDebuff>()))
+            {
+                psychicFieldMultiplier = 0;
+            }
         }
         
         /// <summary>

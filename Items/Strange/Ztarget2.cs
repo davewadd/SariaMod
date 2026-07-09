@@ -63,6 +63,9 @@ namespace SariaMod.Items.Strange
         {
             Player player = Main.player[base.Projectile.owner];
             Projectile mother = Main.projectile[(int)base.Projectile.ai[1]];
+            int requiredChargeTicks = PsychicFieldSystem.GetRequiredChargeTicks(player);
+            int firstStageTicks = Math.Max(1, requiredChargeTicks / 3);
+            int secondStageTicks = Math.Max(firstStageTicks + 1, requiredChargeTicks * 2 / 3);
             ///Main.NewText(ChannelTimer);
             base.Projectile.rotation += (float)0.07;
             if (Projectile.timeLeft == 2)
@@ -84,32 +87,32 @@ namespace SariaMod.Items.Strange
                 {
                     {
                         Projectile.timeLeft = 300;
-                        if (ChannelTimer <= 900)
+                        if (ChannelTimer <= requiredChargeTicks)
                         {
                             ChannelTimer++;
                         }
                     }
                 }
             }
-            if (ChannelTimer > 200)
+            if (ChannelTimer > firstStageTicks)
             {
                 {
                     Dust.NewDust(new Vector2(Projectile.Center.X, Projectile.Center.Y), 0, 0, ModContent.DustType<BurningPsychic>(), 0f, 0f, 0, default(Color), 1.5f);
                 }
             }
-            if (ChannelTimer > 550)
+            if (ChannelTimer > secondStageTicks)
             {
                 {
                     Dust.NewDust(new Vector2(Projectile.Center.X, Projectile.Center.Y), 0, 0, ModContent.DustType<BurningPsychic3>(), 0f, 0f, 0, default(Color), 1.5f);
                 }
             }
-            if (ChannelTimer > 900)
+            if (ChannelTimer >= requiredChargeTicks)
             {
                 {
                     Dust.NewDust(new Vector2(Projectile.Center.X, Projectile.Center.Y), 0, 0, ModContent.DustType<BurningPsychic2Long>(), 0f, 0f, 0, default(Color), 1.5f);
                 }
             }
-            if (ChannelTimer > 200)
+            if (ChannelTimer > firstStageTicks)
             {
                 if (Main.rand.NextBool(8))
                 {
@@ -120,14 +123,8 @@ namespace SariaMod.Items.Strange
                     }
                 }
             }
-            if (ChannelTimer > 200 && ChannelTimer <= 550 && SoundTimer >= 62 && player.statMana >= 5)
+            if (ChannelTimer > firstStageTicks && ChannelTimer <= secondStageTicks && SoundTimer >= 62)
             {
-                if (player.ownedProjectileCounts[ModContent.ProjectileType<LocatorR>()] <= 0f)
-                {
-                    player.statMana -= 5;
-                    player.manaRegenDelay = 30;
-                    if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.position.X + 40, Projectile.position.Y + 40, 4, 0, ModContent.ProjectileType<LocatorR>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
-                }
                 for (int i = 0; i < 50; i++)
                 {
                     Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
@@ -137,14 +134,8 @@ namespace SariaMod.Items.Strange
                 }
                 SoundTimer = 0;
             }
-            if (ChannelTimer > 550 && ChannelTimer <= 900 && SoundTimer >= 28 && player.statMana >= 5)
+            if (ChannelTimer > secondStageTicks && ChannelTimer < requiredChargeTicks && SoundTimer >= 28)
             {
-                if (player.ownedProjectileCounts[ModContent.ProjectileType<LocatorR>()] <= 1f)
-                {
-                    player.statMana -= 5;
-                    player.manaRegenDelay = 30;
-                    if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.position.X + 40, Projectile.position.Y + 40, 4, 0, ModContent.ProjectileType<LocatorR>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
-                }
                 for (int i = 0; i < 50; i++)
                 {
                     Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
@@ -154,7 +145,7 @@ namespace SariaMod.Items.Strange
                 }
                 SoundTimer = 0;
             }
-            if (ChannelTimer > 900 && SoundTimer >= 18)
+            if (ChannelTimer >= requiredChargeTicks && SoundTimer >= 18)
             {
                 for (int i = 0; i < 50; i++)
                 {
@@ -172,15 +163,6 @@ namespace SariaMod.Items.Strange
                 }
                 TimesRepeat++;
                 SoundTimer = 0;
-            }
-            if (ChannelTimer > 900)
-            {
-                if (player.ownedProjectileCounts[ModContent.ProjectileType<LocatorR>()] <= 2f && player.statMana >= 5)
-                {
-                    player.statMana -= 5;
-                    player.manaRegenDelay = 30;
-                    if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.position.X + 40, Projectile.position.Y + 40, 4, 0, ModContent.ProjectileType<LocatorR>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
-                }
             }
             FairyProjectile.HomeInOnNPC(base.Projectile, ignoreTiles: true, 600f, 25f, 20f);
             {

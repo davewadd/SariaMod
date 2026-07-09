@@ -13,18 +13,16 @@ namespace SariaMod.Items.Strange
 
         public override void PostUpdateMiscEffects()
         {
-            insidePsychicField = PsychicFieldSystem.TryApplyPortalFallPhysics(Player);
-            if (insidePsychicField)
-            {
-                PsychicFieldSystem.ApplyPortalAirInertia(Player);
-            }
+            insidePsychicField = PsychicFieldSystem.TryApplyPortalFallSetup(Player);
         }
-
+        
         public override void PostUpdateRunSpeeds()
         {
+            // Apply gravity amplification AFTER jump/gravity/movement is fully settled.
+            // Only pulls when actually falling (velocity.Y > 0f) — jumping is left alone.
             if (insidePsychicField)
             {
-                PsychicFieldSystem.ApplyPortalAirInertia(Player);
+                PsychicFieldSystem.ApplyPortalFallAmplification(Player);
             }
         }
     }

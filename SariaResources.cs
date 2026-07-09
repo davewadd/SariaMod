@@ -126,7 +126,7 @@ namespace SariaMod
                                             if (Main.projectile[i].active
                                                 && Main.projectile[i].owner == projectile.owner
                                                 && Main.projectile[i].ModProjectile is Ztarget2 psychicCharge
-                                                && psychicCharge.ChannelTimer > 900)
+                                                && psychicCharge.ChannelTimer >= PsychicFieldSystem.GetRequiredChargeTicks(player))
                                             {
                                                 PsychicFieldSystem.TrySummonFieldFromCharge(projectile, Main.projectile[i]);
                                                 break;
