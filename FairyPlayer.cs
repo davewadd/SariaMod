@@ -109,6 +109,7 @@ namespace SariaMod
         public bool SariaUpgrade22;
         public bool SariaUpgrade23;
         public bool SariaUpgrade24;
+        public bool HasRovaSentryPersistenceUpgrade => SariaUpgrade10;
         public bool CalmMind;
         public bool CorruptMind;
         public bool SoftStepShimmerImmune;

@@ -39,6 +39,8 @@ namespace SariaMod.Items.Ruby
 
         private const float BeamRange = 2000f;
         private const float TrackTurnSpeed = 0.04f;
+        private const float AutoSweepHalfAngle = 0.2617994f; // 15 degrees
+        private const float AutoSweepTotalAngle = AutoSweepHalfAngle * 2f;
 
         public override void SetStaticDefaults()
         {
@@ -106,6 +108,7 @@ namespace SariaMod.Items.Ruby
         public override void AI()
         {
             Player player = Main.player[Projectile.owner];
+            bool hasPersistenceUpgrade = Projectile.ai[0] >= 1f;
             StateTimer++;
 
             // On spawn: play ChargeFire2 and spawn fire ring burst
@@ -197,6 +200,9 @@ namespace SariaMod.Items.Ruby
                 }
             }
 
+            NPC visibleAutoTarget = FindVisibleAutoTarget();
+            bool hasVisibleAutoTarget = visibleAutoTarget != null;
+
             // STATE: FIRING (State 0)
             // Beam fires 0.5s after spawn (30 ticks after ChargeFire2 sound)
             if (StateTimer > 30 && !BeamFired && !hasActiveBeam)
@@ -207,44 +213,21 @@ namespace SariaMod.Items.Ruby
             }
 
             // STATE: COOLDOWN (State 1) - beam has expired, wait for next fire
-            if (BeamFired && !hasActiveBeam && StateTimer > 60 && _idleTimer < 300)
+            if (BeamFired && !hasActiveBeam && StateTimer > 60 && (hasPersistenceUpgrade || _idleTimer < 300 || hasVisibleAutoTarget))
             {
                 BeamCooldownTimer++;
 
                 // After 600 ticks (10 seconds), auto-fire if enemy in range
                 if (BeamCooldownTimer >= 600)
                 {
-                    // Find nearest enemy
-                    NPC nearestEnemy = null;
-                    float nearestDist = BeamRange; // ~1 screen width
-
-                    for (int i = 0; i < Main.maxNPCs; i++)
+                    if (visibleAutoTarget != null)
                     {
-                        NPC npc = Main.npc[i];
-                        if (!npc.active || npc.friendly || npc.lifeMax <= 0) continue;
-                        if (npc.dontTakeDamage) continue;
-
-                        float dist = Vector2.Distance(Projectile.Center, npc.Center);
-                        if (dist < nearestDist)
-                        {
-                            // Check line of sight
-                            if (Collision.CanHitLine(Projectile.Center, 1, 1, npc.Center, 1, 1))
-                            {
-                                nearestDist = dist;
-                                nearestEnemy = npc;
-                            }
-                        }
-                    }
-
-                    if (nearestEnemy != null)
-                    {
-                        // Auto-fire: aim slightly off-center and rotate clockwise
-                        Vector2 toEnemy = nearestEnemy.Center - Projectile.Center;
+                        // Auto-fire: sweep a narrow cone centered on the target.
+                        Vector2 toEnemy = visibleAutoTarget.Center - Projectile.Center;
                         float enemyAngle = toEnemy.ToRotation();
 
-                        // Start slightly off (counter-clockwise) so we sweep into the target
-                        CurrentAngle = enemyAngle - 0.5f;
-                        TargetAngle = enemyAngle + MathHelper.TwoPi; // full rotation
+                        CurrentAngle = enemyAngle - AutoSweepHalfAngle;
+                        TargetAngle = enemyAngle + AutoSweepHalfAngle;
                         NextBeamAutoRotates = true;
 
                         FireBeam();
@@ -323,7 +306,7 @@ namespace SariaMod.Items.Ruby
 
 
             // STATE: IDLE DESPAWN - no player input for 5s triggers flicker, 7s triggers despawn
-            if (!hasActiveBeam && !playerCharging && foundZtarget4 < 0 && !hasRightClickTarget)
+            if (!hasPersistenceUpgrade && !hasActiveBeam && !playerCharging && foundZtarget4 < 0 && !hasRightClickTarget && !hasVisibleAutoTarget)
             {
                 _idleTimer++;
 
@@ -373,9 +356,38 @@ namespace SariaMod.Items.Ruby
                     Projectile.knockBack,
                     Projectile.owner,
                     Projectile.whoAmI, // ai[0] = RovaCenter whoAmI
-                    NextBeamAutoRotates ? 1f : 0f // ai[1] = auto-rotation mode
+                    NextBeamAutoRotates ? AutoSweepTotalAngle : 0f // ai[1] = remaining auto-sweep radians
                 );
             }
+        }
+
+        private NPC FindVisibleAutoTarget()
+        {
+            NPC nearestEnemy = null;
+            float nearestDist = BeamRange;
+
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.active)
+                    continue;
+
+                bool isTargetDummy = npc.type == NPCID.TargetDummy;
+                if (!isTargetDummy && (npc.friendly || npc.lifeMax <= 0 || npc.dontTakeDamage))
+                    continue;
+
+                float distance = Vector2.Distance(Projectile.Center, npc.Center);
+                if (distance >= nearestDist)
+                    continue;
+
+                if (!Collision.CanHitLine(Projectile.Center, 1, 1, npc.Center, 1, 1))
+                    continue;
+
+                nearestDist = distance;
+                nearestEnemy = npc;
+            }
+
+            return nearestEnemy;
         }
 
         private bool TryHandleOwnerUnsummon(Player player)

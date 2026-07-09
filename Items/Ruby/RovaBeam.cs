@@ -27,10 +27,13 @@ namespace SariaMod.Items.Ruby
         private const float MaxBeamLength = 2000f; // ~1 screen width
         private const float BeamCollisionWidth = 38f;
         private const float ManualTurnSpeed = 0.026f; // Moon Lord death beam style sluggish turn
-        private const float AutoTurnSpeed = 0.035f;
+        private const float AutoSweepHalfAngle = 0.2617994f; // 15 degrees
+        private const float AutoSweepTotalAngle = AutoSweepHalfAngle * 2f;
+        private const int AutoSweepDurationTicks = 210; // 3.5 seconds at 60 FPS
+        private const float AutoTurnSpeed = AutoSweepTotalAngle / AutoSweepDurationTicks;
 
         private readonly int[] PlayerHitCooldowns = new int[256];
-        private float AutoRotation;
+        private readonly int[] FriendlyNPCHitCooldowns = new int[200];
 
         private float BeamLength
         {
@@ -55,14 +58,14 @@ namespace SariaMod.Items.Ruby
         {
             writer.Write(BeamLength);
             writer.Write(CurrentAngle);
-            writer.Write(AutoRotation);
+            writer.Write(Projectile.ai[1]);
         }
 
         public override void ReceiveExtraAI(BinaryReader reader)
         {
             BeamLength = reader.ReadSingle();
             CurrentAngle = reader.ReadSingle();
-            AutoRotation = reader.ReadSingle();
+            Projectile.ai[1] = reader.ReadSingle();
         }
 
         public override void SetDefaults()
@@ -183,15 +186,23 @@ namespace SariaMod.Items.Ruby
                 Projectile.SariaBaseDamage();
                 if (Projectile.damage <= 0)
                     Projectile.damage = 1;
+
+                if (Projectile.ai[1] > 0f)
+                {
+                    Projectile.timeLeft = Math.Max(Projectile.timeLeft, AutoSweepDurationTicks + 20);
+                }
             }
 
             bool angleChanged = false;
+            bool autoSweepComplete = false;
 
-            if (Projectile.ai[1] >= 1f)
+            if (Projectile.ai[1] > 0f)
             {
-                CurrentAngle += AutoTurnSpeed;
-                AutoRotation += AutoTurnSpeed;
+                float rotationStep = Math.Min(AutoTurnSpeed, Projectile.ai[1]);
+                CurrentAngle += rotationStep;
+                Projectile.ai[1] = Math.Max(0f, Projectile.ai[1] - rotationStep);
                 angleChanged = true;
+                autoSweepComplete = Projectile.ai[1] <= 0f;
             }
             else if (TryGetManualTargetAngle(player, out float targetAngle))
             {
@@ -218,8 +229,9 @@ namespace SariaMod.Items.Ruby
 
             ApplyBeamHeat();
             ApplyPlayerContactDamage();
+            ApplyFriendlyNPCContactDamage();
 
-            if (Projectile.ai[1] >= 1f && AutoRotation >= MathHelper.TwoPi)
+            if (autoSweepComplete)
             {
                 Projectile.Kill();
                 return;
@@ -426,6 +438,64 @@ namespace SariaMod.Items.Ruby
             target.immuneNoBlink = true;
             target.immuneTime = Math.Max(target.immuneTime, 30);
             PlayerHitCooldowns[playerIndex] = 45;
+        }
+
+        private void ApplyFriendlyNPCContactDamage()
+        {
+            if (Main.netMode == NetmodeID.MultiplayerClient)
+                return;
+
+            Vector2 beamEnd = Projectile.Center + CurrentAngle.ToRotationVector2() * BeamLength;
+            Vector2 beamDir = CurrentAngle.ToRotationVector2();
+
+            for (int i = 0; i < Main.maxNPCs && i < FriendlyNPCHitCooldowns.Length; i++)
+            {
+                if (FriendlyNPCHitCooldowns[i] > 0)
+                {
+                    FriendlyNPCHitCooldowns[i]--;
+                    continue;
+                }
+
+                NPC target = Main.npc[i];
+                bool isTargetDummy = target != null && target.type == NPCID.TargetDummy;
+                if (target == null || !target.active || target.lifeMax <= 0 || target.immortal || (!isTargetDummy && target.dontTakeDamage))
+                    continue;
+
+                if (!isTargetDummy && !target.friendly && target.catchItem <= 0)
+                    continue;
+
+                float collisionPoint = 0f;
+                bool touchingBeam = Collision.CheckAABBvLineCollision(
+                    target.Hitbox.TopLeft(),
+                    target.Hitbox.Size(),
+                    Projectile.Center,
+                    beamEnd,
+                    BeamCollisionWidth,
+                    ref collisionPoint
+                );
+
+                if (!touchingBeam)
+                    continue;
+
+                target.buffImmune[BuffID.OnFire] = false;
+                target.buffImmune[ModContent.BuffType<Burning2>()] = false;
+                target.AddBuff(ModContent.BuffType<Burning2>(), 180);
+                target.AddBuff(BuffID.OnFire, 180);
+
+                int hitDirection = beamDir.X >= 0f ? 1 : -1;
+                int damage = Math.Max(1, target.lifeMax / 5);
+                target.StrikeNPC(damage, isTargetDummy ? 0f : 8f, hitDirection);
+
+                if (!isTargetDummy)
+                    target.velocity += beamDir * 8f;
+
+                target.netUpdate = true;
+                BurnedGoreSystem.TrackGoresNearPosition(target.Center, 100f);
+                FriendlyNPCHitCooldowns[i] = 25;
+
+                if (Main.netMode == NetmodeID.Server)
+                    NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, target.whoAmI);
+            }
         }
 
         public override bool PreDraw(ref Color lightColor)

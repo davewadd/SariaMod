@@ -184,6 +184,8 @@ namespace SariaMod.Items.Strange
 
                         if (!alreadyExists)
                         {
+                            FairyPlayer ownerState = player.Fairy();
+                            float persistenceUpgrade = ownerState != null && ownerState.HasRovaSentryPersistenceUpgrade ? 1f : 0f;
                             Projectile.NewProjectile(
                             Projectile.GetSource_FromThis(),
                             Projectile.Center.X,
@@ -192,7 +194,7 @@ namespace SariaMod.Items.Strange
                             ModContent.ProjectileType<RovaCenter>(),
                             Projectile.damage,
                                 0f, Projectile.owner,
-                                player.whoAmI,
+                                persistenceUpgrade,
                                 base.Projectile.whoAmI
                             );
                         }

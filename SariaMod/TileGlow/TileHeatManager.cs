@@ -190,13 +190,43 @@ namespace SariaMod.TileGlow
                     heatColor = GetHeatColor(progress, normalizedDist);
                 }
 
-                float alpha = intensity * 1f;
+                float alpha = MathHelper.Clamp(intensity * MathHelper.Lerp(1.25f, 0.75f, normalizedDist), 0f, 1f);
                 Color drawColor = heatColor * alpha;
 
                 DrawTileHeat(tile, x, y, screenPos, drawColor);
+                DrawMoltenBloom(x, y, screenPos, intensity, normalizedDist, buriedDepth);
             }
 
             Main.spriteBatch.End();
+        }
+
+        private void DrawMoltenBloom(int tileX, int tileY, Vector2 screenPos, float intensity, float normalizedDist, int buriedDepth)
+        {
+            if (buriedDepth >= 2 || intensity <= 0.25f)
+                return;
+
+            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            int drawX = (int)screenPos.X;
+            int drawY = (int)screenPos.Y;
+            float exposedMultiplier = buriedDepth == 0 ? 1f : 0.45f;
+            float hotAmount = MathHelper.Clamp((intensity - 0.25f) / 0.75f, 0f, 1f);
+            float distanceFalloff = MathHelper.Lerp(1f, 0.45f, normalizedDist);
+            float pulse = 0.65f + (float)Math.Sin(Main.GameUpdateCount * 0.12f + tileX * 0.73f + tileY * 0.31f) * 0.35f;
+
+            Color outer = Color.Lerp(DeepRed, HotOrange, distanceFalloff) * (0.18f + hotAmount * 0.22f) * exposedMultiplier;
+            Main.spriteBatch.Draw(pixel, new Rectangle(drawX, drawY, 16, 16), outer);
+
+            if (hotAmount <= 0.35f)
+                return;
+
+            Color core = Color.Lerp(HotOrange, BrightYellow, hotAmount) * (0.14f + pulse * 0.24f) * distanceFalloff * exposedMultiplier;
+            Main.spriteBatch.Draw(pixel, new Rectangle(drawX + 3, drawY + 3, 10, 10), core);
+
+            if (normalizedDist < 0.45f)
+            {
+                Color whiteCore = EmberWhite * (0.08f + pulse * 0.12f) * hotAmount * exposedMultiplier;
+                Main.spriteBatch.Draw(pixel, new Rectangle(drawX + 6, drawY + 6, 4, 4), whiteCore);
+            }
         }
 
         private void DrawTileHeat(Tile tile, int tileX, int tileY, Vector2 screenPos, Color color)
@@ -442,7 +472,7 @@ namespace SariaMod.TileGlow
                     heatColor = GetHeatColor(progress, normalizedDist);
 
                     float redAmount = (heatColor.R / 255f) - ((heatColor.G + heatColor.B) / 510f);
-                    lightMultiplier = MathHelper.Lerp(0.5f, 2.0f, Math.Max(0, redAmount));
+                    lightMultiplier = MathHelper.Lerp(0.7f, 2.8f, Math.Max(0, redAmount));
                 }
 
                 if (allowVisuals)
@@ -454,30 +484,10 @@ namespace SariaMod.TileGlow
                 // Spawn flame dust on exposed tiles during the hot phase
                 if (allowVisuals && buriedDepth == 0 && intensity > 0.3f)
                 {
-                    bool isHotPhase = heatColor.R > 200 && heatColor.G > 50;
-
-                    if (isHotPhase && HasAirAbove(x, y) && Main.rand.NextBool(260))
-                    {
-                        Vector2 dustPos = new Vector2(x * 16f + Main.rand.Next(16), y * 16f + Main.rand.Next(16));
-                        Vector2 dustVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.8f, -0.2f));
-                        Dust hot = Dust.NewDustPerfect(dustPos, ModContent.DustType<FlameDust>(), dustVel, 0, default, 1.2f);
-                        hot.noGravity = true;
-                    }
-
-                    // Fire smoke twinkle
-                    if (Main.rand.NextBool(300))
-                    {
-                        Vector2 sparklePos = new Vector2(x * 16f + Main.rand.Next(16), y * 16f + Main.rand.Next(16));
-                        Dust fire = Dust.NewDustPerfect(sparklePos, ModContent.DustType<SmokeDust>(), Vector2.Zero, 0, default, Main.rand.NextFloat(0.6f, 1.2f));
-                        fire.noGravity = true;
-                        fire.velocity = Vector2.Zero;
-                        fire.fadeIn = 0.3f;
-
-                        Lighting.AddLight(sparklePos, 0.5f, 0.2f, 0.0f);
-                    }
+                    SpawnHeatSurfaceParticles(x, y, intensity, normalizedDist, heatColor);
                 }
 
-                if (intensity > 0.5f && HasAirBelow(x, y) && data.Owner >= 0 && data.Owner < Main.maxPlayers && Main.rand.NextBool(900))
+                if (intensity > 0.5f && HasAirBelow(x, y) && data.Owner >= 0 && data.Owner < Main.maxPlayers && Main.rand.NextFloat() < 0.0045f * intensity)
                 {
                     SpawnFallingEmber(x, y, data);
                 }
@@ -507,6 +517,45 @@ namespace SariaMod.TileGlow
 
             Tile tile = Main.tile[x, checkY];
             return !tile.HasTile || tile.IsActuated;
+        }
+
+        private static void SpawnHeatSurfaceParticles(int x, int y, float intensity, float normalizedDist, Color heatColor)
+        {
+            if (!HasAirAbove(x, y))
+                return;
+
+            float heatAmount = MathHelper.Clamp(intensity * MathHelper.Lerp(1f, 0.55f, normalizedDist), 0f, 1f);
+            bool isHotPhase = heatColor.R > 180 && heatColor.G > 35;
+            if (!isHotPhase || heatAmount <= 0.2f)
+                return;
+
+            Vector2 surfaceBase = new Vector2(x * 16f, y * 16f);
+
+            if (Main.rand.NextFloat() < 0.075f * heatAmount)
+            {
+                Vector2 dustPos = surfaceBase + new Vector2(Main.rand.NextFloat(2f, 14f), Main.rand.NextFloat(-2f, 8f));
+                Vector2 dustVel = new Vector2(Main.rand.NextFloat(-0.45f, 0.45f), Main.rand.NextFloat(-1.45f, -0.35f));
+                Dust flame = Dust.NewDustPerfect(dustPos, ModContent.DustType<FlameDust>(), dustVel, 0, default, Main.rand.NextFloat(0.9f, 1.9f));
+                flame.noGravity = true;
+            }
+
+            if (Main.rand.NextFloat() < 0.045f * heatAmount)
+            {
+                Vector2 sparkPos = surfaceBase + new Vector2(Main.rand.NextFloat(1f, 15f), Main.rand.NextFloat(0f, 12f));
+                Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), Main.rand.NextFloat(-2.4f, -0.8f));
+                Dust spark = Dust.NewDustPerfect(sparkPos, ModContent.DustType<ShadowFlameDustCharge>(), sparkVel, 0, default, Main.rand.NextFloat(0.8f, 1.4f));
+                spark.noGravity = true;
+                Lighting.AddLight(sparkPos, 0.7f, 0.24f, 0.02f);
+            }
+
+            if (Main.rand.NextFloat() < 0.035f * heatAmount)
+            {
+                Vector2 smokePos = surfaceBase + new Vector2(Main.rand.NextFloat(2f, 14f), Main.rand.NextFloat(-4f, 6f));
+                Vector2 smokeVel = new Vector2(Main.rand.NextFloat(-0.25f, 0.25f), Main.rand.NextFloat(-0.7f, -0.15f));
+                Dust smoke = Dust.NewDustPerfect(smokePos, ModContent.DustType<SmokeDust>(), smokeVel, 0, default, Main.rand.NextFloat(0.55f, 1.25f));
+                smoke.noGravity = true;
+                smoke.fadeIn = 0.25f;
+            }
         }
 
         private static void SpawnFallingEmber(int x, int y, TileHeatData data)

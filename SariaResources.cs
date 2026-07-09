@@ -40,6 +40,11 @@ namespace SariaMod
         public static void Ztargets(this Projectile projectile, int ChannelState, int Transform)
         {
             Player player = Main.player[projectile.owner];
+            if (Transform == 2 && (!player.channel || player.HeldItem.type != ModContent.ItemType<HealBall>() || Main.mouseRight))
+            {
+                return;
+            }
+
             if (Transform >= 0 && Transform < ZtargetTypes.Length && ZtargetTypes[Transform].HasValue && ChannelState > 40 && Main.myPlayer == projectile.owner)
             {
                 int ztargetType = ZtargetTypes[Transform].Value;
