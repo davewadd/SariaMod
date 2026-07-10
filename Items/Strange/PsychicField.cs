@@ -18,7 +18,7 @@ namespace SariaMod.Items.Strange
     public static class PsychicFieldSystem
     {
         /// <summary>
-        /// Maximum fields one player can own at level 3+.
+        /// Maximum fields one player can own from the Psychic upgrade tier.
         /// </summary>
         public const int MaxOwnedFields = 3;
         private const int DefaultChargeTicks = 60 * 3;
@@ -111,7 +111,25 @@ namespace SariaMod.Items.Strange
 
         private static int GetMaxOwnedFields(Player owner)
         {
-            return Math.Min(MaxOwnedFields, Math.Max(0, owner.Fairy().Sarialevel));
+            FairyPlayer fairy = owner.Fairy();
+            int maxFields = 0;
+
+            if (fairy.SariaUpgrade4)
+            {
+                maxFields++;
+            }
+
+            if (fairy.SariaUpgrade5)
+            {
+                maxFields++;
+            }
+
+            if (fairy.SariaUpgrade6)
+            {
+                maxFields++;
+            }
+
+            return Math.Min(MaxOwnedFields, maxFields);
         }
 
         private static void RemoveOldestOwnedField(int owner)
