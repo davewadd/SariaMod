@@ -13,6 +13,7 @@ using SariaMod.Gores;
 using SariaMod.Items.Strange;
 using SariaMod.Netcode.SariaSoundSync;
 using SariaMod.TileGlow;
+using SariaMod.Items.Ruby;
 using SariaMod.Netcode.HookshotNetworking;
 using SariaMod.Netcode.FireSoundSync;
 using SariaMod.Diagnostics;
@@ -47,6 +48,7 @@ namespace SariaMod
         }
         public override void Unload()
         {
+            RovaVisualAssets.Unload();
             // Set the static instance back to null when the mod is unloaded.
             // This is good practice to prevent memory leaks and issues on reload.
             Instance = null;

@@ -28,12 +28,15 @@ namespace SariaMod.Items.Ruby
         private const float BeamCollisionWidth = 38f;
         private const float ManualTurnSpeed = 0.026f; // Moon Lord death beam style sluggish turn
         private const float AutoSweepHalfAngle = 0.2617994f; // 15 degrees
-        private const float AutoSweepTotalAngle = AutoSweepHalfAngle * 2f;
-        private const int AutoSweepDurationTicks = 210; // 3.5 seconds at 60 FPS
+        private const float AutoSweepTotalAngle = 6.5449847f; // one full turn plus the initial 15-degree lead-in
+        private const int AutoSweepDurationTicks = 390; // 6.5 seconds at 60 FPS
         private const float AutoTurnSpeed = AutoSweepTotalAngle / AutoSweepDurationTicks;
 
         private readonly int[] PlayerHitCooldowns = new int[256];
         private readonly int[] FriendlyNPCHitCooldowns = new int[200];
+        private int LastHeatTileX = int.MinValue;
+        private int LastHeatTileY = int.MinValue;
+        private int LastHeatPacketTick = int.MinValue;
 
         private float BeamLength
         {
@@ -134,12 +137,7 @@ namespace SariaMod.Items.Ruby
 
             target.AddBuff(ModContent.BuffType<Burning2>(), 300);
             target.AddBuff(BuffID.OnFire, 300);
-
-            // Track burned gores on enemy
-            if (Main.myPlayer == Projectile.owner)
-            {
-                BurnedGoreSystem.TrackGoresNearPosition(target.Center, 100f);
-            }
+            target.GetGlobalNPC<FairyGlobalNPC>().RovaBurnedHit = true;
 
             // XP gain
             FairyPlayer modPlayer = player.Fairy();
@@ -209,7 +207,7 @@ namespace SariaMod.Items.Ruby
                 angleChanged = TurnToward(targetAngle, ManualTurnSpeed);
             }
 
-            if (angleChanged && Main.myPlayer == Projectile.owner)
+            if (angleChanged && (Main.netMode == NetmodeID.Server || Main.myPlayer == Projectile.owner))
             {
                 Projectile.netUpdate = true;
             }
@@ -359,6 +357,9 @@ namespace SariaMod.Items.Ruby
             int currentTick = (int)Main.GameUpdateCount;
             if (currentTick % 8 != 0) return; // throttle
 
+            if (Main.netMode == NetmodeID.MultiplayerClient)
+                return;
+
             if (BeamLength >= MaxBeamLength - 16f)
                 return;
 
@@ -374,70 +375,63 @@ namespace SariaMod.Items.Ruby
             if (!tile.HasTile || !Main.tileSolid[tile.TileType])
                 return;
 
-            for (int dx = -6; dx <= 6; dx++)
+            TileHeatManager.ApplyBeamImpact(tileX, tileY, TileHeatManager.DefaultHeatDuration, Projectile.owner, Projectile.damage);
+
+            bool impactChanged = tileX != LastHeatTileX || tileY != LastHeatTileY;
+            bool refreshPacket = currentTick - LastHeatPacketTick >= 12;
+            if (Main.netMode == NetmodeID.Server && (impactChanged || refreshPacket))
             {
-                for (int dy = -3; dy <= 3; dy++)
-                {
-                    int nx = tileX + dx;
-                    int ny = tileY + dy;
-                    if (nx < 0 || nx >= Main.maxTilesX || ny < 0 || ny >= Main.maxTilesY) continue;
-
-                    Tile neighbor = Main.tile[nx, ny];
-                    if (!neighbor.HasTile || !Main.tileSolid[neighbor.TileType])
-                        continue;
-
-                    float horizontal = Math.Abs(dx);
-                    float vertical = Math.Abs(dy) * 1.6f;
-                    float distance = horizontal + vertical;
-                    float maxRadius = horizontal <= 3f ? 6f : 9f;
-                    TileHeatManager.ApplyHeatToTile(nx, ny, distance, maxRadius, TileHeatManager.DefaultHeatDuration, Projectile.owner, Projectile.damage);
-                }
+                TileHeatNetworking.SendBeamImpactPacket(tileX, tileY, TileHeatManager.DefaultHeatDuration, Projectile.owner, Projectile.damage);
+                LastHeatPacketTick = currentTick;
             }
+
+            LastHeatTileX = tileX;
+            LastHeatTileY = tileY;
         }
 
         private void ApplyPlayerContactDamage()
         {
-            if (Main.netMode == NetmodeID.Server)
-                return;
-
-            Player target = Main.LocalPlayer;
-            if (target == null || !target.active || target.dead)
-                return;
-
-            int playerIndex = target.whoAmI;
-            if (playerIndex < 0 || playerIndex >= PlayerHitCooldowns.Length)
-                return;
-
-            if (PlayerHitCooldowns[playerIndex] > 0)
-            {
-                PlayerHitCooldowns[playerIndex]--;
-                return;
-            }
-
-            Vector2 beamEnd = Projectile.Center + CurrentAngle.ToRotationVector2() * BeamLength;
-            float collisionPoint = 0f;
-            bool touchingBeam = Collision.CheckAABBvLineCollision(
-                target.Hitbox.TopLeft(),
-                target.Hitbox.Size(),
-                Projectile.Center,
-                beamEnd,
-                BeamCollisionWidth,
-                ref collisionPoint
-            );
-
-            if (!touchingBeam)
+            if (Main.netMode == NetmodeID.MultiplayerClient)
                 return;
 
             Vector2 beamDir = CurrentAngle.ToRotationVector2();
-            int hitDirection = beamDir.X >= 0f ? 1 : -1;
-            int damage = Math.Max(1, target.statLifeMax2 / 5);
+            Vector2 beamEnd = Projectile.Center + beamDir * BeamLength;
 
-            target.Hurt(PlayerDeathReason.ByProjectile(Projectile.owner, Projectile.whoAmI), damage, hitDirection, false, false, false, -1);
-            target.velocity += beamDir * 12f;
-            target.immune = true;
-            target.immuneNoBlink = true;
-            target.immuneTime = Math.Max(target.immuneTime, 30);
-            PlayerHitCooldowns[playerIndex] = 45;
+            for (int i = 0; i < Main.maxPlayers && i < PlayerHitCooldowns.Length; i++)
+            {
+                if (PlayerHitCooldowns[i] > 0)
+                {
+                    PlayerHitCooldowns[i]--;
+                    continue;
+                }
+
+                Player target = Main.player[i];
+                if (target == null || !target.active || target.dead)
+                    continue;
+
+                float collisionPoint = 0f;
+                bool touchingBeam = Collision.CheckAABBvLineCollision(
+                    target.Hitbox.TopLeft(),
+                    target.Hitbox.Size(),
+                    Projectile.Center,
+                    beamEnd,
+                    BeamCollisionWidth,
+                    ref collisionPoint
+                );
+
+                if (!touchingBeam)
+                    continue;
+
+                int hitDirection = beamDir.X >= 0f ? 1 : -1;
+                int damage = Math.Max(1, target.statLifeMax2 / 5);
+
+                target.Hurt(PlayerDeathReason.ByProjectile(Projectile.owner, Projectile.whoAmI), damage, hitDirection, false, false, false, -1);
+                target.velocity += beamDir * 12f;
+                target.immune = true;
+                target.immuneNoBlink = true;
+                target.immuneTime = Math.Max(target.immuneTime, 30);
+                PlayerHitCooldowns[i] = 45;
+            }
         }
 
         private void ApplyFriendlyNPCContactDamage()
@@ -490,7 +484,8 @@ namespace SariaMod.Items.Ruby
                     target.velocity += beamDir * 8f;
 
                 target.netUpdate = true;
-                BurnedGoreSystem.TrackGoresNearPosition(target.Center, 100f);
+                if (Main.netMode != NetmodeID.Server)
+                    BurnedGoreSystem.TrackGoresNearPosition(target.Center, 100f);
                 FriendlyNPCHitCooldowns[i] = 25;
 
                 if (Main.netMode == NetmodeID.Server)
@@ -507,12 +502,57 @@ namespace SariaMod.Items.Ruby
             Rectangle sourceRect = new Rectangle(0, 0, 1, 1);
             float pulse = 0.85f + (float)Math.Sin(Main.GameUpdateCount * 0.35f) * 0.15f;
 
-            DrawBeamPass(pixel, sourceRect, startPos, BeamLength, 44f, new Color(255, 40, 0, 70) * pulse);
-            DrawBeamPass(pixel, sourceRect, startPos, BeamLength, 24f, new Color(255, 95, 10, 110) * pulse);
-            DrawBeamPass(pixel, sourceRect, startPos, BeamLength, 10f, new Color(255, 210, 60, 220));
-            DrawBeamPass(pixel, sourceRect, startPos, BeamLength, 4f, new Color(255, 255, 220, 240));
+            Texture2D beamTexture = RovaVisualAssets.Beam;
+            if (beamTexture != null)
+            {
+                DrawAnimatedBeamTexture(beamTexture, startPos, pulse);
+            }
+            else
+            {
+                DrawBeamPass(pixel, sourceRect, startPos, BeamLength, 44f, new Color(255, 40, 0, 70) * pulse);
+                DrawBeamPass(pixel, sourceRect, startPos, BeamLength, 24f, new Color(255, 95, 10, 110) * pulse);
+                DrawBeamPass(pixel, sourceRect, startPos, BeamLength, 10f, new Color(255, 210, 60, 220));
+                DrawBeamPass(pixel, sourceRect, startPos, BeamLength, 4f, new Color(255, 255, 220, 240));
+            }
 
             return false;
+        }
+
+        private void DrawAnimatedBeamTexture(Texture2D texture, Vector2 startPos, float pulse)
+        {
+            const float segmentLength = 96f;
+            float phase = (float)(Main.GameUpdateCount * 1.25f % segmentLength);
+            Vector2 direction = CurrentAngle.ToRotationVector2();
+
+            for (float segmentStart = -phase; segmentStart < BeamLength; segmentStart += segmentLength)
+            {
+                float visibleStart = Math.Max(0f, segmentStart);
+                float visibleEnd = Math.Min(BeamLength, segmentStart + segmentLength);
+                if (visibleEnd <= visibleStart)
+                    continue;
+
+                float sourceStartRatio = (visibleStart - segmentStart) / segmentLength;
+                float sourceEndRatio = (visibleEnd - segmentStart) / segmentLength;
+                int sourceX = Math.Clamp((int)(sourceStartRatio * texture.Width), 0, texture.Width - 1);
+                int sourceEndX = Math.Clamp((int)(sourceEndRatio * texture.Width), sourceX + 1, texture.Width);
+                int sourceWidth = sourceEndX - sourceX;
+                Rectangle sourceRect = new Rectangle(sourceX, 0, sourceWidth, texture.Height);
+                Vector2 drawPosition = startPos + direction * visibleStart;
+                Vector2 scale = new Vector2(
+                    (visibleEnd - visibleStart) / sourceWidth,
+                    48f / texture.Height);
+
+                Main.spriteBatch.Draw(
+                    texture,
+                    drawPosition,
+                    sourceRect,
+                    Color.White * pulse,
+                    CurrentAngle,
+                    new Vector2(0f, texture.Height / 2f),
+                    scale,
+                    SpriteEffects.None,
+                    0f);
+            }
         }
 
         private void DrawBeamPass(Texture2D pixel, Rectangle sourceRect, Vector2 startPos, float length, float width, Color color)
