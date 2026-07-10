@@ -12,15 +12,19 @@ using Terraria.ID;
 using Terraria.Map;
 using Terraria.ModLoader;
 using Terraria.UI;
+using SariaMod.Netcode;
 
 namespace SariaMod.Items.Strange
 {
     public static class PsychicFieldSystem
     {
         /// <summary>
-        /// Maximum fields one player can own from the Psychic upgrade tier.
+        /// Maximum fields one player can own after Psychic Upg 1.
         /// </summary>
         public const int MaxOwnedFields = 3;
+        public const int DefaultOwnedFields = 1;
+        public const int MaxSariasPerTeam = 2;
+        public const int MaxFieldsPerTeam = 6;
         private const int DefaultChargeTicks = 60 * 3;
         private static int nextFieldSpawnOrder = 1;
 
@@ -55,8 +59,6 @@ namespace SariaMod.Items.Strange
         /// </summary>
         public const int BossMultiplierDivisor = 2;
 
-        private static readonly List<Projectile> LinkedFields = new List<Projectile>();
-
         public static bool TrySummonFieldFromCharge(Projectile sariaProjectile, Projectile chargeProjectile)
         {
             if (Main.myPlayer != sariaProjectile.owner)
@@ -64,22 +66,79 @@ namespace SariaMod.Items.Strange
                 return false;
             }
 
-            Player owner = Main.player[sariaProjectile.owner];
-            int fieldType = ModContent.ProjectileType<PsychicFieldProjectile>();
-            int maxFields = GetMaxOwnedFields(owner);
-            if (maxFields <= 0)
+            Vector2 fieldPosition = Main.MouseWorld;
+            if (Main.netMode == NetmodeID.MultiplayerClient)
             {
-                SoundEngine.PlaySound(SoundID.MenuClose, chargeProjectile.Center);
+                PsychicFieldNetworking.RequestFieldSummon(sariaProjectile, chargeProjectile, fieldPosition);
                 chargeProjectile.Kill();
+                return true;
+            }
+
+            return TrySummonFieldAuthoritatively(sariaProjectile, chargeProjectile, fieldPosition);
+        }
+
+        internal static bool TrySummonFieldFromNetwork(
+            int requester,
+            int sariaIdentity,
+            int chargeIdentity,
+            Vector2 fieldPosition)
+        {
+            if (Main.netMode != NetmodeID.Server || requester < 0 || requester >= Main.maxPlayers)
+            {
                 return false;
             }
 
-            if (owner.ownedProjectileCounts[fieldType] >= maxFields)
+            Player owner = Main.player[requester];
+            if (!owner.active || owner.dead || !IsFiniteWorldPosition(fieldPosition))
             {
-                RemoveOldestOwnedField(owner.whoAmI);
+                return false;
             }
 
-            Vector2 fieldPosition = Main.MouseWorld;
+            Projectile sariaProjectile = FindOwnedProjectile(requester, ModContent.ProjectileType<Saria>(), sariaIdentity);
+            Projectile chargeProjectile = FindOwnedProjectile(requester, ModContent.ProjectileType<Ztarget2>(), chargeIdentity);
+            if (sariaProjectile == null || chargeProjectile == null
+                || !(chargeProjectile.ModProjectile is Ztarget2 psychicCharge)
+                || psychicCharge.ChannelTimer < GetRequiredChargeTicks(owner))
+            {
+                return false;
+            }
+
+            return TrySummonFieldAuthoritatively(sariaProjectile, chargeProjectile, fieldPosition);
+        }
+
+        private static bool TrySummonFieldAuthoritatively(
+            Projectile sariaProjectile,
+            Projectile chargeProjectile,
+            Vector2 fieldPosition)
+        {
+            Player owner = Main.player[sariaProjectile.owner];
+            int maxFields = GetMaxOwnedFields(owner);
+            int ownedFieldCount = CountOwnedFields(owner.whoAmI);
+            bool replacesOwnedField = ownedFieldCount >= maxFields;
+
+            if (maxFields <= 0 || !CanOwnerUsePsychicFields(owner))
+            {
+                RejectCharge(chargeProjectile);
+                return false;
+            }
+
+            if (owner.team > 0
+                && CountFieldsForTeam(owner.team) >= MaxFieldsPerTeam
+                && !replacesOwnedField)
+            {
+                RejectCharge(chargeProjectile);
+                return false;
+            }
+
+            if (replacesOwnedField)
+            {
+                while (CountOwnedFields(owner.whoAmI) >= maxFields)
+                {
+                    RemoveOldestOwnedField(owner.whoAmI);
+                }
+            }
+
+            int fieldType = ModContent.ProjectileType<PsychicFieldProjectile>();
             int fieldIndex = Projectile.NewProjectile(
                 sariaProjectile.GetSource_FromThis(),
                 fieldPosition,
@@ -111,25 +170,150 @@ namespace SariaMod.Items.Strange
 
         private static int GetMaxOwnedFields(Player owner)
         {
-            FairyPlayer fairy = owner.Fairy();
-            int maxFields = 0;
+            return owner.Fairy().SariaUpgrade4 ? MaxOwnedFields : DefaultOwnedFields;
+        }
 
-            if (fairy.SariaUpgrade4)
+        internal static bool CanSummonSaria(Player player)
+        {
+            if (player == null || !player.active || player.dead || player.team <= 0)
             {
-                maxFields++;
+                return player != null && player.active && !player.dead;
             }
 
-            if (fairy.SariaUpgrade5)
+            return CountSariaOwnersOnTeam(player.team, player.whoAmI) < MaxSariasPerTeam;
+        }
+
+        internal static bool IsSariaSpawnWithinTeamCap(int ownerIndex)
+        {
+            if (ownerIndex < 0 || ownerIndex >= Main.maxPlayers)
             {
-                maxFields++;
+                return false;
             }
 
-            if (fairy.SariaUpgrade6)
+            Player player = Main.player[ownerIndex];
+            if (!player.active || player.dead || player.team <= 0)
             {
-                maxFields++;
+                return player.active && !player.dead;
             }
 
-            return Math.Min(MaxOwnedFields, maxFields);
+            return CountSariaOwnersOnTeam(player.team, ownerIndex) < MaxSariasPerTeam;
+        }
+
+        private static bool CanOwnerUsePsychicFields(Player owner)
+        {
+            if (owner.team <= 0)
+            {
+                return true;
+            }
+
+            return CountSariaOwnersOnTeam(owner.team, owner.whoAmI) < MaxSariasPerTeam;
+        }
+
+        private static int CountOwnedFields(int ownerIndex)
+        {
+            int fieldType = ModContent.ProjectileType<PsychicFieldProjectile>();
+            int count = 0;
+
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile field = Main.projectile[i];
+                if (field.active && field.type == fieldType && field.owner == ownerIndex)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private static int CountFieldsForTeam(int team)
+        {
+            if (team <= 0)
+            {
+                return 0;
+            }
+
+            int fieldType = ModContent.ProjectileType<PsychicFieldProjectile>();
+            int count = 0;
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile field = Main.projectile[i];
+                if (!field.active || field.type != fieldType || field.owner < 0 || field.owner >= Main.maxPlayers)
+                {
+                    continue;
+                }
+
+                Player owner = Main.player[field.owner];
+                if (owner.active && !owner.dead && owner.team == team)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private static int CountSariaOwnersOnTeam(int team, int excludedOwner)
+        {
+            if (team <= 0)
+            {
+                return 0;
+            }
+
+            int sariaType = ModContent.ProjectileType<Saria>();
+            bool[] countedOwners = new bool[Main.maxPlayers];
+            int count = 0;
+
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile saria = Main.projectile[i];
+                if (!saria.active || saria.type != sariaType || saria.owner < 0 || saria.owner >= Main.maxPlayers
+                    || saria.owner == excludedOwner || countedOwners[saria.owner])
+                {
+                    continue;
+                }
+
+                Player owner = Main.player[saria.owner];
+                if (owner.active && !owner.dead && owner.team == team)
+                {
+                    countedOwners[saria.owner] = true;
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private static Projectile FindOwnedProjectile(int owner, int type, int identity)
+        {
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile projectile = Main.projectile[i];
+                if (projectile.active && projectile.owner == owner && projectile.type == type && projectile.identity == identity)
+                {
+                    return projectile;
+                }
+            }
+
+            return null;
+        }
+
+        private static bool IsFiniteWorldPosition(Vector2 position)
+        {
+            return !float.IsNaN(position.X) && !float.IsInfinity(position.X)
+                && !float.IsNaN(position.Y) && !float.IsInfinity(position.Y)
+                && position.X >= 0f && position.Y >= 0f
+                && position.X < Main.maxTilesX * 16f && position.Y < Main.maxTilesY * 16f;
+        }
+
+        private static void RejectCharge(Projectile chargeProjectile)
+        {
+            if (Main.netMode != NetmodeID.Server)
+            {
+                SoundEngine.PlaySound(SoundID.MenuClose, chargeProjectile.Center);
+            }
+
+            chargeProjectile.Kill();
         }
 
         private static void RemoveOldestOwnedField(int owner)
@@ -165,7 +349,7 @@ namespace SariaMod.Items.Strange
                 return;
             }
 
-            int currentFieldCount = GetLinkedFieldsTouching(target.Center, LinkedFields);
+            int currentFieldCount = GetClusterMultiplierAtPosition(target.Center);
             if (target.boss && currentFieldCount > 0)
             {
                 currentFieldCount = Math.Max(1, currentFieldCount / BossMultiplierDivisor);
@@ -209,7 +393,7 @@ namespace SariaMod.Items.Strange
         /// <summary>
         /// Returns the number of connected fields in the cluster touching <paramref name="worldPosition"/>.
         /// Uses range-overlap connection: fields connect when their radii overlap (distance <= 2 * FieldRadius).
-        /// BFS over the projectile array — across all players.
+        /// BFS over the projectile array, restricted to one owner or one shared team.
         /// </summary>
         public static int GetClusterMultiplierAtPosition(Vector2 worldPosition)
         {
@@ -366,7 +550,8 @@ namespace SariaMod.Items.Strange
                     }
 
                     // Range-overlap connection: fields connect when their radii overlap
-                    if (Vector2.DistanceSquared(currentField.Center, candidate.Center) <= overlapSquared)
+                    if (Vector2.DistanceSquared(currentField.Center, candidate.Center) <= overlapSquared
+                        && CanFieldsFuse(currentField, candidate))
                     {
                         visited[i] = true;
                         queue.Enqueue(i);
@@ -378,27 +563,19 @@ namespace SariaMod.Items.Strange
         }
 
         /// <summary>
-        /// Old-style linked-fields fill for rendering. Kept for DrawLinks.
-        /// Uses range-overlap like the new count method.
+        /// Fills the connected cluster containing <paramref name="sourceField"/> for rendering.
         /// </summary>
-        public static int GetLinkedFieldsTouching(Vector2 worldPosition, List<Projectile> linkedFields)
+        public static int GetLinkedFieldsTouching(Projectile sourceField, List<Projectile> linkedFields)
         {
             linkedFields.Clear();
 
-            bool[] visited = new bool[Main.maxProjectiles];
-            for (int i = 0; i < Main.maxProjectiles; i++)
+            if (!IsActiveField(sourceField))
             {
-                Projectile field = Main.projectile[i];
-                if (!IsActiveField(field) || visited[i])
-                {
-                    continue;
-                }
-
-                if (Vector2.DistanceSquared(worldPosition, field.Center) <= FieldRadius * FieldRadius)
-                {
-                    AddLinkedCluster(i, visited, linkedFields);
-                }
+                return 0;
             }
+
+            bool[] visited = new bool[Main.maxProjectiles];
+            AddLinkedCluster(sourceField.whoAmI, visited, linkedFields);
 
             return linkedFields.Count;
         }
@@ -435,13 +612,47 @@ namespace SariaMod.Items.Strange
                     }
 
                     // Range-overlap connection
-                    if (Vector2.DistanceSquared(currentField.Center, candidate.Center) <= overlapSquared)
+                    if (Vector2.DistanceSquared(currentField.Center, candidate.Center) <= overlapSquared
+                        && CanFieldsFuse(currentField, candidate))
                     {
                         visited[i] = true;
                         queue.Enqueue(i);
                     }
                 }
             }
+        }
+
+        private static bool CanFieldsFuse(Projectile firstField, Projectile secondField)
+        {
+            if (!TryGetActiveFieldOwner(firstField, out Player firstOwner)
+                || !TryGetActiveFieldOwner(secondField, out Player secondOwner))
+            {
+                return false;
+            }
+
+            if (firstField.owner == secondField.owner)
+            {
+                return true;
+            }
+
+            if (firstOwner.team <= 0 || firstOwner.team != secondOwner.team)
+            {
+                return false;
+            }
+
+            return CountSariaOwnersOnTeam(firstOwner.team, -1) <= MaxSariasPerTeam;
+        }
+
+        private static bool TryGetActiveFieldOwner(Projectile field, out Player owner)
+        {
+            owner = null;
+            if (!IsActiveField(field) || field.owner < 0 || field.owner >= Main.maxPlayers)
+            {
+                return false;
+            }
+
+            owner = Main.player[field.owner];
+            return owner.active && !owner.dead;
         }
     }
 
@@ -561,7 +772,7 @@ namespace SariaMod.Items.Strange
         private void DrawLinks(Texture2D pixel)
         {
             linkedFields.Clear();
-            PsychicFieldSystem.GetLinkedFieldsTouching(Projectile.Center, linkedFields);
+            PsychicFieldSystem.GetLinkedFieldsTouching(Projectile, linkedFields);
 
             for (int i = 0; i < linkedFields.Count; i++)
             {

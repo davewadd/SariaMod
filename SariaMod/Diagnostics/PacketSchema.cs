@@ -64,6 +64,15 @@ namespace SariaMod.Diagnostics
             }
 
             // ----------------------------------------------------------------
+            // 253 = PsychicField: sariaIdentity(4), chargeIdentity(4), positionX(4), positionY(4)
+            // ----------------------------------------------------------------
+            Flat(PsychicFieldNetworking.PacketId,
+                 ("sariaIdentity",  4, r => RI(r)),
+                 ("chargeIdentity", 4, r => RI(r)),
+                 ("positionX",      4, r => RF(r)),
+                 ("positionY",      4, r => RF(r)));
+
+            // ----------------------------------------------------------------
             // SoundMessageType packets  (byte ID 0-11, 200)
             // ----------------------------------------------------------------
             // 0 = PlaySound: npcWhoAmI(4), soundIndex(4)

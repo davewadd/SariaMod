@@ -132,7 +132,7 @@ namespace SariaMod
         // 251  IceDomeNetworking              (SariaMod\Netcode\IceDomeNetworking.cs)
         // 252  FrozenNPCNetworking /
         //      FrozenGoreMarkingNetworking    (SariaMod\Netcode\FrozenGoreMarkingNetworking.cs)
-        // 253  <-- free
+        // 253  PsychicFieldNetworking      (SariaMod\Netcode\PsychicFieldNetworking.cs)
         // 254  HookshotSyncMessage            (Netcode\HookshotNetworking\HookshotSyncMessage.cs)
         // 255  TileHeatNetworking             (SariaMod\TileGlow\TileHeatNetworking.cs)
         // ============================================================
@@ -243,6 +243,12 @@ namespace SariaMod
             if (firstByte == HookshotSyncMessage.PacketId)
             {
                 HookshotSyncMessage.HandlePacket(reader, whoAmI);
+                return;
+            }
+
+            if (firstByte == Netcode.PsychicFieldNetworking.PacketId)
+            {
+                Netcode.PsychicFieldNetworking.HandlePacket(reader, whoAmI);
                 return;
             }
 
@@ -859,6 +865,7 @@ namespace SariaMod
                         if (id == TileGlowNetworking.PacketId)                  return "TileGlow";
                         if (id == TileHeatNetworking.PacketId)                  return "TileHeat";
                         if (id == HookshotSyncMessage.PacketId)                 return "HookshotSync";
+                        if (id == Netcode.PsychicFieldNetworking.PacketId)      return "PsychicField";
                         if (id == FireSoundSyncMessage.PacketId)                return "FireSoundSync";
 
                         if (Enum.IsDefined(typeof(SoundMessageType), id))
