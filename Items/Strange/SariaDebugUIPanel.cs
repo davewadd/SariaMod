@@ -54,7 +54,7 @@ namespace SariaMod.Items.Strange
         //   Round up so MaxScroll = ContentTotalH - VisibleH is always enough.
         //   +52 for the two region trackers (Near Player / Near Saria).
         //   +52 for the two deep spawn-cap diagnostic rows (Global NPCs / Fed(P/S)).
-        private const int ContentTotalH = 3072;
+        private const int ContentTotalH = 3900;
 
         // ── Row layout ────────────────────────────────────────────────────────────
         private const int RowHeight = 26;
@@ -73,6 +73,79 @@ namespace SariaMod.Items.Strange
         private bool  _scrollDragging      = false;
         private float _scrollDragStartY    = 0f;
         private float _scrollDragStartVal  = 0f;
+        private bool  _editingSariaXp      = false;
+        private string _sariaXpText        = string.Empty;
+
+        private sealed class TmUnlockEntry
+        {
+            public string Name;
+            public Func<FairyPlayer, bool> GetForm;
+            public Action<FairyPlayer, bool> SetForm;
+            public Func<FairyPlayer, bool> GetCharge;
+            public Action<FairyPlayer, bool> SetCharge;
+            public bool FormLocked;
+        }
+
+        private static readonly TmUnlockEntry[] TmUnlockEntries =
+        {
+            new TmUnlockEntry
+            {
+                Name = "Psychic",
+                GetForm = _ => true,
+                SetForm = (_, _) => { },
+                GetCharge = fp => fp.SariaUnlockPsychic2,
+                SetCharge = (fp, value) => fp.SariaUnlockPsychic2 = value,
+                FormLocked = true,
+            },
+            new TmUnlockEntry
+            {
+                Name = "Water",
+                GetForm = fp => fp.SariaUnlockWater,
+                SetForm = (fp, value) => fp.SariaUnlockWater = value,
+                GetCharge = fp => fp.SariaUnlockWater2,
+                SetCharge = (fp, value) => fp.SariaUnlockWater2 = value,
+            },
+            new TmUnlockEntry
+            {
+                Name = "Fire",
+                GetForm = fp => fp.SariaUnlockFire,
+                SetForm = (fp, value) => fp.SariaUnlockFire = value,
+                GetCharge = fp => fp.SariaUnlockFire2,
+                SetCharge = (fp, value) => fp.SariaUnlockFire2 = value,
+            },
+            new TmUnlockEntry
+            {
+                Name = "Electric",
+                GetForm = fp => fp.SariaUnlockElectric,
+                SetForm = (fp, value) => fp.SariaUnlockElectric = value,
+                GetCharge = fp => fp.SariaUnlockElectric2,
+                SetCharge = (fp, value) => fp.SariaUnlockElectric2 = value,
+            },
+            new TmUnlockEntry
+            {
+                Name = "Rock",
+                GetForm = fp => fp.SariaUnlockRock,
+                SetForm = (fp, value) => fp.SariaUnlockRock = value,
+                GetCharge = fp => fp.SariaUnlockRock2,
+                SetCharge = (fp, value) => fp.SariaUnlockRock2 = value,
+            },
+            new TmUnlockEntry
+            {
+                Name = "Bug",
+                GetForm = fp => fp.SariaUnlockBug,
+                SetForm = (fp, value) => fp.SariaUnlockBug = value,
+                GetCharge = fp => fp.SariaUnlockBug2,
+                SetCharge = (fp, value) => fp.SariaUnlockBug2 = value,
+            },
+            new TmUnlockEntry
+            {
+                Name = "Ghost",
+                GetForm = fp => fp.SariaUnlockGhost,
+                SetForm = (fp, value) => fp.SariaUnlockGhost = value,
+                GetCharge = fp => fp.SariaUnlockGhost2,
+                SetCharge = (fp, value) => fp.SariaUnlockGhost2 = value,
+            },
+        };
 
         // ── Colors ────────────────────────────────────────────────────────────────
         private static readonly Color PanelBg             = new Color(30, 30, 35, 220);
@@ -126,6 +199,14 @@ namespace SariaMod.Items.Strange
         private int   VisibleH  => PanelHeight - ContentStartY;
         private float MaxScroll => Math.Max(0f, ContentTotalH - VisibleH);
 
+        private void ApplyScrollWheel(int wheel)
+        {
+            if (wheel == 0 || !PanelOpen)
+                return;
+
+            _scrollY = Math.Clamp(_scrollY - Math.Sign(wheel) * RowHeight * 3, 0, MaxScroll);
+        }
+
         private bool PanelOpen
         {
             get => Main.LocalPlayer.GetModPlayer<FairyPlayer>().DebugPanelOpen;
@@ -170,13 +251,53 @@ namespace SariaMod.Items.Strange
             // ── Mouse-wheel scroll ────────────────────────────────────────────────
             if (panelRect.Contains(Main.mouseX, Main.mouseY))
             {
+                PlayerInput.LockVanillaMouseScroll("SariaMod/SariaDebugPanel");
                 int wheel = PlayerInput.ScrollWheelDelta;
                 if (wheel != 0)
-                    _scrollY = Math.Clamp(_scrollY - Math.Sign(wheel) * RowHeight * 3, 0, MaxScroll);
+                    ApplyScrollWheel(wheel);
                 Main.LocalPlayer.mouseInterface = true;
             }
 
             DrawPanel(spriteBatch, sariaProj);
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+
+            if (!PanelOpen || !_editingSariaXp)
+                return;
+
+            Main.LocalPlayer.mouseInterface = true;
+
+            if (Main.keyState.IsKeyDown(Keys.Escape) && !Main.oldKeyState.IsKeyDown(Keys.Escape))
+            {
+                _editingSariaXp = false;
+                return;
+            }
+
+            if (Main.keyState.IsKeyDown(Keys.Enter) && !Main.oldKeyState.IsKeyDown(Keys.Enter))
+            {
+                CommitSariaXp();
+                return;
+            }
+
+            if (Main.keyState.IsKeyDown(Keys.Back) && !Main.oldKeyState.IsKeyDown(Keys.Back))
+            {
+                if (_sariaXpText.Length > 0)
+                    _sariaXpText = _sariaXpText[..^1];
+                return;
+            }
+
+            string typed = Main.GetInputText(string.Empty);
+            if (string.IsNullOrEmpty(typed))
+                return;
+
+            foreach (char c in typed)
+            {
+                if (char.IsDigit(c))
+                    _sariaXpText += c;
+            }
         }
 
         // ═════════════════════════════════════════════════════════════════════════
@@ -251,6 +372,7 @@ namespace SariaMod.Items.Strange
             int x      = panelX;
             int rowY   = panelY + ContentStartY + FirstRowY - scroll;
             Projectile proj = saria.Projectile;
+            FairyPlayer fp = Main.LocalPlayer.GetModPlayer<FairyPlayer>();
 
             // Stats
             DrawStatRow(spriteBatch, x, rowY, "Frame",           proj.frame.ToString(),                   FrameColor);          rowY += RowHeight;
@@ -347,6 +469,12 @@ namespace SariaMod.Items.Strange
                     ? $"{SariaSpawnSystem.LastPlayerFedMaxSpawns} / {SariaSpawnSystem.LastSariaFedMaxSpawns}{(serverFed ? " *srv" : "")}"
                     : "? / ?",
                 new Color(210, 210, 140));                                                                 rowY += RowHeight;
+            DrawStatRow(spriteBatch, x, rowY, "Real TM Points",
+                fp.TMPoints.ToString(),
+                fp.TMPoints > 0 ? new Color(120, 255, 160) : new Color(180, 180, 180));                    rowY += RowHeight;
+            DrawStatRow(spriteBatch, x, rowY, "Real TM Used",
+                fp.TMPointsUsed.ToString(),
+                new Color(255, 210, 120));                                                                  rowY += RowHeight;
             DrawStatRow(spriteBatch, x, rowY, "FollowSight",
                 saria.FollowSight ? "true" : "false",
                 saria.FollowSight ? new Color(120, 255, 200) : ProbeInactiveColor);                                               rowY += RowHeight;
@@ -440,8 +568,6 @@ namespace SariaMod.Items.Strange
             bool dlgActive   = SariaUISystem.IsDialogueActive;
             bool ctActive    = SariaUISystem.IsCutsceneActive;
             string activeId  = SariaUISystem.ActiveCutsceneID ?? "—";
-            FairyPlayer fp   = Main.LocalPlayer.GetModPlayer<FairyPlayer>();
-
             DrawStatRow(spriteBatch, x, rowY, "IsDialogue",
                 dlgActive ? "YES" : "no",
                 dlgActive ? DialogueActiveColor : DialogueInactiveColor);                     rowY += RowHeight;
@@ -519,6 +645,19 @@ namespace SariaMod.Items.Strange
                     startIdx++;
                 }
             }
+
+            // TM unlock override grid. These toggles directly force the unlock flags
+            // and intentionally do not spend or refund real TM points.
+            DrawSep(spriteBatch, x, rowY); rowY += 9;
+            Utils.DrawBorderString(spriteBatch, "TM Unlocks (Fake TM Override)",
+                new Vector2(x + LabelX, rowY), new Color(255, 200, 80), 0.75f);             rowY += RowHeight;
+            rowY = DrawTmUnlockGrid(spriteBatch, x, rowY, fp);
+
+            DrawStatRow(spriteBatch, x, rowY, "TM Points",
+                fp.TMPoints.ToString(),
+                fp.TMPoints > 0 ? new Color(120, 255, 160) : new Color(180, 180, 180));                    rowY += RowHeight;
+            rowY = DrawSariaLevelAdjust(spriteBatch, x, rowY, fp);
+            rowY = DrawSariaXpInput(spriteBatch, x, rowY, fp);
 
             // ── Restore scissor
             spriteBatch.End();
@@ -622,6 +761,131 @@ namespace SariaMod.Items.Strange
                 statusColor, 0.75f);
             if (hover) Main.LocalPlayer.mouseInterface = true;
             return rowY + RowHeight;
+        }
+
+        private int DrawTmUnlockGrid(SpriteBatch spriteBatch, int panelX, int rowY, FairyPlayer fp)
+        {
+            foreach (TmUnlockEntry entry in TmUnlockEntries)
+            {
+                Utils.DrawBorderString(spriteBatch, $"── {entry.Name} ──",
+                    new Vector2(panelX + LabelX + 4, rowY),
+                    new Color(180, 180, 200), 0.7f);
+                rowY += RowHeight;
+                rowY = DrawTmUnlockRow(spriteBatch, panelX, rowY, "Form Unlock",
+                    entry.GetForm(fp), entry.FormLocked, entry.SetForm, fp);
+                rowY = DrawTmUnlockRow(spriteBatch, panelX, rowY, "Charge Attack",
+                    entry.GetCharge(fp), false, entry.SetCharge, fp);
+            }
+
+            return rowY;
+        }
+
+        private int DrawTmUnlockRow(SpriteBatch spriteBatch, int panelX, int rowY, string label,
+                                    bool value, bool locked, Action<FairyPlayer, bool> setter, FairyPlayer fp)
+        {
+            Utils.DrawBorderString(spriteBatch, label,
+                new Vector2(panelX + LabelX, rowY),
+                value ? new Color(100, 255, 120) : new Color(140, 140, 140), 0.8f);
+            DrawTmUnlockCell(spriteBatch,
+                new Rectangle(panelX + ValueX - 10, rowY, 50, RowHeight),
+                value, locked, setter, fp);
+            return rowY + RowHeight;
+        }
+
+        private void DrawTmUnlockCell(SpriteBatch spriteBatch, Rectangle button, bool value,
+                                      bool locked, Action<FairyPlayer, bool> setter, FairyPlayer fp)
+        {
+            bool hover = button.Contains(Main.mouseX, Main.mouseY);
+            if (!locked && hover && Main.mouseLeft && Main.mouseLeftRelease)
+            {
+                setter(fp, !value);
+                Main.mouseLeftRelease = false;
+                value = !value;
+            }
+
+            Color statusColor = locked
+                ? new Color(120, 180, 220)
+                : value ? new Color(80, 220, 80) : new Color(120, 120, 120);
+            DrawRect(spriteBatch, button, hover && !locked ? ButtonBgHover : ButtonBg, statusColor);
+            string status = locked ? "ON" : (value ? "ON" : "OFF");
+            Vector2 size = FontAssets.MouseText.Value.MeasureString(status) * 0.65f;
+            Utils.DrawBorderString(spriteBatch, status,
+                new Vector2(button.X + (button.Width - size.X) / 2f,
+                            button.Y + (button.Height - size.Y) / 2f),
+                statusColor, 0.65f);
+            if (hover)
+                Main.LocalPlayer.mouseInterface = true;
+        }
+
+        private int DrawSariaLevelAdjust(SpriteBatch spriteBatch, int panelX, int rowY, FairyPlayer fp)
+        {
+            Utils.DrawBorderString(spriteBatch, "Saria Level",
+                new Vector2(panelX + LabelX, rowY + 4), ST_ForesightMint, 0.8f);
+
+            Rectangle minus = new Rectangle(panelX + ValueX - 10, rowY, 30, RowHeight);
+            Rectangle plus = new Rectangle(minus.Right + 4, rowY, 30, RowHeight);
+            bool minusHover = minus.Contains(Main.mouseX, Main.mouseY);
+            bool plusHover = plus.Contains(Main.mouseX, Main.mouseY);
+            if (minusHover && Main.mouseLeft && Main.mouseLeftRelease)
+            {
+                fp.Sarialevel = Math.Max(0, fp.Sarialevel - 1);
+                Main.mouseLeftRelease = false;
+            }
+            if (plusHover && Main.mouseLeft && Main.mouseLeftRelease)
+            {
+                fp.Sarialevel = Math.Min(6, fp.Sarialevel + 1);
+                Main.mouseLeftRelease = false;
+            }
+
+            DrawSmallButton(spriteBatch, minus, "-", minusHover, fp.Sarialevel > 0);
+            DrawSmallButton(spriteBatch, plus, "+", plusHover, fp.Sarialevel < 6);
+            Utils.DrawBorderString(spriteBatch, fp.Sarialevel.ToString(),
+                new Vector2(plus.Right + 8, rowY + 4), ValueColor, 0.8f);
+            if (minusHover || plusHover)
+                Main.LocalPlayer.mouseInterface = true;
+            return rowY + RowHeight;
+        }
+
+        private int DrawSariaXpInput(SpriteBatch spriteBatch, int panelX, int rowY, FairyPlayer fp)
+        {
+            Utils.DrawBorderString(spriteBatch, "Saria XP",
+                new Vector2(panelX + LabelX, rowY + 4), ST_ForesightMint, 0.8f);
+            Rectangle box = new Rectangle(panelX + ValueX - 10, rowY, 150, RowHeight);
+            bool hover = box.Contains(Main.mouseX, Main.mouseY);
+            if (hover && Main.mouseLeft && Main.mouseLeftRelease)
+            {
+                _editingSariaXp = true;
+                _sariaXpText = fp.SariaXp.ToString();
+                Main.mouseLeftRelease = false;
+            }
+            DrawRect(spriteBatch, box, hover || _editingSariaXp ? ButtonBgHover : ButtonBg,
+                _editingSariaXp ? ST_ForesightMint : PanelBorder);
+            string text = _editingSariaXp ? _sariaXpText : fp.SariaXp.ToString();
+            Utils.DrawBorderString(spriteBatch, string.IsNullOrEmpty(text) ? "0" : text,
+                new Vector2(box.X + 7, box.Y + 4), ValueColor, 0.75f);
+            if (hover || _editingSariaXp)
+                Main.LocalPlayer.mouseInterface = true;
+            return rowY + RowHeight;
+        }
+
+        private void CommitSariaXp()
+        {
+            FairyPlayer fp = Main.LocalPlayer.GetModPlayer<FairyPlayer>();
+            if (!int.TryParse(_sariaXpText, out int xp) || xp < 0)
+                xp = 0;
+            fp.SariaXp = xp;
+            _editingSariaXp = false;
+        }
+
+        private void DrawSmallButton(SpriteBatch spriteBatch, Rectangle button, string label, bool hover, bool enabled)
+        {
+            Color color = enabled ? ButtonText : new Color(90, 90, 90);
+            DrawRect(spriteBatch, button, hover && enabled ? ButtonBgHover : ButtonBg, color);
+            Vector2 size = FontAssets.MouseText.Value.MeasureString(label) * 0.8f;
+            Utils.DrawBorderString(spriteBatch, label,
+                new Vector2(button.X + (button.Width - size.X) / 2f,
+                            button.Y + (button.Height - size.Y) / 2f),
+                color, 0.8f);
         }
 
         private static bool GetUpgradeBool(FairyPlayer fp, int index)

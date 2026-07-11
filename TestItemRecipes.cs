@@ -99,7 +99,12 @@ namespace SariaMod
             // FairyScarf
             {
                 Recipe recipe = Recipe.Create(ModContent.ItemType<FairyScarf>());
-                recipe.AddIngredient(ItemID.DirtBlock, 1);
+                recipe.Register();
+            }
+
+            // HealShard
+            {
+                Recipe recipe = Recipe.Create(ModContent.ItemType<HealShard>());
                 recipe.Register();
             }
 
