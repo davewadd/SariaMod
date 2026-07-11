@@ -19,6 +19,7 @@ using Terraria.Map;
 using System.IO;
 using Terraria;
 using Terraria.Audio;
+using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.GameContent.Events;
 using Terraria.ID;
@@ -303,6 +304,16 @@ namespace SariaMod.Items.Strange
             ProjectileID.Sets.TrailingMode[Projectile.type] = 3;
             ProjectileID.Sets.TrailCacheLength[Projectile.type] = 30;
         }
+
+        public override void OnSpawn(IEntitySource source)
+        {
+            if (Main.netMode == NetmodeID.Server
+                && !PsychicFieldSystem.IsSariaSpawnWithinTeamCap(Projectile.owner))
+            {
+                Projectile.Kill();
+            }
+        }
+
         public override bool? CanCutTiles()
         {
             return false;

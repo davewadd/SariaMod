@@ -41,6 +41,7 @@ namespace SariaMod
         public bool SariaCurseD;
         public bool Burning2;
         public bool GhostBurning;
+        public bool RovaBurnedHit;
         public bool Stronger;
         public bool Frostburn2;
         public int psychicFieldMultiplier;
@@ -106,6 +107,7 @@ namespace SariaMod
             SariaCurseD = false;
             Burning2 = false;
             GhostBurning = false;
+            RovaBurnedHit = false;
             Frostburn2 = false;
             Stronger = false;
             // Don't reset psychicFieldMultiplier here — it lingers while the debuff is active.
@@ -1235,6 +1237,13 @@ namespace SariaMod
         {
             bool hasFrozenBuff   = npc.HasBuff(ModContent.BuffType<EnemyFrozen>());
             bool wasFrozenByMark = FrozenNPCVisualManager.WasActuallyFrozen(npc.whoAmI);
+
+            if (RovaBurnedHit && npc.life <= 0 && Main.netMode != NetmodeID.Server)
+            {
+                float radius = Math.Max(npc.width, npc.height) * 2f + 80f;
+                BurnedGoreSystem.TrackGoresNearPosition(npc.Center, radius);
+                RovaBurnedHit = false;
+            }
 
             if (hasFrozenBuff || wasFrozenByMark)
             {

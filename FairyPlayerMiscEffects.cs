@@ -1385,8 +1385,11 @@ namespace SariaMod
                             break;
                         }
                     }
-                    modPlayer.XPBarLevel = 8;
-                    modPlayer.SariaXp = xpThresholds[xpThresholds.Length - 1] + 1;
+                    if (modPlayer.SariaXp > xpThresholds[xpThresholds.Length - 1])
+                    {
+                        modPlayer.XPBarLevel = 8;
+                        modPlayer.SariaXp = xpThresholds[xpThresholds.Length - 1] + 1;
+                    }
                     break;
                 case 6:
                     modPlayer.XPBarLevel = 8;

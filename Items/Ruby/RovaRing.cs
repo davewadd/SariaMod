@@ -70,6 +70,12 @@ namespace SariaMod.Items.Ruby
             return false;
         }
 
+        public override bool PreDraw(ref Color lightColor)
+        {
+            DrawChargeRing();
+            return false;
+        }
+
         public override void AI()
         {
             Player player = Main.player[Projectile.owner];
@@ -116,7 +122,7 @@ namespace SariaMod.Items.Ruby
             }
         }
 
-        public override void PostDraw(Color lightColor)
+        private void DrawChargeRing()
         {
             Texture2D texture = TextureAssets.MagicPixel.Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -124,6 +130,24 @@ namespace SariaMod.Items.Ruby
             float fadeIn = MathHelper.Clamp(ChargeTimer / 18f, 0f, 1f);
             float fadeOut = 1f - MathHelper.Clamp((ChargeTimer - 96f) / 24f, 0f, 1f);
             float alpha = fadeIn * fadeOut;
+
+            Texture2D ringTexture = RovaVisualAssets.Ring;
+            if (ringTexture != null)
+            {
+                float ringScale = 84f * Projectile.scale / Math.Max(ringTexture.Width, ringTexture.Height);
+                Main.spriteBatch.Draw(
+                    ringTexture,
+                    drawPos,
+                    null,
+                    Color.White * alpha,
+                    Projectile.rotation,
+                    new Vector2(ringTexture.Width / 2f, ringTexture.Height / 2f),
+                    ringScale,
+                    SpriteEffects.None,
+                    0f);
+                return;
+            }
+
             float radius = 42f * Projectile.scale;
             const int segments = 40;
 

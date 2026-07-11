@@ -39,8 +39,11 @@ namespace SariaMod.Items.Ruby
 
         private const float BeamRange = 2000f;
         private const float TrackTurnSpeed = 0.04f;
+        private const float PortalAuraRadius = 112f;
+        private const int PortalAuraBuffDuration = 4;
         private const float AutoSweepHalfAngle = 0.2617994f; // 15 degrees
-        private const float AutoSweepTotalAngle = AutoSweepHalfAngle * 2f;
+        private const float AutoSweepTotalAngle = 6.5449847f; // one full turn plus the initial 15-degree lead-in
+        private const int BeamDelayAfterChargeFire2Ticks = 66; // ChargeFire2 (~36 ticks) plus 0.5 seconds
 
         public override void SetStaticDefaults()
         {
@@ -108,8 +111,8 @@ namespace SariaMod.Items.Ruby
         public override void AI()
         {
             Player player = Main.player[Projectile.owner];
-            bool hasPersistenceUpgrade = Projectile.ai[0] >= 1f;
             StateTimer++;
+            Projectile.rotation += 0.025f;
 
             // On spawn: play ChargeFire2 and spawn fire ring burst
             if (StateTimer == 1)
@@ -186,7 +189,10 @@ namespace SariaMod.Items.Ruby
                 }
 
                 CurrentAngle = TargetAngle;
-                Projectile.netUpdate = true;
+                if (Main.netMode == NetmodeID.Server || Main.myPlayer == Projectile.owner)
+                {
+                    Projectile.netUpdate = true;
+                }
             }
 
             // Check if a beam is currently alive
@@ -204,8 +210,8 @@ namespace SariaMod.Items.Ruby
             bool hasVisibleAutoTarget = visibleAutoTarget != null;
 
             // STATE: FIRING (State 0)
-            // Beam fires 0.5s after spawn (30 ticks after ChargeFire2 sound)
-            if (StateTimer > 30 && !BeamFired && !hasActiveBeam)
+            // Beam fires 0.5s after ChargeFire2 finishes.
+            if (StateTimer > BeamDelayAfterChargeFire2Ticks && !BeamFired && !hasActiveBeam)
             {
                 FireBeam();
                 BeamFired = true;
@@ -213,7 +219,7 @@ namespace SariaMod.Items.Ruby
             }
 
             // STATE: COOLDOWN (State 1) - beam has expired, wait for next fire
-            if (BeamFired && !hasActiveBeam && StateTimer > 60 && (hasPersistenceUpgrade || _idleTimer < 300 || hasVisibleAutoTarget))
+            if (BeamFired && !hasActiveBeam && StateTimer > 60)
             {
                 BeamCooldownTimer++;
 
@@ -222,12 +228,12 @@ namespace SariaMod.Items.Ruby
                 {
                     if (visibleAutoTarget != null)
                     {
-                        // Auto-fire: sweep a narrow cone centered on the target.
+                        // Auto-fire: start slightly counter-clockwise, then sweep one full turn clockwise.
                         Vector2 toEnemy = visibleAutoTarget.Center - Projectile.Center;
                         float enemyAngle = toEnemy.ToRotation();
 
                         CurrentAngle = enemyAngle - AutoSweepHalfAngle;
-                        TargetAngle = enemyAngle + AutoSweepHalfAngle;
+                        TargetAngle = enemyAngle + MathHelper.TwoPi;
                         NextBeamAutoRotates = true;
 
                         FireBeam();
@@ -305,28 +311,34 @@ namespace SariaMod.Items.Ruby
             }
 
 
-            // STATE: IDLE DESPAWN - no player input for 5s triggers flicker, 7s triggers despawn
-            if (!hasPersistenceUpgrade && !hasActiveBeam && !playerCharging && foundZtarget4 < 0 && !hasRightClickTarget && !hasVisibleAutoTarget)
-            {
-                _idleTimer++;
-
-                if (_idleTimer >= 420)
-                {
-                    KillAllBeams();
-                    Projectile.Kill();
-                    return;
-                }
-
-                _isFlickering = _idleTimer >= 300;
-            }
-            else
-            {
-                _idleTimer = 0;
-                _isFlickering = false;
-            }
+            // RovaCenter remains until the owner clicks it with the HealBall.
+            _idleTimer = 0;
+            _isFlickering = false;
             if (StateTimer % 15 == 0)
             {
-                TileHeatManager.ApplyHeatInRadius(Projectile.Center, 100f, TileHeatManager.DefaultHeatDuration, Projectile.owner, Projectile.damage);
+                if (Main.netMode == NetmodeID.Server)
+                {
+                    TileHeatNetworking.SendRadiusHeatPacket(
+                        Projectile.Center,
+                        100f,
+                        TileHeatManager.DefaultHeatDuration,
+                        Projectile.owner,
+                        Projectile.damage);
+                }
+                else if (Main.netMode == NetmodeID.SinglePlayer)
+                {
+                    TileHeatManager.ApplyHeatInRadius(
+                        Projectile.Center,
+                        100f,
+                        TileHeatManager.DefaultHeatDuration,
+                        Projectile.owner,
+                        Projectile.damage);
+                }
+            }
+
+            if (StateTimer % 4 == 0)
+            {
+                ApplyPortalAura();
             }
 
             // Fire dust visual on RovaCenter itself
@@ -345,7 +357,7 @@ namespace SariaMod.Items.Ruby
             int beamDamage = Math.Max(1, (int)(Projectile.damage));
             Vector2 beamVelocity = CurrentAngle.ToRotationVector2();
 
-            if (Main.myPlayer == Projectile.owner)
+            if (Main.netMode == NetmodeID.Server || Main.netMode == NetmodeID.SinglePlayer)
             {
                 Projectile.NewProjectile(
                     Projectile.GetSource_FromThis(),
@@ -358,6 +370,43 @@ namespace SariaMod.Items.Ruby
                     Projectile.whoAmI, // ai[0] = RovaCenter whoAmI
                     NextBeamAutoRotates ? AutoSweepTotalAngle : 0f // ai[1] = remaining auto-sweep radians
                 );
+            }
+        }
+
+        private void ApplyPortalAura()
+        {
+            if (Main.netMode == NetmodeID.MultiplayerClient)
+                return;
+
+            for (int i = 0; i < Main.maxPlayers; i++)
+            {
+                Player target = Main.player[i];
+                if (target == null || !target.active || target.dead)
+                    continue;
+
+                if (Vector2.Distance(target.Center, Projectile.Center) > PortalAuraRadius)
+                    continue;
+
+                if (!TileHeatManager.IsPlayerFireProtected(target))
+                {
+                    target.buffImmune[BuffID.OnFire] = false;
+                    target.AddBuff(BuffID.OnFire, PortalAuraBuffDuration, quiet: false);
+                }
+            }
+
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC target = Main.npc[i];
+                if (target == null || !target.active || target.friendly || target.lifeMax <= 0 || target.dontTakeDamage)
+                    continue;
+
+                if (Vector2.Distance(target.Center, Projectile.Center) > PortalAuraRadius)
+                    continue;
+
+                if (!target.buffImmune[BuffID.OnFire])
+                {
+                    target.AddBuff(BuffID.OnFire, PortalAuraBuffDuration);
+                }
             }
         }
 
@@ -426,6 +475,38 @@ namespace SariaMod.Items.Ruby
             Vector2 center = Projectile.Center - Main.screenPosition;
             Rectangle sourceRect = new Rectangle(0, 0, 1, 1);
             float pulse = 0.85f + (float)Math.Sin(Main.GameUpdateCount * 0.18f) * 0.15f;
+
+            Texture2D auraTexture = RovaVisualAssets.Ring;
+            if (auraTexture != null)
+            {
+                float auraScale = PortalAuraRadius * 2f / Math.Max(auraTexture.Width, auraTexture.Height);
+                Main.spriteBatch.Draw(
+                    auraTexture,
+                    center,
+                    null,
+                    Color.White * (0.18f + pulse * 0.10f),
+                    -Projectile.rotation * 0.65f,
+                    new Vector2(auraTexture.Width / 2f, auraTexture.Height / 2f),
+                    auraScale,
+                    SpriteEffects.None,
+                    0f);
+            }
+
+            Texture2D portalTexture = RovaVisualAssets.Portal;
+            if (portalTexture != null)
+            {
+                float portalScale = 92f / Math.Max(portalTexture.Width, portalTexture.Height);
+                Main.spriteBatch.Draw(
+                    portalTexture,
+                    center,
+                    null,
+                    Color.White * pulse,
+                    Projectile.rotation * 0.45f,
+                    new Vector2(portalTexture.Width / 2f, portalTexture.Height / 2f),
+                    portalScale,
+                    SpriteEffects.None,
+                    0f);
+            }
 
             DrawCenteredPixel(pixel, sourceRect, center, new Vector2(42f, 42f) * pulse, new Color(255, 40, 0, 70));
             DrawCenteredPixel(pixel, sourceRect, center, new Vector2(24f, 24f) * pulse, new Color(255, 110, 20, 150));

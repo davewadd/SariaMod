@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using SariaMod.Buffs;
 using SariaMod.Dusts;
 using System;
@@ -64,6 +65,27 @@ namespace SariaMod.Items.Ruby
 
         public override bool? CanCutTiles()
         {
+            return false;
+        }
+
+        public override bool PreDraw(ref Color lightColor)
+        {
+            Texture2D emberTexture = RovaVisualAssets.Ember;
+            if (emberTexture == null)
+                return true;
+
+            Vector2 drawPosition = Projectile.Center - Main.screenPosition;
+            float emberScale = 18f / Math.Max(emberTexture.Width, emberTexture.Height);
+            Main.spriteBatch.Draw(
+                emberTexture,
+                drawPosition,
+                null,
+                Color.White,
+                Projectile.rotation,
+                new Vector2(emberTexture.Width / 2f, emberTexture.Height / 2f),
+                emberScale,
+                SpriteEffects.None,
+                0f);
             return false;
         }
 

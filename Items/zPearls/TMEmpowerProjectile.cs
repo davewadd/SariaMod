@@ -60,6 +60,7 @@ namespace SariaMod.Items.zPearls
                 modPlayer.SariaUnlockGhost2 = true;
                 // Raise Saria to the level tied to her 7th Form and grant the TM Points that were "spent" unlocking everything above.
                 modPlayer.Sarialevel = 6;
+                modPlayer.SariaXp = 0;
                 modPlayer.TMPointsUsed = 13;
                 Projectile.Kill();
             }

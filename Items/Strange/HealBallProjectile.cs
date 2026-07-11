@@ -89,7 +89,10 @@ namespace SariaMod.Items.Strange
                 dust.scale *= 3.9f;
             }
             SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Pokeball"), Projectile.Center);
-            if ((player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] <= 0f) && (player.maxMinions >= 3) && (HoldingHealBallInInventory || HoldingHealBall))
+            if ((player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] <= 0f)
+                && (player.maxMinions >= 3)
+                && (HoldingHealBallInInventory || HoldingHealBall)
+                && PsychicFieldSystem.CanSummonSaria(player))
             {
                 player.AddBuff(ModContent.BuffType<SariaBuff>(), 30000);
                 player.AddBuff(ModContent.BuffType<XPBuff>(), 500);

@@ -10,6 +10,12 @@ There is no automated test project. `TestItemRecipes.cs` and `Items/Strange/Test
 
 Work directly on the `main` branch; do not create or switch branches for repository changes. Never push to a remote unless the user explicitly asks for it. Treat the repository as the source of truth: before making an important change, inspect the relevant implementation, callers, configuration, assets, logs, and recent history. Prefer tracing behavior through code over guessing from filenames or asking the user questions that the repository can answer. Ask only when the required intent, authority, or external information cannot be established locally.
 
+## GitHub and User-Visible Writing
+
+Use the authenticated `gh` CLI as the default interface for GitHub work in this repository, including issue and pull request lookup, comments, labels, and state changes. Before a GitHub write, run `gh auth status` and confirm the repository with `gh repo view`. After a write, verify the result with the appropriate `gh issue view`, `gh pr view`, or related command. Use connectors or MCP tools only when `gh` cannot perform the required operation, and verify the final state before continuing.
+
+Anything visible to users or maintainers must use normal human project language. This includes issue comments, pull request descriptions, review replies, commit messages, and status updates. Avoid AI-sounding boilerplate, filler, excessive headings, and unexplained jargon. Do not use em dash or en dash characters in user-visible text. Use commas, periods, colons, or parentheses instead. Keep the writing concise and explain what changed, why it changed, and how it was verified when that context is useful.
+
 ## Build and Development Commands
 
 ```powershell
@@ -29,4 +35,4 @@ Preserve gameplay behavior, visual output, numeric values, conditions, draw orde
 
 Test changes manually in tModLoader, covering the affected form, item, hook, or multiplayer path. Include reproduction steps, expected/actual behavior, and screenshots or relevant log excerpts for visual or runtime changes.
 
-Commit subjects are short and imperative, commonly using `fix:`, `feat:`, or `refactor:` prefixes. Pull requests should summarize the change, list affected areas, report the build command used, and describe manual in-game checks. Keep secrets out of the repository; publishing credentials belong in GitHub Actions secrets. `AGENTS.md` is local guidance and must remain uncommitted.
+Commit subjects are short and imperative, commonly using `fix:`, `feat:`, or `refactor:` prefixes. Pull requests should summarize the change, list affected areas, report the build command used, and describe manual in-game checks. Keep secrets out of the repository; publishing credentials belong in GitHub Actions secrets. Changes to `AGENTS.md` should be intentional and kept separate from unrelated code changes.

@@ -64,6 +64,15 @@ namespace SariaMod.Diagnostics
             }
 
             // ----------------------------------------------------------------
+            // 253 = PsychicField: sariaIdentity(4), chargeIdentity(4), positionX(4), positionY(4)
+            // ----------------------------------------------------------------
+            Flat(PsychicFieldNetworking.PacketId,
+                 ("sariaIdentity",  4, r => RI(r)),
+                 ("chargeIdentity", 4, r => RI(r)),
+                 ("positionX",      4, r => RF(r)),
+                 ("positionY",      4, r => RF(r)));
+
+            // ----------------------------------------------------------------
             // SoundMessageType packets  (byte ID 0-11, 200)
             // ----------------------------------------------------------------
             // 0 = PlaySound: npcWhoAmI(4), soundIndex(4)
@@ -358,7 +367,9 @@ namespace SariaMod.Diagnostics
                             ("centerX", 4, r => RF(r)),
                             ("centerY", 4, r => RF(r)),
                             ("radius", 4, r => RF(r)),
-                            ("duration", 4, r => RI(r)));
+                            ("duration", 4, r => RI(r)),
+                            ("owner", 4, r => RI(r)),
+                            ("damage", 4, r => RI(r)));
                     }
                     else if (sub == 1)
                     {
@@ -368,6 +379,15 @@ namespace SariaMod.Diagnostics
                             ("distFromCenter", 4, r => RF(r)),
                             ("maxRadius", 4, r => RF(r)),
                             ("duration", 4, r => RI(r)));
+                    }
+                    else if (sub == 2)
+                    {
+                        RecordFields(r,
+                            ("tileX", 4, r => RI(r)),
+                            ("tileY", 4, r => RI(r)),
+                            ("duration", 4, r => RI(r)),
+                            ("owner", 4, r => RI(r)),
+                            ("damage", 4, r => RI(r)));
                     }
 
                     return true;

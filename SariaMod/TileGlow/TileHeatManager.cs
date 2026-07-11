@@ -372,7 +372,9 @@ namespace SariaMod.TileGlow
 
                     if (heatedTiles.TryGetValue(key, out TileHeatData existing))
                     {
-                        if (distance < existing.DistanceFromCenter || damage > existing.Damage)
+                        if (distance < existing.DistanceFromCenter
+                            || damage > existing.Damage
+                            || (owner >= 0 && owner == existing.Owner))
                         {
                             heatedTiles[key] = new TileHeatData(currentTick, duration, distance, radius, owner, damage);
                         }
@@ -381,6 +383,40 @@ namespace SariaMod.TileGlow
                     {
                         heatedTiles[key] = new TileHeatData(currentTick, duration, distance, radius, owner, damage);
                     }
+                }
+            }
+        }
+
+        public static void ApplyBeamImpact(int tileX, int tileY, int duration, int owner, int damage)
+        {
+            if (heatedTiles == null)
+                return;
+
+            if (tileX < 0 || tileX >= Main.maxTilesX || tileY < 0 || tileY >= Main.maxTilesY)
+                return;
+
+            Tile impactTile = Main.tile[tileX, tileY];
+            if (!impactTile.HasTile || !Main.tileSolid[impactTile.TileType])
+                return;
+
+            for (int dx = -6; dx <= 6; dx++)
+            {
+                for (int dy = -3; dy <= 3; dy++)
+                {
+                    int nx = tileX + dx;
+                    int ny = tileY + dy;
+                    if (nx < 0 || nx >= Main.maxTilesX || ny < 0 || ny >= Main.maxTilesY)
+                        continue;
+
+                    Tile neighbor = Main.tile[nx, ny];
+                    if (!neighbor.HasTile || !Main.tileSolid[neighbor.TileType])
+                        continue;
+
+                    float horizontal = Math.Abs(dx);
+                    float vertical = Math.Abs(dy) * 1.6f;
+                    float distance = horizontal + vertical;
+                    float maxRadius = horizontal <= 3f ? 6f : 9f;
+                    ApplyHeatToTile(nx, ny, distance, maxRadius, duration, owner, damage);
                 }
             }
         }
@@ -402,7 +438,9 @@ namespace SariaMod.TileGlow
 
             if (heatedTiles.TryGetValue(key, out TileHeatData existing))
             {
-                if (distanceFromCenter < existing.DistanceFromCenter || damage > existing.Damage)
+                if (distanceFromCenter < existing.DistanceFromCenter
+                    || damage > existing.Damage
+                    || (owner >= 0 && owner == existing.Owner))
                 {
                     heatedTiles[key] = new TileHeatData(currentTick, duration, distanceFromCenter, maxRadius, owner, damage);
                 }
@@ -690,12 +728,15 @@ namespace SariaMod.TileGlow
                     {
                         player.buffImmune[ModContent.BuffType<Burning2>()] = false;
                         player.AddBuff(ModContent.BuffType<Burning2>(), 2, quiet: false);
-                        TryDamagePlayerFromHeat(player, contactHeat);
+                        if (Main.netMode != NetmodeID.MultiplayerClient)
+                        {
+                            TryDamagePlayerFromHeat(player, contactHeat);
+                        }
                     }
                 }
                 else if (TryGetHottestHeatInArea(player.Hitbox, 48, out _, out float nearbyIntensity) && nearbyIntensity >= 0.35f)
                 {
-                    if (!PlayerHasFireProtection(player))
+                    if (!IsPlayerFireProtected(player))
                     {
                         player.buffImmune[BuffID.OnFire] = false;
                         player.AddBuff(BuffID.OnFire, 2, quiet: false);
@@ -755,7 +796,7 @@ namespace SariaMod.TileGlow
             return hottestIntensity > 0f;
         }
 
-        private static bool PlayerHasFireProtection(Player player)
+        public static bool IsPlayerFireProtected(Player player)
         {
             return player.HasBuff(ModContent.BuffType<Veil>())
                 || player.HasBuff(BuffID.ObsidianSkin)
@@ -765,7 +806,7 @@ namespace SariaMod.TileGlow
 
         private static void TryDamagePlayerFromHeat(Player player, TileHeatData heatData)
         {
-            if (playerHeatDamageCooldowns == null)
+            if (Main.netMode == NetmodeID.MultiplayerClient || playerHeatDamageCooldowns == null)
                 return;
 
             playerHeatDamageCooldowns.TryGetValue(player.whoAmI, out int cooldown);
@@ -823,7 +864,26 @@ namespace SariaMod.TileGlow
             if (Main.dedServ || Main.gameMenu || Main.LocalPlayer == null || !Main.LocalPlayer.active)
                 return;
 
-            if (!TryGetHottestHeatInArea(Main.LocalPlayer.Hitbox, 96, out _, out float intensity))
+            float intensity = 0f;
+            if (TryGetHottestHeatInArea(Main.LocalPlayer.Hitbox, 96, out _, out float heatIntensity))
+            {
+                intensity = heatIntensity;
+            }
+
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile projectile = Main.projectile[i];
+                if (!projectile.active || projectile.ModProjectile is not RovaCenter)
+                    continue;
+
+                float distance = Vector2.Distance(Main.LocalPlayer.Center, projectile.Center);
+                if (distance >= 112f)
+                    continue;
+
+                intensity = Math.Max(intensity, 1f - distance / 112f);
+            }
+
+            if (intensity <= 0f)
                 return;
 
             float alpha = MathHelper.Clamp(intensity * 0.16f, 0f, 0.16f);
