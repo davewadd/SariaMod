@@ -357,6 +357,9 @@ namespace SariaMod
                 int npcWhoAmI = reader.ReadInt32();
                 if (Main.netMode == NetmodeID.Server)
                 {
+                    if (npcWhoAmI < 0 || npcWhoAmI >= Main.maxNPCs || !Main.npc[npcWhoAmI].active)
+                        return;
+
                     // On the server, apply the removal.
                     NPC npc = Main.npc[npcWhoAmI];
                     int buffIndex = npc.FindBuffIndex(ModContent.BuffType<EnemyFrozen>());

@@ -569,7 +569,9 @@ namespace SariaMod.TileGlow
 
             Vector2 surfaceBase = new Vector2(x * 16f, y * 16f);
 
-            if (Main.rand.NextFloat() < 0.075f * heatAmount)
+            // Heated terrain should smolder quietly instead of filling the
+            // whole beam path with particles.
+            if (Main.rand.NextFloat() < 0.0125f * heatAmount)
             {
                 Vector2 dustPos = surfaceBase + new Vector2(Main.rand.NextFloat(2f, 14f), Main.rand.NextFloat(-2f, 8f));
                 Vector2 dustVel = new Vector2(Main.rand.NextFloat(-0.45f, 0.45f), Main.rand.NextFloat(-1.45f, -0.35f));
@@ -577,16 +579,16 @@ namespace SariaMod.TileGlow
                 flame.noGravity = true;
             }
 
-            if (Main.rand.NextFloat() < 0.045f * heatAmount)
+            if (Main.rand.NextFloat() < 0.0075f * heatAmount)
             {
                 Vector2 sparkPos = surfaceBase + new Vector2(Main.rand.NextFloat(1f, 15f), Main.rand.NextFloat(0f, 12f));
                 Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), Main.rand.NextFloat(-2.4f, -0.8f));
-                Dust spark = Dust.NewDustPerfect(sparkPos, ModContent.DustType<ShadowFlameDustCharge>(), sparkVel, 0, default, Main.rand.NextFloat(0.8f, 1.4f));
+                Dust spark = Dust.NewDustPerfect(sparkPos, ModContent.DustType<SmokeDust6>(), sparkVel, 0, default, Main.rand.NextFloat(0.8f, 1.4f));
                 spark.noGravity = true;
                 Lighting.AddLight(sparkPos, 0.7f, 0.24f, 0.02f);
             }
 
-            if (Main.rand.NextFloat() < 0.035f * heatAmount)
+            if (Main.rand.NextFloat() < 0.0055f * heatAmount)
             {
                 Vector2 smokePos = surfaceBase + new Vector2(Main.rand.NextFloat(2f, 14f), Main.rand.NextFloat(-4f, 6f));
                 Vector2 smokeVel = new Vector2(Main.rand.NextFloat(-0.25f, 0.25f), Main.rand.NextFloat(-0.7f, -0.15f));

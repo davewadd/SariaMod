@@ -145,12 +145,36 @@ namespace SariaMod
                 recipe.Register();
             }
             {
+                Recipe recipe = Recipe.Create(ItemID.LifeCrystal, 1);
+                recipe.Register();
+            }
+            {
+                Recipe recipe = Recipe.Create(ItemID.LifeFruit, 1);
+                recipe.Register();
+            }
+            {
                 Recipe recipe = Recipe.Create(ModContent.ItemType<HealBall>(), 1);
                 recipe.Register();
             }
             {
                 Recipe recipe = Recipe.Create(ModContent.ItemType<CharmOfSummoning>(), 1);
                 recipe.Register();
+            }
+        }
+    }
+}
+
+namespace SariaMod.Items.Sapphire
+{
+    internal static partial class SapphireColdStatus
+    {
+        static partial void IncludeTestIceAttacks(Projectile projectile, ref bool isIceAttack)
+        {
+            // Temporary Chilled-only test source. Removing TestItemRecipes.cs removes
+            // this partial implementation, so the vanilla Javelin returns to normal.
+            if (projectile.type == ProjectileID.JavelinFriendly)
+            {
+                isIceAttack = true;
             }
         }
     }

@@ -125,7 +125,7 @@ namespace SariaMod
             Color drawColor = lightColor;
             if (Glowinthedark)
             {
-                drawColor = Color.Lerp(lightColor, Color.GhostWhite, 20f);
+                drawColor = Saria.ResolveChilledAwareGlowColor(projectile, lightColor);
             }
             if (alphaScale < 1f)
             {
@@ -1190,8 +1190,13 @@ namespace SariaMod
                 projectile.netUpdate = true;
             }
 
-            // Extinguished
-            if (player.HasBuff(ModContent.BuffType<Extinguished>()) && saria.PeriodTimerValue == 0 && !sleep)
+            // Environmental discomfort: fire form in water/rain, or water form
+            // suffering Frostburn in the snow, uses the same sad-face reaction.
+            bool isExtinguished = player.HasBuff(ModContent.BuffType<Extinguished>());
+            bool isColdWaterForm = saria.Transform == 1
+                && saria.SariaZoneSnow
+                && player.HasBuff(ModContent.BuffType<Frostburn2>());
+            if ((isExtinguished || isColdWaterForm) && saria.PeriodTimerValue == 0 && !sleep)
             {
                 saria.SetMoodFor(MoodState.Sad, 420, priority: 1);
                 saria.PeriodTimerValue = PeriodTimerReset;

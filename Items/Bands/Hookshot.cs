@@ -796,6 +796,11 @@ namespace SariaMod.Items.Bands
             // Get the hand position where the gauntlet should be centered
             Vector2 handPos = GetHandPosition(player, armRotation);
 
+            // Terraria smooths one-tile step-ups and step-downs by drawing the player
+            // at drawInfo.Position while the physical player.position changes at once.
+            // Use that same visual offset so the body remains locked to the drawn arm.
+            handPos += drawInfo.Position - player.position;
+
             // Determine sprite effects - flip vertically when pointing left so texture stays upright
             bool pointingLeft = Math.Abs(armRotation) > MathHelper.PiOver2;
             SpriteEffects effects = pointingLeft ? SpriteEffects.FlipVertically : SpriteEffects.None;

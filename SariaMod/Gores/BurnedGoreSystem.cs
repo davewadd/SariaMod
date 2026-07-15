@@ -127,8 +127,8 @@ namespace SariaMod.Gores
 
             float radius = Math.Max(frameWidth, frameHeight) * 0.5f * gore.scale;
 
-            int particleCount = (int)(radius * 0.5f);
-            particleCount = System.Math.Clamp(particleCount, 6, 30);
+            int particleCount = (int)(radius * 0.15f);
+            particleCount = System.Math.Clamp(particleCount, 2, 8);
 
             Vector2 goreCenter = gore.position + new Vector2(frameWidth / 2f, frameHeight / 2f);
 
@@ -293,7 +293,7 @@ namespace SariaMod.Gores
 
                     spriteBatch.Draw(texture, drawPos, sourceRect, finalColor, gore.rotation, origin, gore.scale, SpriteEffects.None, 0f);
 
-                    if (Main.rand.NextBool(20))
+                    if (Main.rand.NextBool(120))
                     {
                         Vector2 dustPos = gore.position + new Vector2(Main.rand.NextFloat(frameWidth), Main.rand.NextFloat(frameHeight));
                         Vector2 dustVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, 0.5f));
@@ -301,7 +301,7 @@ namespace SariaMod.Gores
                         smoke.noGravity = true;
                     }
 
-                    if (Main.rand.NextBool(350))
+                    if (Main.rand.NextBool(1200))
                     {
                         Vector2 dustPos = gore.position + new Vector2(Main.rand.NextFloat(frameWidth), Main.rand.NextFloat(frameHeight));
                         Dust d = Dust.NewDustPerfect(dustPos, ModContent.DustType<SmokeDust7>(), Vector2.Zero, 0, default, 1f);

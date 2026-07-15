@@ -69,6 +69,7 @@ namespace SariaMod.Items.Sapphire
             }
             Projectile.SariaBaseDamage();
             Projectile.damage /= 4;
+            SapphireBarrierHealing.HealFriendlyNPCs(Projectile.Hitbox, HealAmount);
             {
                 if (player2.Hitbox.Intersects(Projectile.Hitbox) && player2.active && (player2.team == player.team) && !player2.HasBuff(ModContent.BuffType<Healed>()))
                 {
@@ -109,14 +110,6 @@ namespace SariaMod.Items.Sapphire
             modPlayer.SariaXp++;
             knockback = 1f;
             
-            if (Main.myPlayer == Projectile.owner && !target.boss && !target.HasBuff(ModContent.BuffType<EnemyFrozen>()))
-            {
-                SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/HardIce"), target.Center);
-                target.AddBuff(ModContent.BuffType<EnemyFrozen>(), 36000);
-                if (target.TryGetGlobalNPC(out FairyGlobalNPC fairyNPC))
-                    fairyNPC.SetFreezeInitiator(Projectile.owner);
-                Netcode.FrozenNPCNetworking.SendFreezeNPC(target.whoAmI, Projectile.owner);
-            }
             int myPlayer = Main.myPlayer;
             if (Main.player[myPlayer].position.X + (float)(Main.player[myPlayer].width / 2) < Projectile.position.X + (float)(Projectile.width / 2))
             {

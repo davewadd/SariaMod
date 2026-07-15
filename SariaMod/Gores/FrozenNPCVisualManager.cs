@@ -22,6 +22,7 @@ namespace SariaMod.Gores
             public int CustomTimer;  // Custom timer that's synced across clients
             public int Duration;
             public bool HasEnemyFrozenBuff;
+            public bool ProducesIceGores;
 
             public FrozenNPCData(int npcIndex, int customTimer, int duration)
             {
@@ -29,13 +30,30 @@ namespace SariaMod.Gores
                 CustomTimer = customTimer;
                 Duration = duration;
                 HasEnemyFrozenBuff = false;
+                ProducesIceGores = false;
             }
         }
 
         // OPTIMIZATION: Changed from List to Dictionary for O(1) lookups by NPC index
         private static Dictionary<int, FrozenNPCData> markedNPCs = new Dictionary<int, FrozenNPCData>();
         private static List<int> keysToRemove = new List<int>(); // Reusable list for cleanup
-        private const int FROZEN_DURATION = 1200; // 20 seconds (60 ticks/sec * 20)
+        public const int ChilledDurationTicks = 1200; // 20 seconds at 60 ticks per second
+
+        // One shared base color for both Chilled NPC textures and their frozen gores.
+        public static readonly Color FrozenPaletteColor = new Color(100, 180, 255);
+
+        /// <summary>
+        /// Applies the shared frozen palette to world lighting. Frozen gores and marked
+        /// NPCs both use this method so their base colors cannot drift apart again.
+        /// </summary>
+        public static Color ApplyFrozenPalette(Color lightingColor)
+        {
+            return new Color(
+                (FrozenPaletteColor.R * lightingColor.R) / 255,
+                (FrozenPaletteColor.G * lightingColor.G) / 255,
+                (FrozenPaletteColor.B * lightingColor.B) / 255,
+                lightingColor.A);
+        }
 
         /// <summary>
         /// Validates that an NPC index is within valid bounds
@@ -48,11 +66,13 @@ namespace SariaMod.Gores
         public override void Load()
         {
             On.Terraria.NPC.UpdateNPC += Hook_NPC_UpdateNPC_CheckFrozenStatus;
+            On.Terraria.NPC.GetNPCColorTintedByBuffs += Hook_NPC_GetNPCColorTintedByBuffs;
         }
 
         public override void Unload()
         {
             On.Terraria.NPC.UpdateNPC -= Hook_NPC_UpdateNPC_CheckFrozenStatus;
+            On.Terraria.NPC.GetNPCColorTintedByBuffs -= Hook_NPC_GetNPCColorTintedByBuffs;
             markedNPCs?.Clear();
             markedNPCs = null;
             keysToRemove?.Clear();
@@ -130,11 +150,12 @@ namespace SariaMod.Gores
                 // while the buff is active, so no packet needed here.
                 existing.CustomTimer = 0;
                 existing.HasEnemyFrozenBuff = true;
+                existing.ProducesIceGores = true;
                 return;
             }
 
             // First-time freeze: add locally only — packet was already sent upstream by the weapon site
-            markedNPCs[npcIndex] = new FrozenNPCData(npcIndex, 0, FROZEN_DURATION) { HasEnemyFrozenBuff = true };
+            markedNPCs[npcIndex] = new FrozenNPCData(npcIndex, 0, ChilledDurationTicks) { HasEnemyFrozenBuff = true, ProducesIceGores = true };
         }
 
         /// <summary>
@@ -150,10 +171,11 @@ namespace SariaMod.Gores
             {
                 existing.CustomTimer = 0;
                 existing.HasEnemyFrozenBuff = true;
+                existing.ProducesIceGores = true;
                 return;
             }
 
-            markedNPCs[npcIndex] = new FrozenNPCData(npcIndex, 0, FROZEN_DURATION) { HasEnemyFrozenBuff = true };
+            markedNPCs[npcIndex] = new FrozenNPCData(npcIndex, 0, ChilledDurationTicks) { HasEnemyFrozenBuff = true, ProducesIceGores = true };
         }
 
         /// <summary>
@@ -169,28 +191,62 @@ namespace SariaMod.Gores
             {
                 existing.CustomTimer = 0;
                 existing.HasEnemyFrozenBuff = true;
+                existing.ProducesIceGores = true;
                 return;
             }
 
-            markedNPCs[npcIndex] = new FrozenNPCData(npcIndex, 0, FROZEN_DURATION) { HasEnemyFrozenBuff = true };
+            markedNPCs[npcIndex] = new FrozenNPCData(npcIndex, 0, ChilledDurationTicks) { HasEnemyFrozenBuff = true, ProducesIceGores = true };
         }
 
         /// <summary>
-        /// Sync frozen timer from network packet (SyncTimer sub-type).
+        /// Start or refresh the short blue Chilled state without
+        /// applying the immobilizing EnemyFrozen gameplay buff.
+        /// </summary>
+        public static void MarkNPCAsChilledLocal(int npcIndex)
+        {
+            if (!IsValidNPCIndex(npcIndex))
+                return;
+
+            bool hasFrozenBuff = Main.npc[npcIndex].HasBuff(ModContent.BuffType<EnemyFrozen>());
+            if (markedNPCs.TryGetValue(npcIndex, out FrozenNPCData existing))
+            {
+                existing.CustomTimer = 0;
+                existing.HasEnemyFrozenBuff = hasFrozenBuff;
+                existing.ProducesIceGores = true;
+                return;
+            }
+
+            markedNPCs[npcIndex] = new FrozenNPCData(npcIndex, 0, ChilledDurationTicks)
+            {
+                HasEnemyFrozenBuff = hasFrozenBuff,
+                ProducesIceGores = true
+            };
+        }
+
+        /// <summary>
+        /// Sync a chilled-state timer refresh from the existing SyncTimer packet.
         /// </summary>
         public static void SyncFrozenTimer(int npcIndex, int timerValue)
         {
             if (!IsValidNPCIndex(npcIndex))
                 return;
 
+            timerValue = System.Math.Clamp(timerValue, 0, ChilledDurationTicks);
+            bool hasFrozenBuff = Main.npc[npcIndex].HasBuff(ModContent.BuffType<EnemyFrozen>());
+
             if (markedNPCs.TryGetValue(npcIndex, out FrozenNPCData existing))
             {
                 existing.CustomTimer = timerValue;
-                existing.HasEnemyFrozenBuff = true;
+                existing.HasEnemyFrozenBuff = hasFrozenBuff;
+                existing.ProducesIceGores = true;
                 return;
             }
 
-            markedNPCs[npcIndex] = new FrozenNPCData(npcIndex, timerValue, FROZEN_DURATION) { HasEnemyFrozenBuff = true };
+            markedNPCs[npcIndex] = new FrozenNPCData(npcIndex, timerValue, ChilledDurationTicks)
+            {
+                HasEnemyFrozenBuff = hasFrozenBuff,
+                ProducesIceGores = true
+            };
         }
 
         /// <summary>
@@ -218,8 +274,23 @@ namespace SariaMod.Gores
         }
 
         /// <summary>
-        /// Check if an NPC is currently marked as frozen AND actually had the EnemyFrozen buff.
-        /// Use this for gore spawn eligibility (mark-only NPCs should not spawn frozen gores).
+        /// Check whether the NPC currently has the blue Chilled state that also
+        /// changes its death gores to the ice theme.
+        /// </summary>
+        public static bool HasChilledGoreEffect(int npcIndex)
+        {
+            if (!IsValidNPCIndex(npcIndex))
+                return false;
+
+            if (markedNPCs.TryGetValue(npcIndex, out FrozenNPCData data))
+                return data.CustomTimer < data.Duration && data.ProducesIceGores;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Check whether the active visual record still represents the actual
+        /// immobilizing EnemyFrozen buff rather than only Chilled.
         /// </summary>
         public static bool WasActuallyFrozen(int npcIndex)
         {
@@ -251,8 +322,7 @@ namespace SariaMod.Gores
         /// <summary>
         /// Get the frozen tint color for an NPC (used by GlobalNPC.DrawEffects)
         /// Returns null if NPC is not marked or effect has expired
-        /// Returns a FULL OVERRIDE color (not minimums) to ensure it works at all light levels
-        /// and overrides Hunter Potion effect
+        /// RGB uses the shared frozen palette and alpha carries the fading blend strength.
         /// </summary>
         public static Color? GetFrozenTintColor(int npcIndex)
         {
@@ -267,18 +337,50 @@ namespace SariaMod.Gores
                 // Calculate fade multiplier (1.0 at start, 0.0 at end)
                 float fadeMultiplier = 1f - progress;
                 
-                // Return full override color values for a vivid icy blue
-                // Saturated ice blue: low R, mid G, full B
-                byte targetR = 80;   // Low red for vivid blue
-                byte targetG = 160;  // Mid green for cyan lean
-                byte targetB = 255;  // Maximum blue
-
                 // Alpha represents how strongly to apply the effect (fades over time)
                 byte blendAmount = (byte)(fadeMultiplier * 255);
                 
-                return new Color(targetR, targetG, targetB, blendAmount);
+                return new Color(
+                    FrozenPaletteColor.R,
+                    FrozenPaletteColor.G,
+                    FrozenPaletteColor.B,
+                    blendAmount);
             }
             return null;
+        }
+
+        /// <summary>
+        /// Vanilla applies Hunter Potion highlighting after GlobalNPC.DrawEffects. For a
+        /// marked NPC, run that one color calculation with Hunter vision temporarily
+        /// disabled so the shared ice palette survives every vanilla NPC draw path.
+        /// Other buff colors and every unmarked NPC still use vanilla behavior unchanged.
+        /// </summary>
+        private Color Hook_NPC_GetNPCColorTintedByBuffs(
+            On.Terraria.NPC.orig_GetNPCColorTintedByBuffs orig,
+            NPC self,
+            Color npcColor)
+        {
+            bool validLocalPlayer = Main.myPlayer >= 0 && Main.myPlayer < Main.maxPlayers;
+            Player localPlayer = validLocalPlayer ? Main.player[Main.myPlayer] : null;
+            bool suppressHunterTint = localPlayer != null &&
+                localPlayer.detectCreature &&
+                GetFrozenTintColor(self.whoAmI).HasValue;
+
+            if (!suppressHunterTint)
+            {
+                return orig(self, npcColor);
+            }
+
+            bool hunterWasActive = localPlayer.detectCreature;
+            localPlayer.detectCreature = false;
+            try
+            {
+                return orig(self, npcColor);
+            }
+            finally
+            {
+                localPlayer.detectCreature = hunterWasActive;
+            }
         }
 
         /// <summary>
@@ -307,11 +409,12 @@ namespace SariaMod.Gores
                 {
                     data.CustomTimer = 0;
                     data.HasEnemyFrozenBuff = true;
+                    data.ProducesIceGores = true;
                 }
                 else
                 {
                     // If not already marked, mark it now
-                    markedNPCs[self.whoAmI] = new FrozenNPCData(self.whoAmI, 0, FROZEN_DURATION) { HasEnemyFrozenBuff = true };
+                    markedNPCs[self.whoAmI] = new FrozenNPCData(self.whoAmI, 0, ChilledDurationTicks) { HasEnemyFrozenBuff = true, ProducesIceGores = true };
                 }
             }
             else

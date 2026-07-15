@@ -32,6 +32,8 @@ namespace SariaMod.Buffs
 {
     public class EnemyFrozen : ModBuff
     {
+        public const int MaximumBuffTime = 3600;
+
         public override void SetStaticDefaults()
         {
             DisplayName.SetDefault("EnemyFrozen");
@@ -46,7 +48,7 @@ namespace SariaMod.Buffs
         }
         public override void Update(NPC npc, ref int buffIndex)
         {
-            npc.buffTime[buffIndex] = 3600;
+            npc.buffTime[buffIndex] = MaximumBuffTime;
         }
     }
 }

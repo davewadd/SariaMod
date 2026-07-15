@@ -12,8 +12,8 @@ using Terraria.ModLoader;
 namespace SariaMod.Items.Ruby
 {
     /// <summary>
-    /// RovaEmber: small flame projectile that drops from heated tiles.
-    /// Spawned by TileHeatManager when tiles are above 50% heat intensity and have air above them.
+    /// RovaEmber: small volcanic projectile dropped by heated tiles and
+    /// upside-down Rova beam impacts.
     /// Applies Burning2 and OnFire on contact.
     /// </summary>
     public class RovaEmber : ModProjectile
@@ -117,14 +117,14 @@ namespace SariaMod.Items.Ruby
         public override void AI()
         {
             // Fire dust visual
-            if (Main.rand.NextBool(3))
+            if (Main.rand.NextBool(5))
             {
                 float radius = 6f;
                 double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
                 Dust.NewDust(new Vector2(
                     Projectile.Center.X + radius * (float)Math.Cos(angle),
                     Projectile.Center.Y + radius * (float)Math.Sin(angle)
-                ), 0, 0, ModContent.DustType<FlameDust>(), 0f, 0f, 0, default(Color), 1.2f);
+                ), 0, 0, ModContent.DustType<FlameDust2>(), 0f, 0f, 0, default(Color), 1f);
             }
 
             // Fire light
@@ -134,10 +134,10 @@ namespace SariaMod.Items.Ruby
         public override void Kill(int timeLeft)
         {
             // Small fire burst on death
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 5; i++)
             {
                 Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
-                Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<FlameDust>(), speed * 3, Scale: 1.5f);
+                Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<FlameDust2>(), speed * 3, Scale: 1.25f);
             }
 
             SoundEngine.PlaySound(SoundID.Item10, Projectile.Center);

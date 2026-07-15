@@ -196,18 +196,19 @@ namespace SariaMod.Items.Strange
                     TickTransformPhase();
 
                     Projectile.SariaBubbleFaceLoader((int)ChangeForm, (int)Eating, lightColor);
-                    Projectile.SariaFeetandArmDraw((int)Transform, (int)Eating, lightColor);
+                    Color sariaLightColor = ApplyColdWaterFormChilledVisuals(lightColor);
+                    Projectile.SariaFeetandArmDraw((int)Transform, (int)Eating, sariaLightColor);
 
                     // Idle feet pass (bottommost — drawn before body so glow stays underneath)
                     if (Projectile.frame <= SariaIdleAnimator.IdleFrameMax && Eating <= 0)
-                        IdleAnimator.DrawFeetPass(Projectile, lightColor);
+                        IdleAnimator.DrawFeetPass(Projectile, sariaLightColor);
 
                     // Body pass (behind faces) — body, eat, hair, scar, body masks only
-                    Projectile.SariaBodyDraw((int)Transform, (int)Eating, (int)IsCharging, (int)ChannelState, (int)SpecialAnimate, lightColor, armsOnly: false);
+                    Projectile.SariaBodyDraw((int)Transform, (int)Eating, (int)IsCharging, (int)ChannelState, (int)SpecialAnimate, sariaLightColor, armsOnly: false);
 
                     // Idle legs pass (behind faces)
                     if (Projectile.frame <= SariaIdleAnimator.IdleFrameMax && Eating <= 0)
-                        IdleAnimator.DrawLegsPass(Projectile, Transform, lightColor);
+                        IdleAnimator.DrawLegsPass(Projectile, Transform, sariaLightColor);
 
                     // Emit campfire-like light for the flaming hair when in Transform 2 and hair is visible.
                     if (Transform == 2)
@@ -215,7 +216,7 @@ namespace SariaMod.Items.Strange
                         Vector2 lightPos = Projectile.Center + new Vector2(0f, -20f);
                         Lighting.AddLight(lightPos, Color.Orange.ToVector3() * 1.2f);
                     }
-                    Projectile.SariaHornDraw((int)Transform, lightColor);
+                    Projectile.SariaHornDraw((int)Transform, sariaLightColor);
 
                     // Owner drives the displayed mood through the blink gate.
                     // Non-owner clients get DisplayedMood pushed directly from the synced packet value.
@@ -225,34 +226,34 @@ namespace SariaMod.Items.Strange
                     // Idle underlays — drawn BEFORE the face base layer
                     if (Projectile.frame <= SariaIdleAnimator.IdleFrameMax && Eating <= 0)
                     {
-                        IdleAnimator.DrawAngryIdleUnderlay(Projectile, Transform, Mood, Cursed, lightColor);
-                        IdleAnimator.DrawMouthIdleUnderlay(Projectile, Transform, Mood, Cursed, lightColor);
+                        IdleAnimator.DrawAngryIdleUnderlay(Projectile, Transform, Mood, Cursed, sariaLightColor);
+                        IdleAnimator.DrawMouthIdleUnderlay(Projectile, Transform, Mood, Cursed, sariaLightColor);
                     }
 
                     // Faces and chest pieces
-                    Projectile.SariaSmallFacesOrWhencursed((int)Transform, (bool)Sleep, (int)Eating, (int)IsCharging, (bool)Cursed, (int)ChannelState, (int)Mood, lightColor, IdleAnimator);
+                    Projectile.SariaSmallFacesOrWhencursed((int)Transform, (bool)Sleep, (int)Eating, (int)IsCharging, (bool)Cursed, (int)ChannelState, (int)Mood, sariaLightColor, IdleAnimator);
 
                     // Idle eye overlays — drawn AFTER the face base layer
                     if (Projectile.frame <= SariaIdleAnimator.IdleFrameMax && Eating <= 0)
                     {
-                        IdleAnimator.DrawIdleEyes(Projectile, Transform, Mood, Cursed, lightColor);
-                        IdleAnimator.DrawHappyIdleEyes(Projectile, Transform, Mood, Cursed, lightColor);
-                        IdleAnimator.DrawSadIdleEyes(Projectile, Transform, Mood, Cursed, lightColor);
-                        IdleAnimator.DrawAngryIdleEyes(Projectile, Transform, Mood, Cursed, lightColor);
+                        IdleAnimator.DrawIdleEyes(Projectile, Transform, Mood, Cursed, sariaLightColor);
+                        IdleAnimator.DrawHappyIdleEyes(Projectile, Transform, Mood, Cursed, sariaLightColor);
+                        IdleAnimator.DrawSadIdleEyes(Projectile, Transform, Mood, Cursed, sariaLightColor);
+                        IdleAnimator.DrawAngryIdleEyes(Projectile, Transform, Mood, Cursed, sariaLightColor);
                     }
 
                     // Arms pass (over faces and chest) — direction arms + their masks
-                    Projectile.SariaBodyDraw((int)Transform, (int)Eating, (int)IsCharging, (int)ChannelState, (int)SpecialAnimate, lightColor, armsOnly: true);
+                    Projectile.SariaBodyDraw((int)Transform, (int)Eating, (int)IsCharging, (int)ChannelState, (int)SpecialAnimate, sariaLightColor, armsOnly: true);
 
                     // Idle arms pass (over faces and chest)
                     if (Projectile.frame <= SariaIdleAnimator.IdleFrameMax && Eating <= 0)
-                        IdleAnimator.DrawArmsPass(Projectile, Transform, lightColor);
+                        IdleAnimator.DrawArmsPass(Projectile, Transform, sariaLightColor);
 
                     // Cursed shadowy overlay — drawn over all body parts, arms, and legs
                     // so it covers every form's glows and all animation states.
                     if (Mood == (int)MoodState.Cursed)
                     {
-                        Color cursedTint = Color.Lerp(lightColor, new Color(60, 0, 80, 200), 0.55f);
+                        Color cursedTint = Color.Lerp(sariaLightColor, new Color(60, 0, 80, 200), 0.55f);
                         Projectile.SariaBodyDraw((int)Transform, (int)Eating, (int)IsCharging, (int)ChannelState, (int)SpecialAnimate, cursedTint, armsOnly: false);
                         Projectile.SariaBodyDraw((int)Transform, (int)Eating, (int)IsCharging, (int)ChannelState, (int)SpecialAnimate, cursedTint, armsOnly: true);
                         if (Projectile.frame <= SariaIdleAnimator.IdleFrameMax && Eating <= 0)
@@ -264,17 +265,17 @@ namespace SariaMod.Items.Strange
                     }
 
                     // Attack arm top pass — drawn over direction arms and idle arms
-                    Projectile.SariaAttackArmTopDraw(Transform, (int)IsCharging, (int)ChannelState, (int)Eating, Sleep, Cursed, lightColor);
+                    Projectile.SariaAttackArmTopDraw(Transform, (int)IsCharging, (int)ChannelState, (int)Eating, Sleep, Cursed, sariaLightColor);
 
-                    Projectile.SariaChargingAnimation((int)Transform, (bool)Sleep, (int)Eating, (int)IsCharging, (bool)Cursed, (int)ChannelState, (int)Mood, lightColor);
-                    Projectile.SariaEatDraw((int)Transform, (int)Eating, lightColor, IdleAnimator);
-                    Projectile.SariaSleepDraw((int)Transform, (bool)Sleep, lightColor, IdleAnimator);
+                    Projectile.SariaChargingAnimation((int)Transform, (bool)Sleep, (int)Eating, (int)IsCharging, (bool)Cursed, (int)ChannelState, (int)Mood, sariaLightColor);
+                    Projectile.SariaEatDraw((int)Transform, (int)Eating, sariaLightColor, IdleAnimator);
+                    Projectile.SariaSleepDraw((int)Transform, (bool)Sleep, sariaLightColor, IdleAnimator);
 
                     // Sparks overlay — drawn last so it appears over all body parts,
                     // masks, arms, faces, and other overlays.
                     if (Transform == 3 && SpecialAnimate > 0)
                     {
-                        Projectile.SariaSparksDraw(TextureAssets.Projectile[ModContent.ProjectileType<SariaSparks>()].Value, lightColor);
+                        Projectile.SariaSparksDraw(TextureAssets.Projectile[ModContent.ProjectileType<SariaSparks>()].Value, sariaLightColor);
                     }
 
                     if (XpTimer && Main.myPlayer == Projectile.owner)

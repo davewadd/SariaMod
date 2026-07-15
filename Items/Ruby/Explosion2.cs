@@ -35,6 +35,11 @@ namespace SariaMod.Items.Ruby
             base.Projectile.localNPCHitCooldown = 1000;
         }
         private const int sphereRadius = 100;
+        private bool RovaCenterEruptionCenterSet;
+        private Vector2 RovaCenterEruptionCenter;
+
+        private bool IsRovaCenterEruption => Projectile.ai[0] < -0.5f;
+
         public override bool? CanCutTiles()
         {
             return false;
@@ -45,16 +50,35 @@ namespace SariaMod.Items.Ruby
             
             Player player = Main.player[base.Projectile.owner];
             FairyPlayer modPlayer = player.Fairy();
+            bool rovaCenterEruption = IsRovaCenterEruption;
+            if (rovaCenterEruption)
+            {
+                if (!RovaCenterEruptionCenterSet)
+                {
+                    RovaCenterEruptionCenter = Projectile.Center;
+                    RovaCenterEruptionCenterSet = true;
+                }
+
+                Projectile.Center = RovaCenterEruptionCenter;
+                Projectile.velocity = Vector2.Zero;
+            }
+            else
+            {
+                FairyProjectile.HomeInOnNPC(base.Projectile, ignoreTiles: true, 600f, 25f, 20f);
+            }
+
             Lighting.AddLight(base.Projectile.Center, 20f, 5f, 0f);
-            FairyProjectile.HomeInOnNPC(base.Projectile, ignoreTiles: true, 600f, 25f, 20f);
             Projectile.SariaBaseDamage();
             Projectile.damage /= 5;
             Projectile.scale *= 1.05f;
             Projectile.width = 450;
             Projectile.height = 450;
             Vector2 centerthis = Projectile.Center;
-            centerthis.X -= 30;
-            centerthis.Y -= 35;
+            if (!rovaCenterEruption)
+            {
+                centerthis.X -= 30;
+                centerthis.Y -= 35;
+            }
             if (Main.rand.NextBool())
             {
                 for (int d = 0; d < 1; d++)
@@ -96,8 +120,11 @@ namespace SariaMod.Items.Ruby
             Lighting.AddLight(Projectile.Center, Color.OrangeRed.ToVector3() * 0.78f);
             {
                 Projectile.knockBack = 50;
-                base.Projectile.velocity.X = (1 * player.direction);
-                base.Projectile.velocity.Y = 0;
+                if (!rovaCenterEruption)
+                {
+                    base.Projectile.velocity.X = (1 * player.direction);
+                    base.Projectile.velocity.Y = 0;
+                }
                 base.Projectile.frameCounter++;
                 if (base.Projectile.frameCounter >= 5)
                 {

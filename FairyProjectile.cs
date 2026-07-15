@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using SariaMod.Items.Strange;
 using SariaMod.Items.Ruby;
+using SariaMod.Items.Sapphire;
 using SariaMod.Buffs;
 using SariaMod.Dusts;
 using System;
@@ -14,6 +15,7 @@ using System.IO;
 using Terraria.Audio;
 using SariaMod.Items.zDinner;
 using SariaMod.Items;
+using SariaMod.Gores;
 namespace SariaMod
 {
     public class FairyProjectile : GlobalProjectile
@@ -166,9 +168,26 @@ namespace SariaMod
                 }
             }
         }
+        public override void ModifyHitNPC(Projectile projectile, NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
+        {
+            // Register the cold state before damage so lethal Sapphire ice hits
+            // can use the same blue tint and ice-themed gore path.
+            SapphireColdStatus.ApplyFromProjectileHit(projectile, target);
+        }
+
         public override void OnHitNPC(Projectile projectile, NPC target, int damage, float knockback, bool crit)
         {
             PsychicFieldSystem.SpawnPelletsForProjectileHit(projectile, target, damage);
+
+            // Every damaging projectile implemented by the Ruby fire form can
+            // authorize burned death gores. The marker only survives this
+            // update, so nonlethal hits do not permanently tag the NPC.
+            Type projectileType = projectile.ModProjectile?.GetType();
+            bool isRubyFireProjectile = projectileType?.Namespace == "SariaMod.Items.Ruby";
+            bool hasIceGoreEffect = target.HasBuff(ModContent.BuffType<EnemyFrozen>())
+                || FrozenNPCVisualManager.HasChilledGoreEffect(target.whoAmI);
+            if (isRubyFireProjectile && projectile.damage > 0 && !hasIceGoreEffect)
+                target.GetGlobalNPC<FairyGlobalNPC>().RovaBurnedHit = true;
         }
 
         public static void DrawCenteredAndAfterimage(Projectile projectile, Color lightColor, int trailingMode, int typeOneDistanceMultiplier = 1, Texture2D texture = null, bool drawCentered = true)

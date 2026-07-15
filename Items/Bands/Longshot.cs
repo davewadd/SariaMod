@@ -164,6 +164,11 @@ namespace SariaMod.Items.Bands
             }
 
             Vector2 handPos = GetHandPosition(player, armRotation);
+
+            // Match Terraria's visual player position during one-tile step smoothing.
+            // Without this offset, the physical position jumps before the arm is drawn
+            // there, making the longshot body slide vertically away from the arm.
+            handPos += drawInfo.Position - player.position;
             bool pointingLeft = Math.Abs(armRotation) > MathHelper.PiOver2;
             SpriteEffects effects = pointingLeft ? SpriteEffects.FlipVertically : SpriteEffects.None;
 

@@ -214,7 +214,9 @@ namespace SariaMod.Items.Strange
                 {
                     CantAttackTimer = 100;
                 }
-                if (ChannelTime > 20 && NotActive && player.channel == true && HoldingHealBall && CantAttackTimer <= 0 && !player.HasBuff(ModContent.BuffType<HealpulseBuff>()) && !Main.mouseRight && !IsTransforming)
+                // Charging is allowed while the normal CantAttackTimer is active.
+                // That timer still governs other attack/cooldown behavior below.
+                if (ChannelTime > 20 && NotActive && player.channel == true && HoldingHealBall && !player.HasBuff(ModContent.BuffType<HealpulseBuff>()) && !Main.mouseRight && !IsTransforming)
                 {
                     ChannelState++;
                 }

@@ -36,6 +36,8 @@ namespace SariaMod
 {
     public static class SariaCombatExtensions
     {
+        private static readonly Dictionary<int, List<RovaLavaGlob>> ChargeGlobVortices = new();
+
         public static void SariaBaseDamage(Projectile projectile)
         {
             Player player = Main.player[projectile.owner];
@@ -454,20 +456,21 @@ namespace SariaMod
             }
             if (transform == 2)
             {
+                DrawFireChargeGlobVortex(projectile, ToSpot);
+
                 if (Main.rand.NextBool(30))
                 {
                     for (int i = 0; i < 25; i++)
                     {
                         Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
-                        Dust d = Dust.NewDustPerfect(ToSpot, ModContent.DustType<ShadowFlameDustCharge>(), speed * 5, Scale: 4.5f);
+                        Dust d = Dust.NewDustPerfect(
+                            ToSpot,
+                            ModContent.DustType<SmokeDust6>(),
+                            speed * 6f,
+                            Scale: 2.5f);
                         d.noGravity = true;
                     }
-                    for (int i = 0; i < 25; i++)
-                    {
-                        Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
-                        Dust d = Dust.NewDustPerfect(ToSpot, ModContent.DustType<SmokeDust6>(), speed * 6, Scale: 2.5f);
-                        d.noGravity = true;
-                    }
+
                     SoundEngine.PlaySound(SoundID.Item88, projectile.Center);
                     Lighting.AddLight(projectile.Center, Color.Red.ToVector3() * 4f);
                 }
@@ -516,6 +519,41 @@ namespace SariaMod
                     Lighting.AddLight(projectile.Center, Color.GhostWhite.ToVector3() * 6f);
                 }
             }
+        }
+
+        private static void DrawFireChargeGlobVortex(Projectile projectile, Vector2 center)
+        {
+            if (Main.dedServ)
+                return;
+
+            if (!ChargeGlobVortices.TryGetValue(projectile.whoAmI, out List<RovaLavaGlob> globs))
+            {
+                globs = new List<RovaLavaGlob>();
+                ChargeGlobVortices[projectile.whoAmI] = globs;
+            }
+
+            if (globs.Count < 6 && Main.rand.NextBool(6))
+            {
+                RovaLavaGlobVisual.SpawnInward(
+                    globs,
+                    center,
+                    1,
+                    32f,
+                    5f,
+                    46f,
+                    2f,
+                    4.5f);
+            }
+
+            RovaLavaGlobVisual.Update(globs);
+            RovaLavaGlobVisual.Draw(
+                globs,
+                Main.screenPosition,
+                new Color(255, 65, 8, 225),
+                new Color(255, 215, 70, 235),
+                0.9f);
+
+            Lighting.AddLight(center, Color.Red.ToVector3() * 4f);
         }
     }
 }

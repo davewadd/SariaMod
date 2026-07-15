@@ -348,15 +348,8 @@ namespace SariaMod.Gores
                     Vector2 goreCenter = gore.position + new Vector2(frameWidth / 2f, frameHeight / 2f);
                     Lighting.AddLight(goreCenter, lightR, lightG, lightB);
                     
-                    Color frozenColor = new Color(100, 180, 255, 255);
                     Color lightColor = Lighting.GetColor((int)(gore.position.X / 16f), (int)(gore.position.Y / 16f));
-                    
-                    Color finalColor = new Color(
-                        (frozenColor.R * lightColor.R) / 255,
-                        (frozenColor.G * lightColor.G) / 255,
-                        (frozenColor.B * lightColor.B) / 255,
-                        255
-                    );
+                    Color finalColor = FrozenNPCVisualManager.ApplyFrozenPalette(lightColor);
                     
                     spriteBatch.Draw(texture, drawPos, sourceRect, finalColor, gore.rotation, origin, gore.scale, SpriteEffects.None, 0f);
                     

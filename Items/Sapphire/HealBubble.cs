@@ -71,11 +71,6 @@ namespace SariaMod.Items.Sapphire
                     Gore B = Gore.NewGorePerfect(Projectile.GetSource_FromThis(), target.position, new Vector2(Main.rand.Next(-6, 7), Main.rand.Next(-6, 7)), backGoreType, 2f);
                     B.light = .5f;
                 }
-                if (Main.myPlayer == Projectile.owner && !target.HasBuff(ModContent.BuffType<EnemyFrozen>()))
-                {
-                    SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/HardIce"), target.Center);
-                    target.AddBuff(ModContent.BuffType<EnemyFrozen>(), 600);
-                }
             }
             damage = 10;
             knockback /= 4;
@@ -161,18 +156,8 @@ namespace SariaMod.Items.Sapphire
         }
         public override void Kill(int timeLeft)
         {
-            Player player = Main.player[Projectile.owner];
-            FairyPlayer modPlayer = player.Fairy();
-            Projectile.AttackCircleDust(ModContent.DustType<HealingDust>(), 30, 18, .5f, .5f, 1f);
-            SoundEngine.PlaySound(SoundID.Item86, Projectile.Center);
-            if (modPlayer.StoredHealth <= 240)
-            {
-                modPlayer.StoredHealth += 10;
-            }
-            else
-            {
-                modPlayer.StoredHealth += ((modPlayer.StoredHealth - 250)* -1);
-            }
+            int healingValue = Projectile.ai[0] > 0f ? (int)Projectile.ai[0] : HealBubbleSpawnHelper.HealingPerRequest;
+            HealBubbleSpawnHelper.PopAndCredit(Projectile.Center, Projectile.owner, healingValue);
         }
     }
 }

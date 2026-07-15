@@ -19,9 +19,66 @@ namespace SariaMod.Items.Ruby
             base.DisplayName.SetDefault("Saria");
             Main.projFrames[base.Projectile.type] = 6;
             ProjectileID.Sets.MinionShot[base.Projectile.type] = true;
+            ProjectileID.Sets.DrawScreenCheckFluff[base.Projectile.type] = 128;
         }
         private int Timedown;
         private int Startup;
+
+        // The visible pixels in the old cluster span about 107 pixels. A three-tile
+        // placement radius plus the sprite bodies produces an approximately
+        // 128-pixel visual diameter, about one tile wider than the old effect.
+        private const int FootprintRadiusTiles = 3;
+        private const int MaximumFlamePlacements = 19;
+        private const int SurfaceHitboxClearancePixels = 12;
+        private const float SurfaceVisualInsetPixels = 2f;
+        // Each animation frame has a slightly different visible bottom edge.
+        // Matching the origin to that edge keeps every frame resting on the tile
+        // instead of floating when its randomized scale changes.
+        private static readonly int[] FlameBodyBaselineSourceYs = { 34, 35, 37, 38, 38, 35 };
+
+        private readonly List<FlamePlacement> flamePlacements = new List<FlamePlacement>();
+        private Point footprintCenterTile;
+        private bool footprintReady;
+        private bool awaitingImpactSync;
+        private bool impactEffectsPlayed;
+
+        private readonly struct FlamePlacement
+        {
+            public readonly Point TileCoordinates;
+            public readonly float OffsetX;
+            public readonly float OffsetY;
+            public readonly float Scale;
+            public readonly float Rotation;
+            public readonly int FrameSpeed;
+            public readonly int FrameOffset;
+            public readonly bool FlipHorizontally;
+
+            public FlamePlacement(Point tileCoordinates, float offsetX, float offsetY, float scale,
+                float rotation, int frameSpeed, int frameOffset, bool flipHorizontally)
+            {
+                TileCoordinates = tileCoordinates;
+                OffsetX = offsetX;
+                OffsetY = offsetY;
+                Scale = scale;
+                Rotation = rotation;
+                FrameSpeed = frameSpeed;
+                FrameOffset = frameOffset;
+                FlipHorizontally = flipHorizontally;
+            }
+        }
+
+        private readonly struct FlameTileCandidate
+        {
+            public readonly Point TileCoordinates;
+            public readonly uint SortKey;
+
+            public FlameTileCandidate(Point tileCoordinates, uint sortKey)
+            {
+                TileCoordinates = tileCoordinates;
+                SortKey = sortKey;
+            }
+        }
+
         public override void SendExtraAI(BinaryWriter writer)
         {
             writer.Write(Startup);
@@ -30,9 +87,39 @@ namespace SariaMod.Items.Ruby
         }
         public override void ReceiveExtraAI(BinaryReader reader)
         {
-            Timedown = (int)reader.ReadInt32();
-            Projectile.timeLeft = (int)reader.ReadInt32();
-            Startup = (int)reader.ReadInt32();
+            // Match SendExtraAI's existing wire order. This corrects the old
+            // decoder without adding or changing any synchronized fields.
+            int previousTimedown = Timedown;
+            Startup = reader.ReadInt32();
+            Projectile.timeLeft = reader.ReadInt32();
+            Timedown = reader.ReadInt32();
+            awaitingImpactSync = false;
+
+            if (previousTimedown <= 0 && Timedown > 0)
+            {
+                PlayImpactEffects();
+            }
+
+            if (previousTimedown > 0 && Timedown <= 0)
+            {
+                flamePlacements.Clear();
+                footprintReady = false;
+            }
+        }
+
+        private void PlayImpactEffects()
+        {
+            if (impactEffectsPlayed)
+            {
+                return;
+            }
+
+            if (!Main.dedServ)
+            {
+                SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Ignite"), Projectile.Center);
+            }
+
+            impactEffectsPlayed = true;
         }
         public override void SetDefaults()
         {
@@ -51,12 +138,405 @@ namespace SariaMod.Items.Ruby
             base.Projectile.timeLeft = 1500;
         }
         private const int sphereRadius = 20;
+
+        private static bool IsFlameBackingTile(int tileX, int tileY)
+        {
+            if (!WorldGen.InWorld(tileX, tileY, 1))
+            {
+                return false;
+            }
+
+            Tile tile = Framing.GetTileSafely(tileX, tileY);
+            if (!tile.HasTile || tile.IsActuated)
+            {
+                return false;
+            }
+
+            int tileType = tile.TileType;
+            if (TileID.Sets.NotReallySolid[tileType])
+            {
+                return false;
+            }
+
+            bool isSolidBlock = Main.tileSolid[tileType] && !Main.tileSolidTop[tileType];
+            bool isPlatform = TileID.Sets.Platforms[tileType];
+            return isSolidBlock || isPlatform;
+        }
+
+        private static bool HasLiteralAirAbove(int tileX, int tileY)
+        {
+            if (!WorldGen.InWorld(tileX, tileY - 1, 1))
+            {
+                return false;
+            }
+
+            Tile tileAbove = Framing.GetTileSafely(tileX, tileY - 1);
+            return (!tileAbove.HasTile || tileAbove.IsActuated) && tileAbove.LiquidAmount == 0;
+        }
+
+        private static bool HasOpenSpaceAbove(int tileX, int tileY)
+        {
+            return !IsFlameBackingTile(tileX, tileY - 1);
+        }
+
+        private static uint MixHash(uint value)
+        {
+            value ^= value >> 16;
+            value *= 0x7FEB352Du;
+            value ^= value >> 15;
+            value *= 0x846CA68Bu;
+            value ^= value >> 16;
+            return value;
+        }
+
+        private uint GetFootprintSeed(Point centerTile)
+        {
+            uint seed = MixHash(unchecked((uint)(Projectile.identity + 1)));
+            seed ^= MixHash(unchecked((uint)(Projectile.owner + 1)) * 0x9E3779B9u);
+            seed ^= MixHash(unchecked((uint)centerTile.X) * 0x85EBCA6Bu);
+            seed ^= MixHash(unchecked((uint)centerTile.Y) * 0xC2B2AE35u);
+            return MixHash(seed);
+        }
+
+        private static uint GetTileSortKey(uint seed, int tileX, int tileY)
+        {
+            uint xHash = MixHash(unchecked((uint)tileX) * 0x8DA6B343u);
+            uint yHash = MixHash(unchecked((uint)tileY) * 0xD8163841u);
+            return MixHash(seed ^ xHash ^ yHash);
+        }
+
+        private Point FindImpactTile(Vector2 oldVelocity)
+        {
+            Vector2 impactDirection = oldVelocity.SafeNormalize(Vector2.UnitY);
+            Vector2 impactProbe = Projectile.Center + impactDirection * 14f;
+            Point probeTile = impactProbe.ToTileCoordinates();
+            Point bestTile = Projectile.Center.ToTileCoordinates();
+            float bestDistanceSquared = float.MaxValue;
+            bool foundTile = false;
+
+            for (int offsetY = -3; offsetY <= 3; offsetY++)
+            {
+                for (int offsetX = -3; offsetX <= 3; offsetX++)
+                {
+                    int tileX = probeTile.X + offsetX;
+                    int tileY = probeTile.Y + offsetY;
+                    if (!IsFlameBackingTile(tileX, tileY))
+                    {
+                        continue;
+                    }
+
+                    Vector2 tileCenter = new Vector2(tileX * 16f + 8f, tileY * 16f + 8f);
+                    float distanceSquared = Vector2.DistanceSquared(tileCenter, impactProbe);
+                    if (distanceSquared < bestDistanceSquared)
+                    {
+                        bestDistanceSquared = distanceSquared;
+                        bestTile = new Point(tileX, tileY);
+                        foundTile = true;
+                    }
+                }
+            }
+
+            return foundTile ? bestTile : Projectile.Center.ToTileCoordinates();
+        }
+
+        private void AnchorToImpactTile(Point impactTile)
+        {
+            Vector2 impactCenter = new Vector2(impactTile.X * 16f + 8f, impactTile.Y * 16f + 8f);
+            Projectile.Center = impactCenter;
+            Projectile.velocity = Vector2.Zero;
+            Projectile.tileCollide = false;
+            footprintReady = false;
+            BuildFlameFootprint(impactTile);
+            Projectile.netUpdate = true;
+        }
+
+        private void EnsureFlameFootprint()
+        {
+            if (Timedown <= 0)
+            {
+                return;
+            }
+
+            Point currentCenterTile = Projectile.Center.ToTileCoordinates();
+            if (!footprintReady || currentCenterTile.X != footprintCenterTile.X || currentCenterTile.Y != footprintCenterTile.Y)
+            {
+                BuildFlameFootprint(currentCenterTile);
+            }
+        }
+
+        private void BuildFlameFootprint(Point centerTile)
+        {
+            flamePlacements.Clear();
+            footprintCenterTile = centerTile;
+            footprintReady = true;
+
+            uint seed = GetFootprintSeed(centerTile);
+            List<FlameTileCandidate> literalAirCandidates = new List<FlameTileCandidate>();
+            List<FlameTileCandidate> surfaceCandidates = new List<FlameTileCandidate>();
+            List<FlameTileCandidate> buriedCandidates = new List<FlameTileCandidate>();
+
+            for (int offsetY = -FootprintRadiusTiles; offsetY <= FootprintRadiusTiles; offsetY++)
+            {
+                for (int offsetX = -FootprintRadiusTiles; offsetX <= FootprintRadiusTiles; offsetX++)
+                {
+                    if (offsetX * offsetX + offsetY * offsetY > FootprintRadiusTiles * FootprintRadiusTiles)
+                    {
+                        continue;
+                    }
+
+                    int tileX = centerTile.X + offsetX;
+                    int tileY = centerTile.Y + offsetY;
+                    if (!IsFlameBackingTile(tileX, tileY))
+                    {
+                        continue;
+                    }
+
+                    FlameTileCandidate candidate = new FlameTileCandidate(
+                        new Point(tileX, tileY),
+                        GetTileSortKey(seed, tileX, tileY));
+
+                    if (HasLiteralAirAbove(tileX, tileY))
+                    {
+                        literalAirCandidates.Add(candidate);
+                    }
+                    else if (HasOpenSpaceAbove(tileX, tileY))
+                    {
+                        surfaceCandidates.Add(candidate);
+                    }
+                    else
+                    {
+                        buriedCandidates.Add(candidate);
+                    }
+                }
+            }
+
+            Comparison<FlameTileCandidate> comparison = (left, right) =>
+            {
+                int keyComparison = left.SortKey.CompareTo(right.SortKey);
+                if (keyComparison != 0)
+                {
+                    return keyComparison;
+                }
+
+                int xComparison = left.TileCoordinates.X.CompareTo(right.TileCoordinates.X);
+                return xComparison != 0
+                    ? xComparison
+                    : left.TileCoordinates.Y.CompareTo(right.TileCoordinates.Y);
+            };
+
+            literalAirCandidates.Sort(comparison);
+            surfaceCandidates.Sort(comparison);
+            buriedCandidates.Sort(comparison);
+            PrioritizeCenterCandidate(literalAirCandidates, centerTile);
+            PrioritizeCenterCandidate(surfaceCandidates, centerTile);
+            PrioritizeCenterCandidate(buriedCandidates, centerTile);
+
+            int placementIndex = 0;
+            AddCandidatePlacements(literalAirCandidates, ref placementIndex);
+            AddCandidatePlacements(surfaceCandidates, ref placementIndex);
+
+            // Give exposed tiles a second randomized flame before filling buried
+            // tiles. This makes the preference visible, not just an ordering rule.
+            AddCandidatePlacements(literalAirCandidates, ref placementIndex);
+            AddCandidatePlacements(surfaceCandidates, ref placementIndex);
+            AddCandidatePlacements(buriedCandidates, ref placementIndex);
+        }
+
+        private static void PrioritizeCenterCandidate(List<FlameTileCandidate> candidates, Point centerTile)
+        {
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                Point tileCoordinates = candidates[i].TileCoordinates;
+                if (tileCoordinates.X != centerTile.X || tileCoordinates.Y != centerTile.Y)
+                {
+                    continue;
+                }
+
+                FlameTileCandidate centerCandidate = candidates[i];
+                candidates.RemoveAt(i);
+                candidates.Insert(0, centerCandidate);
+                return;
+            }
+        }
+
+        private void AddCandidatePlacements(List<FlameTileCandidate> candidates, ref int placementIndex)
+        {
+            for (int i = 0; i < candidates.Count && flamePlacements.Count < MaximumFlamePlacements; i++)
+            {
+                AddFlamePlacement(candidates[i], placementIndex++);
+            }
+        }
+
+        private void AddFlamePlacement(FlameTileCandidate candidate, int placementIndex)
+        {
+            uint style = MixHash(candidate.SortKey ^ unchecked((uint)(placementIndex + 1)) * 0x9E3779B9u);
+
+            style = MixHash(style + 0x9E3779B9u);
+            float offsetX = MathHelper.Lerp(-3f, 3f, (style & 0x00FFFFFFu) / 16777216f);
+
+            style = MixHash(style + 0x9E3779B9u);
+            float offsetY = MathHelper.Lerp(-3f, 3f, (style & 0x00FFFFFFu) / 16777216f);
+
+            style = MixHash(style + 0x9E3779B9u);
+            float scaleRoll = (style & 0x00FFFFFFu) / 16777216f;
+            float scale = MathHelper.Lerp(0.65f, 1.35f, scaleRoll * scaleRoll);
+
+            style = MixHash(style + 0x9E3779B9u);
+            float rotation = MathHelper.Lerp(-0.08f, 0.08f, (style & 0x00FFFFFFu) / 16777216f);
+
+            style = MixHash(style + 0x9E3779B9u);
+            int frameSpeed = 5 + (int)(style % 6u);
+
+            style = MixHash(style + 0x9E3779B9u);
+            int frameOffset = (int)(style % 6u);
+
+            style = MixHash(style + 0x9E3779B9u);
+            bool flipHorizontally = (style & 1u) != 0u;
+
+            flamePlacements.Add(new FlamePlacement(
+                candidate.TileCoordinates,
+                offsetX,
+                offsetY,
+                scale,
+                rotation,
+                frameSpeed,
+                frameOffset,
+                flipHorizontally));
+        }
+
+        private static float GetTileSurfaceY(int tileX, int tileY, float localX)
+        {
+            Tile tile = Framing.GetTileSafely(tileX, tileY);
+            float tileTop = tileY * 16f;
+            float clampedLocalX = MathHelper.Clamp(localX, 0f, 15f);
+
+            if (tile.IsHalfBlock)
+            {
+                return tileTop + 8f;
+            }
+
+            if (tile.Slope == SlopeType.SlopeDownLeft)
+            {
+                return tileTop + clampedLocalX;
+            }
+
+            if (tile.Slope == SlopeType.SlopeDownRight)
+            {
+                return tileTop + 15f - clampedLocalX;
+            }
+
+            return tileTop;
+        }
+
+        private static float GetVerticalClearancePixels(int tileX, int tileY, float surfaceY)
+        {
+            const int MaximumClearanceTiles = 4;
+            float openTop = surfaceY - MaximumClearanceTiles * 16f;
+
+            for (int scanY = tileY - 1; scanY >= tileY - MaximumClearanceTiles; scanY--)
+            {
+                if (IsFlameBackingTile(tileX, scanY))
+                {
+                    openTop = (scanY + 1) * 16f;
+                    break;
+                }
+            }
+
+            return Math.Max(0f, surfaceY - openTop);
+        }
+
+        private bool TryResolvePlacementGeometry(FlamePlacement placement, out Point tileCoordinates,
+            out float localX, out bool hasOpenSpaceAbove, out float surfaceY)
+        {
+            tileCoordinates = placement.TileCoordinates;
+            if (!IsFlameBackingTile(tileCoordinates.X, tileCoordinates.Y))
+            {
+                localX = 0f;
+                hasOpenSpaceAbove = false;
+                surfaceY = 0f;
+                return false;
+            }
+
+            localX = MathHelper.Clamp(8f + placement.OffsetX, 2f, 14f);
+            hasOpenSpaceAbove = HasOpenSpaceAbove(tileCoordinates.X, tileCoordinates.Y);
+            surfaceY = hasOpenSpaceAbove
+                ? GetTileSurfaceY(tileCoordinates.X, tileCoordinates.Y, localX)
+                : tileCoordinates.Y * 16f + 8f;
+            return true;
+        }
+
+        private bool TryGetPlacementHitbox(FlamePlacement placement, out Rectangle hitbox)
+        {
+            if (!TryResolvePlacementGeometry(placement, out Point tileCoordinates, out float localX,
+                out bool hasOpenSpaceAbove, out float surfaceY))
+            {
+                hitbox = Rectangle.Empty;
+                return false;
+            }
+
+            int tileLeft = tileCoordinates.X * 16;
+            int tileTop = tileCoordinates.Y * 16;
+            if (!hasOpenSpaceAbove)
+            {
+                hitbox = new Rectangle(tileLeft, tileTop, 16, 16);
+                return true;
+            }
+
+            int hitboxWidth = Math.Clamp((int)Math.Round(9f + placement.Scale * 4f), 8, 16);
+            int placementCenterX = (int)Math.Round(tileLeft + localX);
+            int hitboxLeft = Math.Clamp(placementCenterX - hitboxWidth / 2, tileLeft, tileLeft + 16 - hitboxWidth);
+            float leftLocalX = hitboxLeft - tileLeft;
+            float rightLocalX = leftLocalX + hitboxWidth - 1;
+            float leftSurfaceY = GetTileSurfaceY(tileCoordinates.X, tileCoordinates.Y, leftLocalX);
+            float rightSurfaceY = GetTileSurfaceY(tileCoordinates.X, tileCoordinates.Y, rightLocalX);
+            int hitboxBottom = (int)Math.Floor(Math.Min(surfaceY, Math.Min(leftSurfaceY, rightSurfaceY))) + 1;
+            int hitboxTop = hitboxBottom - SurfaceHitboxClearancePixels;
+            hitbox = new Rectangle(hitboxLeft, hitboxTop, hitboxWidth, SurfaceHitboxClearancePixels);
+            return true;
+        }
+
+        private bool FootprintTouchesWater()
+        {
+            if (Timedown <= 0)
+            {
+                return Collision.WetCollision(Projectile.position, Projectile.width, Projectile.height);
+            }
+
+            EnsureFlameFootprint();
+            for (int i = 0; i < flamePlacements.Count; i++)
+            {
+                if (!TryGetPlacementHitbox(flamePlacements[i], out Rectangle hitbox))
+                {
+                    continue;
+                }
+
+                if (Collision.WetCollision(new Vector2(hitbox.X, hitbox.Y), hitbox.Width, hitbox.Height))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public override bool OnTileCollide(Vector2 oldVelocity)
         {
             if (Timedown <= 0)
             {
-                SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Ignite"), Projectile.Center);
-                Timedown = 280;
+                if (Main.myPlayer == Projectile.owner)
+                {
+                    Point impactTile = FindImpactTile(oldVelocity);
+                    Timedown = 280;
+                    AnchorToImpactTile(impactTile);
+                    PlayImpactEffects();
+                }
+                else
+                {
+                    // Only the owning client chooses and synchronizes the anchor.
+                    // Other simulators pause their prediction until that update arrives.
+                    awaitingImpactSync = true;
+                    Projectile.tileCollide = false;
+                }
             }
             if (Main.rand.NextBool(30))
             {
@@ -71,13 +551,34 @@ namespace SariaMod.Items.Ruby
                     Dust.NewDust(new Vector2(Projectile.Center.X + 40 * (float)Math.Cos(angle), (Projectile.Center.Y - 3) + 10 * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<FlameDust2>(), 0f, 0f, 0, default(Color), 1.5f);
                 }
             }
-            Projectile.velocity.X = 0;
+            Projectile.velocity = Vector2.Zero;
             return false;
         }
         public override bool? CanCutTiles()
         {
             return false;
         }
+
+        public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
+        {
+            if (Timedown <= 0)
+            {
+                return null;
+            }
+
+            EnsureFlameFootprint();
+            for (int i = 0; i < flamePlacements.Count; i++)
+            {
+                if (TryGetPlacementHitbox(flamePlacements[i], out Rectangle flameHitbox)
+                    && flameHitbox.Intersects(targetHitbox))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
         {
             Player player = Main.player[Projectile.owner];
@@ -100,6 +601,12 @@ namespace SariaMod.Items.Ruby
         {
             return true;
         }
+
+        public override bool ShouldUpdatePosition()
+        {
+            return Timedown <= 0 && !awaitingImpactSync;
+        }
+
         public override void AI()
         {
             Player player = Main.player[Projectile.owner];
@@ -110,17 +617,13 @@ namespace SariaMod.Items.Ruby
             Projectile.knockBack *= 0;
             if (Timedown == 0)
             {
-                Projectile.tileCollide = true;
+                Projectile.tileCollide = !awaitingImpactSync;
             }
             if (Timedown > 0)
             {
                 Projectile.velocity.Y = 0f;
                 Projectile.velocity.X = 0f;
-                if (Timedown >= 0)
-                {
-                    Projectile.width = 40;
-                    Projectile.height = 35;
-                }
+                EnsureFlameFootprint();
                 if (Main.rand.NextBool(30))
                 {
                     {
@@ -136,7 +639,8 @@ namespace SariaMod.Items.Ruby
                 }
                 Projectile.tileCollide = false;
             }
-            if (Collision.WetCollision(Projectile.position, Projectile.width, Projectile.height))
+            bool hasRemovalAuthority = Main.netMode != NetmodeID.MultiplayerClient || Main.myPlayer == Projectile.owner;
+            if (hasRemovalAuthority && FootprintTouchesWater())
             {
                 for (int i = 0; i < 5; i++)
                 {
@@ -200,12 +704,87 @@ namespace SariaMod.Items.Ruby
             }
             return new Color(255, 255, 255, 100);
         }
+
+        private void DrawFlameFootprint(Color lightColor)
+        {
+            EnsureFlameFootprint();
+            Texture2D texture = TextureAssets.Projectile[ModContent.ProjectileType<Flame>()].Value;
+            Color drawColor = Color.Lerp(lightColor, Color.Pink, 20f);
+            drawColor = Color.Lerp(drawColor, Color.DarkViolet, 0f);
+
+            for (int i = 0; i < flamePlacements.Count; i++)
+            {
+                FlamePlacement placement = flamePlacements[i];
+                if (!TryResolvePlacementGeometry(placement, out Point tileCoordinates, out float localX,
+                    out bool hasOpenSpaceAbove, out float surfaceY))
+                {
+                    continue;
+                }
+
+                int visualAge = Math.Max(0, 1500 - Projectile.timeLeft) / (Projectile.extraUpdates + 1);
+                int frameIndex = (visualAge / placement.FrameSpeed + placement.FrameOffset) % 6;
+                Rectangle sourceRectangle = texture.Frame(verticalFrames: 6, frameY: frameIndex);
+                int bodyBaselineSourceY = FlameBodyBaselineSourceYs[frameIndex];
+                sourceRectangle.Height = bodyBaselineSourceY;
+                Vector2 worldPosition;
+                Vector2 origin;
+                float drawScale = placement.Scale;
+
+                if (hasOpenSpaceAbove)
+                {
+                    float verticalClearance = GetVerticalClearancePixels(tileCoordinates.X, tileCoordinates.Y, surfaceY);
+                    drawScale = Math.Min(drawScale, Math.Max(0.4f, verticalClearance / bodyBaselineSourceY));
+                    worldPosition = new Vector2(
+                        tileCoordinates.X * 16f + localX,
+                        surfaceY + SurfaceVisualInsetPixels + Math.Abs(placement.OffsetY) * 0.35f);
+                    origin = new Vector2(sourceRectangle.Width * 0.5f, bodyBaselineSourceY);
+                }
+                else
+                {
+                    worldPosition = new Vector2(
+                        tileCoordinates.X * 16f + 8f + placement.OffsetX,
+                        tileCoordinates.Y * 16f + 8f + placement.OffsetY);
+                    origin = sourceRectangle.Size() * 0.5f;
+                }
+
+                SpriteEffects spriteEffects = placement.FlipHorizontally
+                    ? SpriteEffects.FlipHorizontally
+                    : SpriteEffects.None;
+
+                Main.spriteBatch.Draw(
+                    texture,
+                    worldPosition - Main.screenPosition,
+                    sourceRectangle,
+                    base.Projectile.GetAlpha(drawColor),
+                    placement.Rotation,
+                    origin,
+                    drawScale,
+                    spriteEffects,
+                    0f);
+
+                Lighting.AddLight(worldPosition, Color.HotPink.ToVector3() * (0.3f + drawScale * 0.15f));
+            }
+        }
+
+        public override bool PreDraw(ref Color lightColor)
+        {
+            // The moving projectile retains its existing sprite and clustered
+            // afterimages. Once grounded, only tile-backed placements are drawn.
+            return Timedown <= 0;
+        }
+
         public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI)
         {
             overPlayers.Add(index);
         }
         public override void PostDraw(Color lightColor)
         {
+            if (Timedown > 0)
+            {
+                DrawFlameFootprint(lightColor);
+                return;
+            }
+
             {
                 Texture2D texture = TextureAssets.Projectile[ModContent.ProjectileType<Flame>()].Value;
                 Vector2 startPos = base.Projectile.Center - Main.screenPosition + new Vector2(0f, base.Projectile.gfxOffY);

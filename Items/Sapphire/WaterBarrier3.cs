@@ -85,6 +85,7 @@ namespace SariaMod.Items.Sapphire
                 SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Water1"), Projectile.Center);
             }
             Projectile.SariaBaseDamage();
+            SapphireBarrierHealing.HealFriendlyNPCs(Projectile.Hitbox, HealAmount);
             {
                 if (player2.Hitbox.Intersects(Projectile.Hitbox) && player2.active && (player2.team == player.team) && !player2.HasBuff(ModContent.BuffType<Healed>()))
                 {

@@ -1040,7 +1040,9 @@ Volume = 0.8f }, Projectile.Center);
             Vector2 handPos = shoulderPos + armRotation.ToRotationVector2() * armLength;
 
             float bodyHalfLength = bodyTexture != null ? (bodyTexture.Width / 2f) * scale : 12f;
-            Vector2 chainStart = handPos + armRotation.ToRotationVector2() * bodyHalfLength;
+            Vector2 chainStart = handPos
+                + armRotation.ToRotationVector2() * bodyHalfLength
+                + Vector2.UnitY * player.gfxOffY;
             Vector2 hookCenter = Projectile.Center;
 
             DrawChain(chainStart, hookCenter);

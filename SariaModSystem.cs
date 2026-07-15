@@ -45,6 +45,7 @@ namespace SariaMod
             if (currentFocus != lastKnownFocusState)
             {
                 lastKnownFocusState = currentFocus;
+                LoopingSoundManager.SetFocus(currentFocus);
                 
                 // Notify the player's ModPlayer about focus change
                 if (Main.LocalPlayer != null && Main.LocalPlayer.active)

@@ -3,6 +3,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using SariaMod.Gores;
+using SariaMod.Buffs;
 
 namespace SariaMod.Netcode
 {
@@ -26,8 +27,8 @@ namespace SariaMod.Netcode
         // ── Send ─────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Send a first-time freeze packet: marks the NPC blue and starts its timer on all clients.
-        /// Pass the projectile owner's player index so the server does not echo it back to them.
+        /// Send a first-time hard-freeze request. The server applies the authoritative
+        /// EnemyFrozen buff while the owner keeps a quiet local prediction.
         /// </summary>
         public static void SendFreezeNPC(int npcWhoAmI, int ownerPlayerIndex)
         {
@@ -46,8 +47,7 @@ namespace SariaMod.Netcode
         }
 
         /// <summary>
-        /// Send a timer-reset packet for an NPC that is already marked frozen.
-        /// Call this instead of the old SendSyncFrozenTimer.
+        /// Refresh the short Sapphire chilled visual on the other clients.
         /// </summary>
         public static void SendSyncTimer(int npcWhoAmI, int timerValue)
         {
@@ -87,25 +87,28 @@ namespace SariaMod.Netcode
             if (Main.netMode == NetmodeID.Server)
             {
                 if (npcWhoAmI < 0 || npcWhoAmI >= Main.maxNPCs) return;
+                if (whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active) return;
                 NPC npc = Main.npc[npcWhoAmI];
-                if (!npc.active) return;
+                if (!npc.active || npc.boss) return;
                 if (!npc.TryGetGlobalNPC(out FairyGlobalNPC fairyNPC)) return;
 
-                // Deduplicate: if freezeInitiatorPlayer is already set, a FreezeNPC for this
-                // NPC was already processed this freeze event. Drop the duplicate.
-                // freezeInitiatorPlayer resets to -1 when the NPC is no longer frozen.
-                if (fairyNPC.freezeInitiatorPlayer >= 0) return;
+                // Keep the existing payload for compatibility, but derive authority
+                // from the sender instead of trusting the claimed owner byte.
+                ownerPlayer = whoAmI;
+                int frozenBuffType = ModContent.BuffType<EnemyFrozen>();
+                bool alreadyFrozen = npc.HasBuff(frozenBuffType);
 
-                // Record who caused the freeze so IceDomeNetworking can exclude them correctly.
-                fairyNPC.freezeInitiatorPlayer = ownerPlayer;
+                if (!alreadyFrozen)
+                {
+                    npc.buffImmune[frozenBuffType] = false;
+                    npc.AddBuff(frozenBuffType, EnemyFrozen.MaximumBuffTime, true);
+                }
 
-                // Relay to all clients except the projectile owner (they already applied it locally)
-                ModPacket packet = SariaMod.Instance.GetPacket();
-                packet.Write(PacketId);
-                packet.Write((byte)SubType.FreezeNPC);
-                packet.Write(npcWhoAmI);
-                packet.Write((byte)ownerPlayer);
-                packet.Send(-1, ownerPlayer);
+                if (!alreadyFrozen || fairyNPC.freezeInitiatorPlayer < 0)
+                {
+                    fairyNPC.SetFreezeInitiator(ownerPlayer);
+                    npc.netUpdate = true;
+                }
             }
             else
             {
@@ -123,11 +126,14 @@ namespace SariaMod.Netcode
 
             if (Main.netMode == NetmodeID.Server)
             {
+                if (whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active) return;
+                if (!Main.npc[npcWhoAmI].active) return;
+
                 ModPacket packet = SariaMod.Instance.GetPacket();
                 packet.Write(PacketId);
                 packet.Write((byte)SubType.SyncTimer);
                 packet.Write(npcWhoAmI);
-                packet.Write(timerValue);
+                packet.Write(0);
                 packet.Send(-1, whoAmI);
             }
             else

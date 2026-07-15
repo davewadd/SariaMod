@@ -75,6 +75,9 @@ namespace SariaMod.Items.Strange
         private float _scrollDragStartVal  = 0f;
         private bool  _editingSariaXp      = false;
         private string _sariaXpText        = string.Empty;
+        private bool  _sariaXpSelectAll    = false;
+        private bool  _sariaXpMouseDown   = false;
+        private Rectangle _sariaXpInputBox = Rectangle.Empty;
 
         private sealed class TmUnlockEntry
         {
@@ -265,6 +268,31 @@ namespace SariaMod.Items.Strange
         {
             base.Update(gameTime);
 
+            bool xpMousePressed = Main.mouseLeft && !_sariaXpMouseDown;
+            _sariaXpMouseDown = Main.mouseLeft;
+
+            // The XP box is drawn in the scrolled content area, so use the
+            // last frame's bounds here instead of relying on draw-time clicks.
+            // This keeps focus reliable even when another UI layer consumes the
+            // normal mouse-release flag before the panel is drawn.
+            if (PanelOpen && xpMousePressed)
+            {
+                if (_editingSariaXp && !_sariaXpInputBox.Contains(Main.mouseX, Main.mouseY))
+                {
+                    // Clicking another debug control or outside the field
+                    // commits the value just like pressing Enter.
+                    CommitSariaXp();
+                }
+                else if (_sariaXpInputBox.Contains(Main.mouseX, Main.mouseY))
+                {
+                    FairyPlayer fp = Main.LocalPlayer.GetModPlayer<FairyPlayer>();
+                    _editingSariaXp = true;
+                    _sariaXpSelectAll = true;
+                    _sariaXpText = fp.SariaXp.ToString();
+                    Main.LocalPlayer.mouseInterface = true;
+                }
+            }
+
             if (!PanelOpen || !_editingSariaXp)
                 return;
 
@@ -279,24 +307,65 @@ namespace SariaMod.Items.Strange
             if (Main.keyState.IsKeyDown(Keys.Enter) && !Main.oldKeyState.IsKeyDown(Keys.Enter))
             {
                 CommitSariaXp();
+                ConsumeEnterForXpEdit();
                 return;
             }
 
             if (Main.keyState.IsKeyDown(Keys.Back) && !Main.oldKeyState.IsKeyDown(Keys.Back))
             {
-                if (_sariaXpText.Length > 0)
-                    _sariaXpText = _sariaXpText[..^1];
+                _sariaXpText = _sariaXpSelectAll ? string.Empty
+                    : _sariaXpText.Length > 0 ? _sariaXpText[..^1] : string.Empty;
+                _sariaXpSelectAll = false;
+                return;
+            }
+
+            if (Main.keyState.IsKeyDown(Keys.Delete) && !Main.oldKeyState.IsKeyDown(Keys.Delete))
+            {
+                _sariaXpText = string.Empty;
+                _sariaXpSelectAll = false;
                 return;
             }
 
             string typed = Main.GetInputText(string.Empty);
-            if (string.IsNullOrEmpty(typed))
+            if (!string.IsNullOrEmpty(typed))
+            {
+                AppendSariaXpDigits(typed);
                 return;
+            }
 
+            // Main.GetInputText can be unavailable while another Terraria UI
+            // layer owns the text-input buffer. Read number keys directly as a
+            // fallback so the debug field remains usable with chat closed.
+            Keys[] digitKeys =
+            {
+                Keys.D0, Keys.D1, Keys.D2, Keys.D3, Keys.D4,
+                Keys.D5, Keys.D6, Keys.D7, Keys.D8, Keys.D9,
+                Keys.NumPad0, Keys.NumPad1, Keys.NumPad2, Keys.NumPad3, Keys.NumPad4,
+                Keys.NumPad5, Keys.NumPad6, Keys.NumPad7, Keys.NumPad8, Keys.NumPad9,
+            };
+            for (int i = 0; i < digitKeys.Length; i++)
+            {
+                if (Main.keyState.IsKeyDown(digitKeys[i]) && !Main.oldKeyState.IsKeyDown(digitKeys[i]))
+                {
+                    AppendSariaXpDigits(((char)('0' + (i % 10))).ToString());
+                    break;
+                }
+            }
+        }
+
+        private void AppendSariaXpDigits(string typed)
+        {
             foreach (char c in typed)
             {
-                if (char.IsDigit(c))
-                    _sariaXpText += c;
+                if (!char.IsDigit(c))
+                    continue;
+
+                if (_sariaXpSelectAll)
+                {
+                    _sariaXpText = string.Empty;
+                    _sariaXpSelectAll = false;
+                }
+                _sariaXpText += c;
             }
         }
 
@@ -849,19 +918,23 @@ namespace SariaMod.Items.Strange
         private int DrawSariaXpInput(SpriteBatch spriteBatch, int panelX, int rowY, FairyPlayer fp)
         {
             Utils.DrawBorderString(spriteBatch, "Saria XP",
-                new Vector2(panelX + LabelX, rowY + 4), ST_ForesightMint, 0.8f);
-            Rectangle box = new Rectangle(panelX + ValueX - 10, rowY, 150, RowHeight);
+                new Vector2(panelX + LabelX, rowY + 2), ST_ForesightMint, 0.8f);
+
+            // Give the label its own row so the input can use the full content
+            // width without being clipped by the panel's right edge.
+            rowY += RowHeight;
+            Rectangle box = new Rectangle(panelX + LabelX, rowY,
+                PanelWidth - LabelX - 28, RowHeight);
+            _sariaXpInputBox = box;
             bool hover = box.Contains(Main.mouseX, Main.mouseY);
-            if (hover && Main.mouseLeft && Main.mouseLeftRelease)
-            {
-                _editingSariaXp = true;
-                _sariaXpText = fp.SariaXp.ToString();
-                Main.mouseLeftRelease = false;
-            }
             DrawRect(spriteBatch, box, hover || _editingSariaXp ? ButtonBgHover : ButtonBg,
                 _editingSariaXp ? ST_ForesightMint : PanelBorder);
             string text = _editingSariaXp ? _sariaXpText : fp.SariaXp.ToString();
-            Utils.DrawBorderString(spriteBatch, string.IsNullOrEmpty(text) ? "0" : text,
+            if (string.IsNullOrEmpty(text) && !_editingSariaXp)
+                text = "0";
+            if (_editingSariaXp && (Main.GameUpdateCount / 30) % 2 == 0)
+                text += "|";
+            Utils.DrawBorderString(spriteBatch, text,
                 new Vector2(box.X + 7, box.Y + 4), ValueColor, 0.75f);
             if (hover || _editingSariaXp)
                 Main.LocalPlayer.mouseInterface = true;
@@ -875,6 +948,16 @@ namespace SariaMod.Items.Strange
                 xp = 0;
             fp.SariaXp = xp;
             _editingSariaXp = false;
+            _sariaXpSelectAll = false;
+        }
+
+        private static void ConsumeEnterForXpEdit()
+        {
+            // Prevent Terraria's global Enter handler from opening chat after
+            // the XP editor has already handled the key.
+            Main.inputTextEnter = false;
+            Main.chatRelease = false;
+            Main.ClosePlayerChat();
         }
 
         private void DrawSmallButton(SpriteBatch spriteBatch, Rectangle button, string label, bool hover, bool enabled)

@@ -23,7 +23,6 @@ namespace SariaMod.Items.Strange
         private int SoundTimer2;
         private int HitMax;
         private bool ChargeFire1Played;
-        private bool ChargeFire2Played;
         private int NetSyncTimer;
         public override void SendExtraAI(BinaryWriter writer)
         {
@@ -32,7 +31,6 @@ namespace SariaMod.Items.Strange
             writer.Write(SoundTimer2);
             writer.Write(HitMax);
             writer.Write(ChargeFire1Played);
-            writer.Write(ChargeFire2Played);
         }
         public override void ReceiveExtraAI(BinaryReader reader)
         {
@@ -41,7 +39,6 @@ namespace SariaMod.Items.Strange
             SoundTimer2 = (int)reader.ReadInt32();
             HitMax = (int)reader.ReadInt32();
             ChargeFire1Played = (bool)reader.ReadBoolean();
-            ChargeFire2Played = (bool)reader.ReadBoolean();
         }
         private const int sphereRadius = 100;
         public override void SetDefaults()
@@ -137,38 +134,16 @@ namespace SariaMod.Items.Strange
                 // The beam will aim at ztarget4 position via RovaCenter's manual override logic
                 ChannelTimer = 0;
                 ChargeFire1Played = false;
-                ChargeFire2Played = false;
             }
             else
             {
-                // Normal charge sequence
+                // ChargeFire1 starts the RovaCenter presentation and its visual charge-up.
                 if (ChannelTimer >= 60 && !ChargeFire1Played)
                 {
-                    SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/ChargeFire1"), Projectile.Center);
                     ChargeFire1Played = true;
 
-                    // Spawn the RovaRing visual
-                    if (Main.myPlayer == Projectile.owner)
-                    {
-                        Projectile.NewProjectile(
-                            Projectile.GetSource_FromThis(),
-                            Projectile.Center.X,
-                            Projectile.Center.Y,
-                            0f, 0f,
-                            ModContent.ProjectileType<RovaRing>(),
-                            0, 0f, Projectile.owner,
-                            player.whoAmI,
-                            base.Projectile.whoAmI
-                        );
-                    }
-                }
-
-                if (ChannelTimer >= 110 && ChargeFire1Played && !ChargeFire2Played)
-                {
-                    SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/ChargeFire2"), Projectile.Center);
-                    ChargeFire2Played = true;
-
-                    // Spawn RovaCenter at ztarget4 position
+                    // Spawn RovaCenter at ztarget4 position. It owns the two-sound
+                    // sequence so the delay is measured from the actual sound start.
                     if (Main.myPlayer == Projectile.owner)
                     {
                         // Check no RovaCenter already exists before spawning
@@ -199,12 +174,6 @@ namespace SariaMod.Items.Strange
                             );
                         }
                     }
-                }
-
-                // Old behavior for when ChargeFire2 plays but we're already done
-                if (ChargeFire2Played)
-                {
-                    ChannelTimer = 0;
                 }
             }
         }

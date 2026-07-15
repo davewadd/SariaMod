@@ -1197,7 +1197,7 @@ namespace SariaMod.Items.Strange
                 effects = SpriteEffects.FlipHorizontally;
 
             // Glow-in-dark: always bright (GhostWhite), matching normal SariaFeet
-            Color drawColor = Color.Lerp(lightColor, Color.GhostWhite, 20f);
+            Color drawColor = Saria.ResolveChilledAwareGlowColor(projectile, lightColor);
 
             // --- Trail effect (identical to SariaMaindraw trail logic) ---
             if (!_feetTrailDecayTimers.ContainsKey(projectile.whoAmI))
@@ -1278,7 +1278,7 @@ namespace SariaMod.Items.Strange
             if (shouldFlip && projectile.spriteDirection == -1)
                 effects = SpriteEffects.FlipHorizontally;
 
-            Color drawColor = projectile.GetAlpha(Color.Lerp(lightColor, Color.GhostWhite, 20f));
+            Color drawColor = projectile.GetAlpha(Saria.ResolveChilledAwareGlowColor(projectile, lightColor));
 
             Main.spriteBatch.Draw(texture, drawPos, sourceRect,
                 drawColor, projectile.rotation, origin,
@@ -1314,7 +1314,7 @@ namespace SariaMod.Items.Strange
             float electricPulse = MathHelper.Lerp(0.3f, 1f, 1f - SariaExtensions1.alpha3) * intensity;
 
             // --- 1) Pulsating base draw (scaled by cycle intensity) ---
-            Color baseColor = projectile.GetAlpha(Color.Lerp(lightColor, Color.GhostWhite, 20f)) * electricPulse;
+            Color baseColor = projectile.GetAlpha(Saria.ResolveChilledAwareGlowColor(projectile, lightColor)) * electricPulse;
             Main.spriteBatch.Draw(texture, drawPos, sourceRect,
                 baseColor, projectile.rotation, origin,
                 projectile.scale, effects, 0f);
@@ -1416,7 +1416,7 @@ namespace SariaMod.Items.Strange
 
             // Glow-in-dark matches normal SariaFeet: always bright (GhostWhite)
             Color drawColor = glowInDark
-                ? projectile.GetAlpha(Color.Lerp(lightColor, Color.GhostWhite, 20f))
+                ? projectile.GetAlpha(Saria.ResolveChilledAwareGlowColor(projectile, lightColor))
                 : projectile.GetAlpha(lightColor);
 
             Main.spriteBatch.Draw(texture, drawPos, sourceRect,
@@ -1937,7 +1937,7 @@ namespace SariaMod.Items.Strange
             bool doFlip = shouldFlip && projectile.spriteDirection == -1;
             SpriteEffects effects = doFlip ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 
-            Color baseColor = projectile.GetAlpha(Color.Lerp(lightColor, Color.GhostWhite, 20f));
+            Color baseColor = projectile.GetAlpha(Saria.ResolveChilledAwareGlowColor(projectile, lightColor));
 
             // Top-left of the frame (origin is centre, same as DrawEyeOverlay)
             float topLeftX = center.X - (texture.Width  * 0.5f) * projectile.scale;
@@ -1987,7 +1987,7 @@ namespace SariaMod.Items.Strange
             if (invertFlip) doFlip = !doFlip;
             SpriteEffects effects = doFlip ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 
-            Color drawColor = projectile.GetAlpha(Color.Lerp(lightColor, Color.GhostWhite, 20f));
+            Color drawColor = projectile.GetAlpha(Saria.ResolveChilledAwareGlowColor(projectile, lightColor));
 
             if (pointSample)
             {

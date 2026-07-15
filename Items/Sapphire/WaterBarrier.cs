@@ -59,6 +59,7 @@ namespace SariaMod.Items.Sapphire
             }
             Projectile.SariaBaseDamage();
             Projectile.damage -= (Projectile.damage) / 4;
+            SapphireBarrierHealing.HealFriendlyNPCs(Projectile.Hitbox, HealAmount);
             {
                 if (player2.Hitbox.Intersects(Projectile.Hitbox) && player2.active && (player2.team == player.team) && !player2.HasBuff(ModContent.BuffType<Healed>()))
                 {

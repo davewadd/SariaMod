@@ -45,6 +45,8 @@ namespace SariaMod
         public bool Stronger;
         public bool Frostburn2;
         public int psychicFieldMultiplier;
+        private const int SapphireBarrierHealCooldownTicks = 30;
+        private int sapphireBarrierHealCooldown;
 
         // Ice Dome Animation Fields
         public int IceDomeTimer;
@@ -104,6 +106,11 @@ namespace SariaMod
         }
         public override void ResetEffects(NPC npc)
         {
+            if (sapphireBarrierHealCooldown > 0)
+            {
+                sapphireBarrierHealCooldown--;
+            }
+
             SariaCurseD = false;
             Burning2 = false;
             GhostBurning = false;
@@ -119,9 +126,8 @@ namespace SariaMod
         }
         
         /// <summary>
-        /// DrawEffects is called before the NPC is drawn - this is where we tint the NPC
-        /// Uses FULL COLOR OVERRIDE to ensure frozen effect is visible at all light levels
-        /// and adds a light blue light at NPC center for glowing frozen effect
+        /// DrawEffects is called before the NPC is drawn. It applies the same
+        /// lighting-aware ice palette as frozen gores and emits icy light.
         /// </summary>
         public override void DrawEffects(NPC npc, ref Color drawColor)
         {
@@ -143,23 +149,10 @@ namespace SariaMod
                 // Add the light at NPC center - this illuminates the NPC sprite
                 Lighting.AddLight(npc.Center, lightR, lightG, lightB);
                 
-                // FULL COLOR OVERRIDE - blend towards pale icy blue
-                Color targetColor = new Color(frozenTint.Value.R, frozenTint.Value.G, frozenTint.Value.B);
-                
-                // Strong blend towards pale icy blue - overrides original color
-                float effectBlend = blendStrength * 0.92f;
-                
-                // Directly override the draw color by lerping towards pale icy blue
-                drawColor = Color.Lerp(drawColor, targetColor, effectBlend);
-                
-                // Force minimum brightness to ensure visibility in dark areas
-                byte minBrightness = (byte)(150 * blendStrength);
-                if (drawColor.R < minBrightness)
-                    drawColor.R = minBrightness;
-                if (drawColor.G < minBrightness)
-                    drawColor.G = minBrightness;
-                if (drawColor.B < minBrightness)
-                    drawColor.B = minBrightness;
+                // Use exactly the same lighting-aware base palette as frozen gores.
+                // The blend still fades naturally as the Chilled timer expires.
+                Color targetColor = FrozenNPCVisualManager.ApplyFrozenPalette(drawColor);
+                drawColor = Color.Lerp(drawColor, targetColor, blendStrength);
                 
                 // Spawn dust particles based on effect strength
                 float effectStrength = blendStrength;
@@ -199,6 +192,7 @@ namespace SariaMod
             wasFrozen = false;
             freezeInitiatorPlayer = -1;
             visualsAuthorized = false;
+            sapphireBarrierHealCooldown = 0;
             // Add a check to ensure the index is within the array's bounds.
             if (npc.whoAmI >= 0 && npc.whoAmI < hasBuffSynced.Length)
             {
@@ -213,6 +207,22 @@ namespace SariaMod
             wasFrozen = false;
             freezeInitiatorPlayer = -1;
             visualsAuthorized = false;
+            sapphireBarrierHealCooldown = 0;
+        }
+
+        internal bool TryHealFromSapphireBarrier(NPC npc, int requestedHealing)
+        {
+            if (sapphireBarrierHealCooldown > 0 || requestedHealing <= 0 || npc.life <= 0 || npc.life >= npc.lifeMax)
+            {
+                return false;
+            }
+
+            int actualHealing = Math.Min(requestedHealing, npc.lifeMax - npc.life);
+            npc.life += actualHealing;
+            sapphireBarrierHealCooldown = SapphireBarrierHealCooldownTicks;
+            npc.HealEffect(actualHealing, broadcast: true);
+            npc.netUpdate = true;
+            return true;
         }
         public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter)
         {
@@ -912,7 +922,7 @@ namespace SariaMod
         public override void OnHitByProjectile(NPC npc, Projectile projectile, int damage, float knockback, bool crit)
         {
             Player player = Main.player[projectile.owner];
-            if (npc.HasBuff(ModContent.BuffType<EnemyFrozen>()) && projectile.type != ModContent.ProjectileType<ColdWaveHitBox>() && projectile.type != ModContent.ProjectileType<HealBubble>() && projectile.type != ModContent.ProjectileType<ColdWaveCenter>())
+            if (npc.HasBuff(ModContent.BuffType<EnemyFrozen>()) && !SapphireColdStatus.PreservesHardFreeze(projectile))
             {
                 RemoveFrozenBuff(npc);
             }
@@ -1235,17 +1245,22 @@ namespace SariaMod
         }
         public override void HitEffect(NPC npc, int hitDirection, double damage)
         {
-            bool hasFrozenBuff   = npc.HasBuff(ModContent.BuffType<EnemyFrozen>());
-            bool wasFrozenByMark = FrozenNPCVisualManager.WasActuallyFrozen(npc.whoAmI);
+            bool hasFrozenBuff = npc.HasBuff(ModContent.BuffType<EnemyFrozen>());
+            bool hasChilledGoreEffect = FrozenNPCVisualManager.HasChilledGoreEffect(npc.whoAmI);
+            bool usesIceGores = hasFrozenBuff || hasChilledGoreEffect;
+            bool hasBurning2 = Burning2 || npc.HasBuff(ModContent.BuffType<Burning2>());
 
-            if (RovaBurnedHit && npc.life <= 0 && Main.netMode != NetmodeID.Server)
+            if (!usesIceGores
+                && npc.life <= 0
+                && (RovaBurnedHit || hasBurning2)
+                && Main.netMode != NetmodeID.Server)
             {
                 float radius = Math.Max(npc.width, npc.height) * 2f + 80f;
                 BurnedGoreSystem.TrackGoresNearPosition(npc.Center, radius);
                 RovaBurnedHit = false;
             }
 
-            if (hasFrozenBuff || wasFrozenByMark)
+            if (usesIceGores)
             {
                 if (Main.netMode == NetmodeID.Server)
                 {

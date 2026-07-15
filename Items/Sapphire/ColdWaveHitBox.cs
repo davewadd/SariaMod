@@ -89,22 +89,6 @@ namespace SariaMod.Items.Sapphire
                     Gore B = Gore.NewGorePerfect(Projectile.GetSource_FromThis(), target.position, new Vector2(Main.rand.Next(-10, 10), Main.rand.Next(-16, -5)), backGoreType, 2f);
                     B.light = .5f;
                 }
-                if (!target.HasBuff(ModContent.BuffType<EnemyFrozen>()))
-                    {
-                    SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/HardIce"), target.Center);
-                }
-
-                if (Main.myPlayer == Projectile.owner && !target.HasBuff(ModContent.BuffType<EnemyFrozen>()))
-                {
-                    // Track who applied the freeze for proper animation handling
-                    if (target.TryGetGlobalNPC(out FairyGlobalNPC fairyNPC))
-                    {
-                        fairyNPC.SetFreezeInitiator(Projectile.owner);
-                    }
-
-                    target.AddBuff(ModContent.BuffType<EnemyFrozen>(), 3600);
-                    Netcode.FrozenNPCNetworking.SendFreezeNPC(target.whoAmI, Projectile.owner);
-                }
             }
             FairyPlayer modPlayer = player.Fairy();
             modPlayer.SariaXp++;
@@ -114,9 +98,15 @@ namespace SariaMod.Items.Sapphire
                 double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
                 Dust.NewDust(new Vector2(Projectile.Center.X + radius * (float)Math.Cos(angle), Projectile.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Water>(), 0f, 0f, 0, default(Color), 1.5f);
             }//end of dust stuff
-            if ((player.ownedProjectileCounts[ModContent.ProjectileType<HealBubble>()] <= 9))
+            if (Main.myPlayer == Projectile.owner)
             {
-                if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<HealBubble>(), Projectile.damage, Projectile.knockBack, player.whoAmI, Projectile.whoAmI);
+                HealBubbleSpawnHelper.SpawnOrOverflow(
+                    Projectile.GetSource_FromThis(),
+                    Projectile.Center + Utils.RandomVector2(Main.rand, -24f, 24f),
+                    Vector2.One.RotatedByRandom(6.2831854820251465) * 4f,
+                    Projectile.damage,
+                    Projectile.knockBack,
+                    player.whoAmI);
             }
             knockback /= 100;
         }

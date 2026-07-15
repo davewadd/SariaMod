@@ -77,7 +77,16 @@ namespace SariaMod.Items.Sapphire
             target.AddBuff(ModContent.BuffType<Frostburn2>(), 200);
             FairyPlayer modPlayer = player.Fairy();
             modPlayer.SariaXp++;
-            Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center + new Vector2(-250f, 370f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<HealBubble>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
+            if (Main.myPlayer == Projectile.owner)
+            {
+                HealBubbleSpawnHelper.SpawnOrOverflow(
+                    Projectile.GetSource_FromThis(),
+                    Projectile.Center + new Vector2(-250f, 370f),
+                    Vector2.One.RotatedByRandom(6.2831854820251465) * 4f,
+                    Projectile.damage,
+                    0f,
+                    Projectile.owner);
+            }
             {
                 float radius = (float)Math.Sqrt(Main.rand.Next(34 * 34));
                 double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
