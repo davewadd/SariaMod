@@ -31,6 +31,11 @@ namespace SariaMod.Items.Ruby
 
     public static class RovaLavaGlobVisual
     {
+        private const int TrailLength = 12;
+        private const int TrailDrawStride = 3;
+        private const int MaximumPooledTrails = 512;
+        private static readonly Stack<Vector2[]> TrailPool = new Stack<Vector2[]>();
+
         public static void SpawnInward(
             List<RovaLavaGlob> globs,
             Vector2 anchor,
@@ -173,6 +178,7 @@ namespace SariaMod.Items.Ruby
 
                 if (glob.Age >= glob.Life || glob.Distance <= 1f)
                 {
+                    RecycleTrail(glob.Trail);
                     globs.RemoveAt(i);
                     continue;
                 }
@@ -209,6 +215,7 @@ namespace SariaMod.Items.Ruby
 
                 if (glob.Age >= glob.Life || glob.BeamDistance >= beamLength)
                 {
+                    RecycleTrail(glob.Trail);
                     globs.RemoveAt(i);
                     continue;
                 }
@@ -233,6 +240,9 @@ namespace SariaMod.Items.Ruby
                 float drawAlpha = envelope * alpha;
                 Vector2 position = glob.Anchor - screenPosition + glob.Angle.ToRotationVector2() * glob.Distance;
 
+                if (!IsGlobVisible(glob, screenPosition, position, size))
+                    continue;
+
                 DrawTrail(glob, screenPosition, outerColor, drawAlpha);
 
                 DrawSoftGlob(pixel, position, size, outerColor * drawAlpha);
@@ -256,6 +266,9 @@ namespace SariaMod.Items.Ruby
                 Vector2 position = glob.Anchor - screenPosition + glob.Angle.ToRotationVector2() * glob.Distance;
                 Color outerColor = glob.Color.A > 0 ? glob.Color : new Color(255, 229, 66);
 
+                if (!IsGlobVisible(glob, screenPosition, position, size))
+                    continue;
+
                 DrawTrail(glob, screenPosition, outerColor, drawAlpha);
                 DrawSoftGlob(pixel, position, size, outerColor * drawAlpha);
                 DrawSoftGlob(pixel, position, size * 0.42f, innerColor * (drawAlpha * 0.88f));
@@ -264,10 +277,11 @@ namespace SariaMod.Items.Ruby
 
         private static void InitializeTrail(ref RovaLavaGlob glob)
         {
-            const int trailLength = 12;
-            glob.Trail = new Vector2[trailLength];
+            glob.Trail = TrailPool.Count > 0
+                ? TrailPool.Pop()
+                : new Vector2[TrailLength];
             Vector2 position = GetWorldPosition(glob);
-            for (int i = 0; i < trailLength; i++)
+            for (int i = 0; i < TrailLength; i++)
                 glob.Trail[i] = position;
 
             glob.TrailIndex = 0;
@@ -284,17 +298,27 @@ namespace SariaMod.Items.Ruby
                 return;
 
             Texture2D pixel = TextureAssets.MagicPixel.Value;
-            for (int i = 0; i < glob.Trail.Length - 1; i++)
+            for (int i = 0; i < glob.Trail.Length - 1; i += TrailDrawStride)
             {
                 int firstIndex = (glob.TrailIndex + i) % glob.Trail.Length;
-                int secondIndex = (firstIndex + 1) % glob.Trail.Length;
+                int secondOffset = Math.Min(i + TrailDrawStride, glob.Trail.Length - 1);
+                int secondIndex = (glob.TrailIndex + secondOffset) % glob.Trail.Length;
                 Vector2 start = glob.Trail[firstIndex] - screenPosition;
                 Vector2 end = glob.Trail[secondIndex] - screenPosition;
                 Vector2 segment = end - start;
                 if (segment.LengthSquared() < 0.25f)
                     continue;
 
-                float progress = (i + 1f) / (glob.Trail.Length - 1f);
+                float segmentPadding = 6f;
+                if (Math.Max(start.X, end.X) < -segmentPadding
+                    || Math.Min(start.X, end.X) > Main.screenWidth + segmentPadding
+                    || Math.Max(start.Y, end.Y) < -segmentPadding
+                    || Math.Min(start.Y, end.Y) > Main.screenHeight + segmentPadding)
+                {
+                    continue;
+                }
+
+                float progress = secondOffset / (float)(glob.Trail.Length - 1);
                 float width = MathHelper.Lerp(0.7f, 4.5f, progress);
                 float trailAlpha = MathHelper.SmoothStep(0f, 1f, progress) * alpha * 0.7f;
                 Main.spriteBatch.Draw(
@@ -316,6 +340,25 @@ namespace SariaMod.Items.Ruby
                 return;
 
             int r = Math.Max(1, (int)Math.Ceiling(radius));
+            if (position.X + r < 0f
+                || position.X - r > Main.screenWidth
+                || position.Y + r < 0f
+                || position.Y - r > Main.screenHeight)
+            {
+                return;
+            }
+
+            if (RovaVisualAssets.TryGetSoftGlobFrame(r, out Texture2D atlas, out Rectangle source))
+            {
+                const int atlasCenter = 32;
+                Main.spriteBatch.Draw(
+                    atlas,
+                    new Vector2((int)position.X - atlasCenter, (int)position.Y - atlasCenter),
+                    source,
+                    color);
+                return;
+            }
+
             for (int y = -r; y <= r; y++)
             {
                 float normalizedY = y / (float)r;
@@ -333,6 +376,52 @@ namespace SariaMod.Items.Ruby
                     null,
                     color * (1f - normalizedY * normalizedY));
             }
+        }
+
+        public static void ClearAndRecycle(List<RovaLavaGlob> globs)
+        {
+            if (globs == null)
+                return;
+
+            for (int i = 0; i < globs.Count; i++)
+                RecycleTrail(globs[i].Trail);
+            globs.Clear();
+        }
+
+        private static void RecycleTrail(Vector2[] trail)
+        {
+            if (trail != null && trail.Length == TrailLength && TrailPool.Count < MaximumPooledTrails)
+                TrailPool.Push(trail);
+        }
+
+        private static bool IsGlobVisible(
+            RovaLavaGlob glob,
+            Vector2 screenPosition,
+            Vector2 currentScreenPosition,
+            float radius)
+        {
+            float padding = Math.Max(6f, radius + 2f);
+            float minimumX = currentScreenPosition.X;
+            float maximumX = currentScreenPosition.X;
+            float minimumY = currentScreenPosition.Y;
+            float maximumY = currentScreenPosition.Y;
+
+            if (glob.Trail != null)
+            {
+                for (int i = 0; i < glob.Trail.Length; i++)
+                {
+                    Vector2 point = glob.Trail[i] - screenPosition;
+                    minimumX = Math.Min(minimumX, point.X);
+                    maximumX = Math.Max(maximumX, point.X);
+                    minimumY = Math.Min(minimumY, point.Y);
+                    maximumY = Math.Max(maximumY, point.Y);
+                }
+            }
+
+            return maximumX >= -padding
+                && minimumX <= Main.screenWidth + padding
+                && maximumY >= -padding
+                && minimumY <= Main.screenHeight + padding;
         }
     }
 }

@@ -44,7 +44,8 @@ namespace SariaMod
         public bool RovaBurnedHit;
         public bool Stronger;
         public bool Frostburn2;
-        public int psychicFieldMultiplier;
+        // Connected field count captured while PsychicFieldDebuff is refreshed.
+        public int psychicFieldPelletCount;
         private const int SapphireBarrierHealCooldownTicks = 30;
         private int sapphireBarrierHealCooldown;
 
@@ -117,20 +118,45 @@ namespace SariaMod
             RovaBurnedHit = false;
             Frostburn2 = false;
             Stronger = false;
-            // Don't reset psychicFieldMultiplier here — it lingers while the debuff is active.
-            // Cleared below when the NPC no longer has the PsychicFieldDebuff.
-            if (!npc.HasBuff(ModContent.BuffType<PsychicFieldDebuff>()))
+            if (psychicFieldPelletCount > 0 && !npc.HasBuff(ModContent.BuffType<PsychicFieldDebuff>()))
             {
-                psychicFieldMultiplier = 0;
+                psychicFieldPelletCount = 0;
             }
         }
         
         /// <summary>
-        /// DrawEffects is called before the NPC is drawn. It applies the same
-        /// lighting-aware ice palette as frozen gores and emits icy light.
+        /// DrawEffects is called before the NPC is drawn. It applies the active
+        /// lighting-aware charred or ice palette and emits matching light.
         /// </summary>
         public override void DrawEffects(NPC npc, ref Color drawColor)
         {
+            bool burning2Active = Burning2 || npc.HasBuff(ModContent.BuffType<Burning2>());
+            if (burning2Active)
+            {
+                // Active Burning2 supplies fire light and body flames. The final
+                // buff-color hook applies the fully refreshed Charred palette after
+                // vanilla tinting, while this return keeps fire ahead of cold effects.
+                Lighting.AddLight(npc.Center, 0.8f, 0.256f, 0.032f);
+                return;
+            }
+
+            // Lingering Charred takes visual precedence when fire and ice states
+            // overlap, matching the death-gore selection.
+            Color? charredTint = CharredNPCVisualManager.GetCharredTintColor(npc.whoAmI);
+            if (charredTint.HasValue)
+            {
+                float blendStrength = charredTint.Value.A / 255f;
+                float lightIntensity = blendStrength * 0.8f;
+                Lighting.AddLight(
+                    npc.Center,
+                    1.0f * lightIntensity,
+                    0.32f * lightIntensity,
+                    0.04f * lightIntensity);
+
+                SpawnLingeringCharredDusts(npc, blendStrength);
+                return;
+            }
+
             // Apply frozen tint effect if NPC is marked
             Color? frozenTint = FrozenNPCVisualManager.GetFrozenTintColor(npc.whoAmI);
             if (frozenTint.HasValue)
@@ -158,7 +184,9 @@ namespace SariaMod
                 float effectStrength = blendStrength;
                 
                 // Spawn Fog dust for misty frozen effect
-                if (effectStrength > 0.2f && Main.rand.NextBool(25))
+                if (effectStrength > 0.2f
+                    && Main.rand.NextBool(25)
+                    && VisualDustLimiter.TryReserveHalfCapacitySlot())
                 {
                     Vector2 dustPos = npc.Center + new Vector2(
                         Main.rand.NextFloat(-npc.width / 2f, npc.width / 2f),
@@ -170,7 +198,9 @@ namespace SariaMod
                 }
                 
                 // Spawn Snow2 dust for icy particle effects
-                if (effectStrength > 0.15f && Main.rand.NextBool(15))
+                if (effectStrength > 0.15f
+                    && Main.rand.NextBool(15)
+                    && VisualDustLimiter.TryReserveHalfCapacitySlot())
                 {
                     Vector2 dustPos = npc.Center + new Vector2(
                         Main.rand.NextFloat(-npc.width / 2f, npc.width / 2f),
@@ -180,6 +210,50 @@ namespace SariaMod
                     Dust snow = Dust.NewDustPerfect(dustPos, ModContent.DustType<Snow2>(), dustVel, 0, default, Main.rand.NextFloat(0.8f, 1.4f));
                     snow.noGravity = true;
                 }
+            }
+        }
+
+        private static void SpawnLingeringCharredDusts(NPC npc, float effectStrength)
+        {
+            const int dustRadius = 30;
+
+            // Match Burning2's balanced yellow/red-orange particle mix. Their
+            // frequency falls with the tint as the Charred timer expires.
+            if (Main.rand.NextFloat() < 0.125f * effectStrength
+                && VisualDustLimiter.TryReserveHalfCapacitySlot())
+            {
+                float radius = (float)Math.Sqrt(Main.rand.Next(dustRadius * dustRadius));
+                double angle = Main.rand.NextDouble() * MathHelper.TwoPi;
+                Dust.NewDust(
+                    npc.Center + radius * new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)),
+                    0,
+                    0,
+                    ModContent.DustType<FlameDust>(),
+                    0f,
+                    0f,
+                    0,
+                    default,
+                    1.5f);
+            }
+
+            if (Main.rand.NextFloat() < 0.125f * effectStrength
+                && VisualDustLimiter.TryReserveHalfCapacitySlot())
+            {
+                float radius = (float)Math.Sqrt(Main.rand.Next(dustRadius * dustRadius));
+                double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
+                Vector2 dustPosition = new Vector2(
+                    npc.Center.X + radius * (float)Math.Cos(angle),
+                    npc.Center.Y - 15f + radius * (float)Math.Sin(angle));
+                Dust.NewDust(
+                    dustPosition,
+                    0,
+                    0,
+                    ModContent.DustType<SmokeDust3>(),
+                    0f,
+                    0f,
+                    0,
+                    default,
+                    1.5f);
             }
         }
         
@@ -892,6 +966,7 @@ namespace SariaMod
                 {
                     npc.DelBuff(buffIndex);
                     npc.netUpdate = true;
+                    SariaMod.PlayFrozenHitEffect(npc.whoAmI);
                 }
             }
             else if (Main.netMode == NetmodeID.MultiplayerClient)
@@ -909,6 +984,7 @@ namespace SariaMod
                 if (buffIndex != -1)
                 {
                     npc.DelBuff(buffIndex);
+                    SariaMod.PlayFrozenHitEffect(npc.whoAmI);
                 }
             }
         }
@@ -931,6 +1007,27 @@ namespace SariaMod
                 npc.position.Y = (player.position.Y - 50);
             }
         }
+
+        public override bool StrikeNPC(
+            NPC npc,
+            ref double damage,
+            int defense,
+            ref float knockback,
+            int hitDirection,
+            ref bool crit)
+        {
+            if (FrozenNPCVisualManager.HasChilledGoreEffect(npc.whoAmI))
+            {
+                // Vanilla subtracts half of an NPC's effective defense from incoming
+                // damage. Adding back half of 20% of that defense makes Chilled remove
+                // exactly 20% of the armor used for this hit without changing base stats.
+                const double chilledDefenseRemoval = 0.20d;
+                damage += Math.Max(0, defense) * chilledDefenseRemoval * 0.5d;
+            }
+
+            return true;
+        }
+
         public override void AI(NPC npc)
         {
             // Ice Dome Animation Trigger
@@ -1071,13 +1168,16 @@ namespace SariaMod
                 }
                 npc.direction = -1;
                 npc.rotation = 0;
-                if (Main.rand.NextBool(20))
+                if (Main.rand.NextBool(20) && VisualDustLimiter.TryReserveHalfCapacitySlot())
                 {
                     float radius = (float)Math.Sqrt(Main.rand.Next(150 * 150));
                     double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
                     Dust.NewDust(new Vector2((npc.Center.X) + radius * (float)Math.Cos(angle), (npc.Center.Y) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<Snow2>(), 0f, 0f, 0, default(Color), 1.5f);
                 }
-                if (IceDomeActive && IceDomeTimer < 90 && Main.rand.NextBool(10))
+                if (IceDomeActive
+                    && IceDomeTimer < 90
+                    && Main.rand.NextBool(10)
+                    && VisualDustLimiter.TryReserveHalfCapacitySlots(2))
                 {
                     Vector2 leftPos = npc.Center + new Vector2(-npc.width / 2 - Main.rand.Next(10), Main.rand.Next(-npc.height / 2, npc.height / 2));
                     Dust.NewDustPerfect(leftPos, ModContent.DustType<Fog>(), new Vector2(-2f, 0f), 0, default, 1.5f);
@@ -1218,6 +1318,9 @@ namespace SariaMod
                 // Second Meteor Flow effect
                 DrawBuffEffect(npc, spriteBatch, screenPos, "SariaMod/Items/Emerald/MeteorFlow", Color.Lerp(drawColor, Color.WhiteSmoke, 2f), new Vector2(-10f, 0f), npc.velocity.X * 0.05f, SpriteEffects.FlipVertically, npc.scale * 2.7f, 4, 0.50f);
             }
+
+            BurningBodyFlameVisuals.DrawNPCFlames(npc, spriteBatch, screenPos);
+            BurningBodyFlameVisuals.DrawNPCIceGores(npc, spriteBatch, screenPos);
         }
         // A helper method that now uses screenPos for accurate drawing
         private void DrawBuffEffect(
@@ -1247,12 +1350,20 @@ namespace SariaMod
         {
             bool hasFrozenBuff = npc.HasBuff(ModContent.BuffType<EnemyFrozen>());
             bool hasChilledGoreEffect = FrozenNPCVisualManager.HasChilledGoreEffect(npc.whoAmI);
-            bool usesIceGores = hasFrozenBuff || hasChilledGoreEffect;
+            bool hasCharredGoreEffect = CharredNPCVisualManager.HasCharredGoreEffect(npc.whoAmI);
+            // A lingering Charred appearance remains authoritative after Burning2 ends,
+            // including when cold and fire visuals happen to overlap at death.
+            bool usesIceGores = !hasCharredGoreEffect && (hasFrozenBuff || hasChilledGoreEffect);
             bool hasBurning2 = Burning2 || npc.HasBuff(ModContent.BuffType<Burning2>());
+
+            if (usesIceGores && npc.life > 0 && damage > 0d && Main.netMode != NetmodeID.Server)
+            {
+                SpawnChilledHitGore(npc, hitDirection);
+            }
 
             if (!usesIceGores
                 && npc.life <= 0
-                && (RovaBurnedHit || hasBurning2)
+                && (RovaBurnedHit || hasBurning2 || hasCharredGoreEffect)
                 && Main.netMode != NetmodeID.Server)
             {
                 float radius = Math.Max(npc.width, npc.height) * 2f + 80f;
@@ -1291,20 +1402,31 @@ namespace SariaMod
                 }
             }
             npc.buffImmune[ModContent.BuffType<EnemyFrozen>()] = false;
-            if (hasFrozenBuff)
-            {
-                // This check is a failsafe, gore is only on clients anyway.
-                if (Main.netMode != NetmodeID.Server)
-                {
-                    int backGoreType = ModContent.GoreType<IceGore2>();
-                    for (int G = 0; G < 3; G++)
-                    {
-                        Gore B = Gore.NewGorePerfect(npc.GetSource_FromThis(), npc.position, new Vector2(Main.rand.Next(-6, 7), Main.rand.Next(-6, 7)), backGoreType, 2f);
-                        B.light = .5f;
-                        SoundEngine.PlaySound(SoundID.Item27, npc.Center);
-                    }
-                }
-            }
+        }
+
+        private static void SpawnChilledHitGore(NPC npc, int hitDirection)
+        {
+            int goreType = ModContent.GoreType<ChilledHitGore>();
+            Vector2 spawnPosition = npc.Center + new Vector2(
+                Main.rand.NextFloat(-npc.width * 0.2f, npc.width * 0.2f),
+                Main.rand.NextFloat(-npc.height * 0.2f, npc.height * 0.2f));
+            Vector2 velocity = new Vector2(
+                Main.rand.NextFloat(-1.4f, 1.4f) + hitDirection * 0.35f,
+                Main.rand.NextFloat(-2.4f, -0.8f));
+            float npcVisualSize = Math.Max(npc.width, npc.height) * npc.scale;
+            float goreScale = MathHelper.Clamp(
+                npcVisualSize / 44f * 0.5f * Main.rand.NextFloat(0.9f, 1.1f),
+                0.35f,
+                0.75f);
+
+            Gore gore = Gore.NewGorePerfect(
+                npc.GetSource_FromThis(),
+                spawnPosition,
+                velocity,
+                goreType,
+                goreScale);
+            gore.timeLeft = ChilledHitGore.LifetimeTicks;
+            gore.light = 0.2f;
         }
         public override bool PreKill(NPC npc)
         {

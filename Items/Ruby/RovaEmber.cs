@@ -14,7 +14,7 @@ namespace SariaMod.Items.Ruby
     /// <summary>
     /// RovaEmber: small volcanic projectile dropped by heated tiles and
     /// upside-down Rova beam impacts.
-    /// Applies Burning2 and OnFire on contact.
+    /// Applies Burning2 on contact.
     /// </summary>
     public class RovaEmber : ModProjectile
     {
@@ -99,7 +99,6 @@ namespace SariaMod.Items.Ruby
             target.buffImmune[BuffID.Slow] = false;
             target.buffImmune[BuffID.ShadowFlame] = false;
             target.buffImmune[BuffID.Ichor] = false;
-            target.buffImmune[BuffID.OnFire] = false;
             target.buffImmune[BuffID.Frostburn] = false;
             target.buffImmune[BuffID.Poisoned] = false;
             target.buffImmune[BuffID.Venom] = false;
@@ -107,7 +106,6 @@ namespace SariaMod.Items.Ruby
             target.buffImmune[ModContent.BuffType<Burning2>()] = false;
 
             target.AddBuff(ModContent.BuffType<Burning2>(), 200);
-            target.AddBuff(BuffID.OnFire, 200);
 
             if (modPlayer != null) modPlayer.SariaXp++;
 

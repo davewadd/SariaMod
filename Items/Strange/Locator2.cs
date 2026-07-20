@@ -24,18 +24,9 @@ namespace SariaMod.Items.Strange
             public float Lifetime;
         }
 
-        private class PulsingSparkle
-        {
-            public Vector2 Position;
-            public float Age;
-            public float Lifetime;
-            public float SpawnSize; // Original size it was created at
-        }
-
         private List<GreenLightTriangle> greenTriangles = new List<GreenLightTriangle>();
-        private List<PulsingSparkle> sparkles = new List<PulsingSparkle>();
+        private readonly LocatorLightShapeVisuals lightShapes = new LocatorLightShapeVisuals();
         private int triangleSpawnTimer;
-        private int sparkleSpawnTimer;
 
         public override void SetStaticDefaults()
         {
@@ -104,7 +95,7 @@ namespace SariaMod.Items.Strange
             target.buffImmune[BuffID.Slow] = false;
             target.buffImmune[BuffID.ShadowFlame] = false;
             target.buffImmune[BuffID.Ichor] = false;
-            target.buffImmune[BuffID.OnFire] = false;
+            target.buffImmune[ModContent.BuffType<Burning2>()] = false;
             target.buffImmune[BuffID.Frostburn] = false;
             target.buffImmune[BuffID.Poisoned] = false;
             target.buffImmune[BuffID.Venom] = false;
@@ -113,11 +104,15 @@ namespace SariaMod.Items.Strange
             target.AddBuff(ModContent.BuffType<SariaCurse2>(), 50);
             if (player.HasBuff(ModContent.BuffType<StatLower>()))
             {
-                if (player.ownedProjectileCounts[ModContent.ProjectileType<LocatorShard>()] < 60f)
+                for (int j = 0; j < 3; j++)
                 {
-                    for (int j = 0; j < 3; j++)
+                    if (Main.myPlayer == Projectile.owner)
                     {
-                        if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), base.Projectile.Center + Utils.RandomVector2(Main.rand, 0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<LocatorShard>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
+                        global::SariaMod.Gores.LocatorShard.Spawn(
+                            Projectile.GetSource_FromThis(),
+                            base.Projectile.Center + Utils.RandomVector2(Main.rand, 0f, 0f),
+                            Vector2.One.RotatedByRandom(MathHelper.TwoPi) * 4f,
+                            Projectile.owner);
                     }
                 }
                 Projectile.Kill();
@@ -200,75 +195,18 @@ namespace SariaMod.Items.Strange
                     Color[] colors = { Color.LimeGreen, Color.Cyan, new Color(200, 100, 255) }; // purple
                     Color triangleColor = colors[Main.rand.Next(colors.Length)];
 
-                    Vector2 point1 = new Vector2(
-                        (float)Math.Cos(randomRotation) * randomSize,
-                        (float)Math.Sin(randomRotation) * randomSize
-                    );
-                    Vector2 point2 = new Vector2(
-                        (float)Math.Cos(randomRotation + MathHelper.TwoPi / 3f) * randomSize,
-                        (float)Math.Sin(randomRotation + MathHelper.TwoPi / 3f) * randomSize
-                    );
-                    Vector2 point3 = new Vector2(
-                        (float)Math.Cos(randomRotation + MathHelper.TwoPi * 2f / 3f) * randomSize,
-                        (float)Math.Sin(randomRotation + MathHelper.TwoPi * 2f / 3f) * randomSize
-                    );
-
-                    for (int edge = 0; edge < 3; edge++)
-                    {
-                        float t = edge / 3f;
-
-                        Vector2 edgePos1 = Vector2.Lerp(point1, point2, t);
-                        Dust d1 = Dust.NewDustPerfect(trailPos + edgePos1, 267, Projectile.velocity * 0.15f, 0, triangleColor, 0.8f);
-                        d1.noGravity = true;
-                        d1.fadeIn = 1f;
-
-                        Vector2 edgePos2 = Vector2.Lerp(point2, point3, t);
-                        Dust d2 = Dust.NewDustPerfect(trailPos + edgePos2, 267, Projectile.velocity * 0.15f, 0, triangleColor, 0.8f);
-                        d2.noGravity = true;
-                        d2.fadeIn = 1f;
-
-                        Vector2 edgePos3 = Vector2.Lerp(point3, point1, t);
-                        Dust d3 = Dust.NewDustPerfect(trailPos + edgePos3, 267, Projectile.velocity * 0.15f, 0, triangleColor, 0.8f);
-                        d3.noGravity = true;
-                        d3.fadeIn = 1f;
-                    }
+                    LocatorLightShapeVisuals.SpawnSmallDustTriangle(
+                        trailPos,
+                        Projectile.velocity * 0.15f,
+                        randomRotation,
+                        randomSize,
+                        triangleColor);
                 }
             }
 
-            // Spawn white pulsing sparkles from outer hexagon
-            sparkleSpawnTimer++;
-            int sparkleSpawnChance = speed < 30f ? 10 : (speed < 50f ? 6 : 4);
-            
-            if (sparkleSpawnTimer >= sparkleSpawnChance)
-            {
-                sparkleSpawnTimer = 0;
-                
-                // Spawn from outer hexagon ring (radius 16)
-                float hexRadius = 16f * Projectile.scale;
-                float angle = Main.rand.NextFloat(0f, MathHelper.TwoPi);
-                Vector2 sparklePos = Projectile.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * hexRadius;
-                
-                sparkles.Add(new PulsingSparkle
-                {
-                    Position = sparklePos,
-                    Age = 0f,
-                    Lifetime = 2f, // 2 seconds for pulse cycle
-                    SpawnSize = 0.8f // Tiny size
-                });
-            }
+            lightShapes.Update();
 
-            // Update sparkles
-            for (int i = sparkles.Count - 1; i >= 0; i--)
-            {
-                sparkles[i].Age += 1f / 60f; // Convert to seconds
-                
-                if (sparkles[i].Age >= sparkles[i].Lifetime)
-                {
-                    sparkles.RemoveAt(i);
-                }
-            }
-
-            // Spawn Locator-style triangle dust only after leaving Saria's center (timeLeft <= 400)
+            // Spawn Locator light shapes only after leaving Saria's center (timeLeft <= 400)
             if (Projectile.timeLeft <= 400 && Main.rand.NextBool(8))
             {
                 float randomSize = Main.rand.NextFloat(10f, 25f);
@@ -276,43 +214,14 @@ namespace SariaMod.Items.Strange
                 Vector2 randomOffset = Main.rand.NextVector2Circular(15f, 15f);
                 
                 bool useCyan = Main.rand.NextBool(3);
-                Color triangleColor1 = useCyan ? Color.DarkCyan : Color.DeepPink;
-                Color triangleColor2 = useCyan ? Color.Cyan : Color.HotPink;
-                
-                Vector2 point1 = new Vector2(
-                    (float)Math.Cos(randomRotation) * randomSize,
-                    (float)Math.Sin(randomRotation) * randomSize
-                );
-                Vector2 point2 = new Vector2(
-                    (float)Math.Cos(randomRotation + MathHelper.TwoPi / 3f) * randomSize,
-                    (float)Math.Sin(randomRotation + MathHelper.TwoPi / 3f) * randomSize
-                );
-                Vector2 point3 = new Vector2(
-                    (float)Math.Cos(randomRotation + MathHelper.TwoPi * 2f / 3f) * randomSize,
-                    (float)Math.Sin(randomRotation + MathHelper.TwoPi * 2f / 3f) * randomSize
-                );
-                
-                for (int edge = 0; edge < 10; edge++)
+                if (useCyan)
                 {
-                    float t = edge / 10f;
-                    
-                    Vector2 edgePos1 = Vector2.Lerp(point1, point2, t);
-                    Dust d1 = Dust.NewDustPerfect(Projectile.Center + edgePos1 + randomOffset, 267, Projectile.velocity * 0.3f, 0, triangleColor1, 1.5f);
-                    d1.noGravity = true;
-                    d1.fadeIn = 2.0f;
-                    d1.color = Color.Lerp(triangleColor1, triangleColor2, t);
-                    
-                    Vector2 edgePos2 = Vector2.Lerp(point2, point3, t);
-                    Dust d2 = Dust.NewDustPerfect(Projectile.Center + edgePos2 + randomOffset, 267, Projectile.velocity * 0.3f, 0, triangleColor1, 1.5f);
-                    d2.noGravity = true;
-                    d2.fadeIn = 2.0f;
-                    d2.color = Color.Lerp(triangleColor1, triangleColor2, t);
-                    
-                    Vector2 edgePos3 = Vector2.Lerp(point3, point1, t);
-                    Dust d3 = Dust.NewDustPerfect(Projectile.Center + edgePos3 + randomOffset, 267, Projectile.velocity * 0.3f, 0, triangleColor1, 1.5f);
-                    d3.noGravity = true;
-                    d3.fadeIn = 2.0f;
-                    d3.color = Color.Lerp(triangleColor1, triangleColor2, t);
+                    lightShapes.SpawnTriangle(
+                        Projectile.Center + randomOffset,
+                        Projectile.velocity * 0.3f,
+                        randomRotation,
+                        randomSize,
+                        Color.Cyan);
                 }
             }
 
@@ -340,7 +249,12 @@ namespace SariaMod.Items.Strange
                         
                         float fade = 1f - (seg / (float)segments);
                         Color purpleColor = Color.Lerp(Color.DarkViolet, Color.MediumPurple, t);
-                        
+
+                        if (!VisualDustLimiter.TryReserveHalfCapacitySlot())
+                        {
+                            continue;
+                        }
+
                         Dust lightning = Dust.NewDustPerfect(
                             boltPos,
                             267,
@@ -583,78 +497,12 @@ namespace SariaMod.Items.Strange
                 }
             }
 
-            // Draw pulsing sparkles
-            DrawPulsingSparkles(trailTexture);
-
-            // Draw green light triangles
-            DrawGreenLightTriangles(trailTexture);
+            lightShapes.Draw(Projectile, trailTexture);
 
             // Draw hexagon head with electric sparks
             DrawHexagonHeadWithSparks();
 
             return false;
-        }
-
-        private void DrawPulsingSparkles(Texture2D pixelTexture)
-        {
-            foreach (PulsingSparkle sparkle in sparkles)
-            {
-                float ageProgress = sparkle.Age / sparkle.Lifetime;
-                
-                // Pulse pattern: 0->1 (grow), 1->0 (shrink), repeat
-                // First 0.5s: normal size, 0.5-1s: pulse up, 1-1.5s: pulse down, 1.5-2s: normal size
-                float pulseCycle = ageProgress * 4f; // 4 cycles in 2 seconds (pulse every 0.5s after initial 0.5s)
-                float pulse = 1f;
-                
-                if (pulseCycle < 2f) // First second: normal + 1 pulse cycle
-                {
-                    float localProgress = pulseCycle % 1f;
-                    if (localProgress < 0.5f)
-                    {
-                        // Pulse in: 1 -> 1.3
-                        pulse = 1f + (localProgress * 2f) * 0.3f;
-                    }
-                    else
-                    {
-                        // Pulse out: 1.3 -> 1
-                        pulse = 1.3f - ((localProgress - 0.5f) * 2f) * 0.3f;
-                    }
-                }
-                else
-                {
-                    // Second second: normal -> pulse -> normal
-                    float localProgress = (pulseCycle - 2f) % 1f;
-                    if (localProgress < 0.5f)
-                    {
-                        pulse = 1f + (localProgress * 2f) * 0.3f;
-                    }
-                    else
-                    {
-                        pulse = 1.3f - ((localProgress - 0.5f) * 2f) * 0.3f;
-                    }
-                }
-                
-                float size = sparkle.SpawnSize * pulse;
-                
-                // Pure white, visible in darkness
-                Color sparkleColor = Color.White;
-                Vector2 screenPos = sparkle.Position - Main.screenPosition + new Vector2(0f, Projectile.gfxOffY);
-                
-                // Draw as a tiny pixel
-                Main.spriteBatch.Draw(
-                    pixelTexture,
-                    screenPos,
-                    new Rectangle(0, 0, 1, 1),
-                    sparkleColor,
-                    0f,
-                    new Vector2(0.5f, 0.5f),
-                    size * 2f,
-                    SpriteEffects.None,
-                    0f);
-                
-                // Minimal light output
-                Lighting.AddLight(sparkle.Position, Color.White.ToVector3() * 0.1f);
-            }
         }
 
         private void DrawGreenLightTriangles(Texture2D pixelTexture)

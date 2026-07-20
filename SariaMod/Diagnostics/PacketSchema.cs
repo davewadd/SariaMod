@@ -157,6 +157,12 @@ namespace SariaMod.Diagnostics
             // 13 = SandstormOcarinaEffect: no payload
             _schemas[13] = (_) => true;
 
+            // 17 = SyncSariaCursor: owner(1), positionX(4), positionY(4)
+            Flat(SariaCursorNetworking.PacketId,
+                 ("owner",     1, r => RB(r)),
+                 ("positionX", 4, r => RF(r)),
+                 ("positionY", 4, r => RF(r)));
+
             // 200 = SyncFogBreath: playerIndex(1), showFog(1)
             Flat(200, ("playerIndex", 1, r => RB(r)),
                       ("showFog",     1, r => RBool(r)));
@@ -388,6 +394,32 @@ namespace SariaMod.Diagnostics
                             ("duration", 4, r => RI(r)),
                             ("owner", 4, r => RI(r)),
                             ("damage", 4, r => RI(r)));
+                    }
+                    else if (sub == 3)
+                    {
+                        RecordFields(r,
+                            ("startX", 4, r => RF(r)),
+                            ("startY", 4, r => RF(r)),
+                            ("endX", 4, r => RF(r)),
+                            ("endY", 4, r => RF(r)),
+                            ("duration", 4, r => RI(r)),
+                            ("owner", 4, r => RI(r)),
+                            ("damage", 4, r => RI(r)));
+                    }
+                    else if (sub == 4)
+                    {
+                        RecordFields(r,
+                            ("duration", 4, r => RI(r)),
+                            ("owner", 4, r => RI(r)),
+                            ("damage", 4, r => RI(r)));
+                        ushort tileCount = r.ReadUInt16();
+                        LastSentPacketRecord.AddField("tileCount", tileCount.ToString(), 2);
+                        for (int i = 0; i < tileCount && i < TileHeatManager.MaxBeamPlatformBatchTiles; i++)
+                        {
+                            RecordFields(r,
+                                ($"tile{i}X", 4, r => RI(r)),
+                                ($"tile{i}Y", 4, r => RI(r)));
+                        }
                     }
 
                     return true;

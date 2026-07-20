@@ -109,6 +109,7 @@ namespace SariaMod
         public bool SariaUpgrade22;
         public bool SariaUpgrade23;
         public bool SariaUpgrade24;
+        public bool HasEruptionClusterUpgrade => SariaUpgrade10;
         public bool HasRovaSentryPersistenceUpgrade => SariaUpgrade11;
         public bool CalmMind;
         public bool CorruptMind;
@@ -138,6 +139,9 @@ namespace SariaMod
 
         public bool DebugPanelOpen;
         public bool NetworkProfilerOpen;
+        public int TestingStaffProjectileIndex;
+        public int TestingStaffShootSpeed = 4;
+        public int TestingStaffDamage = 80;
 
         // Meter bar screen-offset position (relative to screen centre). Per-player, persisted.
         public float MeterBarPosX = 0f;
@@ -406,6 +410,9 @@ namespace SariaMod
             tag["FeelingRodMood"]     = (int)FeelingRodUISystem.SelectedMood;
             tag["FeelingRodTimer"]    = FeelingRodUISystem.SelectedTimer;
             tag["FeelingRodPriority"] = FeelingRodUISystem.SelectedPriority;
+            tag["TestingStaffProjectile"] = TestingStaffUISystem.GetProjectileName(TestingStaffProjectileIndex);
+            tag["TestingStaffShootSpeed"] = TestingStaffShootSpeed;
+            tag["TestingStaffDamage"] = TestingStaffDamage;
         }
         public override void LoadData(TagCompound tag)
         {
@@ -469,6 +476,20 @@ namespace SariaMod
                 FeelingRodUISystem.SelectedTimer = tag.GetInt("FeelingRodTimer");
             if (tag.ContainsKey("FeelingRodPriority"))
                 FeelingRodUISystem.SelectedPriority = tag.GetInt("FeelingRodPriority");
+            string testingStaffProjectile = tag.ContainsKey("TestingStaffProjectile")
+                ? tag.GetString("TestingStaffProjectile")
+                : null;
+            int testingStaffShootSpeed = tag.ContainsKey("TestingStaffShootSpeed")
+                ? tag.GetInt("TestingStaffShootSpeed")
+                : 4;
+            int testingStaffDamage = tag.ContainsKey("TestingStaffDamage")
+                ? tag.GetInt("TestingStaffDamage")
+                : 80;
+            TestingStaffUISystem.RestoreSavedSettings(
+                this,
+                testingStaffProjectile,
+                testingStaffShootSpeed,
+                testingStaffDamage);
         }
         public override void Load()
         {
@@ -970,8 +991,14 @@ namespace SariaMod
         {
             if (!TryGetCameraSaria(out _, out Projectile saria)) return;
 
-            // Shift screen so it centres on Saria instead of the player.
-            Main.screenPosition += saria.Center - Player.Center;
+            // tModLoader pixel-snaps the vanilla camera before this hook runs. Adding the raw
+            // projectile/player offset here would reintroduce fractional screen coordinates,
+            // which produces seams between liquid tiles and makes world tiles jitter as either
+            // entity moves. Shift between whole-pixel anchors so the final camera stays snapped
+            // while preserving vanilla camera effects such as shake.
+            Vector2 sariaCameraAnchor = new Vector2((int)saria.Center.X, (int)saria.Center.Y);
+            Vector2 playerCameraAnchor = new Vector2((int)Player.Center.X, (int)Player.Center.Y);
+            Main.screenPosition += sariaCameraAnchor - playerCameraAnchor;
 
             // NOTE: the biome/music perception override used to be applied here too, but this
             // hook is documented as running "after weapon zoom and camera lerp" — i.e. during

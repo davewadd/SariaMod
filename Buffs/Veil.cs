@@ -38,7 +38,7 @@ namespace SariaMod.Buffs
             veilPlayer.hasVeilBuff = true;
             
             bool Warm = player.behindBackWall && player.HasBuff(BuffID.Campfire);
-            bool immunityToCold = player.HasBuff(BuffID.Warmth) || player.HasBuff(BuffID.OnFire) || player.arcticDivingGear;
+            bool immunityToCold = player.HasBuff(BuffID.Warmth) || player.HasBuff(ModContent.BuffType<Burning2>()) || player.arcticDivingGear;
             
             // Reset freeze state when buff is first applied (buffTime near max)
             if (player.buffTime[buffIndex] == 10798)

@@ -129,6 +129,10 @@ namespace SariaMod.Netcode
                 if (whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active) return;
                 if (!Main.npc[npcWhoAmI].active) return;
 
+                // Chilled now affects incoming damage, so the server must retain the
+                // same timer that the attacking client and observing clients display.
+                FrozenNPCVisualManager.SyncFrozenTimer(npcWhoAmI, 0);
+
                 ModPacket packet = SariaMod.Instance.GetPacket();
                 packet.Write(PacketId);
                 packet.Write((byte)SubType.SyncTimer);

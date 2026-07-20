@@ -39,25 +39,41 @@ namespace SariaMod.Items.Strange
         public const float PelletDamageMultiplier = 0.2f;
 
         /// <summary>
-        /// Extra downward velocity per tick applied to players inside a field (portal gun counter).
+        /// Matches the minimum gravity multiplier Terraria uses in space.
+        /// </summary>
+        public const float SpaceGravityMultiplier = 0.25f;
+
+        /// <summary>
+        /// Airborne movement-speed bonus, expressed as 25 percentage points.
+        /// </summary>
+        public const float AirborneMoveSpeedBonus = 0.25f;
+
+        /// <summary>
+        /// Existing movement bonuses above 50% prevent the field bonus.
+        /// </summary>
+        public const float AirborneMoveSpeedBonusCutoff = 1.5f;
+
+        /// <summary>
+        /// Extra downward velocity per tick applied while holding down inside a field.
         /// </summary>
         public const float PortalFallAcceleration = 0.6f;
 
         /// <summary>
-        /// Maximum fall speed cap when inside a field.
+        /// Maximum fast-fall speed while holding down inside a field.
         /// </summary>
         public const float PortalFallMaxSpeed = 10f * 3.5f;
 
         public const float PelletLaunchSpeed = 6f;
-        public const int PelletOutwardDuration = 40;
-        public const float PelletHomingRange = 400f;
-        internal const int PelletSearchDuration = 600;
-        internal const int PelletFadeDuration = 180;
 
-        /// <summary>
-        /// Boss multiplier divisor - bosses receive 1/N of the cluster multiplier (min 1).
-        /// </summary>
-        public const int BossMultiplierDivisor = 2;
+        // Reused once-per-update cache shared by gameplay checks and field-link drawing.
+        private static readonly List<int> activeFieldIndices = new List<int>();
+        private static readonly List<int> componentFieldIndices = new List<int>();
+        private static readonly Queue<int> fieldSearchQueue = new Queue<int>();
+        private static readonly bool[] visitedFieldIndices = new bool[Main.maxProjectiles];
+        private static readonly int[] clusterIdByFieldIndex = new int[Main.maxProjectiles];
+        private static readonly int[] clusterSizeByFieldIndex = new int[Main.maxProjectiles];
+        private static ulong cachedFieldUpdate = ulong.MaxValue;
+        private static ulong refreshedEnemyBuffsUpdate = ulong.MaxValue;
 
         public static bool TrySummonFieldFromCharge(Projectile sariaProjectile, Projectile chargeProjectile)
         {
@@ -66,7 +82,7 @@ namespace SariaMod.Items.Strange
                 return false;
             }
 
-            Vector2 fieldPosition = Main.MouseWorld;
+            Vector2 fieldPosition = chargeProjectile.Center;
             if (Main.netMode == NetmodeID.MultiplayerClient)
             {
                 PsychicFieldNetworking.RequestFieldSummon(sariaProjectile, chargeProjectile, fieldPosition);
@@ -103,7 +119,7 @@ namespace SariaMod.Items.Strange
                 return false;
             }
 
-            return TrySummonFieldAuthoritatively(sariaProjectile, chargeProjectile, fieldPosition);
+            return TrySummonFieldAuthoritatively(sariaProjectile, chargeProjectile, chargeProjectile.Center);
         }
 
         private static bool TrySummonFieldAuthoritatively(
@@ -342,28 +358,27 @@ namespace SariaMod.Items.Strange
             }
         }
 
-        public static void SpawnPelletsForProjectileHit(Projectile sourceProjectile, NPC target, int damage)
+        public static void SpawnPelletsForProjectileHit(Projectile sourceProjectile, NPC target)
         {
-            if (!CanSourceSpawnPellets(sourceProjectile, damage))
+            int sourceDamage = sourceProjectile.damage;
+            if (!CanSourceSpawnPellets(sourceProjectile, sourceDamage))
             {
                 return;
             }
 
-            int currentFieldCount = GetClusterMultiplierAtPosition(target.Center);
-            if (target.boss && currentFieldCount > 0)
-            {
-                currentFieldCount = Math.Max(1, currentFieldCount / BossMultiplierDivisor);
-            }
-
-            int lingeringFieldCount = target.GetGlobalNPC<FairyGlobalNPC>().psychicFieldMultiplier;
-            int fieldCount = Math.Max(currentFieldCount, lingeringFieldCount);
-            if (fieldCount <= 0)
+            if (!target.HasBuff(ModContent.BuffType<PsychicFieldDebuff>()))
             {
                 return;
             }
 
-            int pelletDamage = Math.Max(1, (int)Math.Round(damage * PelletDamageMultiplier));
-            for (int i = 0; i < fieldCount; i++)
+            int pelletCount = target.GetGlobalNPC<FairyGlobalNPC>().psychicFieldPelletCount;
+            if (pelletCount <= 0)
+            {
+                return;
+            }
+
+            int pelletDamage = Math.Max(1, (int)Math.Round(sourceDamage * PelletDamageMultiplier));
+            for (int i = 0; i < pelletCount; i++)
             {
                 Vector2 spawnPosition = target.Center + Main.rand.NextVector2Circular(target.width * 0.3f, target.height * 0.3f);
                 Vector2 outwardDirection = (spawnPosition - target.Center).SafeNormalize(Vector2.Zero);
@@ -378,7 +393,7 @@ namespace SariaMod.Items.Strange
                     sourceProjectile.GetSource_FromThis(),
                     spawnPosition,
                     velocity,
-                    ModContent.ProjectileType<PsychicPellet>(),
+                    ModContent.ProjectileType<LocatorPellet>(),
                     pelletDamage,
                     0f,
                     sourceProjectile.owner);
@@ -390,47 +405,14 @@ namespace SariaMod.Items.Strange
             }
         }
 
-        /// <summary>
-        /// Returns the number of connected fields in the cluster touching <paramref name="worldPosition"/>.
-        /// Uses range-overlap connection: fields connect when their radii overlap (distance <= 2 * FieldRadius).
-        /// BFS over the projectile array, restricted to one owner or one shared team.
-        /// </summary>
-        public static int GetClusterMultiplierAtPosition(Vector2 worldPosition)
-        {
-            bool[] visited = new bool[Main.maxProjectiles];
-            int maxCount = 0;
-
-            for (int i = 0; i < Main.maxProjectiles; i++)
-            {
-                Projectile field = Main.projectile[i];
-                if (!IsActiveField(field) || visited[i])
-                {
-                    continue;
-                }
-
-                // Check if this field touches the position
-                if (Vector2.DistanceSquared(worldPosition, field.Center) <= FieldRadius * FieldRadius)
-                {
-                    // Found a touching field — BFS its whole cluster and count size
-                    int clusterSize = AddLinkedClusterCounting(i, visited);
-                    if (clusterSize > maxCount)
-                    {
-                        maxCount = clusterSize;
-                    }
-                }
-            }
-
-            return maxCount;
-        }
-
         public static bool IsActiveField(Projectile projectile)
         {
             return projectile.active && projectile.type == ModContent.ProjectileType<PsychicFieldProjectile>();
         }
 
         /// <summary>
-        /// No-fall-damage setup + maxFallSpeed cap. Called from PostUpdateMiscEffects.
-        /// Does NOT modify velocity — that happens in a later hook after jump/gravity settle.
+        /// No-fall-damage setup. Called from PostUpdateMiscEffects.
+        /// Gravity and fast-fall movement are applied in a later hook after movement effects settle.
         /// Returns true if the player is inside any field.
         /// </summary>
         public static bool TryApplyPortalFallSetup(Player player)
@@ -443,14 +425,12 @@ namespace SariaMod.Items.Strange
             player.noFallDmg = true;
             player.fallStart = (int)(player.position.Y / 16f);
             player.fallStart2 = player.fallStart;
-            player.maxFallSpeed = Math.Max(player.maxFallSpeed, PortalFallMaxSpeed);
             return true;
         }
         
         /// <summary>
-        /// Actively pulls the player downward while inside a field.
-        /// Called from PostUpdateRunSpeeds — runs after all jump/gravity/movement processing is final.
-        /// Only amplifies when the player is actually falling (velocity.Y > 0f), so jumping works normally.
+        /// Applies space gravity while holding up inside a field, with the existing fast fall while holding down.
+        /// Called from PostUpdateRunSpeeds after other movement effects have settled.
         /// </summary>
         public static void ApplyPortalFallAmplification(Player player)
         {
@@ -458,9 +438,15 @@ namespace SariaMod.Items.Strange
             {
                 return;
             }
-            
-            if (player.velocity.Y > 0f)
+
+            if (player.controlUp)
             {
+                player.gravity = Math.Min(player.gravity, Player.defaultGravity * SpaceGravityMultiplier);
+            }
+
+            if (player.controlDown && player.velocity.Y > 0f)
+            {
+                player.maxFallSpeed = Math.Max(player.maxFallSpeed, PortalFallMaxSpeed);
                 player.velocity.Y += PortalFallAcceleration;
                 if (player.velocity.Y > PortalFallMaxSpeed)
                 {
@@ -503,63 +489,13 @@ namespace SariaMod.Items.Strange
             }
 
             // Prevent infinite loops: pellets and fields themselves do not trigger pellets
-            if (sourceProjectile.type == ModContent.ProjectileType<PsychicPellet>()
+            if (sourceProjectile.type == ModContent.ProjectileType<LocatorPellet>()
                 || sourceProjectile.type == ModContent.ProjectileType<PsychicFieldProjectile>())
             {
                 return false;
             }
 
             return true;
-        }
-
-        /// <summary>
-        /// BFS from <paramref name="startIndex"/> over overlapping fields (range-overlap).
-        /// Returns the cluster size without mutating the caller's list.
-        /// </summary>
-        private static int AddLinkedClusterCounting(int startIndex, bool[] visited)
-        {
-            int count = 0;
-            float overlapSquared = (FieldRadius * 2f) * (FieldRadius * 2f);
-            Queue<int> queue = new Queue<int>();
-
-            visited[startIndex] = true;
-            queue.Enqueue(startIndex);
-
-            while (queue.Count > 0)
-            {
-                int currentIndex = queue.Dequeue();
-                Projectile currentField = Main.projectile[currentIndex];
-                if (!IsActiveField(currentField))
-                {
-                    continue;
-                }
-
-                count++;
-
-                for (int i = 0; i < Main.maxProjectiles; i++)
-                {
-                    if (visited[i])
-                    {
-                        continue;
-                    }
-
-                    Projectile candidate = Main.projectile[i];
-                    if (!IsActiveField(candidate))
-                    {
-                        continue;
-                    }
-
-                    // Range-overlap connection: fields connect when their radii overlap
-                    if (Vector2.DistanceSquared(currentField.Center, candidate.Center) <= overlapSquared
-                        && CanFieldsFuse(currentField, candidate))
-                    {
-                        visited[i] = true;
-                        queue.Enqueue(i);
-                    }
-                }
-            }
-
-            return count;
         }
 
         /// <summary>
@@ -574,51 +510,154 @@ namespace SariaMod.Items.Strange
                 return 0;
             }
 
-            bool[] visited = new bool[Main.maxProjectiles];
-            AddLinkedCluster(sourceField.whoAmI, visited, linkedFields);
+            EnsureFieldClusterCache();
+            int clusterId = clusterIdByFieldIndex[sourceField.whoAmI];
+            if (clusterId <= 0)
+            {
+                return 0;
+            }
+
+            for (int i = 0; i < activeFieldIndices.Count; i++)
+            {
+                int fieldIndex = activeFieldIndices[i];
+                if (clusterIdByFieldIndex[fieldIndex] == clusterId)
+                {
+                    linkedFields.Add(Main.projectile[fieldIndex]);
+                }
+            }
 
             return linkedFields.Count;
         }
 
-        private static void AddLinkedCluster(int startIndex, bool[] visited, List<Projectile> linkedFields)
+        public static void RefreshEnemyBuffs()
         {
-            float overlapSquared = (FieldRadius * 2f) * (FieldRadius * 2f);
-            Queue<int> queue = new Queue<int>();
-            visited[startIndex] = true;
-            queue.Enqueue(startIndex);
-
-            while (queue.Count > 0)
+            if (refreshedEnemyBuffsUpdate == Main.GameUpdateCount)
             {
-                int currentIndex = queue.Dequeue();
-                Projectile currentField = Main.projectile[currentIndex];
-                if (!IsActiveField(currentField))
+                return;
+            }
+
+            refreshedEnemyBuffsUpdate = Main.GameUpdateCount;
+            EnsureFieldClusterCache();
+            if (activeFieldIndices.Count == 0)
+            {
+                return;
+            }
+
+            int buffType = ModContent.BuffType<PsychicFieldDebuff>();
+            float radiusSquared = FieldRadius * FieldRadius;
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.active || npc.friendly || npc.dontTakeDamage)
                 {
                     continue;
                 }
 
-                linkedFields.Add(currentField);
-
-                for (int i = 0; i < Main.maxProjectiles; i++)
+                int pelletCount = 0;
+                for (int j = 0; j < activeFieldIndices.Count; j++)
                 {
-                    if (visited[i])
+                    int fieldIndex = activeFieldIndices[j];
+                    Projectile field = Main.projectile[fieldIndex];
+                    if (Vector2.DistanceSquared(npc.Center, field.Center) <= radiusSquared)
                     {
-                        continue;
-                    }
-
-                    Projectile candidate = Main.projectile[i];
-                    if (!IsActiveField(candidate))
-                    {
-                        continue;
-                    }
-
-                    // Range-overlap connection
-                    if (Vector2.DistanceSquared(currentField.Center, candidate.Center) <= overlapSquared
-                        && CanFieldsFuse(currentField, candidate))
-                    {
-                        visited[i] = true;
-                        queue.Enqueue(i);
+                        pelletCount = Math.Max(pelletCount, clusterSizeByFieldIndex[fieldIndex]);
                     }
                 }
+
+                if (pelletCount <= 0)
+                {
+                    continue;
+                }
+
+                npc.buffImmune[buffType] = false;
+                // This value remains on the NPC while the refreshed buff lingers outside the fields.
+                npc.GetGlobalNPC<FairyGlobalNPC>().psychicFieldPelletCount = pelletCount;
+                npc.AddBuff(buffType, PsychicFieldDebuff.LingerDuration);
+            }
+        }
+
+        private static void EnsureFieldClusterCache()
+        {
+            if (cachedFieldUpdate == Main.GameUpdateCount)
+            {
+                return;
+            }
+
+            cachedFieldUpdate = Main.GameUpdateCount;
+            activeFieldIndices.Clear();
+            componentFieldIndices.Clear();
+            fieldSearchQueue.Clear();
+            Array.Clear(visitedFieldIndices, 0, visitedFieldIndices.Length);
+            Array.Clear(clusterIdByFieldIndex, 0, clusterIdByFieldIndex.Length);
+            Array.Clear(clusterSizeByFieldIndex, 0, clusterSizeByFieldIndex.Length);
+
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile field = Main.projectile[i];
+                if (IsActiveField(field) && TryGetActiveFieldOwner(field, out _))
+                {
+                    activeFieldIndices.Add(i);
+                }
+            }
+
+            float overlapSquared = (FieldRadius * 2f) * (FieldRadius * 2f);
+            int nextClusterId = 1;
+            for (int i = 0; i < activeFieldIndices.Count; i++)
+            {
+                int startIndex = activeFieldIndices[i];
+                if (visitedFieldIndices[startIndex])
+                {
+                    continue;
+                }
+
+                componentFieldIndices.Clear();
+                fieldSearchQueue.Clear();
+                visitedFieldIndices[startIndex] = true;
+                fieldSearchQueue.Enqueue(startIndex);
+
+                while (fieldSearchQueue.Count > 0)
+                {
+                    int currentIndex = fieldSearchQueue.Dequeue();
+                    Projectile currentField = Main.projectile[currentIndex];
+                    if (!IsActiveField(currentField))
+                    {
+                        continue;
+                    }
+
+                    componentFieldIndices.Add(currentIndex);
+
+                    for (int j = 0; j < activeFieldIndices.Count; j++)
+                    {
+                        int candidateIndex = activeFieldIndices[j];
+                        if (visitedFieldIndices[candidateIndex])
+                        {
+                            continue;
+                        }
+
+                        Projectile candidate = Main.projectile[candidateIndex];
+                        if (!IsActiveField(candidate))
+                        {
+                            continue;
+                        }
+
+                        if (Vector2.DistanceSquared(currentField.Center, candidate.Center) <= overlapSquared
+                            && CanFieldsFuse(currentField, candidate))
+                        {
+                            visitedFieldIndices[candidateIndex] = true;
+                            fieldSearchQueue.Enqueue(candidateIndex);
+                        }
+                    }
+                }
+
+                int clusterSize = componentFieldIndices.Count;
+                for (int j = 0; j < componentFieldIndices.Count; j++)
+                {
+                    int fieldIndex = componentFieldIndices[j];
+                    clusterIdByFieldIndex[fieldIndex] = nextClusterId;
+                    clusterSizeByFieldIndex[fieldIndex] = clusterSize;
+                }
+
+                nextClusterId++;
             }
         }
 
@@ -699,7 +738,7 @@ namespace SariaMod.Items.Strange
             Projectile.rotation += 0.015f;
 
             Lighting.AddLight(Projectile.Center, Color.DeepPink.ToVector3() * 0.65f);
-            RefreshEnemyBuffs();
+            PsychicFieldSystem.RefreshEnemyBuffs();
             SpawnIdleDust();
         }
 
@@ -718,42 +757,14 @@ namespace SariaMod.Items.Strange
             return false;
         }
 
-        private void RefreshEnemyBuffs()
-        {
-            int buffType = ModContent.BuffType<PsychicFieldDebuff>();
-            for (int i = 0; i < Main.maxNPCs; i++)
-            {
-                NPC npc = Main.npc[i];
-                if (!npc.active || npc.friendly || npc.dontTakeDamage)
-                {
-                    continue;
-                }
-
-                if (Vector2.DistanceSquared(npc.Center, Projectile.Center) <= PsychicFieldSystem.FieldRadius * PsychicFieldSystem.FieldRadius)
-                {
-                    // Inside this field — calculate the cluster multiplier and store it
-                    npc.buffImmune[buffType] = false;
-                    int clusterSize = PsychicFieldSystem.GetClusterMultiplierAtPosition(npc.Center);
-
-                    // Bosses get reduced multiplier
-                    if (npc.boss)
-                    {
-                        clusterSize = Math.Max(1, clusterSize / PsychicFieldSystem.BossMultiplierDivisor);
-                    }
-
-                    // Store on the NPC's global data
-                    FairyGlobalNPC globalNpc = npc.GetGlobalNPC<FairyGlobalNPC>();
-                    globalNpc.psychicFieldMultiplier = clusterSize;
-
-                    // Apply with linger duration so the buff persists after leaving the field
-                    npc.AddBuff(buffType, PsychicFieldDebuff.LingerDuration);
-                }
-            }
-        }
-
         private void SpawnIdleDust()
         {
             if (!Main.rand.NextBool(5))
+            {
+                return;
+            }
+
+            if (!VisualDustLimiter.TryReserveHalfCapacitySlot())
             {
                 return;
             }
@@ -762,7 +773,7 @@ namespace SariaMod.Items.Strange
             Dust dust = Dust.NewDustPerfect(edge, ModContent.DustType<AbsorbPsychic>(), (Projectile.Center - edge).SafeNormalize(Vector2.Zero) * 2f, Scale: Main.rand.NextFloat(1.1f, 1.7f));
             dust.noGravity = true;
             // Add a secondary bright dust at the edge for visibility
-            if (Main.rand.NextBool(3))
+            if (Main.rand.NextBool(3) && VisualDustLimiter.TryReserveHalfCapacitySlot())
             {
                 Dust brightDust = Dust.NewDustPerfect(edge, ModContent.DustType<Psychic3>(), Vector2.Zero, Scale: 0.8f);
                 brightDust.noGravity = true;
@@ -832,270 +843,6 @@ namespace SariaMod.Items.Strange
                 new Vector2(length, width),
                 SpriteEffects.None,
                 0f);
-        }
-    }
-
-    public class PsychicPellet : ModProjectile
-    {
-        public override string Texture => "SariaMod/Items/Strange/LocatorSmall";
-
-        private int Age => (int)Projectile.ai[0];
-        private float FadeProgress
-        {
-            get => Projectile.localAI[0];
-            set => Projectile.localAI[0] = value;
-        }
-
-        private float FadeRatio => MathHelper.Clamp(FadeProgress / PsychicFieldSystem.PelletFadeDuration, 0f, 1f);
-        private bool IsHomingPhase => Age > PsychicFieldSystem.PelletOutwardDuration;
-
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Psychic Pellet");
-            ProjectileID.Sets.MinionShot[Projectile.type] = true;
-            ProjectileID.Sets.TrailingMode[Projectile.type] = 0;
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 14;
-        }
-
-        public override void SetDefaults()
-        {
-            Projectile.width = 14;
-            Projectile.height = 14;
-            Projectile.scale = 1.5f;
-            Projectile.friendly = true;
-            Projectile.hostile = false;
-            Projectile.tileCollide = false;
-            Projectile.ignoreWater = true;
-            Projectile.penetrate = 1;
-            Projectile.timeLeft = 2;
-            Projectile.extraUpdates = 1;
-        }
-
-        public override bool? CanCutTiles() => false;
-
-        public override bool? CanHitNPC(NPC target)
-        {
-            if (!IsHomingPhase)
-            {
-                return false;
-            }
-
-            return IsValidPelletTarget(target);
-        }
-
-        public override void AI()
-        {
-            Projectile.ai[0]++;
-            Projectile.timeLeft = 2;
-
-            if (IsHomingPhase)
-            {
-                NPC nearest = FindNearestEnemy();
-                if (nearest != null)
-                {
-                    if (FadeProgress > 0f || Age > PsychicFieldSystem.PelletSearchDuration)
-                    {
-                        Projectile.ai[0] = PsychicFieldSystem.PelletOutwardDuration + 1;
-                    }
-
-                    FadeProgress = 0f;
-
-                    int homingAge = Age - PsychicFieldSystem.PelletOutwardDuration;
-                    float ramp = MathHelper.Clamp(homingAge / 60f, 0f, 1f);
-                    float homingSpeed = MathHelper.Lerp(5f, 18f, ramp);
-                    float homingStrength = MathHelper.Lerp(0.05f, 0.25f, ramp);
-                    Vector2 desiredVelocity = Projectile.DirectionTo(nearest.Center) * homingSpeed;
-                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredVelocity, homingStrength);
-                }
-                else
-                {
-                    Projectile.velocity *= 0.96f;
-                    if (Age > PsychicFieldSystem.PelletSearchDuration)
-                    {
-                        FadeProgress++;
-                        if (FadeProgress >= PsychicFieldSystem.PelletFadeDuration)
-                        {
-                            Projectile.Kill();
-                            return;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                Projectile.velocity *= 0.94f;
-            }
-
-            // Clear stale custom-trail history once the pellet is effectively stopped.
-            if (Projectile.velocity.Length() < 0.5f)
-            {
-                for (int i = 1; i < Projectile.oldPos.Length; i++)
-                {
-                    Projectile.oldPos[i] = Vector2.Zero;
-                }
-
-                if (!IsHomingPhase && Age >= PsychicFieldSystem.PelletOutwardDuration - 4)
-                {
-                    Projectile.velocity = Vector2.Zero;
-                }
-            }
-
-            Projectile.rotation = Projectile.velocity.ToRotation();
-            float drawAlpha = GetDrawAlpha();
-            Lighting.AddLight(Projectile.Center, Color.HotPink.ToVector3() * (0.45f * drawAlpha));
-            SpawnMovementDust(drawAlpha);
-        }
-
-        private NPC FindNearestEnemy()
-        {
-            NPC nearest = null;
-            float nearestDistSq = PsychicFieldSystem.PelletHomingRange * PsychicFieldSystem.PelletHomingRange;
-
-            for (int i = 0; i < Main.maxNPCs; i++)
-            {
-                NPC npc = Main.npc[i];
-                if (!IsValidPelletTarget(npc))
-                {
-                    continue;
-                }
-
-                float distSq = Vector2.DistanceSquared(Projectile.Center, npc.Center);
-                if (distSq < nearestDistSq)
-                {
-                    nearestDistSq = distSq;
-                    nearest = npc;
-                }
-            }
-
-            return nearest;
-        }
-
-        private bool IsValidPelletTarget(NPC npc)
-        {
-            if (!npc.active)
-            {
-                return false;
-            }
-
-            if (npc.type == NPCID.TargetDummy)
-            {
-                return true;
-            }
-
-            return npc.CanBeChasedBy(Projectile);
-        }
-
-        private float GetDrawAlpha()
-        {
-            if (FadeProgress <= 0f)
-            {
-                return 1f;
-            }
-
-            float fadeRatio = FadeRatio;
-            float flicker = 0.55f + 0.45f * (0.5f + 0.5f * (float)Math.Sin(Main.GlobalTimeWrappedHourly * 36f + Projectile.whoAmI));
-            return MathHelper.Clamp((1f - fadeRatio) * flicker, 0f, 1f);
-        }
-
-        private void SpawnMovementDust(float drawAlpha)
-        {
-            if (drawAlpha <= 0f || Projectile.velocity.Length() < 1f)
-            {
-                return;
-            }
-
-            Vector2 reverseVelocity = -Projectile.velocity.SafeNormalize(Vector2.Zero);
-            if (Main.rand.NextBool(2))
-            {
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<Psychic>(), reverseVelocity * 1.7f, Scale: 1.2f);
-                dust.noGravity = true;
-            }
-
-            if (Main.rand.NextBool(4))
-            {
-                Dust flash = Dust.NewDustPerfect(Projectile.Center + Projectile.velocity.SafeNormalize(Vector2.Zero) * 8f, ModContent.DustType<Psychic3>(), reverseVelocity * 0.8f, Scale: 0.85f);
-                flash.noGravity = true;
-            }
-        }
-
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
-        {
-            crit = false;
-            knockback = 0f;
-        }
-
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit)
-        {
-            for (int i = 0; i < 12; i++)
-            {
-                Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(1.5f, 4f);
-                Dust dust = Dust.NewDustPerfect(target.Center, ModContent.DustType<PsychicRingDust>(), speed, Scale: 1.4f);
-                dust.noGravity = true;
-            }
-        }
-
-        public override bool PreDraw(ref Color lightColor)
-        {
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
-            Vector2 centerOffset = Projectile.Size * 0.5f;
-            float drawAlpha = GetDrawAlpha();
-
-            float speed = Projectile.velocity.Length();
-            if (speed >= 0.5f)
-            {
-                float trailIntensity = MathHelper.Clamp(speed / 5f, 0f, 1f);
-                float targetDepth = trailIntensity * Projectile.oldPos.Length;
-
-                for (int i = 1; i < Projectile.oldPos.Length; i++)
-                {
-                    Vector2 oldPosition = Projectile.oldPos[i];
-                    if (oldPosition == Vector2.Zero)
-                    {
-                        continue;
-                    }
-
-                    Vector2 start = Projectile.oldPos[i - 1] + centerOffset;
-                    Vector2 end = oldPosition + centerOffset;
-                    Vector2 difference = start - end;
-                    float length = difference.Length();
-                    if (length <= 0.001f)
-                    {
-                        continue;
-                    }
-
-                    float progress = i / (float)Projectile.oldPos.Length;
-                    float segmentFade = MathHelper.Clamp(targetDepth - i + 1f, 0f, 1f);
-                    float baseWidth = MathHelper.Lerp(5f, 1f, progress);
-                    Color trailColor = Color.Lerp(Color.HotPink, Color.Transparent, progress) * 0.75f * segmentFade * drawAlpha;
-                    Main.spriteBatch.Draw(
-                        pixel,
-                        (start + end) * 0.5f - Main.screenPosition,
-                        new Rectangle(0, 0, 1, 1),
-                        Projectile.GetAlpha(trailColor),
-                        difference.ToRotation(),
-                        new Vector2(0.5f, 0.5f),
-                        new Vector2(length, baseWidth * trailIntensity),
-                        SpriteEffects.None,
-                        0f);
-                }
-            }
-
-            Texture2D glow = TextureAssets.Extra[98].Value;
-            Vector2 drawPosition = Projectile.Center - Main.screenPosition;
-            Vector2 origin = glow.Size() * 0.5f;
-            Main.spriteBatch.Draw(glow, drawPosition, null, Color.DeepPink * (0.6f * drawAlpha), 0f, origin, 0.12f, SpriteEffects.None, 0f);
-            Main.spriteBatch.Draw(glow, drawPosition, null, Color.White * drawAlpha, 0f, origin, 0.045f, SpriteEffects.None, 0f);
-            Main.spriteBatch.Draw(
-                pixel,
-                drawPosition,
-                new Rectangle(0, 0, 1, 1),
-                Projectile.GetAlpha(Color.White * drawAlpha),
-                Projectile.rotation,
-                new Vector2(0.5f, 0.5f),
-                new Vector2(3f, 3f) * Projectile.scale,
-                SpriteEffects.None,
-                0f);
-            return false;
         }
     }
 

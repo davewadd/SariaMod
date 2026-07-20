@@ -37,6 +37,7 @@ namespace SariaMod.Items.Ruby
         private int PostChargeTimer;
         private int ChargeFire2RingTimer = -1;
         private bool FireUpgrade2Active;
+        private int CenterProjectileIndex = -1;
 
         private readonly List<RovaLavaGlob> SpiralGlobs = new List<RovaLavaGlob>();
         private readonly List<RovaLavaGlob> LavaGlobs = new List<RovaLavaGlob>();
@@ -98,18 +99,17 @@ namespace SariaMod.Items.Ruby
 
         public override void AI()
         {
-            int centerIndex = (int)Projectile.ai[0];
-            if (centerIndex < 0
-                || centerIndex >= Main.maxProjectiles
-                || !Main.projectile[centerIndex].active
-                || Main.projectile[centerIndex].owner != Projectile.owner
-                || Main.projectile[centerIndex].ModProjectile is not RovaCenter rovaCenter)
+            int centerHandle = (int)Projectile.ai[0];
+            Projectile center = RovaProjectileLink.Find<RovaCenter>(
+                Projectile.owner,
+                centerHandle,
+                ref CenterProjectileIndex);
+            if (center == null || center.ModProjectile is not RovaCenter rovaCenter)
             {
                 Projectile.Kill();
                 return;
             }
 
-            Projectile center = Main.projectile[centerIndex];
             FireUpgrade2Active = rovaCenter.HasRovaSentryPersistenceUpgrade;
             Projectile.Center = center.Center;
             Projectile.timeLeft = 2;
@@ -136,8 +136,9 @@ namespace SariaMod.Items.Ruby
                 GlobBurstPlayed = true;
                 PostChargeTimer = 0;
                 ChargeFire2RingTimer = 0;
-                SpiralGlobs.Clear();
-                Projectile.netUpdate = true;
+                RovaLavaGlobVisual.ClearAndRecycle(SpiralGlobs);
+                if (Main.netMode == NetmodeID.Server || Main.myPlayer == Projectile.owner)
+                    Projectile.netUpdate = true;
             }
 
             if (Main.netMode != NetmodeID.Server)
@@ -166,7 +167,7 @@ namespace SariaMod.Items.Ruby
                     // Keep a small ambient stream around RovaCenter for the
                     // entire time it exists. The beam gets the denser stream,
                     // while cooldown and charge preparation use only a few.
-                    bool beamActive = HasActiveBeam(centerIndex);
+                    bool beamActive = rovaCenter.HasActiveBeamValue;
                     int globLimit = beamActive ? 10 : 4;
                     bool shouldSpawn = beamActive
                         ? Main.rand.NextBool(7)
@@ -317,7 +318,12 @@ namespace SariaMod.Items.Ruby
 
         private float GetPostChargeGlobAlpha()
         {
-            if (HasActiveBeam((int)Projectile.ai[0]))
+            Projectile center = RovaProjectileLink.Find<RovaCenter>(
+                Projectile.owner,
+                (int)Projectile.ai[0],
+                ref CenterProjectileIndex);
+            if (center?.ModProjectile is RovaCenter rovaCenter
+                && rovaCenter.HasActiveBeamValue)
                 return 0.8f;
 
             if (PostChargeTimer < 120)
@@ -387,6 +393,12 @@ namespace SariaMod.Items.Ruby
             RovaLavaGlobVisual.SpawnOutward(LavaGlobs, Projectile.Center, 30, InnerCircleRadius, 1.8f, 4.8f, 28f, 48f, 4f, 10f);
         }
 
+        public override void Kill(int timeLeft)
+        {
+            RovaLavaGlobVisual.ClearAndRecycle(SpiralGlobs);
+            RovaLavaGlobVisual.ClearAndRecycle(LavaGlobs);
+        }
+
         private void DrawLavaGlobs(Vector2 drawPos)
         {
             RovaLavaGlobVisual.Draw(
@@ -395,23 +407,6 @@ namespace SariaMod.Items.Ruby
                 new Color(255, 76, 10, 220),
                 new Color(255, 205, 62, 235),
                 0.9f);
-        }
-
-        private static bool HasActiveBeam(int centerIndex)
-        {
-            for (int i = 0; i < Main.maxProjectiles; i++)
-            {
-                Projectile projectile = Main.projectile[i];
-                if (projectile.active
-                    && projectile.ModProjectile is RovaBeam
-                    && projectile.owner == Main.projectile[centerIndex].owner
-                    && (int)projectile.ai[0] == centerIndex)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         private static float SmoothStep(float value)

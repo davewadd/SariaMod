@@ -1,5 +1,6 @@
 using SariaMod.Buffs;
 using SariaMod.Gores;
+using SariaMod.Items.Strange;
 using SariaMod.Netcode;
 using Terraria;
 using Terraria.Audio;
@@ -19,7 +20,8 @@ namespace SariaMod.Items.Sapphire
                 or ColdWaveCenter
                 or ColdWaveHitBox
                 or IceBarrier
-                or HealBubble;
+                or HealBubble
+                || projectile.ModProjectile is Saria saria && saria.Transform == 1;
 
             // TestItemRecipes.cs can add temporary test sources here. Because this is
             // an optional partial method, deleting that file also deletes the behavior.

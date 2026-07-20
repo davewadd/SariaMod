@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Terraria;
@@ -14,6 +15,9 @@ namespace SariaMod.TileGlow
         private const byte SubType_RadiusHeat = 0;
         private const byte SubType_SingleTile = 1;
         private const byte SubType_BeamImpact = 2;
+        private const byte SubType_BeamPlatforms = 3;
+        private const byte SubType_BeamPlatformTiles = 4;
+        private static readonly List<Point> receivedBeamPlatformTiles = new List<Point>(64);
 
         public static void SendRadiusHeatPacket(Vector2 worldCenter, float radius, int duration, int owner = -1, int damage = 0)
         {
@@ -54,6 +58,54 @@ namespace SariaMod.TileGlow
             packet.Send();
         }
 
+        public static void SendBeamPlatformsPacket(
+            Vector2 beamStart,
+            Vector2 beamEnd,
+            int duration,
+            int owner,
+            int damage)
+        {
+            if (Main.netMode != NetmodeID.Server)
+                return;
+
+            ModPacket packet = SariaMod.Instance.GetPacket();
+            packet.Write(PacketId);
+            packet.Write(SubType_BeamPlatforms);
+            packet.Write(beamStart.X);
+            packet.Write(beamStart.Y);
+            packet.Write(beamEnd.X);
+            packet.Write(beamEnd.Y);
+            packet.Write(duration);
+            packet.Write(owner);
+            packet.Write(damage);
+            packet.Send();
+        }
+
+        public static void SendBeamPlatformTilesPacket(
+            IReadOnlyList<Point> platformTiles,
+            int duration,
+            int owner,
+            int damage)
+        {
+            if (Main.netMode != NetmodeID.Server || platformTiles == null || platformTiles.Count == 0)
+                return;
+
+            int tileCount = Math.Min(platformTiles.Count, TileHeatManager.MaxBeamPlatformBatchTiles);
+            ModPacket packet = SariaMod.Instance.GetPacket();
+            packet.Write(PacketId);
+            packet.Write(SubType_BeamPlatformTiles);
+            packet.Write(duration);
+            packet.Write(owner);
+            packet.Write(damage);
+            packet.Write((ushort)tileCount);
+            for (int i = 0; i < tileCount; i++)
+            {
+                packet.Write(platformTiles[i].X);
+                packet.Write(platformTiles[i].Y);
+            }
+            packet.Send();
+        }
+
         public static void HandlePacket(BinaryReader reader, int whoAmI)
         {
             byte subType = reader.ReadByte();
@@ -68,6 +120,12 @@ namespace SariaMod.TileGlow
                     break;
                 case SubType_BeamImpact:
                     HandleBeamImpactPacket(reader);
+                    break;
+                case SubType_BeamPlatforms:
+                    HandleBeamPlatformsPacket(reader);
+                    break;
+                case SubType_BeamPlatformTiles:
+                    HandleBeamPlatformTilesPacket(reader);
                     break;
             }
         }
@@ -133,6 +191,71 @@ namespace SariaMod.TileGlow
             {
                 TileHeatManager.ApplyBeamImpact(tileX, tileY, duration, owner, damage);
             }
+        }
+
+        private static void HandleBeamPlatformsPacket(BinaryReader reader)
+        {
+            Vector2 beamStart = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+            Vector2 beamEnd = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+            int duration = reader.ReadInt32();
+            int owner = reader.ReadInt32();
+            int damage = reader.ReadInt32();
+
+            if (Main.netMode == NetmodeID.MultiplayerClient)
+            {
+                TileHeatManager.ApplyBeamPlatformHeat(
+                    beamStart,
+                    beamEnd,
+                    duration,
+                    owner,
+                    damage);
+            }
+        }
+
+        private static void HandleBeamPlatformTilesPacket(BinaryReader reader)
+        {
+            const int headerByteCount = sizeof(int) * 3 + sizeof(ushort);
+            if (!HasRemainingBytes(reader, headerByteCount))
+                return;
+
+            int duration = reader.ReadInt32();
+            int owner = reader.ReadInt32();
+            int damage = reader.ReadInt32();
+            int tileCount = reader.ReadUInt16();
+            long coordinateByteCount = (long)tileCount * sizeof(int) * 2;
+            if (tileCount > TileHeatManager.MaxBeamPlatformBatchTiles
+                || !HasRemainingBytes(reader, coordinateByteCount))
+            {
+                return;
+            }
+
+            bool applyHeat = Main.netMode == NetmodeID.MultiplayerClient;
+            receivedBeamPlatformTiles.Clear();
+            for (int i = 0; i < tileCount; i++)
+            {
+                int tileX = reader.ReadInt32();
+                int tileY = reader.ReadInt32();
+                if (applyHeat)
+                    receivedBeamPlatformTiles.Add(new Point(tileX, tileY));
+            }
+
+            if (applyHeat)
+            {
+                TileHeatManager.ApplyBeamPlatformTileBatch(
+                    receivedBeamPlatformTiles,
+                    duration,
+                    owner,
+                    damage);
+            }
+        }
+
+        private static bool HasRemainingBytes(BinaryReader reader, long requiredByteCount)
+        {
+            Stream stream = reader?.BaseStream;
+            return requiredByteCount >= 0
+                && stream != null
+                && stream.CanSeek
+                && stream.Length - stream.Position >= requiredByteCount;
         }
     }
 }

@@ -16,6 +16,7 @@ namespace SariaMod.Items.Ruby
     public class RovaFirePillar : ModProjectile
     {
         private const int FadeTicks = 18;
+        private const int ParentResolveGraceTicks = 15;
         private const float PillarHeight = 64f;
         private const float PillarWidth = 48f;
         private const int ColumnSliceCount = 18;
@@ -31,6 +32,8 @@ namespace SariaMod.Items.Ruby
         private readonly List<RisingEmber> Embers = new List<RisingEmber>();
         private readonly List<RovaLavaGlob> EruptionGlobs = new List<RovaLavaGlob>();
         private int ContactTimer;
+        private int MissingParentTimer;
+        private int BeamProjectileIndex = -1;
         private bool Initialized;
         private bool VisualsInitialized;
         private bool Erupted;
@@ -112,16 +115,24 @@ namespace SariaMod.Items.Ruby
 
         public override void AI()
         {
-            int beamIndex = (int)Projectile.ai[0];
-            RovaBeam beam = null;
-            if (beamIndex >= 0
-                && beamIndex < Main.maxProjectiles
-                && Main.projectile[beamIndex].active
-                && Main.projectile[beamIndex].owner == Projectile.owner
-                && Main.projectile[beamIndex].ModProjectile is RovaBeam parentBeam)
+            int beamHandle = (int)Projectile.ai[0];
+            Projectile beamProjectile = RovaProjectileLink.Find<RovaBeam>(
+                Projectile.owner,
+                beamHandle,
+                ref BeamProjectileIndex);
+            RovaBeam beam = beamProjectile?.ModProjectile as RovaBeam;
+
+            if (beam == null
+                && Main.netMode == NetmodeID.MultiplayerClient
+                && MissingParentTimer++ < ParentResolveGraceTicks)
             {
-                beam = parentBeam;
+                Projectile.timeLeft = 2;
+                Projectile.velocity = Vector2.Zero;
+                return;
             }
+
+            if (beam != null)
+                MissingParentTimer = 0;
 
             if (!Initialized)
             {
@@ -364,15 +375,12 @@ namespace SariaMod.Items.Ruby
 
         public override bool PreDraw(ref Color lightColor)
         {
-            int beamIndex = (int)Projectile.ai[0];
-            RovaBeam beam = null;
-            if (beamIndex >= 0
-                && beamIndex < Main.maxProjectiles
-                && Main.projectile[beamIndex].active
-                && Main.projectile[beamIndex].ModProjectile is RovaBeam parentBeam)
-            {
-                beam = parentBeam;
-            }
+            int beamHandle = (int)Projectile.ai[0];
+            Projectile beamProjectile = RovaProjectileLink.Find<RovaBeam>(
+                Projectile.owner,
+                beamHandle,
+                ref BeamProjectileIndex);
+            RovaBeam beam = beamProjectile?.ModProjectile as RovaBeam;
 
             float beamAlpha = beam == null ? 1f : beam.GetBeamEndpointAlpha();
             if (EruptionGlobs.Count > 0)
@@ -387,6 +395,11 @@ namespace SariaMod.Items.Ruby
             // The contact projectile remains active only to detect when the
             // beam leaves a tile and release its golden glob spray.
             return false;
+        }
+
+        public override void Kill(int timeLeft)
+        {
+            RovaLavaGlobVisual.ClearAndRecycle(EruptionGlobs);
         }
 
         // Preserved for later iteration. Intentionally unused while the fire

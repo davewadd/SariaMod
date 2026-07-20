@@ -12,6 +12,8 @@ namespace SariaMod.Items.Ruby
 {
     public class RubyPsychicSeeker : ModProjectile
     {
+        private bool spawnedExplosion;
+
         public override void SetStaticDefaults()
         {
             base.DisplayName.SetDefault("Saria");
@@ -154,7 +156,6 @@ namespace SariaMod.Items.Ruby
             target.buffImmune[BuffID.Slow] = false;
             target.buffImmune[BuffID.ShadowFlame] = false;
             target.buffImmune[BuffID.Ichor] = false;
-            target.buffImmune[BuffID.OnFire] = false;
             target.buffImmune[BuffID.Frostburn] = false;
             target.buffImmune[BuffID.Poisoned] = false;
             target.buffImmune[BuffID.Venom] = false;
@@ -162,14 +163,40 @@ namespace SariaMod.Items.Ruby
             target.buffImmune[ModContent.BuffType<Burning2>()] = false;
             target.AddBuff(ModContent.BuffType<Burning2>(), 200);
             modPlayer.SariaXp++;
-                if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), base.Projectile.Center, base.Projectile.velocity *= .5f, ModContent.ProjectileType<Explosion>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
-                SoundEngine.PlaySound(SoundID.Item116, base.Projectile.Center);
+            SpawnExplosionOnce(player, modPlayer);
+            SoundEngine.PlaySound(SoundID.Item116, base.Projectile.Center);
         }
         public override void Kill(int timeLeft)
         {
             Player player = Main.player[base.Projectile.owner];
             FairyPlayer modPlayer = player.Fairy();
-            if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), base.Projectile.Center, Projectile.velocity *= .5f, ModContent.ProjectileType<Explosion>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
+            SpawnExplosionOnce(player, modPlayer);
+        }
+
+        private void SpawnExplosionOnce(Player player, FairyPlayer modPlayer)
+        {
+            if (spawnedExplosion || Main.myPlayer != Projectile.owner)
+            {
+                return;
+            }
+
+            spawnedExplosion = true;
+            int explosionType = ModContent.ProjectileType<Explosion>();
+            if (!EruptionProjectileLimitGlobal.CanSpawn(Projectile.owner, explosionType))
+            {
+                return;
+            }
+
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(),
+                Projectile.Center,
+                Projectile.velocity * 0.5f,
+                explosionType,
+                Projectile.damage,
+                0f,
+                Projectile.owner,
+                player.whoAmI,
+                modPlayer.HasEruptionClusterUpgrade ? 1f : 0f);
         }
     }
 }

@@ -23,7 +23,9 @@ namespace SariaMod.TileGlow
             Damage = damage;
         }
 
-        public float NormalizedDistance => MaxRadius > 0 ? DistanceFromCenter / MaxRadius : 0f;
+        public float NormalizedDistance => MaxRadius > 0
+            ? Math.Clamp(DistanceFromCenter / MaxRadius, 0f, 1f)
+            : 0f;
 
         public bool IsExpired(int currentTick)
         {

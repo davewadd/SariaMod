@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Microsoft.Xna.Framework;
@@ -14,6 +15,7 @@ using SariaMod.Items.Strange;
 using SariaMod.Netcode.SariaSoundSync;
 using SariaMod.TileGlow;
 using SariaMod.Items.Ruby;
+using SariaMod.Netcode;
 using SariaMod.Netcode.HookshotNetworking;
 using SariaMod.Netcode.FireSoundSync;
 using SariaMod.Diagnostics;
@@ -29,6 +31,10 @@ namespace SariaMod
         // Number of header bytes GetPacket() writes before mod code writes anything.
         // Probed lazily on first outgoing packet so it runs when netID is valid.
         internal static int PacketHeaderSize = -1; // -1 = not yet probed
+
+        private const int MaximumFrozenShatterSoundsPerWindow = 50;
+        private const ulong FrozenShatterSoundWindowTicks = 60;
+        private static readonly Queue<ulong> FrozenShatterSoundTicks = new Queue<ulong>();
 
         /// <summary>How many times the sandstorm should auto-restart after ending. Server-authoritative; synced to all clients.</summary>
         public static int SandstormRepeatCount = 0;
@@ -49,6 +55,7 @@ namespace SariaMod
         public override void Unload()
         {
             RovaVisualAssets.Unload();
+            FrozenShatterSoundTicks.Clear();
             // Set the static instance back to null when the mod is unloaded.
             // This is good practice to prevent memory leaks and issues on reload.
             Instance = null;
@@ -121,6 +128,7 @@ namespace SariaMod
         //  14  SyncSandstormRepeat
         //  15  SyncLinkCable
         //  16  SyncSpawnDebug
+        //  17  SyncSariaCursor
         //  ...
         // 199  <-- last free enum slot before the explicit block
         // 200  SyncFogBreath  (explicit value)
@@ -157,6 +165,7 @@ namespace SariaMod
             SyncSandstormRepeat,    // 14 — sync sandstorm repeat counter to all clients
             SyncLinkCable,          // 15 — sync a player's LinkCable state (server needs it for split spawning)
             SyncSpawnDebug,         // 16 — server → owner client: live split-spawn accounting for the debug panel
+            SyncSariaCursor = 17,   // 17 — shared owner cursor updates for Saria followers
             SyncFogBreath = 200,   // 200 — sync fog breath visibility per player
         }
         public override void HandlePacket(BinaryReader reader, int whoAmI)
@@ -182,6 +191,12 @@ namespace SariaMod
             // Wrap the raw stream in a RecordingBinaryReader so every Read* call
             // automatically populates LastPacketRecord for the inspector UI.
             RecordingBinaryReader reader = new RecordingBinaryReader(rawReader.BaseStream, GetPacketName(firstByte));
+            if (firstByte == SariaCursorNetworking.PacketId)
+            {
+                SariaCursorNetworking.HandlePacket(reader, whoAmI);
+                return;
+            }
+
             if (firstByte == SariaSoundSyncMessage.PacketId)
             {
                 // If the server receives a sound event from a client, rebroadcast to all OTHER clients (not the sender).
@@ -367,24 +382,14 @@ namespace SariaMod
                     {
                         npc.DelBuff(buffIndex);
                         npc.netUpdate = true; // Sync the buff removal to all clients.
+                        PlayFrozenHitEffect(npc.whoAmI);
                     }
                 }
             }
             else if (type == SoundMessageType.PlayFrozenHitEffect)
             {
                 int npcWhoAmI = reader.ReadInt32();
-                NPC npc = Main.npc[npcWhoAmI];
-                if (npc.active)
-                {
-                    // Play sound and create gore on the client
-                    int backGoreType = ModContent.GoreType<IceGore2>();
-                    for (int G = 0; G < 3; G++)
-                    {
-                        Gore B = Gore.NewGorePerfect(npc.GetSource_FromThis(), npc.position, new Vector2(Main.rand.Next(-6, 7), Main.rand.Next(-6, 7)), backGoreType, 2f);
-                        B.light = .5f;
-                        SoundEngine.PlaySound(SoundID.Item27, npc.Center);
-                    }
-                }
+                PlayFrozenHitEffect(npcWhoAmI);
             }
             else if (type == SoundMessageType.SyncRainSoundState)
             {
@@ -821,6 +826,9 @@ namespace SariaMod
         }
         public static void PlayFrozenHitEffect(int npcWhoAmI)
         {
+            if (npcWhoAmI < 0 || npcWhoAmI >= Main.maxNPCs)
+                return;
+
             if (Main.netMode == NetmodeID.Server)
             {
                 ModPacket packet = Instance.GetPacket();
@@ -828,7 +836,48 @@ namespace SariaMod
                 packet.Write(npcWhoAmI);
                 NetworkProfiler.RecordSend((byte)SoundMessageType.PlayFrozenHitEffect, packet);
                 packet.Send(-1, -1); // Send to all clients
+                return;
             }
+
+            NPC npc = Main.npc[npcWhoAmI];
+            if (!npc.active)
+                return;
+
+            int backGoreType = ModContent.GoreType<IceGore2>();
+            for (int goreIndex = 0; goreIndex < 3; goreIndex++)
+            {
+                Gore gore = Gore.NewGorePerfect(
+                    npc.GetSource_FromThis(),
+                    npc.position,
+                    new Vector2(Main.rand.Next(-6, 7), Main.rand.Next(-6, 7)),
+                    backGoreType,
+                    2f);
+                gore.light = 0.5f;
+            }
+
+            if (TryReserveFrozenShatterSound())
+                SoundEngine.PlaySound(SoundID.Item27, npc.Center);
+        }
+
+        private static bool TryReserveFrozenShatterSound()
+        {
+            ulong currentTick = Main.GameUpdateCount;
+            while (FrozenShatterSoundTicks.Count > 0)
+            {
+                ulong oldestTick = FrozenShatterSoundTicks.Peek();
+                bool isInsideWindow = currentTick >= oldestTick
+                    && currentTick - oldestTick < FrozenShatterSoundWindowTicks;
+                if (isInsideWindow)
+                    break;
+
+                FrozenShatterSoundTicks.Dequeue();
+            }
+
+            if (FrozenShatterSoundTicks.Count >= MaximumFrozenShatterSoundsPerWindow)
+                return false;
+
+            FrozenShatterSoundTicks.Enqueue(currentTick);
+            return true;
         }
         
         /// <summary>
@@ -871,6 +920,7 @@ namespace SariaMod
                         if (id == TileHeatNetworking.PacketId)                  return "TileHeat";
                         if (id == HookshotSyncMessage.PacketId)                 return "HookshotSync";
                         if (id == Netcode.PsychicFieldNetworking.PacketId)      return "PsychicField";
+                        if (id == SariaCursorNetworking.PacketId)              return "SyncSariaCursor";
                         if (id == FireSoundSyncMessage.PacketId)                return "FireSoundSync";
 
                         if (Enum.IsDefined(typeof(SoundMessageType), id))

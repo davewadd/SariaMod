@@ -85,9 +85,6 @@ namespace SariaMod.Gores
         /// </summary>
         public override void PostUpdateEverything()
         {
-            if (Main.dedServ)
-                return;
-
             keysToRemove.Clear();
 
             // OPTIMIZATION: Iterate dictionary values directly

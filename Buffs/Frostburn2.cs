@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using SariaMod.Dusts;
+using SariaMod.Gores;
 using System;
 using Terraria;
 using Terraria.ModLoader;
@@ -35,13 +36,13 @@ namespace SariaMod.Buffs
         public override void Update(Player player, ref int buffIndex)
         {
             player.GetModPlayer<FairyPlayer>().Frostburn2 = true;
-            if (Main.rand.NextBool(2))
+            if (Main.rand.NextBool(2) && VisualDustLimiter.TryReserveHalfCapacitySlot())
             {
                 float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
                 double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
                 Dust.NewDust(new Vector2(player.Center.X + radius * (float)Math.Cos(angle), player.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<FrostburnDust>(), 0f, 0f, 0, default(Color), 1.5f);
             }
-            if (Main.rand.NextBool(20))
+            if (Main.rand.NextBool(20) && VisualDustLimiter.TryReserveHalfCapacitySlot())
             {
                 float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius2 * sphereRadius2));
                 double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
@@ -51,13 +52,14 @@ namespace SariaMod.Buffs
         public override void Update(NPC npc, ref int buffIndex)
         {
             npc.GetGlobalNPC<FairyGlobalNPC>().Frostburn2 = true;
-            if (Main.rand.NextBool(2))
+            FrozenNPCVisualManager.MarkNPCAsChilledLocal(npc.whoAmI);
+            if (Main.rand.NextBool(2) && VisualDustLimiter.TryReserveHalfCapacitySlot())
             {
                 float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
                 double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
                 Dust.NewDust(new Vector2(npc.Center.X + radius * (float)Math.Cos(angle), npc.Center.Y + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<FrostburnDust>(), 0f, 0f, 0, default(Color), 1.5f);
             }
-            if (Main.rand.NextBool(20))
+            if (Main.rand.NextBool(20) && VisualDustLimiter.TryReserveHalfCapacitySlot())
             {
                 float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius2 * sphereRadius2));
                 double angle = Main.rand.NextDouble() * 5.0 * Math.PI;

@@ -61,7 +61,7 @@ namespace SariaMod.Items.Strange
             target.buffImmune[BuffID.Slow] = false;
             target.buffImmune[BuffID.ShadowFlame] = false;
             target.buffImmune[BuffID.Ichor] = false;
-            target.buffImmune[BuffID.OnFire] = false;
+            target.buffImmune[ModContent.BuffType<Burning2>()] = false;
             target.buffImmune[BuffID.Frostburn] = false;
             target.buffImmune[BuffID.Poisoned] = false;
             target.buffImmune[BuffID.Venom] = false;
@@ -89,7 +89,7 @@ namespace SariaMod.Items.Strange
             Projectile mother = Main.projectile[(int)base.Projectile.ai[1]];
             if (Projectile.timeLeft >= 400)
             {
-                if (Main.rand.NextBool(30))
+                if (Main.rand.NextBool(30) && VisualDustLimiter.TryReserveHalfCapacitySlot())
                 {
                     float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
                     double angle = Main.rand.NextDouble() * 2.0 * Math.PI;
@@ -98,7 +98,7 @@ namespace SariaMod.Items.Strange
             }
             if (Projectile.timeLeft < 400)
             {
-                if (Main.rand.NextBool())
+                if (Main.rand.NextBool() && VisualDustLimiter.TryReserveHalfCapacitySlot())
                 {
                     float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
                     double angle = Main.rand.NextDouble() * 2.0 * Math.PI;

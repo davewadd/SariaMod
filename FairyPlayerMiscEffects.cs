@@ -11,6 +11,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.DataStructures;
 using SariaMod.Items.Sapphire;
+using SariaMod.Items.zPearls;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Audio;
 using ReLogic.Content;
@@ -47,6 +48,19 @@ namespace SariaMod
         private const int VIGNETTE_EFFECT_DURATION = 180; // Match projectile duration (3 seconds)
         private const int FADE_IN_FRAMES = 30; // 0.5 seconds fade in
         private const int FADE_OUT_FRAMES = 60; // 1 second fade out
+        private const float SONG_OF_STORMS_WIND_HEIGHT = 1600f;
+        private const float SONG_OF_STORMS_BASE_RADIUS = 88f;
+        private const int SONG_OF_STORMS_RIBBON_SEGMENTS = 80;
+        private static readonly float[] SongOfStormsRibbonTurns = { 4.4f, 5.2f, 5.8f, 4.8f };
+        private static readonly float[] SongOfStormsRibbonSpeeds = { 0.061f, 0.072f, 0.056f, 0.067f };
+        private static readonly float[] SongOfStormsRibbonStarts = { 0f, 3f, 6f, 1.5f };
+        private static readonly Color[] SongOfStormsRibbonColors =
+        {
+            new Color(239, 245, 218),
+            new Color(205, 229, 226),
+            new Color(255, 247, 210),
+            new Color(220, 235, 242)
+        };
 
         public static readonly SoundStyle OutdoorRain = new SoundStyle("SariaMod/Sounds/Rain")
         {
@@ -358,11 +372,527 @@ namespace SariaMod
             // Apply easing for smoother fade
             float easedIntensity = effectIntensity * effectIntensity * (3f - 2f * effectIntensity); // Smoothstep
             
-            // Draw the light columns around the player
+            // Preserve the complete light pillar, rain, and original wind
+            // strokes. The procedural corkscrew is an additional layer.
             DrawLightColumns(effectIntensity, projectileTimeLeft);
+
+            Vector2 playerFeet = new Vector2(
+                Player.Center.X,
+                Player.position.Y + Player.height + Player.gfxOffY);
+            DrawSongOfStormsWhirlwind(
+                projectileTimeLeft,
+                easedIntensity,
+                playerFeet - Main.screenPosition,
+                drawFront: false,
+                drawDataCache: null);
             
             // Draw the vignette effect
             DrawScreenVignetteOnly(easedIntensity);
+        }
+
+        internal static int FindRainOcarinaEffectTimeLeft(Player player)
+        {
+            if (player == null || !player.active || player.dead)
+            {
+                return -1;
+            }
+
+            int rainOcarinaType = ModContent.ProjectileType<RainOcarinaNote>();
+            int greatestTimeLeft = -1;
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile projectile = Main.projectile[i];
+                if (projectile.active
+                    && projectile.owner == player.whoAmI
+                    && projectile.type == rainOcarinaType)
+                {
+                    greatestTimeLeft = Math.Max(greatestTimeLeft, projectile.timeLeft);
+                }
+            }
+
+            return greatestTimeLeft;
+        }
+
+        internal void AddSongOfStormsFrontDrawData(ref PlayerDrawSet drawInfo, int projectileTimeLeft)
+        {
+            float effectIntensity = CalculateOcarinaEffectIntensity(projectileTimeLeft);
+            float easedIntensity = effectIntensity * effectIntensity * (3f - 2f * effectIntensity);
+            Vector2 visualFeet = drawInfo.Position
+                + new Vector2(drawInfo.drawPlayer.width * 0.5f, drawInfo.drawPlayer.height)
+                - Main.screenPosition;
+
+            DrawSongOfStormsWhirlwind(
+                projectileTimeLeft,
+                easedIntensity,
+                visualFeet,
+                drawFront: true,
+                drawInfo.DrawDataCache);
+        }
+
+        private static float CalculateOcarinaEffectIntensity(int projectileTimeLeft)
+        {
+            int timePassed = VIGNETTE_EFFECT_DURATION - projectileTimeLeft;
+            if (timePassed < FADE_IN_FRAMES)
+            {
+                return MathHelper.Clamp(timePassed / (float)FADE_IN_FRAMES, 0f, 1f);
+            }
+
+            if (projectileTimeLeft < FADE_OUT_FRAMES)
+            {
+                return MathHelper.Clamp(projectileTimeLeft / (float)FADE_OUT_FRAMES, 0f, 1f);
+            }
+
+            return 1f;
+        }
+
+        private static float CalculateOcarinaSpreadProgress(int projectileTimeLeft)
+        {
+            int timePassed = VIGNETTE_EFFECT_DURATION - projectileTimeLeft;
+            float spreadProgress;
+            if (timePassed < FADE_IN_FRAMES)
+            {
+                spreadProgress = timePassed / (float)FADE_IN_FRAMES;
+            }
+            else if (projectileTimeLeft < FADE_OUT_FRAMES)
+            {
+                spreadProgress = projectileTimeLeft / (float)FADE_OUT_FRAMES;
+            }
+            else
+            {
+                spreadProgress = 1f;
+            }
+
+            spreadProgress = MathHelper.Clamp(spreadProgress, 0f, 1f);
+            return spreadProgress * spreadProgress * (3f - 2f * spreadProgress);
+        }
+
+        private void DrawSongOfStormsWhirlwind(
+            int projectileTimeLeft,
+            float intensity,
+            Vector2 screenFeet,
+            bool drawFront,
+            List<DrawData> drawDataCache)
+        {
+            if (intensity <= 0.005f)
+            {
+                return;
+            }
+
+            EnsureOcarinaPixelTexture();
+            int timePassed = Math.Clamp(VIGNETTE_EFFECT_DURATION - projectileTimeLeft, 0, VIGNETTE_EFFECT_DURATION);
+            float riseProgress = CalculateOcarinaSpreadProgress(projectileTimeLeft);
+            float currentHeight = SONG_OF_STORMS_WIND_HEIGHT * riseProgress;
+            if (currentHeight < 1f)
+            {
+                return;
+            }
+
+            DrawSongOfStormsBaseSwirls(
+                screenFeet,
+                timePassed,
+                riseProgress,
+                intensity,
+                drawFront,
+                drawDataCache);
+
+            for (int ribbonIndex = 0; ribbonIndex < SongOfStormsRibbonTurns.Length; ribbonIndex++)
+            {
+                Vector2 previous = GetSongOfStormsRibbonPoint(
+                    ribbonIndex,
+                    0f,
+                    screenFeet,
+                    currentHeight,
+                    riseProgress,
+                    timePassed,
+                    out float previousAngle);
+
+                for (int segmentIndex = 1; segmentIndex <= SONG_OF_STORMS_RIBBON_SEGMENTS; segmentIndex++)
+                {
+                    float progress = segmentIndex / (float)SONG_OF_STORMS_RIBBON_SEGMENTS;
+                    float midpoint = (segmentIndex - 0.5f) / SONG_OF_STORMS_RIBBON_SEGMENTS;
+                    Vector2 current = GetSongOfStormsRibbonPoint(
+                        ribbonIndex,
+                        progress,
+                        screenFeet,
+                        currentHeight,
+                        riseProgress,
+                        timePassed,
+                        out float angle);
+
+                    float depth = (float)Math.Sin((previousAngle + angle) * 0.5f);
+                    Vector2 segment = current - previous;
+                    if ((depth >= 0f) == drawFront && segment.LengthSquared() > 0.2f)
+                    {
+                        float baseFade = MathHelper.SmoothStep(
+                            0f,
+                            1f,
+                            MathHelper.Clamp(midpoint / 0.08f, 0f, 1f));
+                        float tipFade = 1f - MathHelper.SmoothStep(
+                            0f,
+                            1f,
+                            MathHelper.Clamp((midpoint - 0.72f) / 0.28f, 0f, 1f));
+                        float flowingHighlight = 0.72f
+                            + ((float)Math.Sin(
+                                midpoint * 18f
+                                - timePassed * 0.22f
+                                + ribbonIndex * 1.37f) * 0.5f + 0.5f) * 0.28f;
+                        float layerOpacity = drawFront ? 0.82f : 0.34f;
+                        float segmentOpacity = intensity
+                            * baseFade
+                            * tipFade
+                            * flowingHighlight
+                            * layerOpacity;
+                        float width = (2.2f
+                            + (float)Math.Sin(midpoint * MathHelper.Pi) * 1.3f
+                            + flowingHighlight * 0.35f)
+                            * riseProgress;
+                        Color ribbonColor = SongOfStormsRibbonColors[ribbonIndex];
+
+                        DrawSongOfStormsSegment(
+                            previous,
+                            current,
+                            width + 2f,
+                            ribbonColor * (segmentOpacity * 0.15f),
+                            drawDataCache);
+                        DrawSongOfStormsSegment(
+                            previous,
+                            current,
+                            width,
+                            ribbonColor * segmentOpacity,
+                            drawDataCache);
+
+                        float highlightWave = (float)Math.Sin(
+                            midpoint * 22f
+                            - timePassed * 0.25f
+                            + ribbonIndex);
+                        if (drawFront && highlightWave > 0.42f)
+                        {
+                            DrawSongOfStormsSegment(
+                                previous,
+                                current,
+                                Math.Max(0.7f, width * 0.42f),
+                                new Color(255, 255, 235) * (segmentOpacity * 0.72f),
+                                drawDataCache);
+                        }
+                    }
+
+                    previous = current;
+                    previousAngle = angle;
+                }
+            }
+        }
+
+        private static Vector2 GetSongOfStormsRibbonPoint(
+            int ribbonIndex,
+            float progress,
+            Vector2 screenFeet,
+            float currentHeight,
+            float growth,
+            float timePassed,
+            out float angle)
+        {
+            float phase = ribbonIndex * MathHelper.TwoPi / SongOfStormsRibbonTurns.Length;
+            angle = phase
+                + timePassed * SongOfStormsRibbonSpeeds[ribbonIndex]
+                + progress * SongOfStormsRibbonTurns[ribbonIndex] * MathHelper.TwoPi;
+            float taper = MathHelper.Lerp(1f, 0.72f, progress);
+            float middleBreath = 0.86f + (float)Math.Sin(progress * MathHelper.Pi) * 0.14f;
+            float radius = SONG_OF_STORMS_BASE_RADIUS * taper * middleBreath * growth;
+            float height = SongOfStormsRibbonStarts[ribbonIndex] * growth + currentHeight * progress;
+            float verticalOrbit = (float)Math.Sin(angle) * 1.7f * growth;
+            return screenFeet + new Vector2(
+                (float)Math.Cos(angle) * radius,
+                -height + verticalOrbit);
+        }
+
+        private void DrawSongOfStormsBaseSwirls(
+            Vector2 screenFeet,
+            float timePassed,
+            float growth,
+            float intensity,
+            bool drawFront,
+            List<DrawData> drawDataCache)
+        {
+            DrawSongOfStormsBulbOrbitArcs(
+                screenFeet,
+                timePassed,
+                growth,
+                intensity,
+                drawFront,
+                drawDataCache);
+            DrawSongOfStormsBulbLiftRibbons(
+                screenFeet,
+                timePassed,
+                growth,
+                intensity,
+                drawFront,
+                drawDataCache);
+        }
+
+        private void DrawSongOfStormsBulbOrbitArcs(
+            Vector2 screenFeet,
+            float timePassed,
+            float growth,
+            float intensity,
+            bool drawFront,
+            List<DrawData> drawDataCache)
+        {
+            for (int arcIndex = 0; arcIndex < 3; arcIndex++)
+            {
+                const int segmentCount = 18;
+                float centerOffsetY = arcIndex switch
+                {
+                    0 => 22f,
+                    1 => 65f,
+                    _ => 103f
+                };
+                float radiusX = (arcIndex switch
+                {
+                    0 => 100f,
+                    1 => 78f,
+                    _ => 44f
+                }) * growth;
+                float radiusY = (arcIndex switch
+                {
+                    0 => 11f,
+                    1 => 15f,
+                    _ => 9f
+                }) * growth;
+                float startAngle = timePassed * (0.052f + arcIndex * 0.009f)
+                    + arcIndex * MathHelper.TwoPi / 3f;
+                float arcSpan = MathHelper.TwoPi * (0.64f - arcIndex * 0.07f);
+                Color arcColor = SongOfStormsRibbonColors[(arcIndex + 2) % SongOfStormsRibbonColors.Length];
+
+                Vector2 previous = GetSongOfStormsBulbArcPoint(
+                    screenFeet,
+                    centerOffsetY * growth,
+                    radiusX,
+                    radiusY,
+                    startAngle);
+                for (int segmentIndex = 1; segmentIndex <= segmentCount; segmentIndex++)
+                {
+                    float progress = segmentIndex / (float)segmentCount;
+                    float previousProgress = (segmentIndex - 1f) / segmentCount;
+                    float angle = startAngle + arcSpan * progress;
+                    float previousAngle = startAngle + arcSpan * previousProgress;
+                    Vector2 current = GetSongOfStormsBulbArcPoint(
+                        screenFeet,
+                        centerOffsetY * growth,
+                        radiusX,
+                        radiusY,
+                        angle);
+                    float depth = (float)Math.Sin((previousAngle + angle) * 0.5f);
+                    if ((depth >= 0f) == drawFront)
+                    {
+                        float envelope = (float)Math.Sin(progress * MathHelper.Pi);
+                        float layerOpacity = drawFront ? 0.78f : 0.3f;
+                        float opacity = intensity * envelope * layerOpacity;
+                        float width = (2.1f + envelope * 1.05f) * growth;
+                        DrawSongOfStormsSegment(
+                            previous,
+                            current,
+                            width + 1.6f,
+                            arcColor * (opacity * 0.14f),
+                            drawDataCache);
+                        DrawSongOfStormsSegment(
+                            previous,
+                            current,
+                            width,
+                            arcColor * opacity,
+                            drawDataCache);
+                    }
+
+                    previous = current;
+                }
+            }
+        }
+
+        private void DrawSongOfStormsBulbLiftRibbons(
+            Vector2 screenFeet,
+            float timePassed,
+            float growth,
+            float intensity,
+            bool drawFront,
+            List<DrawData> drawDataCache)
+        {
+            const int ribbonCount = 3;
+            const int segmentCount = 32;
+            for (int ribbonIndex = 0; ribbonIndex < ribbonCount; ribbonIndex++)
+            {
+                Vector2 previous = GetSongOfStormsBulbLiftPoint(
+                    ribbonIndex,
+                    0f,
+                    screenFeet,
+                    growth,
+                    timePassed,
+                    out float previousAngle);
+
+                for (int segmentIndex = 1; segmentIndex <= segmentCount; segmentIndex++)
+                {
+                    float progress = segmentIndex / (float)segmentCount;
+                    float midpoint = (segmentIndex - 0.5f) / segmentCount;
+                    Vector2 current = GetSongOfStormsBulbLiftPoint(
+                        ribbonIndex,
+                        progress,
+                        screenFeet,
+                        growth,
+                        timePassed,
+                        out float angle);
+                    float depth = (float)Math.Sin((previousAngle + angle) * 0.5f);
+                    if ((depth >= 0f) == drawFront)
+                    {
+                        float bottomFade = MathHelper.SmoothStep(
+                            0f,
+                            1f,
+                            MathHelper.Clamp(midpoint / 0.12f, 0f, 1f));
+                        float topSoftening = MathHelper.Lerp(
+                            1f,
+                            0.68f,
+                            MathHelper.SmoothStep(
+                                0f,
+                                1f,
+                                MathHelper.Clamp((midpoint - 0.82f) / 0.18f, 0f, 1f)));
+                        float upwardFlow = 0.7f
+                            + ((float)Math.Sin(
+                                midpoint * 15f
+                                - timePassed * 0.24f
+                                + ribbonIndex * 1.8f) * 0.5f + 0.5f) * 0.3f;
+                        float layerOpacity = drawFront ? 0.8f : 0.32f;
+                        float opacity = intensity
+                            * bottomFade
+                            * topSoftening
+                            * upwardFlow
+                            * layerOpacity;
+                        float width = (1.8f
+                            + (float)Math.Sin(midpoint * MathHelper.Pi) * 1.15f)
+                            * growth;
+                        Color color = SongOfStormsRibbonColors[(ribbonIndex + 1) % SongOfStormsRibbonColors.Length];
+
+                        DrawSongOfStormsSegment(
+                            previous,
+                            current,
+                            width + 1.8f,
+                            color * (opacity * 0.14f),
+                            drawDataCache);
+                        DrawSongOfStormsSegment(
+                            previous,
+                            current,
+                            width,
+                            color * opacity,
+                            drawDataCache);
+                    }
+
+                    previous = current;
+                    previousAngle = angle;
+                }
+            }
+        }
+
+        private static Vector2 GetSongOfStormsBulbLiftPoint(
+            int ribbonIndex,
+            float progress,
+            Vector2 screenFeet,
+            float growth,
+            float timePassed,
+            out float angle)
+        {
+            const int ribbonCount = 3;
+            float phase = ribbonIndex * MathHelper.TwoPi / ribbonCount;
+            angle = phase
+                + timePassed * (0.058f + ribbonIndex * 0.007f)
+                + progress * (1.45f + ribbonIndex * 0.16f) * MathHelper.TwoPi;
+            float centerOffsetY = MathHelper.Lerp(112f, 4f, progress) * growth;
+            float radius = MathHelper.Lerp(34f, SONG_OF_STORMS_BASE_RADIUS, progress)
+                * (0.92f + (float)Math.Sin(progress * MathHelper.Pi) * 0.08f)
+                * growth;
+            float verticalOrbit = (float)Math.Sin(angle)
+                * MathHelper.Lerp(4f, 10f, progress)
+                * growth;
+            return screenFeet + new Vector2(
+                (float)Math.Cos(angle) * radius,
+                centerOffsetY + verticalOrbit);
+        }
+
+        private static Vector2 GetSongOfStormsBulbArcPoint(
+            Vector2 screenFeet,
+            float centerOffsetY,
+            float radiusX,
+            float radiusY,
+            float angle)
+        {
+            return screenFeet + new Vector2(
+                (float)Math.Cos(angle) * radiusX,
+                centerOffsetY + (float)Math.Sin(angle) * radiusY);
+        }
+
+        private static void DrawSongOfStormsSegment(
+            Vector2 start,
+            Vector2 end,
+            float width,
+            Color color,
+            List<DrawData> drawDataCache)
+        {
+            Vector2 segment = end - start;
+            float length = segment.Length();
+            if (length <= 0.05f || width <= 0.05f || color.A <= 1)
+            {
+                return;
+            }
+
+            // The light pillar extends far beyond the screen. Avoid filling the
+            // player draw cache with ribbon segments that cannot be seen.
+            float screenMargin = width + 8f;
+            float minimumX = Math.Min(start.X, end.X);
+            float maximumX = Math.Max(start.X, end.X);
+            float minimumY = Math.Min(start.Y, end.Y);
+            float maximumY = Math.Max(start.Y, end.Y);
+            if (maximumX < -screenMargin
+                || minimumX > Main.screenWidth + screenMargin
+                || maximumY < -screenMargin
+                || minimumY > Main.screenHeight + screenMargin)
+            {
+                return;
+            }
+
+            Vector2 center = (start + end) * 0.5f;
+            float rotation = segment.ToRotation();
+            Vector2 scale = new Vector2(length + 0.8f, width);
+            Vector2 origin = new Vector2(0.5f, 0.5f);
+            if (drawDataCache == null)
+            {
+                Main.spriteBatch.Draw(
+                    whitePixelTexture,
+                    center,
+                    null,
+                    color,
+                    rotation,
+                    origin,
+                    scale,
+                    SpriteEffects.None,
+                    0f);
+            }
+            else
+            {
+                drawDataCache.Add(new DrawData(
+                    whitePixelTexture,
+                    center,
+                    null,
+                    color,
+                    rotation,
+                    origin,
+                    scale,
+                    SpriteEffects.None,
+                    0));
+            }
+        }
+
+        private static void EnsureOcarinaPixelTexture()
+        {
+            if (whitePixelTexture == null || whitePixelTexture.IsDisposed)
+            {
+                whitePixelTexture = new Texture2D(Main.graphics.GraphicsDevice, 1, 1);
+                whitePixelTexture.SetData(new[] { Color.White });
+            }
         }
 
 
@@ -1457,7 +1987,7 @@ namespace SariaMod
             } // end else (not gameMenu)
             float sneezespot = 5;
             bool Warm = (player.behindBackWall && player.HasBuff(BuffID.Campfire));
-            bool immunityToCold = player.HasBuff(BuffID.Warmth) || player.HasBuff(BuffID.OnFire) || player.arcticDivingGear || player.HasBuff(ModContent.BuffType<WillOWispBuff>());
+            bool immunityToCold = player.HasBuff(BuffID.Warmth) || player.HasBuff(ModContent.BuffType<Burning2>()) || player.arcticDivingGear || player.HasBuff(ModContent.BuffType<WillOWispBuff>());
             bool immunityToHeat = player.HasBuff(BuffID.ObsidianSkin) || player.lavaImmune || player.ZoneWaterCandle || player.HasBuff(ModContent.BuffType<Veil>());
             if (player.whoAmI == Main.myPlayer)
             {
@@ -1589,6 +2119,40 @@ namespace SariaMod
                     }
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// Draws the near half of the Song of Storms corkscrew over the player so
+    /// the wind reads as wrapping around them instead of sitting behind them.
+    /// </summary>
+    public class SongOfStormsFrontLayer : PlayerDrawLayer
+    {
+        public override Position GetDefaultPosition()
+        {
+            return new AfterParent(PlayerDrawLayers.ArmOverItem);
+        }
+
+        public override bool GetDefaultVisibility(PlayerDrawSet drawInfo)
+        {
+            Player player = drawInfo.drawPlayer;
+            return player.whoAmI == Main.myPlayer
+                && player.active
+                && !player.dead
+                && player.ownedProjectileCounts[ModContent.ProjectileType<RainOcarinaNote>()] > 0;
+        }
+
+        protected override void Draw(ref PlayerDrawSet drawInfo)
+        {
+            Player player = drawInfo.drawPlayer;
+            int projectileTimeLeft = FairyPlayerMiscEffects.FindRainOcarinaEffectTimeLeft(player);
+            if (projectileTimeLeft <= 0)
+            {
+                return;
+            }
+
+            FairyPlayerMiscEffects effects = player.GetModPlayer<FairyPlayerMiscEffects>();
+            effects.AddSongOfStormsFrontDrawData(ref drawInfo, projectileTimeLeft);
         }
     }
 }

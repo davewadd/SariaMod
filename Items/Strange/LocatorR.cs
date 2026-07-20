@@ -67,7 +67,7 @@ namespace SariaMod.Items.Strange
             target.buffImmune[BuffID.Slow] = false;
             target.buffImmune[BuffID.ShadowFlame] = false;
             target.buffImmune[BuffID.Ichor] = false;
-            target.buffImmune[BuffID.OnFire] = false;
+            target.buffImmune[ModContent.BuffType<Burning2>()] = false;
             target.buffImmune[BuffID.Frostburn] = false;
             target.buffImmune[BuffID.Poisoned] = false;
             target.buffImmune[BuffID.Venom] = false;
@@ -124,17 +124,21 @@ namespace SariaMod.Items.Strange
             for (int i = 0; i < thesuace; i++)
             {
                 Vector2 speed2 = Main.rand.NextVector2CircularEdge(1f, 1f);
-                Dust d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), speed2 * -5, Scale: 1.5f);
-                d.noGravity = true;
+                if (VisualDustLimiter.TryReserveHalfCapacitySlot())
+                {
+                    Dust d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), speed2 * -5, Scale: 1.5f);
+                    d.noGravity = true;
+                }
             }
             if (HitCount >= 1)
             {
-                if (player.ownedProjectileCounts[ModContent.ProjectileType<LocatorShard>()] < 60f)
+                for (int j = 0; j < 3; j++) //set to 2
                 {
-                    for (int j = 0; j < 3; j++) //set to 2
-                    {
-                        Projectile.NewProjectile(Projectile.GetSource_FromThis(), base.Projectile.Center + Utils.RandomVector2(Main.rand, 0f, 0f), Vector2.One.RotatedByRandom(6.2831854820251465) * 4f, ModContent.ProjectileType<LocatorShard>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
-                    }
+                    global::SariaMod.Gores.LocatorShard.Spawn(
+                        Projectile.GetSource_FromThis(),
+                        base.Projectile.Center + Utils.RandomVector2(Main.rand, 0f, 0f),
+                        Vector2.One.RotatedByRandom(MathHelper.TwoPi) * 4f,
+                        Projectile.owner);
                 }
                 Projectile.Kill();
             }

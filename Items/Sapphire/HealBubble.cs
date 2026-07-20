@@ -57,7 +57,7 @@ namespace SariaMod.Items.Sapphire
             target.buffImmune[BuffID.Slow] = false;
             target.buffImmune[BuffID.ShadowFlame] = false;
             target.buffImmune[BuffID.Ichor] = false;
-            target.buffImmune[BuffID.OnFire] = false;
+            target.buffImmune[ModContent.BuffType<Burning2>()] = false;
             target.buffImmune[BuffID.Frostburn] = false;
             target.buffImmune[BuffID.Poisoned] = false;
             target.buffImmune[BuffID.Venom] = false;
@@ -85,8 +85,8 @@ namespace SariaMod.Items.Sapphire
             {
                 Projectile.rotation += 0.095f;
             }
-            Projectile.netUpdate = true;
-            Vector2 mouse = Main.MouseWorld;
+            SariaCursorNetworking.PublishLocalCursor(Projectile);
+            bool hasCursor = SariaCursorNetworking.TryGetCursor(Projectile.owner, out Vector2 mouse);
             float speed = 40f;
             mouse.X += -20f;
             mouse.Y -= 5f;
@@ -97,13 +97,13 @@ namespace SariaMod.Items.Sapphire
             float minionPositionOffsetX = (10 + Projectile.minionPos * 40) * -player.direction;
             idlePosition.X += minionPositionOffsetX; // Go behind the player
             float between = Vector2.Distance(mouse, Projectile.Center);
-            if (Projectile.timeLeft <= 9900 && Main.myPlayer == Projectile.owner)
+            if (Projectile.timeLeft <= 9900 && hasCursor)
             {
                 Vector2 direction2 = mouse - Projectile.Center;
                 direction2.Normalize();
                 direction2 *= speed;
                 Projectile.velocity = (Projectile.velocity * (19 - 2) + direction2) / 22;
-                if (between <= 20)
+                if (between <= 20 && Main.myPlayer == Projectile.owner)
                 {
                     Projectile.Kill();
                 }

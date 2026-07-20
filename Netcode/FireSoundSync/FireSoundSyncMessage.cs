@@ -47,7 +47,7 @@ namespace SariaMod.Netcode.FireSoundSync
             Projectile proj = null;
             for (int i = 0; i < Main.maxProjectiles; i++)
             {
-                if (Main.projectile[i].active && Main.projectile[i].owner == owner && Main.projectile[i].identity == identity && ((Main.projectile[i].type == ModContent.ProjectileType<Explosion>()) || (Main.projectile[i].type == ModContent.ProjectileType<Explosion2>())))
+                if (Main.projectile[i].active && Main.projectile[i].owner == owner && Main.projectile[i].identity == identity && ((Main.projectile[i].type == ModContent.ProjectileType<Explosion>()) || (Main.projectile[i].type == ModContent.ProjectileType<Explosion2>()) || (Main.projectile[i].type == ModContent.ProjectileType<Explosion3>())))
                 {
                     proj = Main.projectile[i];
                     break;

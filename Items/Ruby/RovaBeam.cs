@@ -20,7 +20,7 @@ namespace SariaMod.Items.Ruby
     /// <summary>
     /// RovaBeam: the fire beam projectile fired from RovaCenter.
     /// Fixed length (one screen width), direction follows cursor slowly.
-    /// Collides with tiles, applies heavy damage/knockback, heats tiles, and tracks burned gores.
+    /// Collides with tiles, applies heavy damage/knockback, and heats tiles.
     /// </summary>
     public class RovaBeam : ModProjectile
     {
@@ -62,7 +62,10 @@ namespace SariaMod.Items.Ruby
         private int BeamActiveTimer;
         private int BeamStartupTimer;
         private int AutoSweepTimer;
+        private int StateSyncTimer;
         private int EndpointProjectileIndex = -1;
+        private int CenterProjectileIndex = -1;
+        private int ZtargetProjectileIndex = -1;
         private const int MaxFirePillars = 5;
         private readonly List<int> FirePillarProjectileIndices = new List<int>();
         private bool PillarSurfaceContactActive;
@@ -221,8 +224,10 @@ namespace SariaMod.Items.Ruby
 
         public override void SetDefaults()
         {
-            Projectile.width = (int)MaxBeamLength; // 2000 — large hitbox so tML calls Colliding() for any NPC on screen
-            Projectile.height = (int)MaxBeamLength;
+            // ModifyDamageHitbox supplies the exact bounds of the current line.
+            // Keep the body small for engine systems that do not use that hook.
+            Projectile.width = 18;
+            Projectile.height = 18;
             Projectile.netImportant = true;
             Projectile.alpha = 0;
             Projectile.friendly = true;
@@ -268,6 +273,22 @@ namespace SariaMod.Items.Ruby
             );
         }
 
+        public override void ModifyDamageHitbox(ref Rectangle hitbox)
+        {
+            Vector2 beamEnd = Projectile.Center
+                + CurrentAngle.ToRotationVector2() * BeamTravelLength;
+            int padding = (int)Math.Ceiling(BeamCollisionWidth) + 2;
+            int left = (int)Math.Floor(Math.Min(Projectile.Center.X, beamEnd.X)) - padding;
+            int top = (int)Math.Floor(Math.Min(Projectile.Center.Y, beamEnd.Y)) - padding;
+            int right = (int)Math.Ceiling(Math.Max(Projectile.Center.X, beamEnd.X)) + padding;
+            int bottom = (int)Math.Ceiling(Math.Max(Projectile.Center.Y, beamEnd.Y)) + padding;
+            hitbox = new Rectangle(
+                left,
+                top,
+                Math.Max(1, right - left),
+                Math.Max(1, bottom - top));
+        }
+
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
         {
             Player player = Main.player[Projectile.owner];
@@ -283,7 +304,6 @@ namespace SariaMod.Items.Ruby
             target.buffImmune[BuffID.Slow] = false;
             target.buffImmune[BuffID.ShadowFlame] = false;
             target.buffImmune[BuffID.Ichor] = false;
-            target.buffImmune[BuffID.OnFire] = false;
             target.buffImmune[BuffID.Frostburn] = false;
             target.buffImmune[BuffID.Poisoned] = false;
             target.buffImmune[BuffID.Venom] = false;
@@ -291,7 +311,6 @@ namespace SariaMod.Items.Ruby
             target.buffImmune[ModContent.BuffType<Burning2>()] = false;
 
             target.AddBuff(ModContent.BuffType<Burning2>(), 300);
-            target.AddBuff(BuffID.OnFire, 300);
             target.GetGlobalNPC<FairyGlobalNPC>().RovaBurnedHit = true;
 
             // XP gain
@@ -308,11 +327,6 @@ namespace SariaMod.Items.Ruby
             if (target.type != NPCID.TargetDummy)
                 target.velocity += beamDir * 12f;
             target.netUpdate = true;
-
-            if (Main.netMode == NetmodeID.Server)
-            {
-                NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, target.whoAmI);
-            }
         }
 
         public override void AI()
@@ -367,10 +381,16 @@ namespace SariaMod.Items.Ruby
                 Projectile.localAI[0] = 1f;
                 AutoSweepMode = Projectile.ai[1] > 0f;
                 
-                // Set damage from Saria's level/XP (every other projectile uses this)
-                Projectile.SariaBaseDamage();
-                if (Projectile.damage <= 0)
-                    Projectile.damage = 1;
+                // Damage is gameplay state. The server owns it in multiplayer;
+                // clients receive the synchronized value with the beam.
+                if (Main.netMode != NetmodeID.MultiplayerClient)
+                {
+                    Projectile.SariaBaseDamage();
+                    if (Projectile.damage <= 0)
+                        Projectile.damage = 1;
+
+                    RovaProjectileLink.SyncState(Projectile);
+                }
 
             }
 
@@ -397,7 +417,8 @@ namespace SariaMod.Items.Ruby
                 {
                     Projectile.ai[1] = 0f;
                     AutoSweepMode = false;
-                    Projectile.netUpdate = true;
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                        RovaProjectileLink.SyncState(Projectile);
                 }
 
                 angleChanged = TurnToward(ztargetAngle, ManualTurnSpeed);
@@ -417,9 +438,17 @@ namespace SariaMod.Items.Ruby
                 angleChanged = TurnToward(targetAngle, ManualTurnSpeed);
             }
 
-            if (angleChanged && (Main.netMode == NetmodeID.Server || Main.myPlayer == Projectile.owner))
+            if (angleChanged && Main.netMode != NetmodeID.MultiplayerClient)
             {
-                Projectile.netUpdate = true;
+                if (Main.netMode == NetmodeID.Server)
+                {
+                    StateSyncTimer++;
+                    if (StateSyncTimer >= 2)
+                    {
+                        StateSyncTimer = 0;
+                        RovaProjectileLink.SyncState(Projectile);
+                    }
+                }
             }
 
             Vector2 direction = CurrentAngle.ToRotationVector2();
@@ -499,37 +528,26 @@ namespace SariaMod.Items.Ruby
 
         private Projectile FindRovaCenter()
         {
-            int parentIndex = (int)Projectile.ai[0];
-            if (parentIndex >= 0 && parentIndex < Main.maxProjectiles)
-            {
-                Projectile parent = Main.projectile[parentIndex];
-                if (parent.active && parent.owner == Projectile.owner && parent.ModProjectile is RovaCenter)
-                {
-                    return parent;
-                }
-            }
-
-            for (int i = 0; i < Main.maxProjectiles; i++)
-            {
-                Projectile projectile = Main.projectile[i];
-                if (projectile.active && projectile.owner == Projectile.owner && projectile.ModProjectile is RovaCenter)
-                {
-                    return projectile;
-                }
-            }
-
-            return null;
+            return RovaProjectileLink.Find<RovaCenter>(
+                Projectile.owner,
+                (int)Projectile.ai[0],
+                ref CenterProjectileIndex);
         }
 
         private void EnsureBeamEndpoint()
         {
-            if (Main.netMode == NetmodeID.MultiplayerClient)
+            if (Main.netMode == NetmodeID.Server
+                || (Main.netMode == NetmodeID.MultiplayerClient && Main.myPlayer != Projectile.owner))
                 return;
 
             if (EndpointProjectileIndex >= 0
                 && EndpointProjectileIndex < Main.maxProjectiles
                 && Main.projectile[EndpointProjectileIndex].active
-                && Main.projectile[EndpointProjectileIndex].ModProjectile is RovaBeamEndpoint)
+                && Main.projectile[EndpointProjectileIndex].ModProjectile is RovaBeamEndpoint
+                && RovaProjectileLink.Matches<RovaBeam>(
+                    Projectile,
+                    Main.projectile[EndpointProjectileIndex].owner,
+                    (int)Main.projectile[EndpointProjectileIndex].ai[0]))
             {
                 return;
             }
@@ -542,15 +560,21 @@ namespace SariaMod.Items.Ruby
                 0,
                 0f,
                 Projectile.owner,
-                Projectile.whoAmI);
+                RovaProjectileLink.GetHandle(Projectile));
 
             if (EndpointProjectileIndex >= 0 && EndpointProjectileIndex < Main.maxProjectiles)
+            {
+                if (Main.netMode == NetmodeID.Server)
+                    Main.projectile[EndpointProjectileIndex].ai[0] = RovaProjectileLink.GetHandle(Projectile);
+
                 Main.projectile[EndpointProjectileIndex].netUpdate = true;
+            }
         }
 
         private void EnsureFirePillar()
         {
-            if (Main.netMode == NetmodeID.MultiplayerClient)
+            if (Main.netMode == NetmodeID.Server
+                || (Main.netMode == NetmodeID.MultiplayerClient && Main.myPlayer != Projectile.owner))
                 return;
 
             for (int i = FirePillarProjectileIndices.Count - 1; i >= 0; i--)
@@ -559,7 +583,11 @@ namespace SariaMod.Items.Ruby
                 if (index < 0
                     || index >= Main.maxProjectiles
                     || !Main.projectile[index].active
-                    || Main.projectile[index].ModProjectile is not RovaFirePillar)
+                    || Main.projectile[index].ModProjectile is not RovaFirePillar
+                    || !RovaProjectileLink.Matches<RovaBeam>(
+                        Projectile,
+                        Main.projectile[index].owner,
+                        (int)Main.projectile[index].ai[0]))
                 {
                     FirePillarProjectileIndices.RemoveAt(i);
                 }
@@ -581,25 +609,26 @@ namespace SariaMod.Items.Ruby
                 || tileY != LastPillarTileY
                 || Vector2.Dot(normal, LastPillarSurfaceNormal) < 0.98f;
 
-            PillarSurfaceContactActive = true;
-            LastPillarTileX = tileX;
-            LastPillarTileY = tileY;
-            LastPillarSurfaceNormal = normal;
-
-            int visiblePillarCount = 0;
+            int activePillarCount = 0;
             foreach (int index in FirePillarProjectileIndices)
             {
                 if (index >= 0
                     && index < Main.maxProjectiles
                     && Main.projectile[index].active
-                    && Main.projectile[index].ModProjectile is RovaFirePillar pillar
-                    && !pillar.IsErupted)
+                    && Main.projectile[index].ModProjectile is RovaFirePillar
+                    && RovaProjectileLink.Matches<RovaBeam>(
+                        Projectile,
+                        Main.projectile[index].owner,
+                        (int)Main.projectile[index].ai[0]))
                 {
-                    visiblePillarCount++;
+                    activePillarCount++;
                 }
             }
 
-            if (!newSurfaceContact || visiblePillarCount >= MaxFirePillars)
+            // Erupted contacts still own their glob spray for up to 62 ticks.
+            // Count them against the same budget so a fast surface sweep cannot
+            // turn the nominal five-pillar limit into dozens of visual projectiles.
+            if (!newSurfaceContact || activePillarCount >= MaxFirePillars)
                 return;
 
             int pillarIndex = Projectile.NewProjectile(
@@ -610,12 +639,23 @@ namespace SariaMod.Items.Ruby
                 0,
                 0f,
                 Projectile.owner,
-                Projectile.whoAmI);
+                RovaProjectileLink.GetHandle(Projectile));
 
             if (pillarIndex >= 0 && pillarIndex < Main.maxProjectiles)
             {
+                if (Main.netMode == NetmodeID.Server)
+                    Main.projectile[pillarIndex].ai[0] = RovaProjectileLink.GetHandle(Projectile);
+
                 FirePillarProjectileIndices.Add(pillarIndex);
                 Main.projectile[pillarIndex].netUpdate = true;
+
+                // Only mark a contact as handled after its pillar exists. If the
+                // visual budget is full, the current contact remains pending and
+                // is created as soon as an older pillar expires.
+                PillarSurfaceContactActive = true;
+                LastPillarTileX = tileX;
+                LastPillarTileY = tileY;
+                LastPillarSurfaceNormal = normal;
             }
         }
 
@@ -644,13 +684,16 @@ namespace SariaMod.Items.Ruby
 
         internal void BeginBeamFadeOut()
         {
+            if (Main.netMode == NetmodeID.MultiplayerClient)
+                return;
+
             if (BeamEnding)
                 return;
 
             BeamEnding = true;
             BeamFadeTimer = 0;
             Projectile.timeLeft = Math.Max(Projectile.timeLeft, BeamFadeOutTicks + 2);
-            Projectile.netUpdate = true;
+            RovaProjectileLink.SyncState(Projectile);
 
             if (!Main.dedServ && BeamLoopSound.IsPlaying)
             {
@@ -669,7 +712,8 @@ namespace SariaMod.Items.Ruby
             {
                 AutoSweepMode = false;
                 Projectile.ai[1] = 0f;
-                Projectile.netUpdate = true;
+                if (Main.netMode != NetmodeID.MultiplayerClient)
+                    RovaProjectileLink.SyncState(Projectile);
                 TurnToward(ztargetAngle, ManualTurnSpeed);
             }
 
@@ -680,7 +724,7 @@ namespace SariaMod.Items.Ruby
                 AutoSweepTimer++;
 
                 if (Main.netMode == NetmodeID.Server && BeamFadeTimer % 3 == 0)
-                    Projectile.netUpdate = true;
+                    RovaProjectileLink.SyncState(Projectile);
             }
 
             Vector2 direction = CurrentAngle.ToRotationVector2();
@@ -727,8 +771,6 @@ namespace SariaMod.Items.Ruby
                         new Color(255, 165, 35).ToVector3() * (1.25f * visualAlpha));
                 }
 
-                if (BeamFadeTimer % 3 == 0)
-                    Projectile.netUpdate = true;
             }
 
             if (BeamFadeTimer >= BeamFadeOutTicks)
@@ -756,6 +798,19 @@ namespace SariaMod.Items.Ruby
 
         private bool TryGetOwnedZtargetAngle(out float targetAngle)
         {
+            if (ZtargetProjectileIndex >= 0 && ZtargetProjectileIndex < Main.maxProjectiles)
+            {
+                Projectile cached = Main.projectile[ZtargetProjectileIndex];
+                if (cached.active
+                    && cached.owner == Projectile.owner
+                    && cached.ModProjectile is Ztarget4)
+                {
+                    targetAngle = (cached.Center - Projectile.Center).ToRotation();
+                    return true;
+                }
+            }
+
+            ZtargetProjectileIndex = -1;
             for (int i = 0; i < Main.maxProjectiles; i++)
             {
                 Projectile projectile = Main.projectile[i];
@@ -763,6 +818,7 @@ namespace SariaMod.Items.Ruby
                     && projectile.owner == Projectile.owner
                     && projectile.ModProjectile is Ztarget4)
                 {
+                    ZtargetProjectileIndex = i;
                     targetAngle = (projectile.Center - Projectile.Center).ToRotation();
                     return true;
                 }
@@ -1107,10 +1163,8 @@ namespace SariaMod.Items.Ruby
                 if (!touchingBeam)
                     continue;
 
-                target.buffImmune[BuffID.OnFire] = false;
                 target.buffImmune[ModContent.BuffType<Burning2>()] = false;
                 target.AddBuff(ModContent.BuffType<Burning2>(), 180);
-                target.AddBuff(BuffID.OnFire, 180);
 
                 int hitDirection = beamDir.X >= 0f ? 1 : -1;
                 int damage = Math.Max(1, target.lifeMax / 5);
@@ -1120,12 +1174,12 @@ namespace SariaMod.Items.Ruby
                     target.velocity += beamDir * 8f;
 
                 target.netUpdate = true;
-                if (Main.netMode != NetmodeID.Server)
+                // Lethal gore is already captured by FairyGlobalNPC.HitEffect.
+                // Preserve the old nonlethal friendly-NPC shed-gore visual without
+                // repeating the death scan.
+                if (Main.netMode != NetmodeID.Server && target.active && target.life > 0)
                     BurnedGoreSystem.TrackGoresNearPosition(target.Center, 100f);
                 FriendlyNPCHitCooldowns[i] = 25;
-
-                if (Main.netMode == NetmodeID.Server)
-                    NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, target.whoAmI);
             }
         }
 
@@ -1289,6 +1343,10 @@ namespace SariaMod.Items.Ruby
 
         private void TrySpawnBeamImpactGlobs(NPC target, Vector2 beamDirection)
         {
+            int availableGlobSlots = MaxCoreSplashGlobs - CoreSplashGlobs.Count;
+            if (availableGlobSlots <= 0)
+                return;
+
             Vector2 direction = beamDirection.SafeNormalize(Vector2.UnitX);
             float distanceAlongBeam = Vector2.Dot(target.Center - Projectile.Center, direction);
             distanceAlongBeam = MathHelper.Clamp(distanceAlongBeam, 0f, BeamTravelLength);
@@ -1300,10 +1358,6 @@ namespace SariaMod.Items.Ruby
                 if (Vector2.DistanceSquared(zone.Position, impactPoint) <= mergeRangeSquared)
                     return;
             }
-
-            int availableGlobSlots = MaxCoreSplashGlobs - CoreSplashGlobs.Count;
-            if (availableGlobSlots <= 0)
-                return;
 
             ImpactGlobZones.Add(new RovaBeamImpactZone
             {
@@ -1437,9 +1491,16 @@ namespace SariaMod.Items.Ruby
 
         public override void Kill(int timeLeft)
         {
+            RovaLavaGlobVisual.ClearAndRecycle(LavaGlobs);
+
             if (EndpointProjectileIndex >= 0
                 && EndpointProjectileIndex < Main.maxProjectiles
-                && Main.projectile[EndpointProjectileIndex].active)
+                && Main.projectile[EndpointProjectileIndex].active
+                && Main.projectile[EndpointProjectileIndex].ModProjectile is RovaBeamEndpoint
+                && RovaProjectileLink.Matches<RovaBeam>(
+                    Projectile,
+                    Main.projectile[EndpointProjectileIndex].owner,
+                    (int)Main.projectile[EndpointProjectileIndex].ai[0]))
             {
                 Main.projectile[EndpointProjectileIndex].Kill();
             }
@@ -1448,7 +1509,12 @@ namespace SariaMod.Items.Ruby
             {
                 if (pillarIndex >= 0
                     && pillarIndex < Main.maxProjectiles
-                    && Main.projectile[pillarIndex].active)
+                    && Main.projectile[pillarIndex].active
+                    && Main.projectile[pillarIndex].ModProjectile is RovaFirePillar
+                    && RovaProjectileLink.Matches<RovaBeam>(
+                        Projectile,
+                        Main.projectile[pillarIndex].owner,
+                        (int)Main.projectile[pillarIndex].ai[0]))
                 {
                     Main.projectile[pillarIndex].netUpdate = true;
                 }

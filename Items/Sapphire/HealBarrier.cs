@@ -16,6 +16,7 @@ using SariaMod.Items.Sapphire;
 using SariaMod.Items.Topaz;
 using System;
 using System.IO;
+using SariaMod.Netcode;
 namespace SariaMod.Items.Sapphire
 {
     public class HealBarrier : ModProjectile
@@ -90,10 +91,23 @@ namespace SariaMod.Items.Sapphire
                 }
             }
             
-            // MAGIC MISSILE PATTERN: Only owner calculates velocity from mouse
-            if (Projectile.owner == Main.myPlayer)
+            // The owner and single-player use the live mouse exactly as before.
+            // Multiplayer peers use the shared cursor stream so the server gets
+            // exact input while observers get its smoothed presentation.
+            SariaCursorNetworking.PublishLocalCursor(Projectile);
+            Vector2 mouse = Vector2.Zero;
+            bool hasCursor = Projectile.owner == Main.myPlayer;
+            if (hasCursor)
             {
-                Vector2 mouse = Main.MouseWorld;
+                mouse = Main.MouseWorld;
+            }
+            else if (Main.netMode != NetmodeID.SinglePlayer)
+            {
+                hasCursor = SariaCursorNetworking.TryGetCursor(Projectile.owner, out mouse);
+            }
+
+            if (hasCursor)
+            {
                 mouse.X += -20f;
                 mouse.Y -= 5f;
                 
@@ -108,10 +122,7 @@ namespace SariaMod.Items.Sapphire
                     Projectile.velocity = (Projectile.velocity * (19 - 2) + direction2) / 22;
                 }
                 
-                // Sync velocity to other clients
-                Projectile.netUpdate = true;
             }
-            // Non-owner clients just use the synced velocity (no mouse calculations)
             
             if (!HasHealed)
             {

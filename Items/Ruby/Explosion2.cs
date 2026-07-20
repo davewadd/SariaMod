@@ -12,25 +12,35 @@ namespace SariaMod.Items.Ruby
 {
     public class Explosion2 : ModProjectile
     {
+        private const int VisualTailTicks = EruptionSmokeVisuals.LifetimeTicks;
+        private const int CoreDiskSpawnInterval = 3;
+        private const int CoreDiskSampleCount = 9;
+        private const float OuterShellAngleJitter = 0.06981317f;
+        private const float OuterShellSpeedVariation = 0.04f;
+        private const float OuterShellSpawnJitter = 3f;
+        private readonly EruptionSmokeVisuals eruptionSmokeVisuals = new EruptionSmokeVisuals(64);
+        private bool attackFinished;
+        private int visualTailTimeLeft;
+        private int smokePatternTick;
+
         public override void SetStaticDefaults()
         {
             base.DisplayName.SetDefault("Saria");
             ProjectileID.Sets.TrailCacheLength[base.Projectile.type] = 6;
             ProjectileID.Sets.TrailingMode[base.Projectile.type] = 0;
+            ProjectileID.Sets.DrawScreenCheckFluff[base.Projectile.type] = 1200;
             Main.projFrames[base.Projectile.type] = 5;
         }
         public override void SetDefaults()
         {
             base.Projectile.width = 600;
             base.Projectile.height = 600;
-            base.Projectile.aiStyle = 21;
             base.Projectile.alpha = 300;
             base.Projectile.friendly = true;
             base.Projectile.tileCollide = false;
             base.Projectile.penetrate = -1;
             base.Projectile.timeLeft = 200;
             base.Projectile.ignoreWater = true;
-            AIType = 274;
             base.Projectile.usesLocalNPCImmunity = true;
             base.Projectile.localNPCHitCooldown = 1000;
         }
@@ -46,8 +56,21 @@ namespace SariaMod.Items.Ruby
         }
         public override void AI()
         {
-            System.Diagnostics.Debug.WriteLine($"[Explosion2 AI] Running - timeLeft: {Projectile.timeLeft}, frame: {Projectile.frame}, owner: {Projectile.owner}, myPlayer: {Main.myPlayer}");
-            
+            eruptionSmokeVisuals.Update();
+            if (attackFinished)
+            {
+                Projectile.friendly = false;
+                Projectile.damage = 0;
+                Projectile.velocity = Vector2.Zero;
+                visualTailTimeLeft--;
+                if (visualTailTimeLeft <= 0)
+                {
+                    Projectile.Kill();
+                }
+
+                return;
+            }
+
             Player player = Main.player[base.Projectile.owner];
             FairyPlayer modPlayer = player.Fairy();
             bool rovaCenterEruption = IsRovaCenterEruption;
@@ -79,44 +102,59 @@ namespace SariaMod.Items.Ruby
                 centerthis.X -= 30;
                 centerthis.Y -= 35;
             }
-            if (Main.rand.NextBool())
+
+            float identityPhase = EruptionSmokeVisuals.CreatePatternPhase(0, Projectile.identity);
+            float patternPhase = EruptionSmokeVisuals.CreatePatternPhase(smokePatternTick, Projectile.identity);
+            if (smokePatternTick % CoreDiskSpawnInterval == 0)
             {
-                for (int d = 0; d < 1; d++)
-                {
-                    float radius = (float)Math.Sqrt(Main.rand.Next(sphereRadius * sphereRadius));
-                    double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
-                    Dust.NewDust(new Vector2(centerthis.X + radius * (float)Math.Cos(angle), (centerthis.Y - 10) + radius * (float)Math.Sin(angle)), 0, 0, ModContent.DustType<SmokeDust5Yellow>(), 0f, 0f, 0, default(Color), 1.5f);
-                }
+                int sampleIndex = smokePatternTick / CoreDiskSpawnInterval;
+                Vector2 diskOffset = EruptionSmokeVisuals.CreateSunflowerOffset(
+                    sampleIndex,
+                    CoreDiskSampleCount,
+                    sphereRadius,
+                    identityPhase);
+                eruptionSmokeVisuals.Spawn(
+                    centerthis + new Vector2(0f, -10f) + diskOffset,
+                    EruptionSmokeVisuals.CreateDustLikeVelocity(),
+                    EruptionSmokeKind.Yellow);
             }
+
             if (Projectile.frame == 1)
             {
-                for (int i = 0; i < 1; i++)
-                {
-                    Vector2 speed = Main.rand.NextVector2CircularEdge(.7f, .7f);
-                    Dust d = Dust.NewDustPerfect(centerthis, ModContent.DustType<SmokeDust5Yellorange>(), speed * -5, Scale: 1f);
-                    d.noGravity = true;
-                }
+                eruptionSmokeVisuals.SpawnEvenRing(
+                    centerthis,
+                    3.5f,
+                    EruptionSmokeKind.YellowOrange,
+                    1,
+                    patternPhase + MathHelper.PiOver2);
             }
-            {
-                for (int i = 0; i < 1; i++)
-                {
-                    Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
-                    Dust d = Dust.NewDustPerfect(centerthis, ModContent.DustType<SmokeDust5Red>(), speed * -7, Scale: 4f);
-                    d.noGravity = true;
-                }
-                for (int i = 0; i < 1; i++)
-                {
-                    Vector2 speed = Main.rand.NextVector2CircularEdge(2f, 2f);
-                    Dust d = Dust.NewDustPerfect(centerthis, ModContent.DustType<SmokeDust5>(), speed * -7, Scale: 1f);
-                    d.noGravity = true;
-                }
-            }
+
+            eruptionSmokeVisuals.SpawnEvenRing(
+                centerthis,
+                7f,
+                EruptionSmokeKind.Red,
+                1,
+                patternPhase + MathHelper.Pi / 6f,
+                OuterShellAngleJitter,
+                OuterShellSpeedVariation,
+                OuterShellSpawnJitter);
+            eruptionSmokeVisuals.SpawnEvenRing(
+                centerthis,
+                14f,
+                EruptionSmokeKind.Smoke,
+                1,
+                patternPhase + MathHelper.PiOver2,
+                OuterShellAngleJitter,
+                OuterShellSpeedVariation,
+                OuterShellSpawnJitter);
+
             for (int i = 0; i < 1; i++)
             {
                 Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
                 Dust d = Dust.NewDustPerfect(centerthis, ModContent.DustType<SmokeDust6>(), speed * 13, Scale: 3.5f);
                 d.noGravity = true;
             }
+            smokePatternTick++;
             Lighting.AddLight(Projectile.Center, Color.OrangeRed.ToVector3() * 0.78f);
             {
                 Projectile.knockBack = 50;
@@ -133,8 +171,12 @@ namespace SariaMod.Items.Ruby
                 }
                 if (base.Projectile.frame >= Main.projFrames[base.Projectile.type])
                 {
-                    base.Projectile.frame = 0;
-                    base.Projectile.Kill();
+                    base.Projectile.frame = Main.projFrames[base.Projectile.type] - 1;
+                    attackFinished = true;
+                    visualTailTimeLeft = VisualTailTicks;
+                    Projectile.friendly = false;
+                    Projectile.damage = 0;
+                    Projectile.velocity = Vector2.Zero;
                 }
             }
             if (Projectile.timeLeft >= 200)
@@ -149,9 +191,20 @@ namespace SariaMod.Items.Ruby
         }
         public override bool PreDraw(ref Color lightColor)
         {
-            FairyProjectile.DrawCenteredAndAfterimage(base.Projectile, lightColor, ProjectileID.Sets.TrailingMode[base.Projectile.type]);
+            if (!attackFinished)
+            {
+                FairyProjectile.DrawCenteredAndAfterimage(base.Projectile, lightColor, ProjectileID.Sets.TrailingMode[base.Projectile.type]);
+            }
+
+            eruptionSmokeVisuals.Draw();
             return false;
         }
+
+        public override void Kill(int timeLeft)
+        {
+            eruptionSmokeVisuals.Clear();
+        }
+
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
         {
             Player player = Main.player[base.Projectile.owner];
@@ -162,7 +215,6 @@ namespace SariaMod.Items.Ruby
             target.buffImmune[BuffID.Slow] = false;
             target.buffImmune[BuffID.ShadowFlame] = false;
             target.buffImmune[BuffID.Ichor] = false;
-            target.buffImmune[BuffID.OnFire] = false;
             target.buffImmune[BuffID.Frostburn] = false;
             target.buffImmune[BuffID.Poisoned] = false;
             target.buffImmune[BuffID.Venom] = false;

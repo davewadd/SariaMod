@@ -349,7 +349,7 @@ namespace SariaMod.Items.Strange
             target.buffImmune[BuffID.Slow] = false;
             target.buffImmune[BuffID.ShadowFlame] = false;
             target.buffImmune[BuffID.Ichor] = false;
-            target.buffImmune[BuffID.OnFire] = false;
+            target.buffImmune[ModContent.BuffType<Burning2>()] = false;
             target.buffImmune[BuffID.Frostburn] = false;
             target.buffImmune[BuffID.Poisoned] = false;
             target.buffImmune[BuffID.Venom] = false;
@@ -367,7 +367,6 @@ namespace SariaMod.Items.Strange
                     target.AddBuff(ModContent.BuffType<Frostburn2>(), 200);
                     break;
                 case 2:
-                    target.buffImmune[ModContent.BuffType<Burning2>()] = false;
                     target.AddBuff(ModContent.BuffType<Burning2>(), 200);
                     break;
                 // Cases 3 and 4 are identical, so they can be combined.

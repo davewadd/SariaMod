@@ -35,6 +35,8 @@ namespace SariaMod.Items.Ruby
         private int AutoTargetNpcIndex = -1;
         private bool DespawnEruptionSpawned;
         private int _idleTimer;
+        private int ZtargetProjectileIndex = -1;
+        private int ActiveBeamProjectileIndex = -1;
 
         private const float BeamRange = 2000f;
         private const float TrackTurnSpeed = 0.04f;
@@ -53,9 +55,34 @@ namespace SariaMod.Items.Ruby
         private const int DesiredBeamIntervalTicks = 10 * 60; // 10 seconds from one beam ending to the next beam firing
         private const int MinimumPostBeamChargeDelayTicks = 360; // 6 seconds before a new charge may begin
         private const int NextChargeDelayTicks = DesiredBeamIntervalTicks - ChargeStartupTicks;
+        private const int OverheatedScreenDurationTicks = 180;
         private bool ChargeFire2Started;
+        private bool ChargeFire1PresentationStarted;
+        private bool ChargeFire2SoundPlayed;
+        private bool OwnerBeamSpawnPending;
+        private bool AwaitingBeamConfirmation;
+        private bool HasActiveBeamThisTick;
+        private int BeamSpawnRequestRetryTimer;
+        private const int BeamSpawnRequestRetryTicks = 15;
         public bool ChargeFire2StartedValue => ChargeFire2Started;
+        internal bool HasActiveBeamValue => HasActiveBeamThisTick;
         internal bool HasRovaSentryPersistenceUpgrade => Projectile.ai[0] >= 0.5f;
+        internal float ScreenHeatIntensity
+        {
+            get
+            {
+                if (!BeamFired)
+                    return 0f;
+
+                if (HasActiveBeamThisTick)
+                    return 1f;
+
+                if (BeamCooldownTimer <= 0 || BeamCooldownTimer >= OverheatedScreenDurationTicks)
+                    return 0f;
+
+                return 1f - BeamCooldownTimer / (float)OverheatedScreenDurationTicks;
+            }
+        }
 
         public override void SetStaticDefaults()
         {
@@ -77,10 +104,12 @@ namespace SariaMod.Items.Ruby
             writer.Write(DespawnEruptionSpawned);
             writer.Write(_idleTimer);
             writer.Write(ChargeFire2Started);
+            writer.Write(AwaitingBeamConfirmation);
         }
 
         public override void ReceiveExtraAI(BinaryReader reader)
         {
+            bool previousBeamFired = BeamFired;
             StateTimer = reader.ReadInt32();
             BeamCooldownTimer = reader.ReadInt32();
             AutoFireTimer = reader.ReadInt32();
@@ -93,6 +122,22 @@ namespace SariaMod.Items.Ruby
             DespawnEruptionSpawned = reader.ReadBoolean();
             _idleTimer = reader.ReadInt32();
             ChargeFire2Started = reader.ReadBoolean();
+            AwaitingBeamConfirmation = reader.ReadBoolean();
+
+            if (Main.netMode == NetmodeID.MultiplayerClient && Main.myPlayer == Projectile.owner)
+            {
+                if (previousBeamFired && !BeamFired)
+                {
+                    ChargeFire1PresentationStarted = false;
+                    ChargeFire2SoundPlayed = false;
+                    OwnerBeamSpawnPending = false;
+                }
+
+                if (BeamFired && AwaitingBeamConfirmation)
+                    OwnerBeamSpawnPending = true;
+                else if (!AwaitingBeamConfirmation)
+                    OwnerBeamSpawnPending = false;
+            }
         }
 
         public override void SetDefaults()
@@ -130,48 +175,40 @@ namespace SariaMod.Items.Ruby
         public override void AI()
         {
             Player player = Main.player[Projectile.owner];
+            bool isGameplayAuthority = Main.netMode != NetmodeID.MultiplayerClient;
             StateTimer++;
             Projectile.rotation += 0.025f;
 
-            // Start each attack with ChargeFire1 and fade the core and centered RovaRing in.
-            if (StateTimer == 1)
+            // Start each local presentation once instead of depending on a
+            // network packet arriving before one exact timer tick.
+            if (!ChargeFire1PresentationStarted && StateTimer >= 1 && Main.myPlayer == Projectile.owner)
             {
-                if (Main.myPlayer == Projectile.owner)
-                {
-                    SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/ChargeFire1"), Projectile.Center);
-                }
-
+                ChargeFire1PresentationStarted = true;
+                SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/ChargeFire1"), Projectile.Center);
                 RestartRovaRing();
-
             }
 
-            if (StateTimer == ChargeFire2StartTicks)
+            if (isGameplayAuthority && !ChargeFire2Started && StateTimer >= ChargeFire2StartTicks)
             {
                 ChargeFire2Started = true;
-                if (Main.myPlayer == Projectile.owner)
-                {
-                    SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/ChargeFire2"), Projectile.Center);
-                }
-                Projectile.netUpdate = true;
+                RovaProjectileLink.SyncState(Projectile);
+            }
+
+            if (ChargeFire2Started && !ChargeFire2SoundPlayed && Main.myPlayer == Projectile.owner)
+            {
+                ChargeFire2SoundPlayed = true;
+                SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/ChargeFire2"), Projectile.Center);
             }
 
             // Kill immediately if owner is dead or Saria minion is gone
-            if (player.dead || !player.active)
+            if (isGameplayAuthority && (player.dead || !player.active))
             {
                 KillAllBeams();
                 Projectile.Kill();
                 return;
             }
-            bool sariaAlive = false;
-            for (int i = 0; i < Main.maxProjectiles; i++)
-            {
-                if (Main.projectile[i].active && Main.projectile[i].owner == Projectile.owner && Main.projectile[i].ModProjectile is Saria)
-                {
-                    sariaAlive = true;
-                    break;
-                }
-            }
-            if (!sariaAlive)
+            if (isGameplayAuthority
+                && player.ownedProjectileCounts[ModContent.ProjectileType<Saria>()] <= 0)
             {
                 KillAllBeams();
                 Projectile.Kill();
@@ -192,21 +229,16 @@ namespace SariaMod.Items.Ruby
             RovaLavaCoreVisual.Update(Projectile);
 
             // Check if player is holding left-click with the HealBall while RovaCenter exists.
-            bool playerCharging = player.channel && player.HeldItem.type == ModContent.ItemType<HealBall>() && !Main.mouseRight;
+            bool rightMouseBlocksCharge = Main.netMode == NetmodeID.SinglePlayer && Main.mouseRight;
+            bool playerCharging = player.channel
+                && player.HeldItem.type == ModContent.ItemType<HealBall>()
+                && !rightMouseBlocksCharge;
 
             // Check if player is right-click targeting (ztarget exists)
             bool hasRightClickTarget = player.HasMinionAttackTargetNPC;
 
             // Look for ztarget4 for manual override
-            int foundZtarget4 = -1;
-            for (int i = 0; i < 1000; i++)
-            {
-                if (Main.projectile[i].active && Main.projectile[i].ModProjectile is Ztarget4 && Main.projectile[i].owner == Projectile.owner)
-                {
-                    foundZtarget4 = i;
-                    break;
-                }
-            }
+            int foundZtarget4 = FindOwnedZtarget4();
 
             if (!InitialAimSet)
             {
@@ -225,33 +257,45 @@ namespace SariaMod.Items.Ruby
                 }
 
                 CurrentAngle = TargetAngle;
-                if (Main.netMode == NetmodeID.Server || Main.myPlayer == Projectile.owner)
+                if (isGameplayAuthority)
                 {
-                    Projectile.netUpdate = true;
+                    RovaProjectileLink.SyncState(Projectile);
                 }
             }
 
             // Check if a beam is currently alive
-            bool hasActiveBeam = false;
-            for (int i = 0; i < 1000; i++)
-            {
-                if (Main.projectile[i].active && Main.projectile[i].ModProjectile is RovaBeam && Main.projectile[i].owner == Projectile.owner)
-                {
-                    hasActiveBeam = true;
-                    break;
-                }
-            }
+            bool hasActiveBeam = FindAttachedBeamVisual() != null;
+            HasActiveBeamThisTick = hasActiveBeam;
 
             if (hasActiveBeam)
                 Projectile.timeLeft = Math.Max(Projectile.timeLeft, 2);
 
-            NPC visibleAutoTarget = FindVisibleAutoTarget();
-            bool hasVisibleAutoTarget = visibleAutoTarget != null;
+            // The owning client creates player-owned projectiles so Terraria can
+            // assign an identity that is safe to synchronize. Keep requesting
+            // the beam until the server actually observes the linked projectile.
+            if (isGameplayAuthority && AwaitingBeamConfirmation)
+            {
+                if (hasActiveBeam)
+                {
+                    AwaitingBeamConfirmation = false;
+                    BeamSpawnRequestRetryTimer = 0;
+                    RovaProjectileLink.SyncState(Projectile);
+                }
+                else if (Main.netMode == NetmodeID.Server)
+                {
+                    BeamSpawnRequestRetryTimer++;
+                    if (BeamSpawnRequestRetryTimer >= BeamSpawnRequestRetryTicks)
+                    {
+                        BeamSpawnRequestRetryTimer = 0;
+                        RovaProjectileLink.SyncState(Projectile);
+                    }
+                }
+            }
 
             // A beam has to finish before its cooldown can advance. This timer is
             // intentionally measured from the end of the last beam, so holding
             // Ztarget4 cannot immediately fire another beam.
-            if (BeamFired && !hasActiveBeam)
+            if (BeamFired && !hasActiveBeam && !AwaitingBeamConfirmation)
             {
                 BeamCooldownTimer++;
             }
@@ -260,11 +304,17 @@ namespace SariaMod.Items.Ruby
             // The resulting 372-tick delay is also later than the six-second
             // minimum requested after a beam ends.
             bool manualAttackRequested = foundZtarget4 >= 0 && playerCharging;
-            bool autoAttackRequested = !manualAttackRequested && hasVisibleAutoTarget;
-            if (BeamFired
+            bool canBeginNextCharge = isGameplayAuthority
+                && BeamFired
                 && !hasActiveBeam
                 && BeamCooldownTimer >= MinimumPostBeamChargeDelayTicks
-                && BeamCooldownTimer >= NextChargeDelayTicks
+                && BeamCooldownTimer >= NextChargeDelayTicks;
+            NPC visibleAutoTarget = canBeginNextCharge && !manualAttackRequested
+                ? FindVisibleAutoTarget()
+                : null;
+            bool hasVisibleAutoTarget = visibleAutoTarget != null;
+            bool autoAttackRequested = !manualAttackRequested && hasVisibleAutoTarget;
+            if (canBeginNextCharge
                 && (manualAttackRequested || autoAttackRequested))
             {
                 BeginChargeSequence();
@@ -276,22 +326,26 @@ namespace SariaMod.Items.Ruby
                     NextBeamAutoRotates = true;
                 }
 
-                Projectile.netUpdate = true;
+                RovaProjectileLink.SyncState(Projectile);
             }
 
             // Auto-fire can only sweep clockwise. Keep its starting angle
             // counterclockwise of the chosen enemy by exactly the angle the
             // beam will rotate while its head travels to that distance.
-            if (NextBeamAutoRotates && !BeamFired && !hasActiveBeam)
+            if (isGameplayAuthority && NextBeamAutoRotates && !BeamFired && !hasActiveBeam)
             {
-                NPC automaticTarget = GetTrackedAutomaticTarget(visibleAutoTarget);
+                NPC automaticTarget = GetTrackedAutomaticTarget();
                 if (automaticTarget != null)
                     UpdateAutomaticSweepAim(automaticTarget);
             }
 
             // STATE: FIRING (State 0)
             // Beam fires one second after ChargeFire2 finishes.
-            if (ChargeFire2Started && StateTimer > ChargeStartupTicks && !BeamFired && !hasActiveBeam)
+            if (isGameplayAuthority
+                && ChargeFire2Started
+                && StateTimer > ChargeStartupTicks
+                && !BeamFired
+                && !hasActiveBeam)
             {
                 // A manual target can disappear while the shared startup is
                 // still playing. Decide the fallback here, before the beam is
@@ -300,20 +354,32 @@ namespace SariaMod.Items.Ruby
                 // straight-ahead behavior in RovaBeam.
                 if (foundZtarget4 < 0 && !NextBeamAutoRotates)
                 {
-                    NPC automaticTarget = GetTrackedAutomaticTarget(visibleAutoTarget);
+                    NPC automaticTarget = GetTrackedAutomaticTarget();
                     if (automaticTarget != null)
                         UpdateAutomaticSweepAim(automaticTarget);
 
                     NextBeamAutoRotates = true;
-                    Projectile.netUpdate = true;
+                    RovaProjectileLink.SyncState(Projectile);
                 }
 
-                FireBeam();
+                if (Main.netMode == NetmodeID.SinglePlayer)
+                    FireBeam();
+
                 BeamFired = true;
+                AwaitingBeamConfirmation = Main.netMode == NetmodeID.Server;
+                BeamSpawnRequestRetryTimer = 0;
+                RovaProjectileLink.SyncState(Projectile);
+            }
+
+            if (OwnerBeamSpawnPending
+                && Main.netMode == NetmodeID.MultiplayerClient
+                && Main.myPlayer == Projectile.owner)
+            {
+                OwnerBeamSpawnPending = !FireBeam();
             }
 
             // STATE: AUTO-ROTATE (while auto-fire beam is active)
-            if (BeamFired && hasActiveBeam && NextBeamAutoRotates)
+            if (isGameplayAuthority && BeamFired && hasActiveBeam && NextBeamAutoRotates)
             {
                 AutoFireTimer++;
 
@@ -364,7 +430,10 @@ namespace SariaMod.Items.Ruby
 
             // RovaCenter remains until the owner clicks it with the HealBall.
             _idleTimer = 0;
-            if (StateTimer % 15 == 0)
+            // Do not preheat the area during the charge-up. The center begins
+            // radiating only when its beam actually fires, then continues
+            // briefly while the stored overheat is being discharged.
+            if (ScreenHeatIntensity > 0f && StateTimer % 15 == 0)
             {
                 if (Main.netMode == NetmodeID.Server)
                 {
@@ -393,25 +462,54 @@ namespace SariaMod.Items.Ruby
 
         }
 
-        private void FireBeam()
+        private bool FireBeam()
         {
             int beamDamage = Math.Max(1, (int)(Projectile.damage));
             Vector2 beamVelocity = CurrentAngle.ToRotationVector2();
 
-            if (Main.netMode == NetmodeID.Server || Main.netMode == NetmodeID.SinglePlayer)
+            if (Main.netMode != NetmodeID.SinglePlayer
+                && (Main.netMode != NetmodeID.MultiplayerClient || Main.myPlayer != Projectile.owner))
             {
-                Projectile.NewProjectile(
-                    Projectile.GetSource_FromThis(),
-                    Projectile.Center,
-                    beamVelocity * 2f,
-                    ModContent.ProjectileType<RovaBeam>(),
-                    beamDamage,
-                    Projectile.knockBack,
-                    Projectile.owner,
-                    Projectile.whoAmI, // ai[0] = RovaCenter whoAmI
-                    NextBeamAutoRotates ? AutoSweepTotalAngle : 0f // ai[1] = remaining auto-sweep radians
-                );
+                return false;
             }
+
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile candidate = Main.projectile[i];
+                if (candidate.active
+                    && candidate.owner == Projectile.owner
+                    && candidate.ModProjectile is RovaBeam
+                    && RovaProjectileLink.Matches<RovaCenter>(
+                        Projectile,
+                        candidate.owner,
+                        (int)candidate.ai[0]))
+                {
+                    if (Main.netMode == NetmodeID.MultiplayerClient)
+                        candidate.netUpdate = true;
+
+                    return true;
+                }
+            }
+
+            int beamIndex = Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(),
+                Projectile.Center,
+                beamVelocity * 2f,
+                ModContent.ProjectileType<RovaBeam>(),
+                beamDamage,
+                Projectile.knockBack,
+                Projectile.owner,
+                RovaProjectileLink.GetHandle(Projectile), // ai[0] = RovaCenter network handle
+                NextBeamAutoRotates ? AutoSweepTotalAngle : 0f // ai[1] = remaining auto-sweep radians
+            );
+
+            if (beamIndex < 0 || beamIndex >= Main.maxProjectiles)
+                return false;
+
+            if (Main.netMode == NetmodeID.MultiplayerClient)
+                Main.projectile[beamIndex].netUpdate = true;
+
+            return true;
         }
 
         private void ApplyPortalAura()
@@ -425,13 +523,14 @@ namespace SariaMod.Items.Ruby
                 if (target == null || !target.active || target.dead)
                     continue;
 
-                if (Vector2.Distance(target.Center, Projectile.Center) > PortalAuraRadius)
+                if (Vector2.DistanceSquared(target.Center, Projectile.Center)
+                    > PortalAuraRadius * PortalAuraRadius)
                     continue;
 
                 if (!TileHeatManager.IsPlayerFireProtected(target))
                 {
-                    target.buffImmune[BuffID.OnFire] = false;
-                    target.AddBuff(BuffID.OnFire, PortalAuraBuffDuration, quiet: false);
+                    target.buffImmune[ModContent.BuffType<Burning2>()] = false;
+                    target.AddBuff(ModContent.BuffType<Burning2>(), PortalAuraBuffDuration, quiet: false);
                 }
             }
 
@@ -441,12 +540,13 @@ namespace SariaMod.Items.Ruby
                 if (target == null || !target.active || target.friendly || target.lifeMax <= 0 || target.dontTakeDamage)
                     continue;
 
-                if (Vector2.Distance(target.Center, Projectile.Center) > PortalAuraRadius)
+                if (Vector2.DistanceSquared(target.Center, Projectile.Center)
+                    > PortalAuraRadius * PortalAuraRadius)
                     continue;
 
-                if (!target.buffImmune[BuffID.OnFire])
+                if (!target.buffImmune[ModContent.BuffType<Burning2>()])
                 {
-                    target.AddBuff(BuffID.OnFire, PortalAuraBuffDuration);
+                    target.AddBuff(ModContent.BuffType<Burning2>(), PortalAuraBuffDuration);
                 }
             }
         }
@@ -454,7 +554,7 @@ namespace SariaMod.Items.Ruby
         private NPC FindVisibleAutoTarget()
         {
             NPC nearestEnemy = null;
-            float nearestDist = BeamRange;
+            float nearestDistanceSquared = BeamRange * BeamRange;
 
             for (int i = 0; i < Main.maxNPCs; i++)
             {
@@ -466,21 +566,21 @@ namespace SariaMod.Items.Ruby
                 if (!isTargetDummy && (npc.friendly || npc.lifeMax <= 0 || npc.dontTakeDamage))
                     continue;
 
-                float distance = Vector2.Distance(Projectile.Center, npc.Center);
-                if (distance >= nearestDist)
+                float distanceSquared = Vector2.DistanceSquared(Projectile.Center, npc.Center);
+                if (distanceSquared >= nearestDistanceSquared)
                     continue;
 
                 if (!Collision.CanHitLine(Projectile.Center, 1, 1, npc.Center, 1, 1))
                     continue;
 
-                nearestDist = distance;
+                nearestDistanceSquared = distanceSquared;
                 nearestEnemy = npc;
             }
 
             return nearestEnemy;
         }
 
-        private NPC GetTrackedAutomaticTarget(NPC fallbackTarget)
+        private NPC GetTrackedAutomaticTarget()
         {
             if (AutoTargetNpcIndex >= 0 && AutoTargetNpcIndex < Main.maxNPCs)
             {
@@ -489,6 +589,7 @@ namespace SariaMod.Items.Ruby
                     return trackedTarget;
             }
 
+            NPC fallbackTarget = FindVisibleAutoTarget();
             if (fallbackTarget != null)
             {
                 AutoTargetNpcIndex = fallbackTarget.whoAmI;
@@ -586,14 +687,35 @@ namespace SariaMod.Items.Ruby
 
         private RovaBeam FindAttachedBeamVisual()
         {
+            if (ActiveBeamProjectileIndex >= 0
+                && ActiveBeamProjectileIndex < Main.maxProjectiles)
+            {
+                Projectile cached = Main.projectile[ActiveBeamProjectileIndex];
+                if (cached.active
+                    && cached.owner == Projectile.owner
+                    && cached.ModProjectile is RovaBeam cachedBeam
+                    && RovaProjectileLink.Matches<RovaCenter>(
+                        Projectile,
+                        cached.owner,
+                        (int)cached.ai[0]))
+                {
+                    return cachedBeam;
+                }
+            }
+
+            ActiveBeamProjectileIndex = -1;
             for (int i = 0; i < Main.maxProjectiles; i++)
             {
                 Projectile projectile = Main.projectile[i];
                 if (projectile.active
                     && projectile.owner == Projectile.owner
                     && projectile.ModProjectile is RovaBeam beam
-                    && (int)projectile.ai[0] == Projectile.whoAmI)
+                    && RovaProjectileLink.Matches<RovaCenter>(
+                        Projectile,
+                        projectile.owner,
+                        (int)projectile.ai[0]))
                 {
+                    ActiveBeamProjectileIndex = i;
                     return beam;
                 }
             }
@@ -601,19 +723,58 @@ namespace SariaMod.Items.Ruby
             return null;
         }
 
+        private int FindOwnedZtarget4()
+        {
+            if (ZtargetProjectileIndex >= 0 && ZtargetProjectileIndex < Main.maxProjectiles)
+            {
+                Projectile cached = Main.projectile[ZtargetProjectileIndex];
+                if (cached.active
+                    && cached.owner == Projectile.owner
+                    && cached.ModProjectile is Ztarget4)
+                {
+                    return ZtargetProjectileIndex;
+                }
+            }
+
+            ZtargetProjectileIndex = -1;
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile projectile = Main.projectile[i];
+                if (projectile.active
+                    && projectile.owner == Projectile.owner
+                    && projectile.ModProjectile is Ztarget4)
+                {
+                    ZtargetProjectileIndex = i;
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
         private void KillAllBeams()
         {
             for (int i = 0; i < 1000; i++)
             {
-                if (Main.projectile[i].active && Main.projectile[i].ModProjectile is RovaBeam && Main.projectile[i].owner == Projectile.owner)
+                Projectile beamProjectile = Main.projectile[i];
+                if (beamProjectile.active
+                    && beamProjectile.ModProjectile is RovaBeam
+                    && beamProjectile.owner == Projectile.owner
+                    && RovaProjectileLink.Matches<RovaCenter>(
+                        Projectile,
+                        beamProjectile.owner,
+                        (int)beamProjectile.ai[0]))
                 {
-                    Main.projectile[i].Kill();
+                    beamProjectile.Kill();
                 }
 
                 if (Main.projectile[i].active
                     && Main.projectile[i].ModProjectile is RovaRing
                     && Main.projectile[i].owner == Projectile.owner
-                    && (int)Main.projectile[i].ai[0] == Projectile.whoAmI)
+                    && RovaProjectileLink.Matches<RovaCenter>(
+                        Projectile,
+                        Main.projectile[i].owner,
+                        (int)Main.projectile[i].ai[0]))
                 {
                     Main.projectile[i].Kill();
                 }
@@ -629,6 +790,11 @@ namespace SariaMod.Items.Ruby
             AutoFireTimer = 0;
             NextBeamAutoRotates = false;
             AutoTargetNpcIndex = -1;
+            ChargeFire1PresentationStarted = false;
+            ChargeFire2SoundPlayed = false;
+            OwnerBeamSpawnPending = false;
+            AwaitingBeamConfirmation = false;
+            BeamSpawnRequestRetryTimer = 0;
         }
 
         private void RestartRovaRing()
@@ -641,7 +807,10 @@ namespace SariaMod.Items.Ruby
                 if (Main.projectile[i].active
                     && Main.projectile[i].ModProjectile is RovaRing
                     && Main.projectile[i].owner == Projectile.owner
-                    && (int)Main.projectile[i].ai[0] == Projectile.whoAmI)
+                    && RovaProjectileLink.Matches<RovaCenter>(
+                        Projectile,
+                        Main.projectile[i].owner,
+                        (int)Main.projectile[i].ai[0]))
                 {
                     Main.projectile[i].Kill();
                 }
@@ -655,7 +824,7 @@ namespace SariaMod.Items.Ruby
                 0,
                 0f,
                 Projectile.owner,
-                Projectile.whoAmI);
+                RovaProjectileLink.GetHandle(Projectile));
         }
 
         public override void Kill(int timeLeft)
@@ -663,26 +832,26 @@ namespace SariaMod.Items.Ruby
             RovaLavaCoreVisual.Remove(Projectile.whoAmI);
             KillAllBeams();
 
-            if (!DespawnEruptionSpawned && Main.netMode != NetmodeID.MultiplayerClient)
+            bool canSpawnEruption = Main.netMode == NetmodeID.SinglePlayer
+                || (Main.netMode == NetmodeID.MultiplayerClient && Main.myPlayer == Projectile.owner);
+            int eruptionType = ModContent.ProjectileType<Explosion2>();
+            if (!DespawnEruptionSpawned
+                && canSpawnEruption
+                && EruptionProjectileLimitGlobal.CanSpawn(Projectile.owner, eruptionType))
             {
                 DespawnEruptionSpawned = true;
-                int eruptionIndex = Projectile.NewProjectile(
+                Projectile.NewProjectile(
                     Projectile.GetSource_FromThis(),
                     Projectile.Center.X,
                     Projectile.Center.Y,
                     0f,
                     0f,
-                    ModContent.ProjectileType<Explosion2>(),
+                    eruptionType,
                     Math.Max(1, Projectile.damage),
                     Projectile.knockBack,
                     Projectile.owner,
                     -1f, // ai[0] = RovaCenter eruption lock sentinel
-                    Projectile.whoAmI);
-
-                if (eruptionIndex >= 0 && eruptionIndex < Main.maxProjectiles)
-                {
-                    Main.projectile[eruptionIndex].netUpdate = true;
-                }
+                    RovaProjectileLink.GetHandle(Projectile));
             }
 
             // Heated tiles fade naturally so other players' heat fields are not cleared.

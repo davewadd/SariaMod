@@ -18,12 +18,15 @@ namespace SariaMod.Items.Ruby
         private const int MaxFlyingGlobs = 36;
         private const int MinimumCeilingEmberDelay = 14;
         private const int MaximumCeilingEmberDelay = 24;
+        private const int ParentResolveGraceTicks = 15;
         private readonly List<EndpointCapGlob> CapGlobs = new List<EndpointCapGlob>();
         private readonly List<EndpointFlyingGlob> FlyingGlobs = new List<EndpointFlyingGlob>();
         private int CapGlobSpawnTimer;
         private int FlyingGlobSpawnTimer;
         private int CeilingEmberSpawnTimer;
         private int CeilingEmberSpawnDelay = 18;
+        private int MissingParentTimer;
+        private int BeamProjectileIndex = -1;
         private bool CapGlobsInitialized;
         private bool PersistentCapColorsInitialized;
         private bool HasPreviousEndpointPosition;
@@ -76,16 +79,24 @@ namespace SariaMod.Items.Ruby
 
         public override void AI()
         {
-            int beamIndex = (int)Projectile.ai[0];
-            if (beamIndex < 0
-                || beamIndex >= Main.maxProjectiles
-                || !Main.projectile[beamIndex].active
-                || Main.projectile[beamIndex].owner != Projectile.owner
-                || Main.projectile[beamIndex].ModProjectile is not RovaBeam beam)
+            int beamHandle = (int)Projectile.ai[0];
+            Projectile beamProjectile = RovaProjectileLink.Find<RovaBeam>(
+                Projectile.owner,
+                beamHandle,
+                ref BeamProjectileIndex);
+            if (beamProjectile == null || beamProjectile.ModProjectile is not RovaBeam beam)
             {
+                if (Main.netMode == NetmodeID.MultiplayerClient && MissingParentTimer++ < ParentResolveGraceTicks)
+                {
+                    Projectile.timeLeft = 2;
+                    return;
+                }
+
                 Projectile.Kill();
                 return;
             }
+
+            MissingParentTimer = 0;
 
             Vector2 endpointPosition = beam.GetBeamEndpointPosition();
             Vector2 endpointMovement = HasPreviousEndpointPosition
@@ -100,7 +111,8 @@ namespace SariaMod.Items.Ruby
             if (Main.netMode != NetmodeID.Server)
                 UpdateCapGlobs(beam, endpointMovement);
 
-            if (Main.netMode != NetmodeID.MultiplayerClient)
+            if (Main.netMode == NetmodeID.SinglePlayer
+                || (Main.netMode == NetmodeID.MultiplayerClient && Main.myPlayer == Projectile.owner))
                 UpdateCeilingEmberDrops(beam);
 
             Lighting.AddLight(
@@ -153,11 +165,12 @@ namespace SariaMod.Items.Ruby
 
         public override bool PreDraw(ref Color lightColor)
         {
-            int beamIndex = (int)Projectile.ai[0];
-            if (beamIndex < 0
-                || beamIndex >= Main.maxProjectiles
-                || !Main.projectile[beamIndex].active
-                || Main.projectile[beamIndex].ModProjectile is not RovaBeam beam)
+            int beamHandle = (int)Projectile.ai[0];
+            Projectile beamProjectile = RovaProjectileLink.Find<RovaBeam>(
+                Projectile.owner,
+                beamHandle,
+                ref BeamProjectileIndex);
+            if (beamProjectile == null || beamProjectile.ModProjectile is not RovaBeam beam)
             {
                 return false;
             }

@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using SariaMod.Netcode;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
@@ -36,7 +37,7 @@ namespace SariaMod.Items.Strange
             Player player = Main.player[Projectile.owner];
             FairyPlayer modPlayer = player.Fairy();
 
-            // ONLY the owner controls movement (Magic Missile pattern)
+            // Only the owner decides when the guide is released.
             if (Projectile.owner == Main.myPlayer)
             {
                 if (!modPlayer.HealBallRightHoldActive || player.HeldItem.type != ModContent.ItemType<HealBall>())
@@ -44,8 +45,11 @@ namespace SariaMod.Items.Strange
                     Projectile.Kill();
                     return;
                 }
+            }
 
-                Vector2 targetPosition = Main.MouseWorld;
+            SariaCursorNetworking.PublishLocalCursor(Projectile);
+            if (SariaCursorNetworking.TryGetCursor(Projectile.owner, out Vector2 targetPosition))
+            {
                 Vector2 direction = targetPosition - Projectile.Center;
                 float distance = direction.Length();
 
@@ -73,9 +77,6 @@ namespace SariaMod.Items.Strange
                     // Very close: stop
                     Projectile.velocity *= 0.3f;
                 }
-
-                // Sync velocity to other clients
-                Projectile.netUpdate = true;
             }
 
             // ALL clients: visuals and common updates

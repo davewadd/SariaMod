@@ -60,12 +60,15 @@ namespace SariaMod.Items.Strange
             Player player = Main.player[Projectile.owner];
             FairyPlayer modPlayer = player.Fairy();
             Projectile.scale = 1.5f;
+            if (VisualDustLimiter.TryReserveHalfCapacitySlot())
             {
                 Dust.NewDust(new Vector2(Projectile.Center.X, Projectile.Center.Y), 0, 0, ModContent.DustType<BurningPsychic2>(), 0f, 0f, 0, default(Color), 1.5f);
             }
+            if (VisualDustLimiter.TryReserveHalfCapacitySlot())
             {
                 Dust.NewDust(new Vector2(Projectile.Center.X, Projectile.Center.Y), 0, 0, ModContent.DustType<BurningPsychic3>(), 0f, 0f, 0, default(Color), 1.5f);
             }
+            if (VisualDustLimiter.TryReserveHalfCapacitySlot())
             {
                 Dust.NewDust(new Vector2(Projectile.Center.X, Projectile.Center.Y), 0, 0, ModContent.DustType<BurningPsychic>(), 0f, 0f, 0, default(Color), 1.5f);
             }
@@ -79,8 +82,11 @@ namespace SariaMod.Items.Strange
                 for (int i = 0; i < 50; i++)
                 {
                     Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
-                    Dust d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), speed * -10, Scale: 1.5f);
-                    d.noGravity = true;
+                    if (VisualDustLimiter.TryReserveHalfCapacitySlot())
+                    {
+                        Dust d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), speed * -10, Scale: 1.5f);
+                        d.noGravity = true;
+                    }
                 }
                 if (Main.myPlayer == Projectile.owner) Projectile.NewProjectile(Projectile.GetSource_FromThis(), base.Projectile.Center, base.Projectile.DirectionTo(Main.MouseWorld).RotatedByRandom(0.0866f) * 12, ModContent.ProjectileType<LocatorRapid>(), (int)(Projectile.damage), 0f, Projectile.owner, player.whoAmI, base.Projectile.whoAmI);
                 count++;

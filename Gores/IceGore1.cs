@@ -41,7 +41,7 @@ namespace SariaMod.Gores
                     gore.active = false;
                 }
             }
-            if (Main.rand.NextBool(30))
+            if (Main.rand.NextBool(30) && VisualDustLimiter.TryReserveHalfCapacitySlot())
             {
                 float radius = (float)Math.Sqrt(Main.rand.Next(10 * 10));
                 double angle = Main.rand.NextDouble() * 5.0 * Math.PI;

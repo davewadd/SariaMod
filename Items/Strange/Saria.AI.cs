@@ -2470,6 +2470,7 @@ namespace SariaMod.Items.Strange
                     // --- End Forced Sneeze ---
                 }
             }
+            UpdatePsychicMovementWaves();
             // Tick teleport phase every AI tick so it advances even when Saria is off-screen.
             if (Main.netMode != NetmodeID.Server)
                 TickTeleportPhase();

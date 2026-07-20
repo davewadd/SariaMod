@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using SariaMod.Buffs;
 using SariaMod.Dusts;
 using SariaMod.Items.Ruby;
+using SariaMod.Netcode;
 using System.IO;
 using Terraria;
 using Terraria.Audio;
@@ -23,7 +24,7 @@ namespace SariaMod.Items.Strange
         private int SoundTimer2;
         private int HitMax;
         private bool ChargeFire1Played;
-        private int NetSyncTimer;
+        private bool RovaPersistenceUpgrade;
         public override void SendExtraAI(BinaryWriter writer)
         {
             writer.Write(ChannelTimer);
@@ -31,14 +32,29 @@ namespace SariaMod.Items.Strange
             writer.Write(SoundTimer2);
             writer.Write(HitMax);
             writer.Write(ChargeFire1Played);
+            writer.Write(RovaPersistenceUpgrade);
         }
         public override void ReceiveExtraAI(BinaryReader reader)
         {
-            ChannelTimer = (int)reader.ReadInt32();
-            SoundTimer = (int)reader.ReadInt32();
-            SoundTimer2 = (int)reader.ReadInt32();
-            HitMax = (int)reader.ReadInt32();
-            ChargeFire1Played = (bool)reader.ReadBoolean();
+            int syncedChannelTimer = reader.ReadInt32();
+            int syncedSoundTimer = reader.ReadInt32();
+            int syncedSoundTimer2 = reader.ReadInt32();
+            int syncedHitMax = reader.ReadInt32();
+            bool syncedChargeFire1Played = reader.ReadBoolean();
+            bool syncedPersistenceUpgrade = reader.ReadBoolean();
+
+            // The server derives charge timing from its own Saria copy. Do not
+            // let an owner projectile update replace that authoritative timer.
+            if (Main.netMode != NetmodeID.Server)
+            {
+                ChannelTimer = syncedChannelTimer;
+                SoundTimer = syncedSoundTimer;
+                SoundTimer2 = syncedSoundTimer2;
+                HitMax = syncedHitMax;
+                ChargeFire1Played = syncedChargeFire1Played;
+            }
+
+            RovaPersistenceUpgrade = syncedPersistenceUpgrade;
         }
         private const int sphereRadius = 100;
         public override void SetDefaults()
@@ -70,19 +86,23 @@ namespace SariaMod.Items.Strange
         public override void AI()
         {
             Player player = Main.player[base.Projectile.owner];
-            Projectile mother = Main.projectile[(int)base.Projectile.ai[1]];
             base.Projectile.rotation += (float)0.07;
 
             if (Main.myPlayer == Projectile.owner)
             {
-                Projectile.Center = Main.MouseWorld;
-                Projectile.velocity = Vector2.Zero;
-                NetSyncTimer++;
-                if (NetSyncTimer >= 4)
+                bool hasPersistenceUpgrade = player.Fairy().HasRovaSentryPersistenceUpgrade;
+                if (RovaPersistenceUpgrade != hasPersistenceUpgrade)
                 {
-                    NetSyncTimer = 0;
+                    RovaPersistenceUpgrade = hasPersistenceUpgrade;
                     Projectile.netUpdate = true;
                 }
+            }
+
+            SariaCursorNetworking.PublishLocalCursor(Projectile);
+            if (SariaCursorNetworking.TryGetCursor(Projectile.owner, out Vector2 cursorPosition))
+            {
+                Projectile.Center = cursorPosition;
+                Projectile.velocity = Vector2.Zero;
             }
 
             // Check if a RovaCenter already exists for this player
@@ -138,45 +158,52 @@ namespace SariaMod.Items.Strange
             else
             {
                 // ChargeFire1 starts the RovaCenter presentation and its visual charge-up.
-                if (ChannelTimer >= 60 && !ChargeFire1Played)
+                if (ChannelTimer >= 60)
                 {
-                    ChargeFire1Played = true;
-
-                    // Spawn RovaCenter at ztarget4 position. It owns the two-sound
-                    // sequence so the delay is measured from the actual sound start.
-                    if (Main.myPlayer == Projectile.owner)
+                    if (!ChargeFire1Played)
                     {
-                        // Check no RovaCenter already exists before spawning
-                        bool alreadyExists = false;
-                        for (int i = 0; i < 1000; i++)
-                        {
-                            if (Main.projectile[i].active && Main.projectile[i].ModProjectile is RovaCenter && Main.projectile[i].owner == Projectile.owner)
-                            {
-                                alreadyExists = true;
-                                break;
-                            }
-                        }
-
-                        if (!alreadyExists)
-                        {
-                            FairyPlayer ownerState = player.Fairy();
-                            float persistenceUpgrade = ownerState != null && ownerState.HasRovaSentryPersistenceUpgrade ? 1f : 0f;
-                            Projectile.NewProjectile(
-                            Projectile.GetSource_FromThis(),
-                            Projectile.Center.X,
-                            Projectile.Center.Y,
-                            0f, 0f,
-                            ModContent.ProjectileType<RovaCenter>(),
-                            Projectile.damage,
-                                0f, Projectile.owner,
-                                persistenceUpgrade,
-                                base.Projectile.whoAmI
-                            );
-                        }
+                        ChargeFire1Played = true;
                     }
+
+                    // Player-owned projectiles must be created by their owner so
+                    // Terraria assigns an identity that is stable on every peer.
+                    if (Main.netMode == NetmodeID.SinglePlayer || Main.myPlayer == Projectile.owner)
+                        EnsureRovaCenter(player);
                 }
             }
         }
+
+        private void EnsureRovaCenter(Player player)
+        {
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                if (Main.projectile[i].active
+                    && Main.projectile[i].owner == Projectile.owner
+                    && Main.projectile[i].ModProjectile is RovaCenter)
+                {
+                    return;
+                }
+            }
+
+            FairyPlayer ownerState = player.Fairy();
+            float persistenceUpgrade = ownerState != null && ownerState.HasRovaSentryPersistenceUpgrade ? 1f : 0f;
+
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(),
+                Projectile.Center.X,
+                Projectile.Center.Y,
+                0f,
+                0f,
+                ModContent.ProjectileType<RovaCenter>(),
+                Projectile.damage,
+                0f,
+                Projectile.owner,
+                persistenceUpgrade,
+                RovaProjectileLink.GetHandle(Projectile));
+
+            // NewProjectile performs the normal owner-client synchronization.
+        }
+
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
         {
             Player player = Main.player[base.Projectile.owner];
@@ -186,7 +213,7 @@ namespace SariaMod.Items.Strange
             target.buffImmune[BuffID.Slow] = false;
             target.buffImmune[BuffID.ShadowFlame] = false;
             target.buffImmune[BuffID.Ichor] = false;
-            target.buffImmune[BuffID.OnFire] = false;
+            target.buffImmune[ModContent.BuffType<Burning2>()] = false;
             target.buffImmune[BuffID.Frostburn] = false;
             target.buffImmune[BuffID.Poisoned] = false;
             target.buffImmune[BuffID.Venom] = false;

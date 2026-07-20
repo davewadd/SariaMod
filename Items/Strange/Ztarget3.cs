@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using SariaMod.Buffs;
 using SariaMod.Dusts;
 using SariaMod.Items.Sapphire;
 using System;
@@ -255,7 +256,7 @@ namespace SariaMod.Items.Strange
             target.buffImmune[BuffID.Slow] = false;
             target.buffImmune[BuffID.ShadowFlame] = false;
             target.buffImmune[BuffID.Ichor] = false;
-            target.buffImmune[BuffID.OnFire] = false;
+            target.buffImmune[ModContent.BuffType<Burning2>()] = false;
             target.buffImmune[BuffID.Frostburn] = false;
             target.buffImmune[BuffID.Poisoned] = false;
             target.buffImmune[BuffID.Venom] = false;

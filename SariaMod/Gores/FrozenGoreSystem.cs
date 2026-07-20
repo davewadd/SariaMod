@@ -44,6 +44,26 @@ namespace SariaMod.Gores
         private const int MaxSoundsPerFrame = 3;
         private static int soundsPlayedThisFrame = 0;
 
+        private static readonly Vector3 FrozenLightColor = new Vector3(0.6f, 0.85f, 1f);
+
+        internal static Color GetFrozenGoreDrawColor(Vector2 worldPosition)
+        {
+            Color lightColor = Lighting.GetColor(
+                (int)(worldPosition.X / 16f),
+                (int)(worldPosition.Y / 16f));
+            return FrozenNPCVisualManager.ApplyFrozenPalette(lightColor);
+        }
+
+        internal static Color GetFrozenGoreGlowColor(float progress)
+        {
+            return TileGlowManager.GetGlowColor(MathHelper.Clamp(progress, 0f, 1f), 0f) * 0.8f;
+        }
+
+        internal static void AddFrozenGoreLight(Vector2 worldPosition, float intensity)
+        {
+            Lighting.AddLight(worldPosition, FrozenLightColor * Math.Max(0f, intensity));
+        }
+
         public override void Load()
         {
             On.Terraria.Main.DrawGore += Hook_Main_DrawGore;
@@ -180,6 +200,11 @@ namespace SariaMod.Gores
 
             for (int i = 0; i < particleCount; i++)
             {
+                if (!VisualDustLimiter.TryReserveHalfCapacitySlot())
+                {
+                    break;
+                }
+
                 double angle = (i / (double)particleCount) * 2.0 * Math.PI;
                 double randomAngle = angle + Main.rand.NextFloat(-0.2f, 0.2f);
                 float randomRadius = radius * Main.rand.NextFloat(0.85f, 1.15f);
@@ -341,19 +366,13 @@ namespace SariaMod.Gores
                         ? baseIntensity * gore.scale
                         : baseIntensity;
 
-                    float lightR = 0.6f * lightIntensity;
-                    float lightG = 0.85f * lightIntensity;
-                    float lightB = 1.0f * lightIntensity;
-                    
                     Vector2 goreCenter = gore.position + new Vector2(frameWidth / 2f, frameHeight / 2f);
-                    Lighting.AddLight(goreCenter, lightR, lightG, lightB);
-                    
-                    Color lightColor = Lighting.GetColor((int)(gore.position.X / 16f), (int)(gore.position.Y / 16f));
-                    Color finalColor = FrozenNPCVisualManager.ApplyFrozenPalette(lightColor);
+                    AddFrozenGoreLight(goreCenter, lightIntensity);
+                    Color finalColor = GetFrozenGoreDrawColor(gore.position);
                     
                     spriteBatch.Draw(texture, drawPos, sourceRect, finalColor, gore.rotation, origin, gore.scale, SpriteEffects.None, 0f);
                     
-                    if (Main.rand.NextBool(20))
+                    if (Main.rand.NextBool(20) && VisualDustLimiter.TryReserveHalfCapacitySlot())
                     {
                         Vector2 dustPos = gore.position + new Vector2(Main.rand.NextFloat(frameWidth), Main.rand.NextFloat(frameHeight));
                         Vector2 dustVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, 0.5f));
@@ -361,14 +380,14 @@ namespace SariaMod.Gores
                         fog.noGravity = true;
                     }
                     
-                    if (Main.rand.NextBool(350))
+                    if (Main.rand.NextBool(350) && VisualDustLimiter.TryReserveHalfCapacitySlot())
                     {
                         Vector2 dustPos = gore.position + new Vector2(Main.rand.NextFloat(frameWidth), Main.rand.NextFloat(frameHeight));
                         Dust d = Dust.NewDustPerfect(dustPos, ModContent.DustType<SnowRingFog>(), Vector2.Zero, 0, default, 1f);
                         d.noGravity = true;
                     }
                     
-                    if (Main.rand.NextBool(60))
+                    if (Main.rand.NextBool(60) && VisualDustLimiter.TryReserveHalfCapacitySlot())
                     {
                         Vector2 dustPos = gore.position + new Vector2(Main.rand.NextFloat(frameWidth), Main.rand.NextFloat(frameHeight));
                         Dust d = Dust.NewDustPerfect(dustPos, ModContent.DustType<Snow2>(), Vector2.Zero, 0, default, Main.rand.NextFloat(0.5f, 1f));
@@ -393,7 +412,7 @@ namespace SariaMod.Gores
                 float progress = (currentTick - data.StartTick) / (float)data.Duration;
                 if (progress >= 1f) continue;
 
-                Color glowColor = TileGlowManager.GetGlowColor(progress, 0f);
+                Color glowColor = GetFrozenGoreGlowColor(progress);
                 
                 Texture2D texture = null;
                 if (gore.type >= 0 && gore.type < TextureAssets.Gore.Length)
@@ -411,7 +430,7 @@ namespace SariaMod.Gores
                     Vector2 origin = new Vector2(frameWidth / 2f, frameHeight / 2f);
                     Vector2 drawPos = gore.position + origin - Main.screenPosition;
 
-                    spriteBatch.Draw(texture, drawPos, sourceRect, glowColor * 0.8f, gore.rotation, origin, gore.scale, SpriteEffects.None, 0f);
+                    spriteBatch.Draw(texture, drawPos, sourceRect, glowColor, gore.rotation, origin, gore.scale, SpriteEffects.None, 0f);
                 }
             }
 

@@ -13,6 +13,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Terraria.Audio;
+using Terraria.DataStructures;
+using Terraria.ModLoader.IO;
 using SariaMod.Items.zDinner;
 using SariaMod.Items;
 using SariaMod.Gores;
@@ -22,10 +24,88 @@ namespace SariaMod
     {
         public float spawnedPlayerMinionDamageValue = 1f;
         public int spawnedPlayerMinionProjectileDamageValue;
+        public int TestingStaffDamageOverride = -1;
         public bool overridesMinionDamagePrevention;
         public bool SariaisThinking;
         public int UITextCounter;
         public override bool InstancePerEntity => true;
+        public override void OnSpawn(Projectile projectile, IEntitySource source)
+        {
+            TestingStaffDamageOverride = -1;
+
+            if (source is EntitySource_ItemUse itemUseSource
+                && itemUseSource.Item.ModItem is TestingStaff)
+            {
+                TestingStaffDamageOverride = projectile.damage;
+            }
+            else if (source is EntitySource_Parent parentSource
+                && parentSource.Entity is Projectile parentProjectile
+                && SupportsTestingStaffDamage(projectile.type))
+            {
+                int parentDamageOverride = parentProjectile.Fairy().TestingStaffDamageOverride;
+                if (parentDamageOverride >= 0)
+                {
+                    TestingStaffDamageOverride = InheritsFullTestingStaffDamage(
+                        parentProjectile.type,
+                        projectile.type)
+                            ? parentDamageOverride
+                            : projectile.damage;
+                }
+            }
+
+            if (TestingStaffDamageOverride >= 0)
+                projectile.damage = TestingStaffDamageOverride;
+        }
+
+        public override void PostAI(Projectile projectile)
+        {
+            if (TestingStaffDamageOverride >= 0)
+                projectile.damage = TestingStaffDamageOverride;
+        }
+
+        public override void SendExtraAI(
+            Projectile projectile,
+            BitWriter bitWriter,
+            BinaryWriter binaryWriter)
+        {
+            bool hasTestingStaffDamage = TestingStaffDamageOverride >= 0;
+            bitWriter.WriteBit(hasTestingStaffDamage);
+            if (hasTestingStaffDamage)
+                binaryWriter.Write(TestingStaffDamageOverride);
+        }
+
+        public override void ReceiveExtraAI(
+            Projectile projectile,
+            BitReader bitReader,
+            BinaryReader binaryReader)
+        {
+            TestingStaffDamageOverride = bitReader.ReadBit()
+                ? binaryReader.ReadInt32()
+                : -1;
+        }
+
+        private static bool SupportsTestingStaffDamage(int projectileType)
+        {
+            return projectileType == ModContent.ProjectileType<ColdWaveCenter>()
+                || projectileType == ModContent.ProjectileType<ColdWaveHitBox>()
+                || projectileType == ModContent.ProjectileType<Flame>()
+                || projectileType == ModContent.ProjectileType<Locator>()
+                || projectileType == ModContent.ProjectileType<LocatorSmall>()
+                || projectileType == ModContent.ProjectileType<LocatorPellet>()
+                || projectileType == ModContent.ProjectileType<Explosion>()
+                || projectileType == ModContent.ProjectileType<Explosion2>()
+                || projectileType == ModContent.ProjectileType<Explosion3>();
+        }
+
+        private static bool InheritsFullTestingStaffDamage(int parentType, int projectileType)
+        {
+            return (parentType == ModContent.ProjectileType<ColdWaveCenter>()
+                        && projectileType == ModContent.ProjectileType<ColdWaveHitBox>())
+                || (parentType == ModContent.ProjectileType<Explosion>()
+                        && (projectileType == ModContent.ProjectileType<Flame>()
+                            || projectileType == ModContent.ProjectileType<Explosion3>()));
+        }
+
         public override void AI(Projectile projectile)
         {
             Player player = Main.player[projectile.owner];
@@ -177,7 +257,7 @@ namespace SariaMod
 
         public override void OnHitNPC(Projectile projectile, NPC target, int damage, float knockback, bool crit)
         {
-            PsychicFieldSystem.SpawnPelletsForProjectileHit(projectile, target, damage);
+            PsychicFieldSystem.SpawnPelletsForProjectileHit(projectile, target);
 
             // Every damaging projectile implemented by the Ruby fire form can
             // authorize burned death gores. The marker only survives this

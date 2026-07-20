@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using SariaMod.Buffs;
 using SariaMod.Dusts;
 using System;
 using System.IO;
@@ -94,19 +95,19 @@ namespace SariaMod.Items.Strange
                     }
                 }
             }
-            if (ChannelTimer > firstStageTicks)
+            if (ChannelTimer > firstStageTicks && VisualDustLimiter.TryReserveHalfCapacitySlot())
             {
                 {
                     Dust.NewDust(new Vector2(Projectile.Center.X, Projectile.Center.Y), 0, 0, ModContent.DustType<BurningPsychic>(), 0f, 0f, 0, default(Color), 1.5f);
                 }
             }
-            if (ChannelTimer > secondStageTicks)
+            if (ChannelTimer > secondStageTicks && VisualDustLimiter.TryReserveHalfCapacitySlot())
             {
                 {
                     Dust.NewDust(new Vector2(Projectile.Center.X, Projectile.Center.Y), 0, 0, ModContent.DustType<BurningPsychic3>(), 0f, 0f, 0, default(Color), 1.5f);
                 }
             }
-            if (ChannelTimer >= requiredChargeTicks)
+            if (ChannelTimer >= requiredChargeTicks && VisualDustLimiter.TryReserveHalfCapacitySlot())
             {
                 {
                     Dust.NewDust(new Vector2(Projectile.Center.X, Projectile.Center.Y), 0, 0, ModContent.DustType<BurningPsychic2Long>(), 0f, 0f, 0, default(Color), 1.5f);
@@ -114,7 +115,7 @@ namespace SariaMod.Items.Strange
             }
             if (ChannelTimer > firstStageTicks)
             {
-                if (Main.rand.NextBool(8))
+                if (Main.rand.NextBool(8) && VisualDustLimiter.TryReserveHalfCapacitySlot())
                 {
                     float radius = (float)Math.Sqrt(Main.rand.Next(54 * 54));
                     double angle = Main.rand.NextDouble() * 5.0 * Math.PI;
@@ -128,8 +129,11 @@ namespace SariaMod.Items.Strange
                 for (int i = 0; i < 50; i++)
                 {
                     Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
-                    Dust d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), speed * -5, Scale: 2.5f);
-                    d.noGravity = true;
+                    if (VisualDustLimiter.TryReserveHalfCapacitySlot())
+                    {
+                        Dust d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), speed * -5, Scale: 2.5f);
+                        d.noGravity = true;
+                    }
                     SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Absorb1"), Projectile.Center);
                 }
                 SoundTimer = 0;
@@ -139,8 +143,11 @@ namespace SariaMod.Items.Strange
                 for (int i = 0; i < 50; i++)
                 {
                     Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
-                    Dust d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), speed * -7, Scale: 3.0f);
-                    d.noGravity = true;
+                    if (VisualDustLimiter.TryReserveHalfCapacitySlot())
+                    {
+                        Dust d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), speed * -7, Scale: 3.0f);
+                        d.noGravity = true;
+                    }
                     SoundEngine.PlaySound(new SoundStyle("SariaMod/Sounds/Absorb2"), Projectile.Center);
                 }
                 SoundTimer = 0;
@@ -150,8 +157,11 @@ namespace SariaMod.Items.Strange
                 for (int i = 0; i < 50; i++)
                 {
                     Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
-                    Dust d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), speed * -10, Scale: 3.5f);
-                    d.noGravity = true;
+                    if (VisualDustLimiter.TryReserveHalfCapacitySlot())
+                    {
+                        Dust d = Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<AbsorbPsychic>(), speed * -10, Scale: 3.5f);
+                        d.noGravity = true;
+                    }
                 }
                 if (TimesRepeat <= 13)
                 {
@@ -194,7 +204,7 @@ namespace SariaMod.Items.Strange
             target.buffImmune[BuffID.Slow] = false;
             target.buffImmune[BuffID.ShadowFlame] = false;
             target.buffImmune[BuffID.Ichor] = false;
-            target.buffImmune[BuffID.OnFire] = false;
+            target.buffImmune[ModContent.BuffType<Burning2>()] = false;
             target.buffImmune[BuffID.Frostburn] = false;
             target.buffImmune[BuffID.Poisoned] = false;
             target.buffImmune[BuffID.Venom] = false;

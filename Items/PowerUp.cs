@@ -48,12 +48,11 @@ namespace SariaMod.Items
             target.buffImmune[BuffID.Slow] = false;
             target.buffImmune[BuffID.ShadowFlame] = false;
             target.buffImmune[BuffID.Ichor] = false;
-            target.buffImmune[BuffID.OnFire] = false;
+            target.buffImmune[ModContent.BuffType<Burning2>()] = false;
             target.buffImmune[BuffID.Frostburn] = false;
             target.buffImmune[BuffID.Poisoned] = false;
             target.buffImmune[BuffID.Venom] = false;
             target.buffImmune[BuffID.Electrified] = false;
-            target.buffImmune[ModContent.BuffType<Burning2>()] = false;
             target.AddBuff(ModContent.BuffType<Burning2>(), 200);
         }
         public override void AI()
